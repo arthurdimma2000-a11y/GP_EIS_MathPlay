@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Level C - Quiz 4</title>
+<style>
+  :root{
+    --bg1:#fff1f2; --bg2:#dbeafe; --bg3:#eafff4;
+    --card:#ffffffee; --ink:#0f2238;
+    --a:#22c55e; --b:#4f46e5; --c:#ff4fa3; --bad:#ef4444;
+    --shadow:0 18px 40px rgba(0,0,0,.12);
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(1100px 650px at 12% 10%, var(--bg1), transparent 60%),
+      radial-gradient(1000px 700px at 90% 30%, var(--bg2), transparent 55%),
+      linear-gradient(135deg, var(--bg3), #fff7d6);
+    display:flex; justify-content:center; padding:18px;
+  }
+  .app{width:min(1160px,98vw)}
+  .top{
+    display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .badge{
+    padding:10px 14px; border-radius:999px; color:#fff; font-weight:1000;
+    background:linear-gradient(135deg,var(--c),#ffd60a);
+    box-shadow:var(--shadow); display:flex; align-items:center; gap:10px;
+  }
+  .badge small{opacity:.9;font-weight:900}
+  .panel{
+    background:var(--card); border-radius:18px; box-shadow:var(--shadow);
+    padding:10px 12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  }
+  .btn{
+    border:0; cursor:pointer; font-weight:1000;
+    padding:10px 12px; border-radius:14px; color:#fff;
+    background:linear-gradient(135deg,var(--b),var(--a));
+    box-shadow:0 12px 24px rgba(0,0,0,.12);
+    text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    user-select:none;
+  }
+  .btn.secondary{background:linear-gradient(135deg,#64748b,#334155)}
+  .btn.warn{background:linear-gradient(135deg,#fb7185,#f97316)}
+  .btn:active{transform:scale(.99)}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--card); border-radius:22px; box-shadow:var(--shadow);
+    padding:14px; position:relative; overflow:hidden;
+  }
+  .card:before{
+    content:""; position:absolute; inset:-2px; pointer-events:none;
+    background: radial-gradient(700px 240px at 10% 0%, rgba(79,70,229,.18), transparent 55%),
+                radial-gradient(700px 240px at 90% 10%, rgba(34,197,94,.18), transparent 55%);
+  }
+  .card>*{position:relative}
+  h2{margin:0 0 8px; font-size:22px}
+  .big{font-weight:900; font-size:16px}
+  .mini{font-size:13px; opacity:.86; font-weight:900}
+
+  .meter{height:14px;border-radius:999px;background:#e2e8f0;overflow:hidden;box-shadow: inset 0 2px 6px rgba(0,0,0,.10)}
+  .meter>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--a),var(--b),var(--c));transition:width .25s ease}
+
+  .tableWrap{
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:20px;
+    background:linear-gradient(135deg,#fff,#f8fafc);
+    padding:12px;
+    overflow:auto;
+  }
+  table{width:100%; border-collapse:separate; border-spacing:10px}
+  th{
+    text-align:left; font-weight:1000; font-size:14px;
+    padding:10px 12px; border-radius:16px;
+    background:#0b1220; color:#fff;
+    white-space:nowrap;
+  }
+  td{
+    padding:10px 12px; border-radius:16px;
+    background:#fff; border:2px solid rgba(0,0,0,.08);
+    min-width:170px;
+    vertical-align:top;
+  }
+  .cellRow{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .chip{
+    padding:8px 10px; border-radius:14px;
+    background:#0b1220; color:#fff; font-weight:1000;
+  }
+  .inp{
+    width:86px; padding:10px 12px; border-radius:14px;
+    border:2px solid rgba(0,0,0,.12);
+    font-weight:1000; font-size:16px;
+    outline:none;
+  }
+  .ok{border-color:rgba(34,197,94,.85)!important; box-shadow:0 0 0 4px rgba(34,197,94,.12)}
+  .no{border-color:rgba(239,68,68,.85)!important; box-shadow:0 0 0 4px rgba(239,68,68,.10)}
+  .shapeIcon{
+    width:86px; height:86px; border-radius:18px;
+    background: radial-gradient(circle at 30% 20%, #fff, #f1f5f9 65%);
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.06);
+    display:grid; place-items:center;
+  }
+
+  .hunt{
+    width:100%; aspect-ratio: 16/10;
+    border-radius:22px;
+    background:
+      radial-gradient(circle at 20% 10%, #fff, #f1f5f9 70%),
+      repeating-linear-gradient(0deg, rgba(15,35,59,.05), rgba(15,35,59,.05) 1px, transparent 1px, transparent 16px),
+      repeating-linear-gradient(90deg, rgba(15,35,59,.05), rgba(15,35,59,.05) 1px, transparent 1px, transparent 16px);
+    border:1px solid rgba(0,0,0,.06);
+    position:relative; overflow:hidden;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.05);
+  }
+  .hint{
+    position:absolute; left:12px; top:12px;
+    background:#0b1220; color:#fff; padding:8px 10px; border-radius:14px;
+    font-weight:1000; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  }
+  .huntBtn{
+    position:absolute; border:0; background:transparent; padding:0; cursor:pointer;
+    transform:translate(-50%,-50%);
+  }
+  .huntBtn:active{transform:translate(-50%,-50%) scale(.98)}
+
+  .qaBox{
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:20px;
+    background:linear-gradient(135deg,#fff,#f8fafc);
+    padding:12px;
+  }
+  .opts{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px}
+  .opt{
+    border:2px solid rgba(0,0,0,.08);
+    background:#fff;
+    border-radius:18px;
+    padding:10px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    box-shadow:0 10px 18px rgba(0,0,0,.06);
+    font-weight:1000;
+    user-select:none;
+  }
+  .opt.good{border-color:rgba(34,197,94,.85); box-shadow:0 10px 18px rgba(34,197,94,.16)}
+  .opt.bad{border-color:rgba(239,68,68,.85); box-shadow:0 10px 18px rgba(239,68,68,.14)}
+  .toast{
+    position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+    background:#0b1220; color:#fff; padding:10px 14px; border-radius:14px;
+    box-shadow:0 18px 40px rgba(0,0,0,.22);
+    display:none; z-index:9999; font-weight:1000; max-width:min(680px,92vw);
+  }
+  .toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge">🏁
+      <div>
+        <div style="line-height:1">Level C</div>
+        <small>Quiz 4 • Week 4 Review + Hexagon Hunt + Add Sides</small>
+      </div>
+    </div>
+    <div class="panel">
+      <b id="scoreText">0/10</b>
+      <div class="meter" style="width:180px"><i id="bar"></i></div>
+      <button class="btn secondary" id="soundBtn" type="button">🔊 Sound: ON</button>
+      <a class="btn secondary" href="LevelC_Game4.html">⬅ Back</a>
+      <a class="btn" id="nextBtn" href="../../../../ProgressReport.html" aria-disabled="true" style="opacity:.6;pointer-events:none">Final Quiz ➜</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>📋 Task 1: Complete the table</h2>
+      <p class="big">Fill in <b>sides</b> and <b>vertices</b> for each shape. Then press “Check Table”.</p>
+
+      <div class="tableWrap" style="margin-top:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>Shape</th>
+              <th>Quadrangle</th>
+              <th>Pentagon</th>
+              <th>Hexagon</th>
+              <th>Octagon</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="cellRow"><span class="chip">Number of sides</span></div></td>
+              <td><input class="inp" id="s4" inputmode="numeric" placeholder="?" /></td>
+              <td><input class="inp" id="s5" inputmode="numeric" placeholder="?" /></td>
+              <td><input class="inp" id="s6" inputmode="numeric" placeholder="?" /></td>
+              <td><input class="inp" id="s8" inputmode="numeric" placeholder="?" /></td>
+            </tr>
+            <tr>
+              <td><div class="cellRow"><span class="chip">Number of vertices</span></div></td>
+              <td><input class="inp" id="v4" inputmode="numeric" placeholder="?" /></td>
+              <td><input class="inp" id="v5" inputmode="numeric" placeholder="?" /></td>
+              <td><input class="inp" id="v6" inputmode="numeric" placeholder="?" /></td>
+              <td><input class="inp" id="v8" inputmode="numeric" placeholder="?" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cellRow" style="margin-top:12px">
+        <button class="btn" id="checkTableBtn" type="button">✅ Check Table</button>
+        <button class="btn warn" id="resetTableBtn" type="button">🔁 Reset Table</button>
+      </div>
+
+      <hr style="border:0;border-top:2px dashed rgba(0,0,0,.12);margin:14px 0">
+
+      <h2>➕ Task 2: Add the sides!</h2>
+      <p class="big">Choose the correct total number of sides.</p>
+      <div class="qaBox">
+        <div class="cellRow" style="justify-content:space-between">
+          <div style="font-size:18px;font-weight:1000" id="addPrompt">Triangle (3) + Square (4) = ?</div>
+          <span class="chip" id="addTag">ADD</span>
+        </div>
+        <div class="opts" id="addOpts"></div>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2>🔍 Task 3: “Find the HEXAGONS!”</h2>
+      <p class="big">Tap only the <b>hexagons</b> in the board.</p>
+
+      <div class="hunt" id="hunt">
+        <div class="hint">
+          <span>Target:</span><b>HEXAGON</b>
+          <span class="chip">Tap hexagons only</span>
+        </div>
+      </div>
+
+      <div class="cellRow" style="margin-top:12px">
+        <button class="btn secondary" id="shuffleBtn" type="button">🔀 Shuffle</button>
+        <button class="btn" id="finishBtn" type="button">🏁 Finish</button>
+      </div>
+
+      <p class="mini" style="margin-top:10px">Complete all tasks to unlock <b>Final Quiz</b>.</p>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" id="toast">Nice!</div>
+
+<script>
+/* =========================
+   Tracker payload: level:"C"
+========================= */
+const TRACK = { app:"GPEIS_MathPlay", level:"C", page:"LevelC_Quiz4.html", skills:["week4_table","hexagon_find","shape_math_add_sides"] };
+const STORE_KEY="GPEIS_PROGRESS_V1";
+const loadP=()=>{ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}")}catch(e){return{}} };
+const saveP=(p)=>localStorage.setItem(STORE_KEY, JSON.stringify(p));
+function record(evt){
+  const p=loadP();
+  p.events=Array.isArray(p.events)?p.events:[];
+  p.events.push({t:Date.now(),...TRACK,...evt});
+  p.last={t:Date.now(),...TRACK,...evt};
+  saveP(p);
+}
+
+/* Sound */
+let SOUND_ON=true;
+const FX=(()=>{
+  let ctx=null;
+  const ensure=()=>{ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==="suspended") ctx.resume().catch(()=>{}); };
+  const tone=(f,d=0.12,type="sine",g=0.08,w=0)=>{
+    if(!SOUND_ON) return; ensure();
+    const t0=ctx.currentTime+w, o=ctx.createOscillator(), gn=ctx.createGain();
+    o.type=type; o.frequency.setValueAtTime(f,t0);
+    gn.gain.setValueAtTime(0.0001,t0);
+    gn.gain.exponentialRampToValueAtTime(g,t0+0.01);
+    gn.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+    o.connect(gn); gn.connect(ctx.destination);
+    o.start(t0); o.stop(t0+d+0.02);
+  };
+  return{
+    good(){ tone(880,.09,"sine",.08,0); tone(1175,.11,"sine",.08,.06); tone(1568,.12,"sine",.08,.12); },
+    bad(){ tone(220,.14,"triangle",.08,0); tone(180,.16,"triangle",.08,.06); },
+    cheer(power=1){
+      const base=[523,659,784,988,1175];
+      base.forEach((f,i)=>tone(f,.10,"square",.03+power*0.03,i*.06));
+      for(let i=0;i<12*power;i++) tone(1200+Math.random()*900,.05,"sine",.02+power*0.01,.28+i*.02);
+    }
+  };
+})();
+
+/* UI toast */
+const toastEl=document.getElementById("toast");
+let toastT=null;
+function toast(msg, ok=true){
+  toastEl.textContent=msg;
+  toastEl.style.background=ok?"#0b1220":"#3b0b0b";
+  toastEl.classList.add("show");
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>toastEl.classList.remove("show"), 900);
+}
+
+/* Score system:
+   - Table complete = up to 6 points (each correct cell)
+   - Add-sides = 2 points (2 correct rounds)
+   - Hexagon hunt = 2 points (tap 2 hexagons correctly)
+   Total = 10
+*/
+let score=0;
+const total=10;
+const scoreText=document.getElementById("scoreText");
+const bar=document.getElementById("bar");
+const nextBtn=document.getElementById("nextBtn");
+let completionSent=false;
+
+function updateScore(){
+  scoreText.textContent = `${score}/${total}`;
+  bar.style.width = `${Math.round((score/total)*100)}%`;
+  const unlocked = score>=total;
+  nextBtn.style.opacity = unlocked ? "1" : ".6";
+  nextBtn.style.pointerEvents = unlocked ? "auto" : "none";
+  nextBtn.setAttribute("aria-disabled", unlocked ? "false" : "true");
+  if(unlocked && !completionSent){
+    completionSent = true;
+    FX.cheer(2);
+    toast("🏆 Quiz 4 Complete! Final Quiz unlocked!", true);
+    record({type:"complete", score, total});
+    const stars = score >= 9 ? 3 : score >= 7 ? 2 : score >= 5 ? 1 : 0;
+    finishActivity({
+      pageId: "LevelC_Quiz4",
+      level: "C",
+      activityType: "quiz",
+      score: Math.round((score/total)*100),
+      stars,
+      skills: { reading: 2, writing: 1, speaking: 0, listening: 1 }
+    }).catch(()=>{});
+  }
+}
+
+/* ===== Task 1: Table check ===== */
+const answers = {
+  s4:4, s5:5, s6:6, s8:8,
+  v4:4, v5:5, v6:6, v8:8
+};
+const tableIds = Object.keys(answers);
+const tableState = {}; // mark points already awarded
+
+function resetTableUI(){
+  tableIds.forEach(id=>{
+    const el=document.getElementById(id);
+    el.value="";
+    el.classList.remove("ok","no");
+    tableState[id]=false;
+  });
+}
+
+function checkTable(){
+  let gained=0;
+  tableIds.forEach(id=>{
+    const el=document.getElementById(id);
+    const val = Number(String(el.value||"").trim());
+    const ok = val === answers[id];
+    el.classList.remove("ok","no");
+    if(!el.value){ el.classList.add("no"); return; }
+    el.classList.add(ok ? "ok" : "no");
+    if(ok && !tableState[id]){
+      tableState[id]=true;
+      gained++;
+    }
+  });
+  if(gained>0){
+    score = Math.min(total, score + gained);
+    FX.good();
+    if(gained>=4) FX.cheer(1.4);
+    toast(`✅ Great! +${gained} point(s)!`, true);
+    record({type:"table_check", gained});
+  }else{
+    FX.bad();
+    toast("Try again 😊", false);
+    record({type:"table_check", gained:0});
+  }
+  updateScore();
+}
+
+document.getElementById("checkTableBtn").addEventListener("click", checkTable);
+document.getElementById("resetTableBtn").addEventListener("click", ()=>{
+  resetTableUI();
+  FX.good();
+  toast("Table reset ✅", true);
+  record({type:"table_reset"});
+});
+
+/* ===== Task 2: Add sides ===== */
+const addPrompt=document.getElementById("addPrompt");
+const addOpts=document.getElementById("addOpts");
+let addRoundsDone = 0;
+const addMax = 2; // 2 points possible
+const addPool = [
+  {a:3, b:4, labelA:"Triangle", labelB:"Square"},
+  {a:5, b:6, labelA:"Pentagon", labelB:"Hexagon"},
+  {a:4, b:8, labelA:"Quadrangle", labelB:"Octagon"},
+  {a:6, b:8, labelA:"Hexagon", labelB:"Octagon"},
+];
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+function makeChoices(answer){
+  const pool=new Set([answer]);
+  while(pool.size<4){
+    pool.add(answer + (Math.floor(Math.random()*7)-3)); // +-3
+  }
+  return shuffle([...pool].map(x=>Math.max(0,x)));
+}
+
+let currentAdd = null;
+
+function nextAdd(){
+  currentAdd = addPool[Math.floor(Math.random()*addPool.length)];
+  const ans = currentAdd.a + currentAdd.b;
+  addPrompt.textContent = `${currentAdd.labelA} (${currentAdd.a}) + ${currentAdd.labelB} (${currentAdd.b}) = ?`;
+  addOpts.innerHTML="";
+  makeChoices(ans).forEach(v=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="opt";
+    b.innerHTML = `<span>${v}</span><span style="opacity:.7">tap</span>`;
+    b.addEventListener("click", ()=>{
+      addOpts.querySelectorAll("button").forEach(x=>x.disabled=true);
+      if(v===ans){
+        b.classList.add("good");
+        FX.good();
+        toast("✅ Correct total! ⭐", true);
+        if(addRoundsDone < addMax){
+          addRoundsDone++;
+          score = Math.min(total, score+1);
+          record({type:"add_correct", a:currentAdd.a, b:currentAdd.b, v});
+          updateScore();
+        }
+      }else{
+        b.classList.add("bad");
+        FX.bad();
+        toast("❌ Not quite. Try next!", false);
+        record({type:"add_wrong", a:currentAdd.a, b:currentAdd.b, v, ans});
+      }
+      setTimeout(()=>{ if(score<total) nextAdd(); }, 650);
+    });
+    addOpts.appendChild(b);
+  });
+  record({type:"add_question", a:currentAdd.a, b:currentAdd.b});
+}
+
+/* ===== Task 3: Hexagon hunt ===== */
+const hunt=document.getElementById("hunt");
+let hexFound=0;
+const hexNeed=2; // 2 points available
+function pts(cx,cy,r,sides,rot=-Math.PI/2){
+  const a=[]; for(let i=0;i<sides;i++){ const t=rot+i*2*Math.PI/sides; a.push([cx+r*Math.cos(t), cy+r*Math.sin(t)]); }
+  return a.map(p=>p.join(",")).join(" ");
+}
+function miniSvg(n,c1,c2,id){
+  return `<svg viewBox="0 0 120 120" width="92" height="92">
+    <defs><linearGradient id="g${id}" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+      <filter id="sh${id}" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="rgba(0,0,0,.25)"/>
+      </filter>
+    </defs>
+    <polygon points="${pts(60,62,40,n)}" fill="url(#g${id})" filter="url(#sh${id})" stroke="rgba(0,0,0,.16)" stroke-width="3"/>
+  </svg>`;
+}
+function buildHunt(){
+  hunt.querySelectorAll(".huntBtn").forEach(b=>b.remove());
+  const placements = [
+    {x:18,y:30},{x:40,y:48},{x:65,y:28},{x:82,y:55},{x:28,y:78},
+    {x:55,y:80},{x:78,y:78},{x:90,y:30},
+  ].sort(()=>Math.random()-0.5);
+
+  // 2 hexagons + others
+  const list = shuffle([
+    {label:"HEXAGON", n:6, isTarget:true},
+    {label:"HEXAGON", n:6, isTarget:true},
+    {label:"PENTAGON", n:5, isTarget:false},
+    {label:"OCTAGON", n:8, isTarget:false},
+    {label:"TRIANGLE", n:3, isTarget:false},
+    {label:"SQUARE", n:4, isTarget:false},
+    {label:"QUADRANGLE", n:4, isTarget:false},
+    {label:"PENTAGON", n:5, isTarget:false},
+  ]);
+
+  list.forEach((it,i)=>{
+    const p=placements[i%placements.length];
+    const colors=[
+      ["#f97316","#60a5fa"],["#34d399","#a78bfa"],["#ff4fa3","#ffd60a"],["#4f46e5","#22c55e"]
+    ][i%4];
+
+    const b=document.createElement("button");
+    b.className="huntBtn";
+    b.type="button";
+    b.style.left=p.x+"%";
+    b.style.top=p.y+"%";
+    b.dataset.target = it.isTarget ? "1" : "0";
+    b.innerHTML = miniSvg(it.n, colors[0], colors[1], "hx"+i);
+
+    b.addEventListener("click", ()=>{
+      if(b.disabled) return;
+      b.disabled=true;
+      const ok = b.dataset.target==="1";
+      if(ok){
+        FX.good();
+        toast("✅ Hexagon found!", true);
+        record({type:"hunt_correct", label:it.label});
+        if(hexFound < hexNeed){
+          hexFound++;
+          score = Math.min(total, score+1);
+          if(hexFound===hexNeed) FX.cheer(1.4);
+          updateScore();
+        }
+      }else{
+        FX.bad();
+        toast("❌ Not a hexagon.", false);
+        record({type:"hunt_wrong", label:it.label});
+      }
+    });
+
+    hunt.appendChild(b);
+  });
+
+  record({type:"hunt_shuffle"});
+}
+
+document.getElementById("shuffleBtn").addEventListener("click", ()=>{
+  FX.good();
+  toast("Shuffled! Find hexagons again! ⭐", true);
+  buildHunt();
+});
+
+document.getElementById("finishBtn").addEventListener("click", ()=>{
+  FX.cheer(1.3);
+  toast("Great work! Finish all tasks to unlock Final Quiz.", true);
+  record({type:"finish_pressed"});
+});
+
+document.getElementById("soundBtn").addEventListener("click",(e)=>{
+  SOUND_ON=!SOUND_ON;
+  e.currentTarget.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+  toast(SOUND_ON?"Sound ON ✅":"Sound OFF ✅", true);
+  record({type:"sound", on:SOUND_ON});
+});
+
+/* init */
+resetTableUI();
+updateScore();
+buildHunt();
+nextAdd();
+record({type:"open"});
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+
+
+

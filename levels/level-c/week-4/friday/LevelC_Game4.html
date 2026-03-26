@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C - Game 4 (Tangram Animals Match)</title>
+<style>
+  :root{--ink:#14324a; font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 20% 20%, #ffffffcc, transparent 60%),
+      radial-gradient(900px 500px at 80% 30%, #ffffffcc, transparent 60%),
+      linear-gradient(135deg,#fff3b0,#c7ffd8);
+    display:flex; justify-content:center; padding:18px;
+  }
+  .app{width:min(1100px,96vw);}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; border-radius:18px;
+    background:linear-gradient(180deg,#ffffffdd,#ffffffaa);
+    box-shadow:0 14px 35px rgba(0,0,0,.12);
+    backdrop-filter: blur(10px);
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:999px;
+    background:linear-gradient(135deg,#ff4d6d,#00bbf9);
+    color:#fff; font-weight:1000;
+    box-shadow:0 10px 22px rgba(255,77,109,.18);
+  }
+  .btn{
+    border:0; cursor:pointer; font-weight:1000;
+    padding:10px 14px; border-radius:14px;
+    background:#fff; color:var(--ink);
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:transform .08s ease;
+    text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .btn:active{transform:translateY(1px) scale(.99)}
+  .btn.primary{background:linear-gradient(135deg,#00f5a0,#ffd166); color:#063b2a}
+  .btn.warn{background:linear-gradient(135deg,#ff4d6d,#ffd166); color:#4a1020}
+  .grid{display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:14px}
+  @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
+  .card{
+    background:linear-gradient(180deg,#ffffffdd,#ffffffb8);
+    border:2px solid #ffffff;
+    border-radius:22px;
+    box-shadow:0 18px 45px rgba(0,0,0,.12);
+    padding:14px;
+  }
+  h1{margin:0; font-size:18px}
+  h2{margin:0 0 10px; font-size:20px}
+  .stage{
+    background:linear-gradient(180deg,#f6fbff,#ffffff);
+    border:2px dashed rgba(20,50,74,.25);
+    border-radius:18px;
+    padding:12px;
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 10px; border-radius:999px; font-weight:1000;
+    background:#0b1b2a; color:#fff; font-size:12px;
+  }
+  .animals{display:grid; gap:10px}
+  .animal{
+    border-radius:18px;
+    border:1px solid rgba(0,0,0,.06);
+    background:#fff;
+    padding:10px;
+    display:grid; grid-template-columns: 150px 1fr; gap:10px; align-items:center;
+    box-shadow:0 10px 18px rgba(0,0,0,.06);
+  }
+  .drop{
+    min-height:52px;
+    border-radius:16px;
+    border:2px dashed rgba(20,50,74,.25);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:1000;
+    background:linear-gradient(180deg,#ffffff,#f7fbff);
+    padding:10px;
+  }
+  .drop.good{border-style:solid; border-color: rgba(0,245,160,.8)}
+  .drop.bad{border-style:solid; border-color: rgba(255,77,109,.55)}
+  .bank{display:flex; flex-wrap:wrap; gap:10px}
+  .chip{
+    user-select:none;
+    padding:10px 12px;
+    border-radius:999px;
+    background:#0b1b2a; color:#fff;
+    font-weight:1000;
+    box-shadow:0 10px 18px rgba(0,0,0,.18);
+    cursor:grab;
+  }
+  .chip:active{cursor:grabbing}
+  svg{max-width:100%; height:auto}
+  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px}
+  .kpi{background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,.06)}
+  .kpi .big{font-size:20px; font-weight:1000}
+  .toast{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    background:#0b1b2a; color:#fff; padding:12px 14px; border-radius:16px;
+    box-shadow:0 18px 35px rgba(0,0,0,.25);
+    display:none; max-width:min(92vw,720px);
+    font-weight:900;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div style="display:flex; gap:10px; align-items:center">
+      <div class="badge">🏷️ <b>Level C</b> <span style="opacity:.9">• Game 4</span></div>
+      <div>
+        <h1>Tangram Animals Match</h1>
+        <div style="font-weight:900; opacity:.85; font-size:13px">Drag each sentence to the correct animal 🐝🦋🦇🐨</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
+      <a class="btn" href="../thursday/LevelC_Revision4.html">⬅ Back</a>
+      <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
+      <button class="btn warn" id="resetBtn" type="button">↻ Reset</button>
+      <a class="btn primary" href="LevelC_Quiz4.html">Next ➜</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+        <h2>🧩 Animals</h2>
+        <span class="pill" id="statusPill">0/4 matched</span>
+      </div>
+      <div class="stage">
+        <div class="animals" id="animals"></div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="big" id="score">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Score</div></div>
+        <div class="kpi"><div class="big" id="stars">⭐ 0</div><div style="font-weight:900; opacity:.85; font-size:12px">Stars</div></div>
+        <div class="kpi"><div class="big" id="tries">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Tries</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🏷️ Sentence Bank</h2>
+      <div class="stage">
+        <div style="font-weight:900; opacity:.9; margin-bottom:10px">
+          Drag the sentence chips onto the correct animal.
+        </div>
+        <div class="bank" id="bank"></div>
+        <div style="margin-top:10px; font-weight:900; opacity:.85" id="hint"></div>
+      </div>
+
+      <div class="stage" style="margin-top:12px">
+        <div style="font-weight:1000; margin-bottom:8px">Bonus:</div>
+        <div style="font-weight:900; opacity:.85">
+          After you finish, your progress is saved to the Progress Report ✅
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== Tracker ====== */
+const TRACK_LEVEL="C";
+const PAGE_ID="LevelC_Game4";
+function getProgressStore(){ try{return JSON.parse(localStorage.getItem("gpeis_progress_v1")||"{}");}catch(e){return{};} }
+function saveProgress(entry){
+  const s=getProgressStore();
+  const arr=Array.isArray(s.entries)?s.entries:[];
+  arr.push(entry); s.entries=arr; s.last=entry;
+  localStorage.setItem("gpeis_progress_v1", JSON.stringify(s));
+}
+
+/* ====== Sound + Voice ====== */
+let SOUND_ON=true;
+document.getElementById("soundBtn").addEventListener("click", ()=>{
+  SOUND_ON=!SOUND_ON;
+  document.getElementById("soundBtn").textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+});
+function beep(freq=440, ms=120, type="sine", gain=0.06){
+  if(!SOUND_ON) return;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+}
+function chimeSuccess(){ beep(523,110,"sine",0.07); setTimeout(()=>beep(659,110,"sine",0.07),120); setTimeout(()=>beep(784,160,"sine",0.07),240); }
+function buzzWrong(){ beep(180,140,"square",0.05); setTimeout(()=>beep(140,160,"square",0.05),160); }
+function speak(text){
+  if(!SOUND_ON) return;
+  if(!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate=1.02; u.pitch=1.12; u.volume=1;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+const toast=document.getElementById("toast");
+function toastShow(msg){
+  toast.textContent=msg; toast.style.display="block";
+  clearTimeout(toast._t); toast._t=setTimeout(()=>toast.style.display="none", 1600);
+}
+
+/* ====== Data ====== */
+const animalsData = [
+  {id:"bee", name:"Bee", emoji:"🐝", color:"#ffd166"},
+  {id:"butterfly", name:"Butterfly", emoji:"🦋", color:"#9b5de5"},
+  {id:"dragonfly", name:"Dragonfly", emoji:"🪲", color:"#00bbf9"}, // close enough icon
+  {id:"koala", name:"Koala", emoji:"🐨", color:"#00f5a0"} // includes hanging topic
+];
+
+const sentences = [
+  {id:"s_bee", text:"A bee flies.", target:"bee"},
+  {id:"s_butterfly", text:"A butterfly flies.", target:"butterfly"},
+  {id:"s_dragonfly", text:"A dragonfly flies.", target:"dragonfly"},
+  {id:"s_koala", text:"A koala hangs.", target:"koala"}
+];
+
+let score=0, stars=0, tries=0, matched=0;
+const animalsEl=document.getElementById("animals");
+const bankEl=document.getElementById("bank");
+const statusPill=document.getElementById("statusPill");
+const scoreEl=document.getElementById("score");
+const starsEl=document.getElementById("stars");
+const triesEl=document.getElementById("tries");
+const hintEl=document.getElementById("hint");
+
+function updateUI(){
+  statusPill.textContent = `${matched}/4 matched`;
+  scoreEl.textContent=score;
+  starsEl.textContent=`⭐ ${stars}`;
+  triesEl.textContent=tries;
+}
+
+function animalCard(a){
+  const svg = `
+    <svg viewBox="0 0 140 110" aria-label="${a.name}">
+      <defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity=".16"/>
+      </filter></defs>
+      <g filter="url(#sh)">
+        <rect x="12" y="12" width="116" height="86" rx="18" fill="${a.color}" opacity=".9"/>
+        <text x="70" y="70" text-anchor="middle" font-size="40" font-weight="900">${a.emoji}</text>
+      </g>
+    </svg>
+  `;
+  return `
+    <div class="animal">
+      <div>${svg}</div>
+      <div>
+        <div style="font-weight:1000; font-size:18px">${a.name}</div>
+        <div class="drop" data-accept="${a.id}">Drop sentence here</div>
+      </div>
+    </div>
+  `;
+}
+
+function render(){
+  animalsEl.innerHTML = animalsData.map(animalCard).join("");
+  bankEl.innerHTML = "";
+  hintEl.textContent = "Tip: Some animals fly ✈️ and some animals hang 🪵.";
+
+  const shuffled = [...sentences].sort(()=>Math.random()-0.5);
+  shuffled.forEach(s=>{
+    const chip=document.createElement("div");
+    chip.className="chip";
+    chip.textContent=s.text;
+    chip.setAttribute("draggable","true");
+    chip.dataset.id=s.id;
+    chip.addEventListener("dragstart",(e)=>{
+      e.dataTransfer.setData("text/plain", s.id);
+      e.dataTransfer.effectAllowed="move";
+    });
+    bankEl.appendChild(chip);
+  });
+
+  [...document.querySelectorAll(".drop")].forEach(drop=>{
+    drop.addEventListener("dragover",(e)=>{e.preventDefault();});
+    drop.addEventListener("drop",(e)=>{
+      e.preventDefault();
+      const sid = e.dataTransfer.getData("text/plain");
+      if(!sid) return;
+      if(drop.classList.contains("good")) return;
+      tries++;
+
+      const sent = sentences.find(x=>x.id===sid);
+      const accept = drop.dataset.accept;
+
+      if(sent && sent.target === accept){
+        drop.classList.remove("bad");
+        drop.classList.add("good");
+        drop.textContent = sent.text;
+        const chip = [...bankEl.children].find(c=>c.dataset.id===sid);
+        if(chip) chip.remove();
+        matched++;
+        score += 20;
+        stars += 1;
+        chimeSuccess();
+        speak(["Great!","Nice match!","Perfect!"][Math.floor(Math.random()*3)]);
+        toastShow("✅ Correct!");
+        if(matched===4) win();
+      }else{
+        drop.classList.add("bad");
+        score = Math.max(0, score-2);
+        buzzWrong();
+        speak("Try another one!");
+        toastShow("❌ Not this one!");
+        setTimeout(()=>drop.classList.remove("bad"), 500);
+      }
+      updateUI();
+    });
+  });
+
+  updateUI();
+}
+
+function win(){
+  chimeSuccess(); setTimeout(chimeSuccess, 240);
+  speak("Amazing! You matched all the animals!");
+  toastShow("🎉 Completed! Saved ✅");
+  saveProgress({
+    level:TRACK_LEVEL,
+    page:PAGE_ID,
+    type:"game",
+    score, stars,
+    ts:new Date().toISOString()
+  });
+}
+
+function resetAll(){
+  score=0; stars=0; tries=0; matched=0;
+  render();
+}
+
+document.getElementById("resetBtn").addEventListener("click", resetAll);
+
+render();
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>GP EIS • Performance Analysis</title>
+<style>
+  :root{
+    --bg:#f8fbff;
+    --ink:#172033;
+    --muted:#5e6a82;
+    --card:#ffffff;
+    --line:#d8e4f2;
+    --blue:#2f7df6;
+    --green:#1fb979;
+    --pink:#ef5aa8;
+    --orange:#f29a2e;
+    --violet:#7b61ff;
+    --shadow:0 18px 44px rgba(23,32,51,.12);
+    font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at top left, rgba(47,125,246,.14), transparent 34%),
+      radial-gradient(circle at top right, rgba(239,90,168,.12), transparent 28%),
+      linear-gradient(180deg, #fdfefe, var(--bg));
+  }
+  .wrap{width:min(1180px,96vw);margin:0 auto;padding:24px 0 40px}
+  .topbar,.card{
+    background:rgba(255,255,255,.92);
+    border:1px solid var(--line);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    padding:18px 20px;
+  }
+  .title h1{margin:0;font-size:2rem}
+  .sub{margin-top:6px;color:var(--muted);font-weight:700}
+  .actions,.chips,.skills,.highlights{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{
+    border:0;
+    border-radius:16px;
+    padding:12px 16px;
+    font-weight:900;
+    cursor:pointer;
+    background:#fff;
+    color:var(--ink);
+    box-shadow:0 10px 22px rgba(23,32,51,.10);
+  }
+  .btn.primary{background:linear-gradient(180deg,#5ea1ff,#2f7df6);color:#fff}
+  .grid{display:grid;grid-template-columns:1.35fr .9fr;gap:16px;margin-top:18px}
+  .card{padding:18px}
+  .chips{margin-top:14px}
+  .chip{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    min-width:120px;
+    padding:10px 12px;
+    border-radius:16px;
+    background:#fff;
+    border:1px solid var(--line);
+  }
+  .chip span{font-size:.82rem;color:var(--muted);font-weight:900}
+  .chip select,.chip input{
+    border:0;
+    background:transparent;
+    font:inherit;
+    font-weight:900;
+    color:var(--ink);
+    outline:none;
+    padding:0;
+  }
+  .section-title{margin:0 0 4px;font-size:1.18rem}
+  .section-sub{margin:0;color:var(--muted);font-weight:700}
+  .skills{margin-top:16px}
+  .skill-card{
+    flex:1 1 200px;
+    border-radius:22px;
+    padding:16px;
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+    min-height:148px;
+  }
+  .skill-card::after{
+    content:"";
+    position:absolute;
+    inset:auto -20px -30px auto;
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    background:rgba(255,255,255,.18);
+  }
+  .skill-card h3{margin:0;font-size:1rem}
+  .score{font-size:2rem;font-weight:1000;margin-top:8px}
+  .band{display:inline-block;margin-top:4px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.18);font-weight:1000}
+  .explain{margin-top:10px;max-width:26ch;line-height:1.4;font-weight:700}
+  .reading{background:linear-gradient(160deg,#2f7df6,#63a4ff)}
+  .speaking{background:linear-gradient(160deg,#ef5aa8,#ff8bc3)}
+  .writing{background:linear-gradient(160deg,#1fb979,#4dd59f)}
+  .listening{background:linear-gradient(160deg,#f29a2e,#ffbf62)}
+  .logic{background:linear-gradient(160deg,#7b61ff,#a28cff)}
+  .summary-box{
+    margin-top:16px;
+    border:1px solid var(--line);
+    background:#f9fcff;
+    border-radius:20px;
+    padding:16px;
+  }
+  .summary-box p{margin:8px 0;line-height:1.5}
+  .highlight{
+    flex:1 1 210px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:14px;
+    background:#fff;
+  }
+  .highlight h4{margin:0 0 6px}
+  .muted{color:var(--muted)}
+  @media(max-width:980px){
+    .grid{grid-template-columns:1fr}
+    .topbar{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="title">
+      <h1>Student Performance Analysis</h1>
+      <div class="sub" id="whoLine">Loading student analysis...</div>
+      <div class="chips">
+        <div class="chip">
+          <span>Role</span>
+          <input id="roleView" type="text" readonly value="student" />
+        </div>
+        <div class="chip">
+          <span>Level</span>
+          <select id="levelSel">
+            <option value="A">Level A</option>
+            <option value="B">Level B</option>
+            <option value="C">Level C</option>
+          </select>
+        </div>
+        <div class="chip">
+          <span>Student</span>
+          <select id="studentSel"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="btnBackHome" type="button">🏠 Back Home</button>
+      <button class="btn" id="btnOpenReport" type="button">📈 Open Progress Report</button>
+      <button class="btn primary" id="btnRefresh" type="button">🔄 Refresh Analysis</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2 class="section-title">Skill Breakdown</h2>
+      <p class="section-sub">A plain-language view of the child’s current learning strengths and support areas.</p>
+
+      <div class="skills" id="skillsGrid"></div>
+
+      <div class="summary-box">
+        <h3 class="section-title" style="font-size:1.02rem">Teacher and Parent Summary</h3>
+        <p id="overallSummary">No performance data yet.</p>
+        <p id="nextStep" class="muted">Complete lesson activities to generate analysis.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Simple Highlights</h2>
+      <p class="section-sub">What is going well and what needs more support.</p>
+      <div class="highlights">
+        <div class="highlight">
+          <h4>Strongest Area</h4>
+          <div id="strongestText" class="muted">No data yet.</div>
+        </div>
+        <div class="highlight">
+          <h4>Needs More Practice</h4>
+          <div id="supportText" class="muted">No data yet.</div>
+        </div>
+        <div class="highlight">
+          <h4>Recent Activity</h4>
+          <div id="recentText" class="muted">No recent activity yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEYS = {
+    session: "GP_EIS_STUDENT_SESSION",
+    teacherSession: "GP_EIS_TEACHER_SESSION",
+    parentSession: "GP_EIS_PARENT_SESSION",
+    role: "GP_EIS_SELECTED_ROLE",
+    level: "gpeis_selected_level",
+    activities: "GP_EIS_ACTIVITY_RESULTS",
+    localStudents: "GP_EIS_LOCAL_STUDENTS"
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const query = new URLSearchParams(location.search);
+
+  const roleView = $("roleView");
+  const levelSel = $("levelSel");
+  const studentSel = $("studentSel");
+  const whoLine = $("whoLine");
+  const skillsGrid = $("skillsGrid");
+  const overallSummary = $("overallSummary");
+  const nextStep = $("nextStep");
+  const strongestText = $("strongestText");
+  const supportText = $("supportText");
+  const recentText = $("recentText");
+
+  function safeParse(raw, fallback){
+    try { return JSON.parse(raw); } catch (_) { return fallback; }
+  }
+
+  function getLocal(key, fallback){
+    const raw = localStorage.getItem(key);
+    return raw == null ? fallback : safeParse(raw, fallback);
+  }
+
+  function getRole(){
+    return String(query.get("role") || localStorage.getItem(STORAGE_KEYS.role) || "student").toLowerCase();
+  }
+
+  function getLevel(){
+    return String(query.get("level") || localStorage.getItem(STORAGE_KEYS.level) || "A").toUpperCase();
+  }
+
+  function getStudentSession(){
+    return getLocal(STORAGE_KEYS.session, null);
+  }
+
+  function getTeacherSession(){
+    return getLocal(STORAGE_KEYS.teacherSession, null);
+  }
+
+  function getParentSession(){
+    return getLocal(STORAGE_KEYS.parentSession, null);
+  }
+
+  function getStudents(){
+    return getLocal(STORAGE_KEYS.localStudents, []);
+  }
+
+  function getActivities(){
+    return getLocal(STORAGE_KEYS.activities, {});
+  }
+
+  function inferActivityType(item){
+    const name = String(item.activityType || item.pageId || item.fileName || "").toLowerCase();
+    if (name.includes("quiz") || name.includes("final")) return "quiz";
+    if (name.includes("game")) return "game";
+    if (name.includes("revision")) return "revision";
+    if (name.includes("trace") || name.includes("writing")) return "tracing";
+    return "lesson";
+  }
+
+  function getCurrentStudentOptions(){
+    const role = getRole();
+    const level = levelSel.value;
+    const all = getStudents().filter(s => String(s.level || "").toUpperCase() === level);
+    const parentSession = getParentSession();
+    const studentSession = getStudentSession();
+
+    if (role === "parent" && parentSession && parentSession.childStudentId) {
+      return all.filter(s => String(s.studentId || "").toUpperCase() === String(parentSession.childStudentId || "").toUpperCase());
+    }
+
+    if (role === "student" && studentSession && studentSession.studentId) {
+      return all.filter(s => String(s.studentId || "").toUpperCase() === String(studentSession.studentId || "").toUpperCase());
+    }
+
+    return all;
+  }
+
+  function buildStudentSelect(){
+    const options = getCurrentStudentOptions();
+    studentSel.innerHTML = "";
+    if (!options.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "No saved student";
+      studentSel.appendChild(opt);
+      return;
+    }
+
+    options.forEach((student, index) => {
+      const opt = document.createElement("option");
+      opt.value = student.studentId || "";
+      opt.textContent = student.displayName || student.studentId || ("Student " + (index + 1));
+      studentSel.appendChild(opt);
+    });
+
+    const currentSession = getStudentSession();
+    if (currentSession && currentSession.studentId && options.some(s => s.studentId === currentSession.studentId)) {
+      studentSel.value = currentSession.studentId;
+    }
+  }
+
+  function currentStudent(){
+    const options = getCurrentStudentOptions();
+    if (!options.length) return null;
+    return options.find(s => s.studentId === studentSel.value) || options[0] || null;
+  }
+
+  function filteredEntries(){
+    const student = currentStudent();
+    const level = levelSel.value;
+    return Object.values(getActivities())
+      .filter(Boolean)
+      .filter(item => {
+        if (String(item.level || "").toUpperCase() !== level) return false;
+        if (!student) return true;
+        if (item.studentId && student.studentId && item.studentId !== student.studentId) return false;
+        if (item.classId && student.classId && item.classId !== student.classId) return false;
+        return true;
+      })
+      .sort((a, b) => new Date(b.updatedAt || b.savedAt || b.ts || 0) - new Date(a.updatedAt || a.savedAt || a.ts || 0));
+  }
+
+  function clampPercent(value){
+    const n = Number(value);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(100, Math.round(n)));
+  }
+
+  function average(list){
+    if (!list.length) return 0;
+    return Math.round(list.reduce((sum, n) => sum + n, 0) / list.length);
+  }
+
+  function weightedAverage(pairs){
+    const valid = pairs.filter(item => item.weight > 0 && Number.isFinite(item.value));
+    if (!valid.length) return 0;
+    const totalWeight = valid.reduce((sum, item) => sum + item.weight, 0);
+    if (!totalWeight) return 0;
+    const total = valid.reduce((sum, item) => sum + (item.value * item.weight), 0);
+    return Math.round(total / totalWeight);
+  }
+
+  function buildMetrics(entries){
+    const readingPairs = [];
+    const speakingPairs = [];
+    const writingPairs = [];
+    const listeningPairs = [];
+    const logicPairs = [];
+
+    entries.forEach(entry => {
+      const score = clampPercent(entry.score || entry.tracing || 0);
+      const tracing = clampPercent(entry.tracing || entry.score || 0);
+      const skills = entry.skills || {};
+      const type = inferActivityType(entry);
+
+      readingPairs.push({ value: score, weight: Math.max(1, Number(skills.reading || (type === "lesson" ? 1 : 0))) });
+      speakingPairs.push({ value: score, weight: Math.max(0, Number(skills.speaking || (type === "lesson" ? 1 : 0))) });
+      writingPairs.push({ value: tracing || score, weight: Math.max(0, Number(skills.writing || (type === "tracing" ? 2 : 0))) });
+      listeningPairs.push({ value: score, weight: Math.max(0, Number(skills.listening || (type === "lesson" ? 1 : 0))) });
+      logicPairs.push({
+        value: score,
+        weight: Math.max(
+          0,
+          Number(skills.logic || 0) +
+          (type === "quiz" ? 2 : 0) +
+          (type === "game" ? 1 : 0) +
+          (type === "revision" ? 1 : 0)
+        )
+      });
+    });
+
+    return {
+      reading: weightedAverage(readingPairs),
+      speaking: weightedAverage(speakingPairs),
+      writing: weightedAverage(writingPairs),
+      listening: weightedAverage(listeningPairs),
+      logic: weightedAverage(logicPairs)
+    };
+  }
+
+  function performanceBand(score){
+    if (score >= 85) return { label: "Excellent", note: "The child is doing this very confidently." };
+    if (score >= 70) return { label: "Strong", note: "The child is doing well and needs regular practice." };
+    if (score >= 55) return { label: "Developing", note: "The child understands some parts but still needs guidance." };
+    return { label: "Needs Support", note: "The child needs extra help and slower step-by-step practice." };
+  }
+
+  function renderMetrics(entries){
+    const metrics = buildMetrics(entries);
+    const config = [
+      { key:"reading", title:"Reading", cls:"reading", explain:"Can the child understand lesson words, questions, and written tasks?" },
+      { key:"speaking", title:"Speaking", cls:"speaking", explain:"Can the child repeat, answer, and say lesson ideas clearly?" },
+      { key:"writing", title:"Writing", cls:"writing", explain:"Can the child trace, write, and form answers carefully?" },
+      { key:"listening", title:"Listening", cls:"listening", explain:"Can the child follow audio, instructions, and spoken examples?" },
+      { key:"logic", title:"Logic and Understanding", cls:"logic", explain:"Can the child reason through patterns, shapes, and problem-solving tasks?" }
+    ];
+
+    skillsGrid.innerHTML = "";
+
+    config.forEach(item => {
+      const score = clampPercent(metrics[item.key]);
+      const band = performanceBand(score);
+      const card = document.createElement("article");
+      card.className = "skill-card " + item.cls;
+      card.innerHTML = `
+        <h3>${item.title}</h3>
+        <div class="score">${score}%</div>
+        <div class="band">${band.label}</div>
+        <div class="explain">${band.note} ${item.explain}</div>
+      `;
+      skillsGrid.appendChild(card);
+    });
+
+    const sorted = Object.entries(metrics).sort((a,b) => b[1] - a[1]);
+    const best = sorted[0];
+    const lowest = sorted[sorted.length - 1];
+    const student = currentStudent();
+    const recent = entries[0];
+    const overall = average(Object.values(metrics));
+    const overallBand = performanceBand(overall);
+
+    strongestText.textContent = best && best[1] > 0
+      ? (student ? (student.displayName || student.studentId) : "This child") + " is strongest in " + best[0] + "."
+      : "No measured strength yet because no saved activity results were found.";
+
+    supportText.textContent = lowest && lowest[1] > 0
+      ? lowest[0] + " needs the most support right now, so this is the best next focus area."
+      : "No support area can be measured yet.";
+
+    recentText.textContent = recent
+      ? (recent.pageId || recent.fileName || "Activity") + " was the most recent saved lesson, with " + clampPercent(recent.score || recent.tracing || 0) + "%."
+      : "No recent activity yet.";
+
+    overallSummary.textContent = student
+      ? (student.displayName || student.studentId) + " is currently at " + overall + "% overall. In simple terms, this means " + overallBand.note.toLowerCase()
+      : "No student is currently selected.";
+
+    nextStep.textContent = lowest && lowest[1] > 0
+      ? "Best next step: give more guided practice in " + lowest[0] + ", then review one recent quiz or tracing activity together."
+      : "Best next step: complete more lesson activities so the app can build a meaningful analysis.";
+  }
+
+  function renderHeader(){
+    const role = getRole();
+    const level = levelSel.value;
+    const student = currentStudent();
+    const teacher = getTeacherSession();
+    const parent = getParentSession();
+    const session = getStudentSession();
+
+    roleView.value = role;
+
+    if (role === "teacher" && teacher) {
+      whoLine.textContent = "Teacher view • " + (teacher.name || teacher.email) + " • Level " + level;
+      return;
+    }
+
+    if (role === "parent" && parent) {
+      whoLine.textContent = "Parent view • " + (parent.name || parent.email) + " • Child: " + (parent.childName || parent.childStudentId || "N/A");
+      return;
+    }
+
+    if (student) {
+      whoLine.textContent = "Student view • " + (student.displayName || student.studentId) + " • Level " + level;
+      return;
+    }
+
+    if (session && session.studentId) {
+      whoLine.textContent = "Student view • " + session.studentId + " • Level " + (session.level || level);
+      return;
+    }
+
+    whoLine.textContent = "Level " + level + " analysis";
+  }
+
+  function refresh(){
+    renderHeader();
+    renderMetrics(filteredEntries());
+  }
+
+  levelSel.value = getLevel();
+  buildStudentSelect();
+  refresh();
+
+  levelSel.addEventListener("change", () => {
+    localStorage.setItem(STORAGE_KEYS.level, levelSel.value);
+    buildStudentSelect();
+    refresh();
+  });
+
+  studentSel.addEventListener("change", refresh);
+  $("btnRefresh").addEventListener("click", refresh);
+  $("btnBackHome").addEventListener("click", () => window.location.assign("./index.html"));
+  $("btnOpenReport").addEventListener("click", () => {
+    window.location.assign("./ProgressReport.html?portal=report&level=" + encodeURIComponent(levelSel.value) + "&role=" + encodeURIComponent(getRole()));
+  });
+})();
+</script>
+</body>
+</html>

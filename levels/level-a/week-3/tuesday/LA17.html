@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA17 - Cow Cookies</title>
+<style>
+  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--ink:#2d2d2d;--red:#d62828;--bubble:#dff1ff;}
+  *{box-sizing:border-box;}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#e7f7e7;padding:16px;color:var(--ink);}    
+  .card{width:min(980px,96vw);background:#fff;border-radius:18px;padding:14px 14px 18px;box-shadow:0 20px 40px rgba(0,0,0,.12);}    
+  .poster-area{position:relative;width:min(900px,100%);margin:0 auto;border-radius:16px;overflow:hidden;}
+  .poster-img{width:100%;height:auto;display:block;}
+  .bubble{position:absolute;padding:10px 14px;border-radius:16px;font-weight:800;font-size:1.7rem;max-width:260px;line-height:1.2;box-shadow:0 8px 18px rgba(0,0,0,.12);background:var(--bubble);opacity:0;}
+  .bubble.show{opacity:1;}
+  .bubble::after{content:"";position:absolute;left:12px;bottom:-10px;border-width:10px 8px 0 8px;border-style:solid;border-color:var(--bubble) transparent transparent transparent;}
+  .girl-spot{position:absolute;left:16px;top:12px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:3;}
+  .girl-spot img{width:64px;height:64px;border-radius:16px;object-fit:cover;box-shadow:0 6px 14px rgba(0,0,0,.25);border:4px solid #ffe3f7;background:#ffd6f2;cursor:pointer;}
+  .girl-hint{font-weight:800;color:#d62828;font-size:.9rem;}
+  .tap-line{position:absolute;left:6%;right:6%;top:90%;text-align:center;font-size:1.7rem;font-weight:900;opacity:0;line-height:1.2;}
+  .tap-line.show{opacity:1;}
+  .tap-line2{position:absolute;left:6%;right:6%;top:95%;text-align:center;font-size:1.7rem;font-weight:900;opacity:0;line-height:1.2;}
+  .tap-line2.show{opacity:1;}
+  .red{color:var(--red);}    
+  .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;}
+  .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+  .mic-icon-btn{border:none;background:transparent;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .mic-icon-btn img{width:32px;height:32px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+</style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+</head>
+<body>
+  <div class="card">
+    <div class="poster-area">
+      <img class="poster-img" src="../../../../assets/images/shapes/A17.png" alt="Cow cookies poster">
+      <div class="bubble speakable" data-text="Happy Birthday!" style="left:40%; top:12%;">Happy<br>Birthday!</div>
+      <div class="bubble speakable" data-text="When is the party?" style="left:63%; top:39%;">When is<br>the party?</div>
+      <div class="bubble speakable" data-text="It's on Sunday" style="left:40%; top:66%;">It’s on<br>Sunday</div>
+      <div class="girl-spot">
+        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
+        <div class="girl-hint">Tap the girl</div>
+      </div>
+      <div class="tap-line" id="tapLine"></div>
+      <div class="tap-line2" id="tapLine2"></div>
+    </div>
+    <div class="controls">
+      <button class="btn prev" id="prevBtn">← Previous page</button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+        <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
+      </button>
+      <button class="btn next" id="nextBtn">Next page →</button>
+    </div>
+  </div>
+  <script src="../../../../shared/js/storage.js"></script>
+  <script src="../../../../shared/js/progress.js"></script>
+  <script src="../../../../shared/js/tracing.js"></script>
+  <script>
+    const girlBtn = document.getElementById('girlBtn');
+    const tapLine = document.getElementById('tapLine');
+    const tapLine2 = document.getElementById('tapLine2');
+    function speak(text){
+      if(!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.0; u.pitch = 1.05; u.volume = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+    function typeLine(el, text){
+      el.textContent = '';
+      let i = 0;
+      el.classList.add('show');
+      const step = () => {
+        el.innerHTML = text.slice(0, i);
+        i += 1;
+        if(i <= text.length){ setTimeout(step, 18); }
+      };
+      step();
+    }
+    girlBtn.addEventListener('click', () => {
+      typeLine(tapLine, 'How many <span class="red">square</span> cow cookies are there?');
+      speak('How many square cow cookies are there?');
+      setTimeout(() => {
+        typeLine(tapLine2, 'There are 5 <span class="red">square</span> cow cookies.');
+        speak('There are 5 square cow cookies.');
+      }, 300);
+    });
+    document.getElementById('prevBtn').addEventListener('click', () => { window.location.href = 'LA16.html'; });
+    document.getElementById('nextBtn').addEventListener('click', () => { window.location.href = '../wednesday/LA18.html'; });
+  </script>
+<script src="../../../../activity-standardizer.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA17",
+    defaultLevel: "A",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

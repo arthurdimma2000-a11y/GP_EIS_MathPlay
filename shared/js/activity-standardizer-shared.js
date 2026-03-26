@@ -1,0 +1,1311 @@
+(function () {
+  "use strict";
+
+  if (window.__GP_ACTIVITY_STANDARDIZER_SHARED__) return;
+  window.__GP_ACTIVITY_STANDARDIZER_SHARED__ = true;
+  let savePromise = null;
+  let localSpeechPatchInstalled = false;
+
+  function pickPreferredFemaleVoice(voices) {
+    const list = Array.isArray(voices) ? voices : [];
+    if (!list.length) return null;
+    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira)/i;
+    const targetLang = /^(en[-_](us|ca|au|gb))/i;
+    const englishLang = /^en[-_]/i;
+
+    return (
+      list.find((voice) => targetLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
+      list.find((voice) => targetLang.test(voice.lang || "")) ||
+      list.find((voice) => englishLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
+      list.find((voice) => englishLang.test(voice.lang || "")) ||
+      list.find((voice) => femaleName.test(voice.name || "")) ||
+      null
+    );
+  }
+
+  function installSpeechVoicePreference() {
+    if (window.GPTracing && typeof window.GPTracing.installSpeechSynthesisPatch === "function") {
+      try {
+        window.GPTracing.installSpeechSynthesisPatch();
+        return;
+      } catch (_) {}
+    }
+    if (localSpeechPatchInstalled || !("speechSynthesis" in window)) return;
+    localSpeechPatchInstalled = true;
+    try {
+      const synth = window.speechSynthesis;
+      if (typeof synth.getVoices === "function") synth.getVoices();
+      const originalSpeak = synth.speak.bind(synth);
+      synth.speak = function patchedSpeak(utterance) {
+        try {
+          if (utterance) {
+            const lang = String(utterance.lang || "");
+            const shouldForceEnglish = !lang || /^en([-_]|$)/i.test(lang);
+            if (shouldForceEnglish) {
+              const preferred = pickPreferredFemaleVoice(
+                typeof synth.getVoices === "function" ? synth.getVoices() : []
+              );
+              if (preferred) {
+                utterance.voice = preferred;
+                utterance.lang = preferred.lang || "en-US";
+              } else if (!utterance.lang) {
+                utterance.lang = "en-US";
+              }
+            }
+            if (typeof utterance.rate !== "number" || utterance.rate === 1) utterance.rate = 0.94;
+            if (typeof utterance.pitch !== "number" || utterance.pitch === 1) utterance.pitch = 1.08;
+          }
+        } catch (_) {}
+        return originalSpeak(utterance);
+      };
+      if ("onvoiceschanged" in synth) {
+        const previous = synth.onvoiceschanged;
+        synth.onvoiceschanged = function patchedVoicesChanged(event) {
+          try { synth.getVoices(); } catch (_) {}
+          if (typeof previous === "function") previous.call(this, event);
+        };
+      }
+    } catch (_) {}
+  }
+
+  function stopIntroMedia() {
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_) {}
+    document.querySelectorAll("video, audio").forEach((media) => {
+      try {
+        const el = media;
+        const isIntro = el.id === "introVideo" || !!el.closest("#introVideoWrap, .intro-video-wrap, #lbIntroVideoOverlay, #gpAutoIntroOverlay");
+        if (!isIntro) return;
+        el.pause();
+        el.muted = true;
+        el.volume = 0;
+        try { el.currentTime = 0; } catch (_) {}
+      } catch (_) {}
+    });
+  }
+
+  window.__GP_STOP_INTRO_MEDIA = stopIntroMedia;
+
+  function looksLikeTrackedNav(el) {
+    const label = [
+      el.id || "",
+      el.className || "",
+      el.getAttribute("name") || "",
+      el.getAttribute("data-action") || "",
+      el.getAttribute("data-nav") || "",
+      el.getAttribute("aria-label") || "",
+      el.getAttribute("title") || "",
+      el.getAttribute("value") || "",
+      el.textContent || ""
+    ].join(" ").toLowerCase();
+    return /prev|previous|next|home|finish|submit|complete|quiz complete|game complete|done|continue|back/.test(label);
+  }
+
+  function inferActivityType(pageId) {
+    const name = String(pageId || "").toLowerCase();
+    if (name.includes("quiz")) return "quiz";
+    if (name.includes("game")) return "game";
+    if (name.includes("revision")) return "revision";
+    if (name.includes("trace")) return "tracing";
+    return "lesson";
+  }
+
+  function saveBeforeNavigation() {
+    if (typeof window.finishActivity !== "function") return;
+    if (savePromise) return savePromise;
+    const pageFile = ((location.pathname || "").split("/").pop() || document.title || "Activity").replace(/\.html$/i, "");
+    const level = /^(LA|LevelA|Level_A)/i.test(pageFile)
+      ? "A"
+      : /^(LB|LevelB|Level_B)/i.test(pageFile)
+        ? "B"
+        : /^(LC|LevelC|Level_C)/i.test(pageFile)
+          ? "C"
+          : null;
+    const payload = {
+      pageId: pageFile,
+      level,
+      activityType: inferActivityType(pageFile)
+    };
+    const saveTask = Promise.resolve().then(() => window.finishActivity(payload)).catch(() => {});
+    const failOpenTimeout = new Promise((resolve) => {
+      window.setTimeout(resolve, 350);
+    });
+    savePromise = Promise.race([saveTask, failOpenTimeout]).finally(() => {
+      savePromise = null;
+    });
+    return savePromise;
+  }
+
+  function getTrackedTarget(target) {
+    if (!(target instanceof Element)) return null;
+    const hit = target.closest("a, button, [role='button'], input[type='button'], input[type='submit']");
+    if (!hit || !looksLikeTrackedNav(hit)) return null;
+    return hit;
+  }
+
+  function getMicTarget(target) {
+    if (!(target instanceof Element)) return null;
+    return target.closest("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
+  }
+
+  function prepareMicSupport() {
+    installSpeechVoicePreference();
+    try {
+      if (window.GPTracing && typeof window.GPTracing.prepareMicSupport === "function") {
+        window.GPTracing.prepareMicSupport();
+        return;
+      }
+    } catch (_) {}
+    try {
+      if (
+        navigator.mediaDevices &&
+        typeof navigator.mediaDevices.getUserMedia === "function"
+      ) {
+        navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        }).then((stream) => {
+          try { stream.getTracks().forEach((track) => track.stop()); } catch (_) {}
+        }).catch(() => {});
+      }
+    } catch (_) {}
+  }
+
+  function inferLevelFromPage(pageFile) {
+    const path = String(location.pathname || "").replace(/\\/g, "/");
+    if (/\/levels\/level-a\//i.test(path)) return "A";
+    if (/\/levels\/level-b\//i.test(path)) return "B";
+    if (/\/levels\/level-c\//i.test(path)) return "C";
+
+    const file = String(pageFile || "");
+    if (/^(LA|LevelA|Level_A)/i.test(file)) return "A";
+    if (/^(LB|LevelB|Level_B)/i.test(file)) return "B";
+    if (/^(LC|LevelC|Level_C)/i.test(file)) return "C";
+    return "";
+  }
+
+  function isLevelLessonPage() {
+    return /[\\\/]levels[\\\/]level-(a|b|c)[\\\/]/i.test((location.pathname || "") + " " + (location.href || ""));
+  }
+
+  function inferWeekFromPage() {
+    const match = String(location.pathname || "").replace(/\\/g, "/").match(/\/week-(\d+)\//i);
+    return match ? Number(match[1]) : 0;
+  }
+
+  function buildExpectedLessonChain(level) {
+    const chain = [];
+    const prefix = level === "A" ? "LA" : level === "B" ? "LB" : "LevelC";
+    for (let week = 1; week <= 4; week += 1) {
+      const start = 2 + ((week - 1) * 6);
+      chain.push("week-" + week + "/monday/" + prefix + start + ".html");
+      chain.push("week-" + week + "/monday/" + prefix + (start + 1) + ".html");
+      chain.push("week-" + week + "/tuesday/" + prefix + (start + 2) + ".html");
+      chain.push("week-" + week + "/tuesday/" + prefix + (start + 3) + ".html");
+      chain.push("week-" + week + "/wednesday/" + prefix + (start + 4) + ".html");
+      chain.push("week-" + week + "/wednesday/" + prefix + (start + 5) + ".html");
+      chain.push("week-" + week + "/thursday/" + prefix + "_Revision" + week + ".html");
+      if (level === "A" && week === 4) {
+        chain.push("week-4/friday/LA_Game4.html");
+        chain.push("week-4/friday/LA_FinalQuiz.html");
+      } else if (level === "B" && week === 4) {
+        chain.push("week-4/friday/LB_FinalQuiz.html");
+      } else {
+        chain.push("week-" + week + "/friday/" + prefix + "_Game" + week + ".html");
+        chain.push("week-" + week + "/friday/" + prefix + "_Quiz" + week + ".html");
+      }
+    }
+    return chain;
+  }
+
+  function toPosixRelative(from, to) {
+    return pathPosix.relative(pathPosix.dirname(from), to) || pathPosix.basename(to);
+  }
+
+  const pathPosix = {
+    normalize(value) {
+      return String(value || "").replace(/\\/g, "/").replace(/\/+/g, "/");
+    },
+    dirname(value) {
+      const normalized = this.normalize(value).replace(/\/$/, "");
+      const idx = normalized.lastIndexOf("/");
+      return idx === -1 ? "" : normalized.slice(0, idx);
+    },
+    basename(value) {
+      const normalized = this.normalize(value).replace(/\/$/, "");
+      const idx = normalized.lastIndexOf("/");
+      return idx === -1 ? normalized : normalized.slice(idx + 1);
+    },
+    relative(from, to) {
+      const fromParts = this.dirname(from).split("/").filter(Boolean);
+      const toParts = this.normalize(to).split("/").filter(Boolean);
+      while (fromParts.length && toParts.length && fromParts[0] === toParts[0]) {
+        fromParts.shift();
+        toParts.shift();
+      }
+      return new Array(fromParts.length).fill("..").concat(toParts).join("/") || ".";
+    }
+  };
+
+  function getLessonAppRelative(target) {
+    const normalizedTarget = String(target || "").replace(/^\/+/, "");
+    if (!normalizedTarget) return "";
+    if (!isLevelLessonPage()) return normalizedTarget;
+    return "../../../../" + normalizedTarget;
+  }
+
+  function getLessonAppAbsolute(target) {
+    const normalizedTarget = String(target || "").replace(/^\/+/, "");
+    if (!normalizedTarget) return "";
+    try {
+      return new URL("/" + normalizedTarget, window.location.origin).href;
+    } catch (_) {
+      return "/" + normalizedTarget;
+    }
+  }
+
+  function getExpectedLessonTargets() {
+    if (!isLevelLessonPage()) return null;
+    const level = inferLevelFromPage();
+    if (!level) return null;
+    const normalizedPath = String(location.pathname || "").replace(/\\/g, "/");
+    const levelRoot = "/levels/level-" + level.toLowerCase() + "/";
+    const current = normalizedPath.split(levelRoot)[1];
+    if (!current) return null;
+    const chain = buildExpectedLessonChain(level);
+    const index = chain.indexOf(current);
+    if (index === -1) return null;
+    const levelPrefix = "levels/level-" + level.toLowerCase() + "/";
+    return {
+      prev: index === 0
+        ? getLessonAppAbsolute("index.html")
+        : getLessonAppAbsolute(levelPrefix + chain[index - 1]),
+      home: getLessonAppAbsolute("index.html"),
+      next: index === chain.length - 1
+        ? getLessonAppAbsolute("ProgressReport.html")
+        : getLessonAppAbsolute(levelPrefix + chain[index + 1])
+    };
+  }
+
+  function detectNavKind(hit) {
+    if (!(hit instanceof Element)) return "";
+    const label = [
+      hit.id || "",
+      hit.className || "",
+      hit.getAttribute("aria-label") || "",
+      hit.getAttribute("title") || "",
+      hit.textContent || ""
+    ].join(" ").toLowerCase();
+    if (/prev|previous|back/.test(label)) return "prev";
+    if (/next/.test(label)) return "next";
+    if (/home/.test(label)) return "home";
+    return "";
+  }
+
+  function initExpectedLessonNavigation() {
+    const targets = getExpectedLessonTargets();
+    if (!targets) return;
+
+    const navElements = Array.from(document.querySelectorAll(
+      "#prevBtn,#nextBtn,#backBtn,a[href],button,[role='button'],input[type='button'],input[type='submit']"
+    )).filter((el) => detectNavKind(el));
+
+    async function navigateToTarget(target, ev) {
+      if (!target) return;
+      if (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (typeof ev.stopImmediatePropagation === "function") ev.stopImmediatePropagation();
+      }
+      try {
+        await saveBeforeNavigation();
+      } catch (_) {}
+      window.location.href = target;
+    }
+
+    function hardBindNavElements() {
+      const currentNavElements = Array.from(document.querySelectorAll(
+        "#prevBtn,#nextBtn,#backBtn,a[href],button,[role='button'],input[type='button'],input[type='submit']"
+      )).filter((el) => detectNavKind(el));
+
+      currentNavElements.forEach((el) => {
+        const kind = detectNavKind(el);
+        const target = kind === "prev" ? targets.prev : kind === "home" ? targets.home : targets.next;
+        if (!target || !el.parentNode) return;
+
+        const replacement = el.cloneNode(true);
+        replacement.dataset.gpExpectedNav = target;
+        replacement.dataset.gpNavHardened = "1";
+        if (replacement.tagName === "A") {
+          replacement.setAttribute("href", target);
+        }
+        if (replacement.tagName === "BUTTON" && !replacement.getAttribute("type")) {
+          replacement.setAttribute("type", "button");
+        }
+        replacement.addEventListener("click", (ev) => {
+          navigateToTarget(target, ev);
+        }, { capture: true });
+        replacement.addEventListener("keydown", (ev) => {
+          if (ev.key !== "Enter" && ev.key !== " ") return;
+          navigateToTarget(target, ev);
+        }, { capture: true });
+        el.parentNode.replaceChild(replacement, el);
+      });
+    }
+
+    navElements.forEach((el) => {
+      const kind = detectNavKind(el);
+      const target = kind === "prev" ? targets.prev : kind === "home" ? targets.home : targets.next;
+      if (!target) return;
+      el.dataset.gpExpectedNav = target;
+      if (el.tagName === "A") {
+        el.setAttribute("href", target);
+      }
+    });
+
+    document.addEventListener("click", async (ev) => {
+      const hit = getTrackedTarget(ev.target);
+      if (!hit) return;
+      const kind = detectNavKind(hit);
+      if (!kind) return;
+      const target = hit.dataset.gpExpectedNav || (kind === "prev" ? targets.prev : kind === "home" ? targets.home : targets.next);
+      await navigateToTarget(target, ev);
+    }, { capture: true });
+
+    hardBindNavElements();
+    window.setTimeout(hardBindNavElements, 0);
+    window.addEventListener("load", hardBindNavElements, { once: true });
+  }
+
+  function getAutoIntroFileName(level, lessonNumber) {
+    const num = Number(lessonNumber);
+    if (!Number.isFinite(num) || num < 2 || num > 25) return "";
+
+    if (level === "A") {
+      return "LA" + num + "avideo.mp4";
+    }
+
+    if (level === "B") {
+      if (num === 3) return "LB3bVideo.mp4";
+      if (num === 6) return "LB6bVideo.mp4";
+      if (num === 16) return "LB16b_video.mp4";
+      return "LB" + num + "bvideo.mp4";
+    }
+
+    if (level === "C") {
+      return "LC" + num + "cvideo.mp4";
+    }
+
+    return "";
+  }
+
+  function pushUniqueCandidate(list, src) {
+    const value = String(src || "").trim();
+    if (!value) return;
+    const key = value.replace(/\\/g, "/").toLowerCase();
+    if (list.some((entry) => entry.key === key)) return;
+    list.push({ key, src: value });
+  }
+
+  function collectExistingIntroSources() {
+    const candidates = [];
+    const selectors = [
+      "#introVideo[src]",
+      ".intro-video[src]",
+      "#introVideo source[src]",
+      ".intro-video source[src]"
+    ];
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((node) => {
+        const src = node.getAttribute("src") || "";
+        pushUniqueCandidate(candidates, src);
+      });
+    });
+    return candidates.map((entry) => entry.src);
+  }
+
+  function getAutoIntroCandidates(pageFile) {
+    const file = String(pageFile || "");
+    const candidates = [];
+    const level = inferLevelFromPage(file);
+
+    const numericMatch =
+      /^LA(\d{1,2})$/i.exec(file) ||
+      /^LB(\d{1,2})$/i.exec(file) ||
+      /^LevelC(\d{1,2})$/i.exec(file);
+
+    if (numericMatch && level) {
+      const fileName = getAutoIntroFileName(level, numericMatch[1]);
+      if (fileName) pushUniqueCandidate(candidates, "../../../../assets/video/" + fileName);
+    }
+
+    if (!numericMatch && level && /revision|game|quiz|finalquiz/i.test(file)) {
+      const week = inferWeekFromPage();
+      const trailingLesson = week > 0 ? Math.min(25, (week * 6) + 1) : 0;
+      const fileName = getAutoIntroFileName(level, trailingLesson);
+      if (fileName) pushUniqueCandidate(candidates, "../../../../assets/video/" + fileName);
+    }
+
+    return candidates.map((entry) => entry.src);
+  }
+
+  function ensureAutoIntroStyles() {
+      if (document.getElementById("gpAutoIntroStyles")) return;
+      const style = document.createElement("style");
+      style.id = "gpAutoIntroStyles";
+      style.textContent =
+        "html.lesson-intro-video-pending body > *:not(#gpAutoIntroOverlay):not(#introVideoWrap){visibility:hidden !important;}" +
+        "#gpAutoIntroOverlay,.intro-video-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000;z-index:2147483647;padding:0;margin:0;overflow:hidden;}" +
+        "#gpAutoIntroOverlay.active,.intro-video-wrap.active,#introVideoWrap.active,#lbIntroVideoOverlay.active{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:auto !important;}" +
+        "#gpAutoIntroOverlay video,.intro-video-wrap video{width:100vw;height:100vh;max-width:100vw;max-height:100vh;object-fit:contain;object-position:center center;border-radius:0;background:#000;box-shadow:none;display:block;}";
+      document.head.appendChild(style);
+    }
+
+  function ensureUnifiedMicLessonStyles() {
+    if (document.getElementById("gpUnifiedMicLessonStyles")) return;
+    const style = document.createElement("style");
+    style.id = "gpUnifiedMicLessonStyles";
+    style.textContent =
+      ".convo-line[hidden],.speech-line[hidden],.dialog-line[hidden],.bubble-line[hidden],.bubble-left[hidden],.bubble-right[hidden],#bubbleLeft[hidden],#bubbleRight[hidden],.headline-line[hidden],.sentence-line[hidden],.bubble[hidden],.speech-bubble[hidden],.dialog-bubble[hidden],.convo-bubble[hidden],.character-bubble[hidden],.fish-bubble[hidden]{display:none !important;}" +
+      ".row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;align-items:center !important;gap:12px !important;}" +
+      ".convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show,.headline-line.show,.sentence-line.show,.bubble.show,.speech-bubble.show,.dialog-bubble.show,.convo-bubble.show,.character-bubble.show,.fish-bubble.show{display:block !important;}" +
+      ".bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(52vw,420px) !important;white-space:nowrap !important;word-break:normal !important;overflow-wrap:normal !important;}" +
+      ".bubble *,.speech-bubble *,.dialog-bubble *,.convo-bubble *,.bubble-left *,.bubble-right *,#bubbleLeft *,#bubbleRight *,.headline-line *,.sentence-line *{font-size:inherit !important;line-height:inherit !important;}" +
+        ".row .bubble,.row .speech-bubble,.row .dialog-bubble,.row .convo-bubble,.row .bubble-left,.row .bubble-right,.row #bubbleLeft,.row #bubbleRight,.row .headline-line,.row .sentence-line{margin-left:8px !important;margin-right:8px !important;}" +
+        ".convo-line .bubble-stack,.speech-line .bubble-stack,.dialog-line .bubble-stack,.bubble-line .bubble-stack{display:flex !important;flex-direction:column !important;gap:6px !important;}" +
+        ".bubble.mic-highlight,.speech-bubble.mic-highlight,.dialog-bubble.mic-highlight,.convo-bubble.mic-highlight,.bubble-left.mic-highlight,.bubble-right.mic-highlight,#bubbleLeft.mic-highlight,#bubbleRight.mic-highlight,.headline-line.mic-highlight,.sentence-line.mic-highlight,.bubble.sparkle,.speech-bubble.sparkle,.dialog-bubble.sparkle,.convo-bubble.sparkle,.bubble-left.sparkle,.bubble-right.sparkle,#bubbleLeft.sparkle,#bubbleRight.sparkle,.headline-line.sparkle,.sentence-line.sparkle{background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff) !important;box-shadow:0 0 12px rgba(255,214,0,.6),0 0 18px rgba(255,105,180,.4) !important;animation:gpMicSparklePulse 1.2s ease-in-out infinite !important;}" +
+        "@keyframes gpMicSparklePulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.12);}}" +
+        ".star-row,.stars,.bubble-stars,[data-stars]{font-size:2.35rem !important;line-height:1 !important;}" +
+        ".repeat-result,.bubble-result,[data-repeat-result]{font-size:2.1rem !important;line-height:1.1 !important;}" +
+        "body[data-gp-force-la2-mic='1'] .convo-line,body[data-gp-force-la2-mic='1'] .speech-line,body[data-gp-force-la2-mic='1'] .dialog-line,body[data-gp-force-la2-mic='1'] .bubble-line{position:relative !important;inset:auto !important;transform:none !important;overflow:visible !important;}" +
+      "body[data-gp-force-la2-mic='1'] .convo-line .bubble-stack,body[data-gp-force-la2-mic='1'] .speech-line .bubble-stack,body[data-gp-force-la2-mic='1'] .dialog-line .bubble-stack,body[data-gp-force-la2-mic='1'] .bubble-line .bubble-stack{position:static !important;transform:none !important;}" +
+      "@media (max-width:780px){.bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(62vw,280px) !important;line-height:1.2 !important;white-space:nowrap !important;word-break:normal !important;overflow-wrap:normal !important;}}";
+    document.head.appendChild(style);
+  }
+
+  function ensureLevelBLegacyHelperStyles() {
+    if (document.getElementById("gpLevelBLegacyHelperStyles")) return;
+    const style = document.createElement("style");
+    style.id = "gpLevelBLegacyHelperStyles";
+    style.textContent =
+      "body[data-gp-level-b-no-girl='1'] .girl-spot," +
+      "body[data-gp-level-b-no-girl='1'] .girl-hint," +
+      "body[data-gp-level-b-no-girl='1'] .tap-girl," +
+      "body[data-gp-level-b-no-girl='1'] #girlBtn{" +
+      "display:none !important;visibility:hidden !important;pointer-events:none !important;opacity:0 !important;}" +
+      "body[data-gp-level-b-no-girl='1'] [data-gp-hide-tap-girl='1']{" +
+      "display:none !important;visibility:hidden !important;pointer-events:none !important;opacity:0 !important;}";
+    document.head.appendChild(style);
+  }
+
+  function suppressLegacyLevelBGirlHelper() {
+    if (!isLevelLessonPage() || inferLevelFromPage() !== "B" || !document.body) return;
+    ensureLevelBLegacyHelperStyles();
+    document.body.dataset.gpLevelBNoGirl = "1";
+
+    const helperNodes = Array.from(document.querySelectorAll(".girl-spot,.girl-hint,.tap-girl,#girlBtn"));
+    helperNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      node.setAttribute("hidden", "hidden");
+      node.setAttribute("aria-hidden", "true");
+      node.style.display = "none";
+      node.style.visibility = "hidden";
+      node.style.pointerEvents = "none";
+    });
+
+    Array.from(document.querySelectorAll("p,div,span,strong,em,small")).forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const text = String(node.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+      if (!text) return;
+      if (text === "tap the girl" || text === "tap the girl to start the lesson." || text === "tap the girl to hear the lesson. then write inside each empty box:") {
+        node.dataset.gpHideTapGirl = "1";
+      }
+    });
+  }
+
+  function getConversationLineNodes() {
+    const containerSelectors = [
+      ".convo-line",
+      ".speech-line",
+      ".dialog-line",
+      ".bubble-line",
+      ".bubble-left",
+      ".bubble-right",
+      ".headline-line",
+      ".sentence-line",
+      "#bubbleLeft",
+      "#bubbleRight"
+    ];
+    const bubbleSelectors = [
+      ".bubble",
+      ".speech-bubble",
+      ".dialog-bubble",
+      ".convo-bubble",
+      ".character-bubble",
+      ".fish-bubble"
+    ];
+    const seen = new Set();
+    const nodes = [];
+    containerSelectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((node) => {
+        if (!node || seen.has(node)) return;
+        seen.add(node);
+        nodes.push(node);
+      });
+    });
+    if (nodes.length) return nodes;
+    bubbleSelectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((node) => {
+        if (!node || seen.has(node)) return;
+        if (node.closest(".convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,.headline-line,.sentence-line,#bubbleLeft,#bubbleRight")) return;
+        seen.add(node);
+        nodes.push(node);
+      });
+    });
+    document.querySelectorAll("[data-line]").forEach((node) => {
+      if (!node || seen.has(node)) return;
+      const className = String(node.className || "");
+      if (!/(line|bubble|speech|dialog|headline|sentence)/i.test(className)) return;
+      if (/(repeat-result|star-row|stars|bubble-result)/i.test(className)) return;
+      seen.add(node);
+      nodes.push(node);
+    });
+    return nodes;
+  }
+
+  function hideConversationLine(line) {
+    if (!line) return;
+    line.classList.remove("show");
+    line.hidden = true;
+    line.setAttribute("aria-hidden", "true");
+  }
+
+  function revealConversationLine(line) {
+    if (!line) return;
+    line.hidden = false;
+    line.removeAttribute("aria-hidden");
+    line.classList.add("show");
+  }
+
+  function isConversationLineVisible(line) {
+    if (!line) return false;
+    if (line.classList.contains("show")) return true;
+    if (line.hidden) return false;
+    return !!(line.offsetParent || line.getClientRects().length);
+  }
+
+  function getConversationBubble(line) {
+    if (!line) return null;
+    if (line.matches(".bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line")) return line;
+    return line.querySelector(".bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line");
+  }
+
+  function getConversationBubbleText(line) {
+    const bubble = getConversationBubble(line);
+    return bubble ? String(bubble.textContent || "").replace(/\s+/g, " ").trim() : "";
+  }
+
+  function speakConversationBubble(line) {
+    const text = getConversationBubbleText(line);
+    speakMicPrompt(text);
+  }
+
+  function speakMicPrompt(text, onDone) {
+    const done = typeof onDone === "function" ? onDone : null;
+    if (!text || !("speechSynthesis" in window)) {
+      if (done) done();
+      return;
+    }
+    try {
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.94;
+      utter.pitch = 1.08;
+      utter.onend = () => { if (done) done(); };
+      utter.onerror = () => { if (done) done(); };
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    } catch (_) {
+      if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
+        window.GPTracing.speakText(text, { rate: 0.94, pitch: 1.08 });
+      }
+      if (done) done();
+    }
+  }
+
+  function initUnifiedMicProtocol() {
+      const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+      const forceLA2MicForLesson = isLevelLessonPage() && !/^LA2$/i.test(pageFile);
+      if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
+
+    const micButton = document.querySelector("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
+    if (!micButton) return;
+
+    const lines = getConversationLineNodes();
+    if (!lines.length) return;
+
+    ensureUnifiedMicLessonStyles();
+    lines.forEach(hideConversationLine);
+    const hasCustomMicFlow = !!document.querySelector(".repeat-result,.star-row,.conversation-status,.recording-status");
+
+      const repeatOutputs = Array.from(document.querySelectorAll(".repeat-text,.repeat-result"));
+      const starOutputs = Array.from(document.querySelectorAll(".star-row"));
+      const conversationStatus = document.getElementById("conversationStatus") || document.querySelector(".conversation-status");
+      const attempts = new Array(lines.length).fill(0);
+      const starsAwarded = new Array(lines.length).fill(0);
+      const successRemarks = [
+        "Wow! You are super smart!",
+        "Amazing Job",
+        "Great Try! keep it up!!!"
+      ];
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      chime.preload = "auto";
+      const state = {
+        fallbackActive: false,
+        micStepIndex: 0,
+        micPhase: "reveal",
+        micBusy: false,
+        micDone: false,
+        lastVisibleIndex: -1,
+        stalledClicks: 0
+      };
+
+      function visibleIndex() {
+        return lines.findIndex(isConversationLineVisible);
+      }
+
+      function setFallbackRepeat(index, text, ok) {
+        const el = repeatOutputs[index];
+        if (!el) return;
+        el.textContent = text || "";
+        el.style.color = ok ? "#2f9f5f" : "#c62828";
+      }
+
+      function setConversationStatus(text) {
+        if (!conversationStatus) return;
+        conversationStatus.textContent = text || "";
+      }
+
+      function setFallbackStars(index, count) {
+        const el = starOutputs[index];
+        if (!el) return;
+        el.innerHTML = new Array(Math.max(0, count || 0)).fill("&#9733;").join("");
+      }
+
+      function highlightFallbackLine(index, on) {
+        const line = lines[index];
+        if (!line) return;
+        line.classList.toggle("mic-highlight", !!on);
+        const bubble = getConversationBubble(line);
+        if (bubble && bubble !== line) {
+          bubble.classList.toggle("mic-highlight", !!on);
+          bubble.classList.toggle("sparkle", !!on);
+        } else if (bubble) {
+          bubble.classList.toggle("sparkle", !!on);
+        }
+      }
+
+      function resetFallbackState() {
+        state.fallbackActive = false;
+        state.micStepIndex = 0;
+        state.micPhase = "reveal";
+        state.micBusy = false;
+        state.micDone = false;
+        state.lastVisibleIndex = -1;
+        state.stalledClicks = 0;
+        attempts.fill(0);
+        starsAwarded.fill(0);
+        lines.forEach(hideConversationLine);
+        repeatOutputs.forEach((el) => { if (el) el.textContent = ""; });
+        starOutputs.forEach((el) => { if (el) el.innerHTML = ""; });
+        setConversationStatus("");
+      }
+
+      function completeFallbackFlow() {
+        if (state.micDone) return;
+        state.micDone = true;
+        state.micBusy = false;
+        highlightFallbackLine(state.micStepIndex, false);
+        const totalStars = starsAwarded.reduce((sum, value) => sum + value, 0);
+        try {
+          if (window.GPTracing && typeof window.GPTracing.playTraceCelebration === "function") {
+            window.GPTracing.playTraceCelebration();
+          }
+          if (totalStars > 0) {
+            const remark = successRemarks[Math.floor(Math.random() * successRemarks.length)];
+            try {
+              chime.currentTime = 0;
+              chime.play().catch(() => {});
+            } catch (_) {}
+            setConversationStatus(remark);
+            if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
+              window.GPTracing.speakText(remark, { rate: 0.94, pitch: 1.08 });
+            }
+          } else {
+            setConversationStatus("");
+          }
+        } catch (_) {}
+        window.dispatchEvent(new CustomEvent("gp:mic-complete"));
+      }
+
+      function showAndSpeakFallbackLine(index) {
+        if (index < 0 || index >= lines.length) return;
+        revealConversationLine(lines[index]);
+        highlightFallbackLine(index, false);
+        state.fallbackActive = true;
+        state.micStepIndex = index;
+        state.micPhase = "repeat";
+        setConversationStatus(getConversationBubbleText(lines[index]));
+        speakConversationBubble(lines[index]);
+      }
+
+      function moveFallbackToNextStep() {
+        highlightFallbackLine(state.micStepIndex, false);
+        state.micBusy = false;
+        state.micStepIndex += 1;
+        state.micPhase = "reveal";
+        if (state.micStepIndex >= lines.length) {
+          completeFallbackFlow();
+          return;
+        }
+        showAndSpeakFallbackLine(state.micStepIndex);
+      }
+
+        function runFallbackFlow() {
+          if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
+          if (state.micDone || state.micBusy) return;
+
+        if (!state.fallbackActive) {
+          resetFallbackState();
+          state.fallbackActive = true;
+          lines.forEach(hideConversationLine);
+          state.micStepIndex = forceLA2MicForLesson ? 0 : Math.max(0, visibleIndex());
+          state.micPhase = "reveal";
+          showAndSpeakFallbackLine(state.micStepIndex);
+          return;
+        }
+
+        if (state.micPhase === "reveal") {
+          showAndSpeakFallbackLine(state.micStepIndex);
+          return;
+        }
+
+        const expected = getConversationBubbleText(lines[state.micStepIndex]);
+        if (!expected) {
+          moveFallbackToNextStep();
+          return;
+        }
+
+        state.micBusy = true;
+        highlightFallbackLine(state.micStepIndex, true);
+        setConversationStatus("Repeat after me.");
+
+        speakMicPrompt("Repeat after me.", () => {
+          if (!window.GPTracing || typeof window.GPTracing.listenForRepeat !== "function") {
+            setFallbackRepeat(state.micStepIndex, expected, true);
+            starsAwarded[state.micStepIndex] = 1;
+            setFallbackStars(state.micStepIndex, 1);
+            window.setTimeout(moveFallbackToNextStep, 180);
+            return;
+          }
+
+          window.GPTracing.listenForRepeat(expected, (pct, said) => {
+            const tryNo = ++attempts[state.micStepIndex];
+            if (pct >= 50) {
+              setFallbackRepeat(state.micStepIndex, (said || expected).trim(), true);
+              starsAwarded[state.micStepIndex] = window.GPTracing.rewardStars(tryNo);
+              setFallbackStars(state.micStepIndex, starsAwarded[state.micStepIndex]);
+              window.setTimeout(moveFallbackToNextStep, 220);
+              return;
+            }
+
+            if (tryNo >= 3) {
+              setFallbackRepeat(state.micStepIndex, "You did a good Job. Nice try!", false);
+              setConversationStatus("You did a good Job. Nice try!");
+              starsAwarded[state.micStepIndex] = 0;
+              setFallbackStars(state.micStepIndex, 0);
+              window.setTimeout(() => {
+                speakMicPrompt("You did a good Job. Nice try!", () => {
+                  window.setTimeout(moveFallbackToNextStep, 220);
+                });
+              }, 420);
+              return;
+            }
+
+            state.micBusy = false;
+            state.micPhase = "repeat";
+            highlightFallbackLine(state.micStepIndex, false);
+            setFallbackRepeat(state.micStepIndex, "Sorry, try again!", false);
+            setConversationStatus("Sorry, try again!");
+            window.setTimeout(() => {
+              speakMicPrompt("Sorry, try again!");
+            }, 320);
+          });
+        });
+      }
+
+      ["#clearBtn", ".btn.stop", "[data-action='clear']"].forEach((selector) => {
+        document.querySelectorAll(selector).forEach((button) => {
+          button.addEventListener("click", resetFallbackState, { capture: true });
+        });
+      });
+
+      function handleForcedMicClick(ev) {
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          if (typeof ev.stopImmediatePropagation === "function") {
+            ev.stopImmediatePropagation();
+          }
+        }
+        prepareMicSupport();
+        if (state.micDone) {
+          resetFallbackState();
+        }
+        if (forceLA2MicForLesson && !state.fallbackActive) {
+          resetFallbackState();
+        }
+        runFallbackFlow();
+      }
+
+      function interceptForcedMicEvent(ev) {
+        const target = ev && getMicTarget(ev.target);
+        if (!target) return;
+        handleForcedMicClick(ev);
+      }
+
+      function forceOwnMicButton() {
+        const liveMicButton = document.querySelector("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
+        if (!liveMicButton || liveMicButton.dataset.gpStrictLa2MicBound === "1") return;
+        const replacement = liveMicButton.cloneNode(true);
+        replacement.dataset.gpStrictLa2MicBound = "1";
+        liveMicButton.parentNode && liveMicButton.parentNode.replaceChild(replacement, liveMicButton);
+        replacement.addEventListener("click", handleForcedMicClick, true);
+      }
+
+      if (forceLA2MicForLesson) {
+        document.body.dataset.gpUnifiedMicProtocol = "1";
+        document.body.dataset.gpForceLa2Mic = "1";
+        forceOwnMicButton();
+        window.setTimeout(forceOwnMicButton, 0);
+        window.setTimeout(forceOwnMicButton, 150);
+        window.setTimeout(forceOwnMicButton, 600);
+        window.addEventListener("load", forceOwnMicButton, { once: true });
+        document.addEventListener("click", interceptForcedMicEvent, true);
+        if (window.MutationObserver) {
+          const observer = new MutationObserver(() => {
+            forceOwnMicButton();
+          });
+          observer.observe(document.documentElement || document.body, { childList: true, subtree: true });
+          window.addEventListener("pagehide", () => observer.disconnect(), { once: true });
+        }
+        return;
+      }
+
+      document.addEventListener("click", (ev) => {
+          if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
+          if (!getMicTarget(ev.target)) return;
+          prepareMicSupport();
+          const hadVisibleLine = lines.some(isConversationLineVisible);
+          window.setTimeout(() => {
+            if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
+            const hasVisibleLine = lines.some(isConversationLineVisible);
+          if (state.fallbackActive) {
+            runFallbackFlow();
+            return;
+          }
+          const currentVisible = visibleIndex();
+          const hasFeedback = repeatOutputs.some((el) => !!String(el && el.textContent || "").trim());
+          if (!hadVisibleLine && !hasVisibleLine) {
+            runFallbackFlow();
+            return;
+          }
+          if (hasVisibleLine && currentVisible === state.lastVisibleIndex && !hasFeedback) {
+            state.stalledClicks += 1;
+          } else {
+            state.stalledClicks = 0;
+          }
+          state.lastVisibleIndex = currentVisible;
+          if (state.stalledClicks >= 1) {
+            state.fallbackActive = true;
+            state.micStepIndex = Math.max(0, currentVisible);
+            state.micPhase = "repeat";
+            runFallbackFlow();
+          }
+        }, hasCustomMicFlow ? 180 : 80);
+      }, { capture: true, passive: true });
+    }
+
+  function initGenericTraceCanvasAudio() {
+    const canvases = [];
+    const seen = new Set();
+    document.querySelectorAll("#traceCanvas, .trace-canvas").forEach((canvas) => {
+      if (!(canvas instanceof HTMLCanvasElement) || seen.has(canvas)) return;
+      seen.add(canvas);
+      canvases.push(canvas);
+    });
+
+    canvases.forEach((canvas) => {
+      if (canvas.dataset.gpTraceAudioBound === "true") return;
+      if (canvas.dataset.gpSharedTracePad === "true") return;
+      canvas.dataset.gpTraceAudioBound = "true";
+      let drawing = false;
+
+      function endDraw() {
+        drawing = false;
+      }
+
+      canvas.addEventListener("pointerdown", () => {
+        drawing = true;
+      }, { passive: true });
+
+      canvas.addEventListener("pointermove", () => {
+        if (!drawing) return;
+        try {
+          if (window.GPTracing && typeof window.GPTracing.playTraceTick === "function") {
+            window.GPTracing.playTraceTick();
+          }
+        } catch (_) {}
+      }, { passive: true });
+
+      ["pointerup", "pointerleave", "pointercancel", "lostpointercapture"].forEach((eventName) => {
+        canvas.addEventListener(eventName, endDraw, { passive: true });
+      });
+    });
+  }
+
+  function initHomeButtonRouting() {
+    const candidates = Array.from(document.querySelectorAll(
+      ".home-btn,#homeBtn,.btn-home,a[aria-label*='home' i],button[aria-label*='home' i],[data-home],[title*='home' i]"
+    )).filter((el) => {
+      if (!el) return false;
+      const text = String(el.textContent || "").trim();
+      const label = String(el.getAttribute("aria-label") || el.getAttribute("title") || "");
+      return /home/i.test(text) || /home/i.test(label) || el.classList.contains("home-btn") || el.id === "homeBtn" || el.hasAttribute("data-home");
+    });
+
+    candidates.forEach((button) => {
+      if (button.dataset.gpHomeBound === "1") return;
+      button.dataset.gpHomeBound = "1";
+      const homeTarget = getLessonAppAbsolute("index.html");
+
+      if (button.tagName === "A") {
+        button.setAttribute("href", homeTarget);
+      } else {
+        button.setAttribute("data-home-target", homeTarget);
+      }
+
+      button.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (typeof ev.stopImmediatePropagation === "function") {
+          ev.stopImmediatePropagation();
+        }
+        window.location.assign(homeTarget);
+      }, true);
+    });
+  }
+
+  function initAutoIntroVideo() {
+    if (isLevelLessonPage() && window.GPTracing) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const candidates = [];
+    collectExistingIntroSources().forEach((src) => pushUniqueCandidate(candidates, src));
+    getAutoIntroCandidates(pageFile).forEach((src) => pushUniqueCandidate(candidates, src));
+    if (!candidates.length) return;
+
+    const existingIntro = document.getElementById("introVideo");
+    if (existingIntro && existingIntro.dataset.gpBoundIntro === "true") return;
+
+        ensureAutoIntroStyles();
+        const html = document.documentElement;
+        const body = document.body;
+        if (!body) return;
+        const isLevelBPage = /[\\\/]level-b[\\\/]/i.test((location.pathname || "") + " " + (location.href || ""));
+
+        if (isLevelBPage) {
+          window.__lbIntroVideoOverlayInit = true;
+        }
+
+      [
+        "#lbIntroVideoOverlay",
+        "#lb3IntroOverlay",
+        "#lbIntroVideoControls",
+        "#lbIntroVideoPlay",
+        "#lbIntroVideoSkip",
+        "#introPlayBtn",
+        "#introSkipBtn",
+        "#lbIntroStartBtn",
+        "#lbIntroHelp"
+        ].forEach(function (selector) {
+          document.querySelectorAll(selector).forEach(function (el) {
+            try {
+              el.style.display = "none";
+            el.style.visibility = "hidden";
+            el.style.opacity = "0";
+            el.style.pointerEvents = "none";
+            } catch (_) {}
+          });
+        });
+
+        ["#lbIntroVideoOverlay", "#lb3IntroOverlay"].forEach(function (selector) {
+          document.querySelectorAll(selector).forEach(function (el) {
+            try { el.remove(); } catch (_) {}
+          });
+        });
+
+      const prehide = document.getElementById("gpUnifiedIntroPrehide");
+      if (prehide) prehide.remove();
+
+    let wrap = document.getElementById("introVideoWrap");
+    let video = document.getElementById("introVideo");
+    let createdWrap = false;
+
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "gpAutoIntroOverlay";
+      wrap.className = "intro-video-wrap";
+      video = document.createElement("video");
+      video.id = "introVideo";
+      wrap.appendChild(video);
+      body.appendChild(wrap);
+      createdWrap = true;
+    }
+
+      if (!video) {
+        video = document.createElement("video");
+        video.id = "introVideo";
+        wrap.appendChild(video);
+      }
+
+      video.style.objectFit = "contain";
+      video.style.objectPosition = "center center";
+      video.style.background = "#000";
+
+      video.dataset.gpBoundIntro = "true";
+      video.preload = "auto";
+      video.autoplay = true;
+      video.controls = false;
+      video.loop = false;
+      video.playsInline = true;
+      video.style.width = "100vw";
+      video.style.height = "100vh";
+      video.style.maxWidth = "100vw";
+      video.style.maxHeight = "100vh";
+      video.style.objectFit = "contain";
+      video.style.objectPosition = "center center";
+      video.style.background = "#000";
+      video.style.borderRadius = "0";
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      let candidateIndex = 0;
+      function applyCandidate(index) {
+        const candidate = candidates[index];
+        if (!candidate) return false;
+        try { video.pause(); } catch (_) {}
+        try { video.currentTime = 0; } catch (_) {}
+        video.src = candidate.src;
+        try { video.load(); } catch (_) {}
+        return true;
+      }
+      applyCandidate(candidateIndex);
+
+      let done = false;
+      let hardTimeout = null;
+
+    function clearHardTimeout() {
+      if (!hardTimeout) return;
+      window.clearTimeout(hardTimeout);
+      hardTimeout = null;
+    }
+
+    function revealLesson() {
+      if (done) return;
+      done = true;
+      clearHardTimeout();
+      try { video.pause(); } catch (_) {}
+      wrap.classList.remove("active");
+      wrap.style.display = "none";
+      wrap.style.visibility = "hidden";
+      wrap.style.opacity = "0";
+      wrap.style.pointerEvents = "none";
+        body.classList.remove("intro-active");
+        html.classList.remove("lesson-intro-video-pending");
+        if (createdWrap) wrap.remove();
+        window.dispatchEvent(new Event("gp:intro-end"));
+      }
+
+      const requireAudio = window.__GP_REQUIRE_INTRO_AUDIO__ !== false;
+      let audioFailureCount = 0;
+      let playbackMode = "audio";
+
+      function startPlayback(withAudio) {
+        try { video.currentTime = 0; } catch (_) {}
+        try {
+          video.defaultMuted = !withAudio;
+          video.muted = !withAudio;
+          if (withAudio) {
+            video.removeAttribute("muted");
+          } else {
+            video.setAttribute("muted", "");
+          }
+        } catch (_) {}
+        try { video.volume = 1; } catch (_) {}
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(function () {
+            if (done) return;
+            if (withAudio) {
+              audioFailureCount += 1;
+              try { video.pause(); } catch (_) {}
+              try { video.currentTime = 0; } catch (_) {}
+              if (requireAudio && audioFailureCount < 3) {
+                window.setTimeout(function () {
+                  if (!done) startPlayback(true);
+                }, 220);
+                return;
+              }
+              playbackMode = "muted";
+              startPlayback(false);
+              return;
+            }
+            revealLesson();
+          });
+        }
+      }
+
+      function tryPromoteIntroAudio() {
+        if (done) return;
+        if (playbackMode !== "muted") return;
+        try {
+          video.defaultMuted = false;
+          video.muted = false;
+          video.removeAttribute("muted");
+          video.volume = 1;
+        } catch (_) {}
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.then === "function") {
+          playPromise.then(function () {
+            playbackMode = "audio";
+          }).catch(function () {
+            playbackMode = "muted";
+            try { video.defaultMuted = true; } catch (_) {}
+            try { video.muted = true; } catch (_) {}
+            try { video.setAttribute("muted", ""); } catch (_) {}
+          });
+        }
+      }
+
+    function tryNextCandidate() {
+      candidateIndex += 1;
+      if (!applyCandidate(candidateIndex)) return false;
+      clearHardTimeout();
+      hardTimeout = window.setTimeout(revealLesson, 4000);
+      startPlayback(true);
+      return true;
+    }
+
+    wrap.classList.add("active");
+    wrap.style.display = "flex";
+    wrap.style.visibility = "visible";
+    wrap.style.opacity = "1";
+    wrap.style.pointerEvents = "auto";
+    body.classList.add("intro-active");
+    html.classList.add("lesson-intro-video-pending");
+
+      video.addEventListener("ended", revealLesson, { once: true });
+      video.addEventListener("error", function () {
+        if (done) return;
+        if (tryNextCandidate()) return;
+        revealLesson();
+      });
+      video.addEventListener("loadeddata", function () {
+        if (!done && video.currentTime === 0) startPlayback(true);
+      }, { once: true });
+      video.addEventListener("canplay", function () {
+        if (!done && video.currentTime === 0) startPlayback(true);
+      }, { once: true });
+      video.addEventListener("loadedmetadata", function () {
+        clearHardTimeout();
+        const seconds = Number(video.duration) || 0;
+        const timeoutMs = Math.max(6000, Math.min(90000, Math.round((seconds + 2) * 1000)));
+        hardTimeout = window.setTimeout(revealLesson, timeoutMs);
+      }, { once: true });
+        video.addEventListener("play", function () {
+          if (!video.muted) {
+            playbackMode = "audio";
+          } else {
+            window.setTimeout(tryPromoteIntroAudio, 350);
+            window.setTimeout(tryPromoteIntroAudio, 1400);
+          }
+        });
+      hardTimeout = window.setTimeout(revealLesson, 4000);
+
+        prepareMicSupport();
+        startPlayback(true);
+        window.addEventListener("load", function () {
+          if (!done && video.currentTime === 0) startPlayback(true);
+        }, { once: true });
+        ["pointerdown", "touchstart", "click", "keydown"].forEach(function (eventName) {
+          document.addEventListener(eventName, function () {
+            tryPromoteIntroAudio();
+          }, { capture: true, passive: eventName !== "keydown" });
+        });
+      }
+
+  window.addEventListener("gp:intro-end", stopIntroMedia, true);
+  window.addEventListener("pagehide", stopIntroMedia, true);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") stopIntroMedia();
+  }, true);
+  document.addEventListener("pointerdown", (ev) => {
+    if (!getMicTarget(ev.target)) return;
+    prepareMicSupport();
+  }, { capture: true, passive: true });
+  document.addEventListener("touchstart", (ev) => {
+    if (!getMicTarget(ev.target)) return;
+    prepareMicSupport();
+  }, { capture: true, passive: true });
+  document.addEventListener("click", (ev) => {
+    if (!getMicTarget(ev.target)) return;
+    prepareMicSupport();
+  }, { capture: true, passive: true });
+  document.addEventListener("pointerdown", (ev) => {
+    const hit = getTrackedTarget(ev.target);
+    if (!hit) return;
+    saveBeforeNavigation();
+  }, { capture: true, passive: true });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Enter" && ev.key !== " ") return;
+    const hit = getTrackedTarget(ev.target);
+    if (!hit) return;
+    saveBeforeNavigation();
+  }, { capture: true });
+  document.addEventListener("click", (ev) => {
+    const hit = getTrackedTarget(ev.target);
+    if (!hit) return;
+    saveBeforeNavigation();
+  }, { capture: true, passive: true });
+  document.addEventListener("submit", () => {
+    saveBeforeNavigation();
+  }, { capture: true });
+
+  installSpeechVoicePreference();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initExpectedLessonNavigation, { once: true });
+    document.addEventListener("DOMContentLoaded", initAutoIntroVideo, { once: true });
+    document.addEventListener("DOMContentLoaded", initUnifiedMicProtocol, { once: true });
+    document.addEventListener("DOMContentLoaded", initGenericTraceCanvasAudio, { once: true });
+    document.addEventListener("DOMContentLoaded", initHomeButtonRouting, { once: true });
+    document.addEventListener("DOMContentLoaded", suppressLegacyLevelBGirlHelper, { once: true });
+  } else {
+    initExpectedLessonNavigation();
+    initAutoIntroVideo();
+    initUnifiedMicProtocol();
+    initGenericTraceCanvasAudio();
+    initHomeButtonRouting();
+    suppressLegacyLevelBGirlHelper();
+  }
+})();

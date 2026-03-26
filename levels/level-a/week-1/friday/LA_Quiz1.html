@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Level A • Quiz 1 • Circle</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<style>
+  :root{--ink:#1f2a37;--muted:#64748b;--card:#ffffffcc;--shadow:0 18px 60px rgba(0,0,0,.18);
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;}
+  body{color:var(--ink);
+    background:radial-gradient(circle at 15% 20%, #ffe3fb 0 18%, transparent 19%),
+      radial-gradient(circle at 85% 25%, #d7f5ff 0 20%, transparent 21%),
+      radial-gradient(circle at 25% 85%, #e6ffe9 0 22%, transparent 23%),
+      linear-gradient(135deg,#fff 0%,#f5fbff 35%,#fff7fb 70%,#f7fff7 100%);
+    display:flex;align-items:center;justify-content:center;padding:18px;}
+  .app{width:min(960px,96vw);background:transparent;box-shadow:none}
+  .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .badge{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(90deg,#ff4fd8,#35c8ff,#7cffa6,#ffd84d);
+    color:#111;padding:10px 14px;border-radius:999px;box-shadow:var(--shadow);font-weight:1000}
+  .btn{appearance:none;border:0;cursor:pointer;user-select:none;padding:10px 12px;border-radius:14px;font-weight:1000;background:#111827;color:#fff;box-shadow:0 10px 26px rgba(0,0,0,.2)}
+  .btn.ghost{background:#ffffffc7;color:#111827}
+  .panel{background:var(--card);border:3px solid #fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+  .head{padding:14px 16px;border-bottom:2px solid #eef2ff}
+  .title{margin:0;font-size:30px;font-weight:1000;background:linear-gradient(90deg,#ff4fd8,#35c8ff,#7cffa6,#ffd84d);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{margin:6px 0 0;color:var(--muted);font-weight:900}
+  .box{padding:16px}
+  .big{height:220px;border-radius:18px;border:2px dashed #dbeafe;display:grid;place-items:center;background:linear-gradient(180deg,#fff,#f6fbff)}
+  .circle{width:170px;height:170px;border-radius:999px;background:radial-gradient(circle at 30% 30%, #fff, #ffe5fb 35%, #ff4fd8 90%);
+    border:6px solid rgba(255,255,255,.85);box-shadow:inset 0 12px 26px rgba(255,255,255,.65), inset 0 -18px 28px rgba(0,0,0,.12), 0 18px 48px rgba(255,79,216,.20);}
+  .q{margin:14px 0 10px;font-size:20px;font-weight:1000}
+  .answers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media (max-width:740px){.answers{grid-template-columns:1fr}}
+  .ans{background:#fff;border:2px solid #e5e7eb;border-radius:18px;padding:12px;cursor:pointer;font-weight:1000;text-align:center;box-shadow:0 10px 24px rgba(0,0,0,.06)}
+  .ans.good{border-color:#22c55e}
+  .ans.bad{border-color:#ef4444}
+  .footerNav{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:12px 16px;background:linear-gradient(90deg,#ffffff,#f8fbff);border-top:2px solid #eef2ff}
+  .spark{pointer-events:none;position:fixed;inset:0;overflow:hidden;z-index:9999}
+  .star{position:absolute;font-size:22px;animation:pop 900ms ease-out forwards;filter:drop-shadow(0 10px 14px rgba(0,0,0,.18))}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-160%) scale(1.25);opacity:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="badge"><div>Level A <small style="display:block;opacity:.9">Quiz 1</small></div><div style="font-size:20px">📝</div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <a class="btn ghost" href="LA_Game1.html">⬅ Back</a>
+      <button class="btn ghost" id="soundBtn" type="button">🔊 Sound: ON</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="head">
+      <p class="title">Circle Quiz</p>
+      <p class="sub" id="msg">Answer to win stars ⭐</p>
+    </div>
+
+    <div class="box">
+      <div class="big"><div class="circle"></div></div>
+      <div class="q">How many vertices does a circle have?</div>
+      <div class="answers" id="answers">
+        <button class="ans" type="button" data-v="0">0</button>
+        <button class="ans" type="button" data-v="3">3</button>
+        <button class="ans" type="button" data-v="4">4</button>
+      </div>
+
+      <div style="margin-top:12px;background:#f1f5f9;border:2px solid #e2e8f0;border-radius:18px;padding:12px;font-weight:1000">
+        ⭐ Stars: <span id="stars">0</span>
+      </div>
+    </div>
+
+    <div class="footerNav">
+      <a class="btn ghost" href="LA_Game1.html">◀ Prev</a>
+      <a class="btn" href="../../week-2/monday/LA8.html">Next ➜</a>
+    </div>
+  </div>
+</div>
+
+<div class="spark" id="spark"></div>
+
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script>
+const TRACK={level:"A"};
+const LS_KEY="gp_kids_progress_v1";
+let soundOn=true, stars=0;
+const $=(q)=>document.querySelector(q);
+const spark=$("#spark");
+
+function saveProgress(activity,score,max){
+  const row={...TRACK,activity,score,max,at:new Date().toISOString(),file:location.pathname.split("/").pop()};
+  window.GPStorage.appendJSON(LS_KEY, row, []);
+}
+function starBurst(x,y,emoji="⭐"){
+  const s=document.createElement("div");
+  s.className="star"; s.textContent=emoji;
+  s.style.left=x+"px"; s.style.top=y+"px";
+  spark.appendChild(s); setTimeout(()=>s.remove(),950);
+}
+function beep(type="good"){
+  if(!soundOn) return;
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type="sine"; const now=ctx.currentTime;
+  const f1=type==="good"? 880:220, f2=type==="good"? 1320:180;
+  o.frequency.setValueAtTime(f1,now); o.frequency.exponentialRampToValueAtTime(f2,now+0.12);
+  g.gain.setValueAtTime(0.0001,now);
+  g.gain.exponentialRampToValueAtTime(0.35,now+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,now+0.18);
+  o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now+0.2);
+}
+function cheer(text){
+  if(!soundOn) return;
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.95; u.pitch=1.25; u.volume=1;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+$("#soundBtn").addEventListener("click", ()=>{
+  soundOn=!soundOn;
+  $("#soundBtn").textContent=soundOn?"🔊 Sound: ON":"🔇 Sound: OFF";
+  beep(soundOn?"good":"bad");
+});
+
+const correct=0; // circle vertices
+$("#answers").addEventListener("click",(e)=>{
+  const b=e.target.closest(".ans"); if(!b) return;
+  document.querySelectorAll(".ans").forEach(x=>x.classList.remove("good","bad"));
+  const v=Number(b.dataset.v);
+  const ok=v===correct;
+  b.classList.add(ok?"good":"bad");
+  if(ok){
+    stars++; $("#stars").textContent=String(stars);
+    beep("good"); cheer("Correct!");
+    starBurst(e.clientX,e.clientY,"🎉");
+    $("#msg").textContent="Yay! You got a star ⭐";
+    saveProgress("LA_Quiz1_CircleVertices", 1, 1);
+    if (typeof window.finishAndSave === "function") {
+      window.finishAndSave({
+        pageId: "LA_Quiz1",
+        level: "A",
+        activityType: "quiz",
+        score: 100,
+        stars,
+        skills: {
+          reading: 1,
+          writing: 0,
+          speaking: 0,
+          listening: 1
+        }
+      });
+    }
+  }else{
+    beep("bad"); cheer("Try again!");
+    starBurst(e.clientX,e.clientY,"💛");
+    $("#msg").textContent="Oops! Try again!";
+    saveProgress("LA_Quiz1_CircleVertices", 0, 1);
+  }
+});
+cheer("How many vertices does a circle have?");
+</script>
+<script src="../../../../activity-standardizer.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA_Quiz1",
+    defaultLevel: "A",
+    defaultActivityType: "quiz",
+    defaultScore: 0,
+    defaultStars: 0,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 0,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
+
+

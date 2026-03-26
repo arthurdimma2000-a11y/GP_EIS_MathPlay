@@ -1,0 +1,10 @@
+assets/video/ShapeHighlights.mp4
+assets/video/TangramHighlights.mp4 
+assets/video/PolygonHighlights.mp4 
+node_modules/
+.env
+service-account*.json
+firebase-admin*.json
+.DS_Store
+Thumbs.db
+desktop.ini

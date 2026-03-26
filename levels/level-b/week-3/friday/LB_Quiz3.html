@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Level B • Quiz 3 — Sides & Vertices</title>
+<style>
+  :root{--bg1:#fff4b8;--bg2:#c7f7ff;--bg3:#ffd1f3;--ink:#1f2430;--card:#fff;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));padding:18px}
+  .app{width:min(980px,98vw)}
+  .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .badge{background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 12px 28px rgba(0,0,0,.10);font-weight:1000;display:flex;gap:10px;align-items:center}
+  .btn{border:0;cursor:pointer;font-weight:1000;border-radius:14px;padding:12px 14px;background:#fff;color:var(--ink);box-shadow:0 10px 22px rgba(0,0,0,.12);text-decoration:none;display:inline-flex;gap:8px;align-items:center}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#0b1b10}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7);color:#06121d}
+  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
+  .title{font-size:26px;font-weight:1000;margin:6px 0 6px}
+  .subtitle{margin:0 0 12px;opacity:.85}
+  .q{border-radius:18px;padding:12px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);margin-top:10px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .opt{border:0;cursor:pointer;font-weight:1000;font-size:18px;border-radius:16px;padding:12px 14px;background:#fff;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+  .opt:active{transform:translateY(1px)}
+  .msg{margin-top:12px;border-radius:16px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Quiz 3 • Mix</span></div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <a class="btn" href="LB_Game3.html">⬅ Back</a>
+      <a class="btn next" href="../../week-4/monday/LB20.html">Next ▶</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">Answer the question!</div>
+    <p class="subtitle">
+      Hexagon fact from your book: it has <b>six sides</b> and <b>six vertices</b>. :contentReference[oaicite:12]{index=12}
+    </p>
+
+    <div class="q">
+      <div id="question" style="font-size:20px;font-weight:1000"></div>
+      <div class="row" id="opts" style="margin-top:12px"></div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="nextBtn">➡ Next</button>
+      <button class="btn" id="finishBtn">🏁 Finish</button>
+    </div>
+
+    <div class="msg" id="msg">Press Next to begin ⭐</div>
+  </div>
+</div>
+
+<script>
+/* --- SFX + Tracker --- */
+(function(){
+  const STORE_KEY="gpeis_progress_v1";
+  let audioCtx=null;
+  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function beep(f,t,g=0.05,type="triangle"){ const c=ctx(),o=c.createOscillator(),ga=c.createGain();
+    o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
+  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
+  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
+  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
+    const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
+    const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
+    const a=acts[activityId];
+    a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
+    a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
+    db[level].updatedAt=new Date().toISOString(); save(db);
+    chime(); if(stars>=3||score>=85) cheer();
+    return a;
+  }};
+  window.__SFX__={chime,cheer};
+})();
+
+const questionEl=document.getElementById("question");
+const optsEl=document.getElementById("opts");
+const msg=document.getElementById("msg");
+
+const Q = [
+  {q:"How many vertices does a pentagon have?", a:"5", opts:["5","6","8"], cite:"pentagon"},
+  {q:"How many vertices does a hexagon have?", a:"6", opts:["5","6","8"], cite:"hexagon"},
+  {q:"How many vertices does an octagon have?", a:"8", opts:["5","6","8"], cite:"octagon"},
+  {q:"A hexagon has how many sides?", a:"6", opts:["5","6","8"], cite:"hexSides"},
+  {q:"Which shape has 8 vertices?", a:"Octagon", opts:["Pentagon","Hexagon","Octagon"], cite:"octagon"},
+  {q:"Which shape has 5 vertices?", a:"Pentagon", opts:["Pentagon","Hexagon","Octagon"], cite:"pentagon"},
+];
+
+let i=-1, correct=0, locked=true;
+
+function render(){
+  const item=Q[i];
+  questionEl.textContent = `Question ${i+1}/${Q.length}: ${item.q}`;
+  optsEl.innerHTML="";
+  item.opts.forEach(o=>{
+    const b=document.createElement("button");
+    b.className="opt";
+    b.textContent=o;
+    b.onclick=()=>pick(o);
+    optsEl.appendChild(b);
+  });
+}
+
+function next(){
+  i++;
+  if(i>=Q.length){ finish(); return; }
+  locked=false;
+  render();
+  msg.textContent="Pick the best answer!";
+  window.__SFX__.chime();
+}
+
+function pick(ans){
+  if(locked) return;
+  locked=true;
+  const item=Q[i];
+  if(ans===item.a){
+    correct++;
+    msg.textContent="✅ Correct!";
+    window.__SFX__.cheer();
+  }else{
+    msg.textContent=`❌ Not quite. Correct answer is ${item.a}.`;
+    window.__SFX__.chime();
+  }
+  setTimeout(()=>{ locked=false; next(); }, 650);
+}
+
+async function finish(){
+  const scorePct=Math.round((correct/Q.length)*100);
+  const stars=scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
+  msg.textContent=`🎉 Finished! Correct ${correct}/${Q.length} (≈${scorePct}%). Stars: ${"⭐".repeat(Math.max(1,stars))}`;
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LB_Quiz3",
+      level: "B",
+      activityType: "quiz",
+      score: scorePct,
+      stars,
+      skills: { reading: 2, writing: 0, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "B", activityId: "LB_Quiz3", score: scorePct, stars });
+  }
+  window.__SFX__.cheer();
+}
+
+document.getElementById("nextBtn").onclick=next;
+document.getElementById("finishBtn").onclick=finish;
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+

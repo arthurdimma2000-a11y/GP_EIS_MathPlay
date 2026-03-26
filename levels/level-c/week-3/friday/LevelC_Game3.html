@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C - Game 3 (Use All Seven Pieces!)</title>
+<style>
+  :root{
+    --ink:#14324a;
+    font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 20% 20%, #ffffffcc, transparent 60%),
+      radial-gradient(900px 500px at 80% 30%, #ffffffcc, transparent 60%),
+      linear-gradient(135deg,#ffe5f1,#d0f4ff);
+    display:flex; justify-content:center; padding:18px;
+  }
+  .app{width:min(1200px,96vw);}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; border-radius:18px;
+    background:linear-gradient(180deg,#ffffffdd,#ffffffaa);
+    box-shadow:0 14px 35px rgba(0,0,0,.12);
+    backdrop-filter: blur(10px);
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:999px;
+    background:linear-gradient(135deg,#9b5de5,#00bbf9);
+    color:#fff; font-weight:1000;
+    box-shadow:0 10px 22px rgba(155,93,229,.18);
+  }
+  .btn{
+    border:0; cursor:pointer; font-weight:1000;
+    padding:10px 14px; border-radius:14px;
+    background:#fff; color:var(--ink);
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:transform .08s ease;
+    text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .btn:active{transform:translateY(1px) scale(.99)}
+  .btn.primary{background:linear-gradient(135deg,#00f5a0,#ffd166); color:#063b2a}
+  .btn.warn{background:linear-gradient(135deg,#ff4d6d,#ffd166); color:#4a1020}
+  .grid{display:grid; grid-template-columns: 1.15fr .85fr; gap:14px; margin-top:14px}
+  @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
+
+  .card{
+    background:linear-gradient(180deg,#ffffffdd,#ffffffb8);
+    border:2px solid #ffffff;
+    border-radius:22px;
+    box-shadow:0 18px 45px rgba(0,0,0,.12);
+    padding:14px;
+  }
+  h1{margin:0; font-size:18px}
+  h2{margin:0 0 10px; font-size:20px}
+  .stage{
+    background:linear-gradient(180deg,#f6fbff,#ffffff);
+    border:2px dashed rgba(20,50,74,.25);
+    border-radius:18px;
+    padding:12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .tip{
+    display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    font-weight:1000;
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 10px; border-radius:999px; font-weight:1000;
+    background:#0b1b2a; color:#fff; font-size:12px;
+  }
+  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px}
+  .kpi{background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,.06)}
+  .kpi .big{font-size:20px; font-weight:1000}
+  .toast{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    background:#0b1b2a; color:#fff; padding:12px 14px; border-radius:16px;
+    box-shadow:0 18px 35px rgba(0,0,0,.25);
+    display:none; max-width:min(92vw,720px);
+    font-weight:900;
+  }
+
+  #boardWrap{display:flex; justify-content:center}
+  #board{
+    width:min(680px,92vw);
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(circle at 30% 20%, #ffffff, #f7fbff);
+    border-radius:18px;
+    border:2px solid rgba(0,0,0,.06);
+    position:relative;
+    overflow:hidden;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.03);
+  }
+  .target{
+    position:absolute;
+    border:2px dashed rgba(20,50,74,.25);
+    border-radius:12px;
+    background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:1000; font-size:12px; opacity:.9;
+    pointer-events:none;
+  }
+  .piece{
+    position:absolute;
+    width:120px; height:120px;
+    border-radius:14px;
+    box-shadow:0 12px 18px rgba(0,0,0,.12);
+    cursor:grab;
+    touch-action:none;
+  }
+  .piece:active{cursor:grabbing}
+  .piece svg{width:100%; height:100%}
+  .piece.done{outline:4px solid rgba(0,245,160,.55)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div style="display:flex; gap:10px; align-items:center">
+      <div class="badge">🏷️ <b>Level C</b> <span style="opacity:.9">• Game 3</span></div>
+      <div>
+        <h1>Use All Seven Pieces!</h1>
+        <div style="font-weight:900; opacity:.85; font-size:13px">Drag each piece into the glowing square puzzle board ✨</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
+      <a class="btn" href="../thursday/LevelC_Revision3.html">⬅ Back</a>
+      <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
+      <button class="btn warn" id="resetBtn" type="button">↻ Reset</button>
+      <a class="btn primary" href="LevelC_Quiz3.html">Next ➜</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+        <h2>🟦 Puzzle Board</h2>
+        <span class="pill" id="statusPill">0/7 placed</span>
+      </div>
+      <div class="stage">
+        <div class="tip">
+          <div>Rule: <span style="color:#9b5de5">Use all seven pieces</span> ✅</div>
+          <div style="opacity:.85">Snap helps you!</div>
+        </div>
+        <div id="boardWrap" style="margin-top:12px">
+          <div id="board" aria-label="Tangram board"></div>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="big" id="score">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Score</div></div>
+        <div class="kpi"><div class="big" id="stars">⭐ 0</div><div style="font-weight:900; opacity:.85; font-size:12px">Stars</div></div>
+        <div class="kpi"><div class="big" id="moves">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Moves</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🧩 Pieces</h2>
+      <div class="stage">
+        <div style="font-weight:900; opacity:.9; margin-bottom:10px">
+          Drag pieces into the dashed targets. When it snaps, it’s correct!
+        </div>
+        <div style="font-weight:900; opacity:.85" id="hint">
+          Tip: Start with the big triangles first.
+        </div>
+      </div>
+
+      <div class="stage" style="margin-top:12px">
+        <div style="font-weight:1000; margin-bottom:8px">Mini-check:</div>
+        <div style="font-weight:900; opacity:.85">
+          When you finish, your progress is saved automatically ✅
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== Tracker ====== */
+const TRACK_LEVEL="C";
+const PAGE_ID="LevelC_Game3";
+function getProgressStore(){ try{return JSON.parse(localStorage.getItem("gpeis_progress_v1")||"{}");}catch(e){return{};} }
+function saveProgress(entry){
+  const s=getProgressStore();
+  const arr=Array.isArray(s.entries)?s.entries:[];
+  arr.push(entry); s.entries=arr; s.last=entry;
+  localStorage.setItem("gpeis_progress_v1", JSON.stringify(s));
+}
+
+/* ====== Sound + Voice ====== */
+let SOUND_ON=true;
+document.getElementById("soundBtn").addEventListener("click", ()=>{
+  SOUND_ON=!SOUND_ON;
+  document.getElementById("soundBtn").textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+});
+function beep(freq=440, ms=120, type="sine", gain=0.06){
+  if(!SOUND_ON) return;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+}
+function chimeSuccess(){ beep(523,110,"sine",0.07); setTimeout(()=>beep(659,110,"sine",0.07),120); setTimeout(()=>beep(784,160,"sine",0.07),240); }
+function speak(text){
+  if(!SOUND_ON) return;
+  if(!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate=1.02; u.pitch=1.12; u.volume=1;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+const toast=document.getElementById("toast");
+function toastShow(msg){
+  toast.textContent=msg; toast.style.display="block";
+  clearTimeout(toast._t); toast._t=setTimeout(()=>toast.style.display="none", 1600);
+}
+
+/* ====== Board + Pieces ====== */
+const board = document.getElementById("board");
+const statusPill = document.getElementById("statusPill");
+const scoreEl = document.getElementById("score");
+const starsEl = document.getElementById("stars");
+const movesEl = document.getElementById("moves");
+
+let score=0, stars=0, moves=0, placed=0;
+const SNAP_DIST = 28;
+
+// 7 targets (simple “square fill” layout)
+const targets = [
+  {id:"L1", x:40, y:40, w:210, h:210, label:"Large △"},
+  {id:"L2", x:430, y:40, w:210, h:210, label:"Large △"},
+  {id:"M",  x:250, y:60, w:160, h:160, label:"Medium △"},
+  {id:"S1", x:260, y:240, w:120, h:120, label:"Small △"},
+  {id:"S2", x:120, y:310, w:120, h:120, label:"Small △"},
+  {id:"SQ", x:380, y:310, w:120, h:120, label:"Square"},
+  {id:"P",  x:250, y:390, w:180, h:120, label:"Parallelogram"}
+];
+
+const pieces = [
+  {id:"L1", color:"#ff4d6d", shape:"triLarge"},
+  {id:"L2", color:"#00bbf9", shape:"triLarge"},
+  {id:"M", color:"#00f5a0", shape:"triMed"},
+  {id:"S1", color:"#ffd166", shape:"triSmall"},
+  {id:"S2", color:"#9b5de5", shape:"triSmall"},
+  {id:"SQ", color:"#f7b801", shape:"square"},
+  {id:"P", color:"#34d399", shape:"para"}
+];
+
+function pieceSVG(kind, fill){
+  const common = `style="filter: drop-shadow(0 10px 10px rgba(0,0,0,.18));"`;
+  if(kind==="square"){
+    return `<svg viewBox="0 0 120 120" aria-label="square">
+      <rect x="20" y="20" width="80" height="80" rx="14" fill="${fill}" ${common}/>
+    </svg>`;
+  }
+  if(kind==="para"){
+    return `<svg viewBox="0 0 120 120" aria-label="parallelogram">
+      <polygon points="20,75 52,35 100,35 68,75" fill="${fill}" ${common}/>
+    </svg>`;
+  }
+  if(kind==="triSmall"){
+    return `<svg viewBox="0 0 120 120" aria-label="small triangle">
+      <polygon points="20,90 60,40 100,90" fill="${fill}" ${common}/>
+    </svg>`;
+  }
+  if(kind==="triMed"){
+    return `<svg viewBox="0 0 120 120" aria-label="medium triangle">
+      <polygon points="15,95 60,30 105,95" fill="${fill}" ${common}/>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 120 120" aria-label="large triangle">
+    <polygon points="10,100 60,20 110,100" fill="${fill}" ${common}/>
+  </svg>`;
+}
+
+function renderTargets(){
+  board.innerHTML="";
+  targets.forEach(t=>{
+    const d=document.createElement("div");
+    d.className="target";
+    d.style.left=t.x+"px";
+    d.style.top=t.y+"px";
+    d.style.width=t.w+"px";
+    d.style.height=t.h+"px";
+    d.textContent=t.label;
+    board.appendChild(d);
+  });
+}
+
+function updateUI(){
+  statusPill.textContent = `${placed}/7 placed`;
+  scoreEl.textContent = score;
+  starsEl.textContent = `⭐ ${stars}`;
+  movesEl.textContent = moves;
+}
+
+function distance(ax,ay,bx,by){
+  const dx=ax-bx, dy=ay-by;
+  return Math.sqrt(dx*dx+dy*dy);
+}
+
+function createPieces(){
+  // starting positions around edges
+  const starts = [
+    {x:20,y:520},{x:140,y:520},{x:260,y:520},{x:380,y:520},{x:500,y:520},{x:20,y:650},{x:140,y:650}
+  ];
+  pieces.forEach((p,i)=>{
+    const el=document.createElement("div");
+    el.className="piece";
+    el.dataset.id=p.id;
+    el.innerHTML=pieceSVG(p.shape,p.color);
+    const s=starts[i%starts.length];
+    el.style.left = s.x+"px";
+    el.style.top  = s.y+"px";
+    board.appendChild(el);
+    enableDrag(el);
+  });
+}
+
+function enableDrag(el){
+  let startX=0, startY=0, baseL=0, baseT=0, dragging=false;
+
+  function onDown(e){
+    dragging=true;
+    el.setPointerCapture(e.pointerId);
+    startX=e.clientX; startY=e.clientY;
+    baseL=parseFloat(el.style.left); baseT=parseFloat(el.style.top);
+  }
+  function onMove(e){
+    if(!dragging) return;
+    const dx=e.clientX-startX, dy=e.clientY-startY;
+    el.style.left = (baseL+dx)+"px";
+    el.style.top  = (baseT+dy)+"px";
+  }
+  function onUp(e){
+    if(!dragging) return;
+    dragging=false;
+    moves++;
+    trySnap(el);
+    updateUI();
+  }
+
+  el.addEventListener("pointerdown", onDown);
+  el.addEventListener("pointermove", onMove);
+  el.addEventListener("pointerup", onUp);
+  el.addEventListener("pointercancel", onUp);
+}
+
+function trySnap(el){
+  if(el.classList.contains("done")) return;
+  const id = el.dataset.id;
+  const t = targets.find(x=>x.id===id);
+  if(!t) return;
+
+  const cx = parseFloat(el.style.left) + 60;
+  const cy = parseFloat(el.style.top) + 60;
+  const tx = t.x + t.w/2;
+  const ty = t.y + t.h/2;
+
+  if(distance(cx,cy,tx,ty) <= SNAP_DIST){
+    // snap to target center
+    el.style.left = (tx-60)+"px";
+    el.style.top  = (ty-60)+"px";
+    el.classList.add("done");
+    placed++;
+    score += 15;
+    stars += 1;
+    chimeSuccess();
+    speak(["Snap!","Nice!","Good job!"][Math.floor(Math.random()*3)]);
+    toastShow("✅ Snapped into place!");
+    if(placed===7){
+      win();
+    }
+  }
+}
+
+function win(){
+  chimeSuccess(); setTimeout(chimeSuccess, 240);
+  speak("Amazing! You used all seven pieces!");
+  toastShow("🎉 Completed! Saved ✅");
+  score += 20; // bonus
+  saveProgress({
+    level:TRACK_LEVEL,
+    page:PAGE_ID,
+    type:"game",
+    score, stars,
+    ts:new Date().toISOString()
+  });
+  updateUI();
+}
+
+function resetAll(){
+  score=0; stars=0; moves=0; placed=0;
+  renderTargets();
+  createPieces();
+  updateUI();
+  speak("Reset!");
+}
+
+document.getElementById("resetBtn").addEventListener("click", resetAll);
+
+renderTargets();
+createPieces();
+updateUI();
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+
+
+

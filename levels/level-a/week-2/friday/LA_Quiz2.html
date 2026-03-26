@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Level A • Quiz 2 • Triangle</title>
+<style>
+  :root{--ink:#1f2a37;--muted:#64748b;--card:#ffffffcc;--shadow:0 18px 60px rgba(0,0,0,.18);
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;color:var(--ink);
+    background:radial-gradient(circle at 12% 20%, #d7f5ff 0 20%, transparent 21%),
+      radial-gradient(circle at 85% 18%, #fff2cc 0 18%, transparent 19%),
+      radial-gradient(circle at 22% 85%, #eafff0 0 20%, transparent 21%),
+      linear-gradient(135deg,#fff 0%,#f5fbff 35%,#fffdf4 70%,#f7fff7 100%);
+    display:flex;align-items:center;justify-content:center;padding:18px;}
+  .app{width:min(960px,96vw)}
+  .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .badge{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(90deg,#35c8ff,#7cffa6,#ffd84d,#ff7b6a);
+    color:#111;padding:10px 14px;border-radius:999px;box-shadow:var(--shadow);font-weight:1000}
+  .btn{appearance:none;border:0;cursor:pointer;user-select:none;padding:10px 12px;border-radius:14px;font-weight:1000;background:#111827;color:#fff;box-shadow:0 10px 26px rgba(0,0,0,.2)}
+  .btn.ghost{background:#ffffffc7;color:#111827}
+  .panel{background:var(--card);border:3px solid #fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+  .head{padding:14px 16px;border-bottom:2px solid #eef2ff}
+  .title{margin:0;font-size:30px;font-weight:1000;background:linear-gradient(90deg,#35c8ff,#7cffa6,#ffd84d,#ff7b6a);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{margin:6px 0 0;color:var(--muted);font-weight:900}
+  .box{padding:16px}
+  .big{height:220px;border-radius:18px;border:2px dashed #dbeafe;display:grid;place-items:center;background:linear-gradient(180deg,#fff,#f6fff9)}
+  .tri{width:0;height:0;border-left:95px solid transparent;border-right:95px solid transparent;border-bottom:170px solid #ff7b6a;
+    filter:drop-shadow(0 18px 30px rgba(255,123,106,.25));}
+  .q{margin:14px 0 10px;font-size:20px;font-weight:1000}
+  .answers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media (max-width:740px){.answers{grid-template-columns:1fr}}
+  .ans{background:#fff;border:2px solid #e5e7eb;border-radius:18px;padding:12px;cursor:pointer;font-weight:1000;text-align:center;box-shadow:0 10px 24px rgba(0,0,0,.06)}
+  .ans.good{border-color:#22c55e}
+  .ans.bad{border-color:#ef4444}
+  .footerNav{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:12px 16px;background:linear-gradient(90deg,#ffffff,#f8fff9);border-top:2px solid #eef2ff}
+  .spark{pointer-events:none;position:fixed;inset:0;overflow:hidden;z-index:9999}
+  .star{position:absolute;font-size:22px;animation:pop 900ms ease-out forwards;filter:drop-shadow(0 10px 14px rgba(0,0,0,.18))}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-160%) scale(1.25);opacity:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="badge"><div>Level A <small style="display:block;opacity:.9">Quiz 2</small></div><div style="font-size:20px">📝</div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <a class="btn ghost" href="LA_Game2.html">⬅ Back</a>
+      <button class="btn ghost" id="soundBtn" type="button">🔊 Sound: ON</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="head">
+      <p class="title">Triangle Quiz</p>
+      <p class="sub" id="msg">Answer to win stars ⭐</p>
+    </div>
+
+    <div class="box">
+      <div class="big"><div class="tri"></div></div>
+      <div class="q">How many vertices does a triangle have?</div>
+      <div class="answers" id="answers">
+        <button class="ans" type="button" data-v="0">0</button>
+        <button class="ans" type="button" data-v="3">3</button>
+        <button class="ans" type="button" data-v="4">4</button>
+      </div>
+
+      <div style="margin-top:12px;background:#f1f5f9;border:2px solid #e2e8f0;border-radius:18px;padding:12px;font-weight:1000">
+        ⭐ Stars: <span id="stars">0</span>
+      </div>
+    </div>
+
+    <div class="footerNav">
+      <a class="btn ghost" href="LA_Game2.html">◀ Prev</a>
+      <a class="btn" href="../../week-3/monday/LA14.html">Next ➜</a>
+    </div>
+  </div>
+</div>
+
+<div class="spark" id="spark"></div>
+
+<script>
+const TRACK={level:"A"};
+const LS_KEY="gp_kids_progress_v1";
+let soundOn=true, stars=0;
+const $=(q)=>document.querySelector(q);
+const spark=$("#spark");
+
+function saveProgress(activity,score,max){
+  const row={...TRACK,activity,score,max,at:new Date().toISOString(),file:location.pathname.split("/").pop()};
+  const prev=JSON.parse(localStorage.getItem(LS_KEY)||"[]");
+  prev.push(row); localStorage.setItem(LS_KEY,JSON.stringify(prev));
+}
+function starBurst(x,y,emoji="⭐"){
+  const s=document.createElement("div");
+  s.className="star"; s.textContent=emoji;
+  s.style.left=x+"px"; s.style.top=y+"px";
+  spark.appendChild(s); setTimeout(()=>s.remove(),950);
+}
+function beep(type="good"){
+  if(!soundOn) return;
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type="sine"; const now=ctx.currentTime;
+  const f1=type==="good"? 740:220, f2=type==="good"? 1240:180;
+  o.frequency.setValueAtTime(f1,now); o.frequency.exponentialRampToValueAtTime(f2,now+0.12);
+  g.gain.setValueAtTime(0.0001,now);
+  g.gain.exponentialRampToValueAtTime(0.35,now+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,now+0.18);
+  o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now+0.2);
+}
+function cheer(text){
+  if(!soundOn) return;
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.95; u.pitch=1.25; u.volume=1;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+$("#soundBtn").addEventListener("click", ()=>{
+  soundOn=!soundOn;
+  $("#soundBtn").textContent=soundOn?"🔊 Sound: ON":"🔇 Sound: OFF";
+  beep(soundOn?"good":"bad");
+});
+
+const correct=3; // triangle vertices
+$("#answers").addEventListener("click",(e)=>{
+  const b=e.target.closest(".ans"); if(!b) return;
+  document.querySelectorAll(".ans").forEach(x=>x.classList.remove("good","bad"));
+  const v=Number(b.dataset.v);
+  const ok=v===correct;
+  b.classList.add(ok?"good":"bad");
+  if(ok){
+    stars++; $("#stars").textContent=String(stars);
+    beep("good"); cheer("Correct!");
+    starBurst(e.clientX,e.clientY,"🎉");
+    $("#msg").textContent="Great job! ⭐";
+    saveProgress("LA_Quiz2_TriangleVertices", 1, 1);
+  }else{
+    beep("bad"); cheer("Try again!");
+    starBurst(e.clientX,e.clientY,"💛");
+    $("#msg").textContent="Oops! Try again!";
+    saveProgress("LA_Quiz2_TriangleVertices", 0, 1);
+  }
+});
+cheer("How many vertices does a triangle have?");
+</script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+</body>
+</html>
+
+

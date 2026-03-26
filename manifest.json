@@ -1,0 +1,17 @@
+{
+  "name": "GP EIS Math Play",
+  "short_name": "GP EIS",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "background_color": "#ffffff",
+  "theme_color": "#ffcc66",
+  "description": "GP EIS Literacy & Math Online learning app for kids.",
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "assets/images/avatars/gplogo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/images/avatars/gplogo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

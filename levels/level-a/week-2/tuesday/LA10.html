@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <style id="gpLessonPrehide">
+    .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+    .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+    .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
+      font-size:clamp(13px,1.9vw,19px) !important;
+      line-height:1.24 !important;
+      max-width:min(52vw,420px) !important;
+      white-space:nowrap !important;
+      word-break:normal !important;
+      overflow-wrap:normal !important;
+    }
+    @media (max-width:780px){
+      .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
+        font-size:clamp(13px,3.6vw,17px) !important;
+        max-width:min(62vw,280px) !important;
+        line-height:1.2 !important;
+        white-space:nowrap !important;
+        word-break:normal !important;
+        overflow-wrap:normal !important;
+      }
+    }
+  </style>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Level A - Fish Food</title>
+
+  <link rel="stylesheet" href="../../../../shared/css/base.css" />
+  <link rel="stylesheet" href="../../../../shared/css/layout.css" />
+  <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
+  <style>
+    :root{
+      --ink:#2d2d2d;
+      --bg:#bfe9fb;
+      --panel:#ffffff;
+      --accent:#6c4bbf;
+      --bubble-kid:#d8ebff;
+      --bubble-baker:#fde3c4;
+      --btn-yellow:#f6da7b;
+      --btn-blue:#dfeaff;
+      --shadow:0 10px 24px rgba(0,0,0,.08);
+
+      --bubble-font:1.05rem;
+      --bubble-max:420px;
+
+      --nav-btn-h:54px;
+      --nav-btn-pad-x:18px;
+      --nav-btn-font:1rem;
+
+      --mic-size:64px;
+
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+    }
+
+    *{box-sizing:border-box;}
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--ink);
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:12px;
+    }
+
+    .card{
+      width:min(960px,100%);
+      max-width:960px;
+      border-radius:16px;
+      padding:12px 12px 10px;
+      position:relative;
+    }
+
+    .home-btn{
+      position:fixed;
+      top:10px;
+      left:10px;
+      z-index:50;
+      display:inline-flex;
+      width:78px;
+      height:78px;
+      align-items:center;
+      justify-content:center;
+      background:transparent;
+      text-decoration:none;
+      animation:homeSwingLA10 2.4s ease-in-out infinite;
+    }
+
+    .home-btn img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));
+    }
+
+    @keyframes homeSwingLA10{
+      0%{transform:translateY(30%) rotate(-6deg);}
+      50%{transform:translateY(30%) rotate(8deg);}
+      100%{transform:translateY(30%) rotate(-6deg);}
+    }
+
+    .dot-row{
+      position:absolute;
+      right:18px;
+      top:18px;
+      display:flex;
+      gap:12px;
+      z-index:3;
+    }
+
+    .dot{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:#bfe8fb;
+      box-shadow:inset 0 0 0 4px #fff;
+    }
+
+    .poster-area{
+      position:relative;
+      width:min(820px,90vw);
+      margin:10px auto 0;
+      z-index:1;
+    }
+
+    .poster-img{
+      width:min(820px,90vw);
+      height:auto;
+      display:block;
+      object-fit:contain;
+      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
+      user-select:none;
+      -webkit-user-drag:none;
+      pointer-events:none;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin:18px 0;
+      position:relative;
+      z-index:5;
+    }
+
+    .row.right{
+      justify-content:flex-end;
+    }
+
+    .convo-line{
+      display:none;
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:6;
+      margin:0;
+      overflow:visible;
+    }
+
+    .convo-line.show{
+      display:flex;
+    }
+
+    .convo-line .bubble-stack{
+      position:absolute;
+      z-index:7;
+    }
+
+    .bubble-stack{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:flex-start;
+    }
+
+    .row.right .bubble-stack{
+      align-items:flex-end;
+    }
+
+    /* Boy first line */
+    .boy-bubble{
+      right:6%;
+      top:20%;
+      max-width:35%;
+      align-items:flex-end;
+    }
+
+    /* Chef second line */
+    .chef-bubble{
+      left:6%;
+      top:58%;
+      max-width:36%;
+      align-items:flex-start;
+    }
+
+    .bubble{
+      padding:12px 16px;
+      border-radius:18px;
+      position:relative;
+      font-size:var(--bubble-font);
+      line-height:1.24;
+      white-space:nowrap;
+      max-width:var(--bubble-max);
+      box-shadow:0 8px 16px rgba(0,0,0,.16);
+      overflow-wrap:normal;
+      word-break:normal;
+      min-height:46px;
+      display:flex;
+      align-items:center;
+      font-weight:700;
+    }
+
+    .bubble.kid{background:var(--bubble-kid);}
+    .bubble.baker{background:var(--bubble-baker);}
+
+    .bubble.kid::after{
+      content:"";
+      position:absolute;
+      right:-6px;
+      top:14px;
+      border-width:8px 0 8px 8px;
+      border-style:solid;
+      border-color:transparent transparent transparent var(--bubble-kid);
+    }
+
+    .bubble.baker::after{
+      content:"";
+      position:absolute;
+      left:-6px;
+      top:14px;
+      border-width:8px 8px 8px 0;
+      border-style:solid;
+      border-color:transparent var(--bubble-baker) transparent transparent;
+    }
+
+    .bubble.sparkle{
+      background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
+      box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
+      animation:sparklePulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes sparklePulse{
+      0%,100%{filter:brightness(1);}
+      50%{filter:brightness(1.12);}
+    }
+
+    .repeat-result{
+      margin-top:4px;
+      font-size:2.1rem !important;
+      line-height:1.1;
+      font-weight:900;
+      color:#2f9f5f;
+      min-height:1.2em;
+    }
+
+    .star-row{
+      display:flex;
+      gap:6px;
+      margin-top:4px;
+      font-weight:900;
+      font-size:2.35rem !important;
+      line-height:1;
+      color:#ffd24a;
+      text-shadow:
+        0 2px 0 #b87900,
+        0 4px 0 #8a5a00,
+        0 8px 14px rgba(0,0,0,.28);
+      min-height:1.15em;
+    }
+
+    .girl-sentence{
+      margin-top:12px;
+      text-align:center;
+      font-size:1.5rem;
+      font-weight:700;
+      color:var(--ink);
+      min-height:3.2em;
+    }
+
+    .headline-line{
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity .18s ease, transform .18s ease;
+    }
+
+    .headline-line.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .controls{
+      margin-top:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .controls-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    .mascot-spot{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#fff;
+      border:2px solid #e8e0ff;
+      border-radius:14px;
+      padding:8px 12px;
+      box-shadow:0 8px 16px rgba(0,0,0,.12);
+      min-height:58px;
+    }
+
+    .tap-girl{
+      width:46px;
+      height:46px;
+      border-radius:12px;
+      object-fit:cover;
+      cursor:pointer;
+      display:block;
+      flex:0 0 auto;
+    }
+
+    .mascot-hint{
+      font-size:.98rem;
+      font-weight:800;
+      color:#2f9f5f;
+      white-space:nowrap;
+    }
+
+    .button-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .btn{
+      border:none;
+      border-radius:999px;
+      min-height:var(--nav-btn-h);
+      padding:0 var(--nav-btn-pad-x);
+      font-size:var(--nav-btn-font);
+      font-weight:800;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+      min-width:150px;
+      box-shadow:0 4px 0 rgba(0,0,0,.15);
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .btn.prev{background:#f8f0c7;color:#9c7b2f;}
+    .btn.next{background:var(--btn-yellow);color:#8b5a00;}
+    .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
+
+    .mic-icon-btn{
+      width:var(--mic-size);
+      height:var(--mic-size);
+      border:none;
+      background:transparent;
+      padding:0;
+      margin:0;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:50%;
+      position:relative;
+      z-index:30;
+      -webkit-tap-highlight-color:transparent;
+      pointer-events:auto;
+    }
+
+    .mic-icon-btn img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
+      pointer-events:none;
+    }
+
+    .mic-icon-btn.is-busy{
+      pointer-events:none;
+      opacity:.75;
+      transform:scale(.98);
+    }
+
+    .conversation-status{
+      margin-top:8px;
+      font-size:1rem;
+      font-weight:800;
+      color:#6c4bbf;
+      min-height:1.3em;
+      text-align:center;
+    }
+
+    @media (max-width:780px){
+      :root{
+        --bubble-font:1.08rem;
+        --nav-btn-h:52px;
+        --nav-btn-pad-x:16px;
+        --nav-btn-font:.97rem;
+        --mic-size:60px;
+      }
+
+      .boy-bubble{right:4.5%;top:19%;max-width:41%;}
+      .chef-bubble{left:4.5%;top:60%;max-width:41%;}
+      .home-btn{width:70px;height:70px;}
+    }
+
+    @media (max-width:520px){
+      :root{
+        --bubble-font:.98rem;
+        --bubble-max:280px;
+        --nav-btn-h:50px;
+        --nav-btn-font:.93rem;
+        --mic-size:58px;
+      }
+
+      body{padding:10px;}
+      .card{
+        width:100%;
+        padding:12px 12px 10px;
+        border-radius:12px;
+      }
+
+      .bubble{
+        padding:9px 11px;
+        max-width:min(62vw,280px);
+        min-height:42px;
+      }
+
+      .boy-bubble{right:3.5%;top:18%;max-width:46%;}
+      .chef-bubble{left:3.5%;top:62%;max-width:46%;}
+
+      .mascot-spot{
+        width:100%;
+        justify-content:center;
+      }
+
+      .button-row .btn{min-width:136px;}
+      .home-btn{
+        width:64px;
+        height:64px;
+        top:8px;
+        left:8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a class="home-btn" href="../../../../index.html" aria-label="Home">
+      <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
+    </a>
+
+    <div class="dot-row" aria-hidden="true">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+
+    <div class="poster-area">
+      <img class="poster-img" src="../../../../assets/images/shapes/A10.png" alt="Fish poster">
+
+      <div class="row right convo-line">
+        <div class="bubble-stack boy-bubble">
+          <div class="bubble kid">The fish are hungry.</div>
+          <div class="repeat-result" id="boyRepeat"></div>
+          <div class="star-row" id="boyStars"></div>
+        </div>
+      </div>
+
+      <div class="row convo-line">
+        <div class="bubble-stack chef-bubble">
+          <div class="bubble baker">Eat some fish food.</div>
+          <div class="repeat-result" id="chefRepeat"></div>
+          <div class="star-row" id="chefStars"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="girl-sentence" id="girlSentence"></div>
+
+    <div class="controls">
+      <div class="controls-row">
+        <div class="mascot-spot">
+          <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Circle helper girl" id="girlBtn" class="tap-girl">
+          <div class="mascot-hint">Tap the girl</div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn prev" id="prevBtn" type="button">&#8592; Previous page</button>
+          <button class="btn next" id="nextBtn" type="button">Next page &#8594;</button>
+          <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+            <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
+          </button>
+          <button class="btn stop" id="clearBtn" type="button">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="conversation-status" id="conversationStatus"></div>
+  </div>
+
+  <script src="../../../../shared/js/storage.js"></script>
+  <script src="../../../../shared/js/progress.js"></script>
+  <script src="../../../../shared/js/tracing.js"></script>
+
+  <script>    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const girlBtn = document.getElementById("girlBtn");
+    const micIconBtn = document.getElementById("micIconBtn");
+    const girlSentenceEl = document.getElementById("girlSentence");
+    const conversationStatus = document.getElementById("conversationStatus");
+
+    const lines = Array.from(document.querySelectorAll(".convo-line"));
+    const repeatResults = [
+      document.getElementById("boyRepeat"),
+      document.getElementById("chefRepeat")
+    ];
+    const starRows = [
+      document.getElementById("boyStars"),
+      document.getElementById("chefStars")
+    ];
+
+    const expectedLines = ["The fish are hungry.", "Eat some fish food."];
+    const attempts = [0,0];
+    const starsAwarded = [0,0];
+    const maxAttempts = 3;
+
+    let currentLineIndex = 0;
+    let micPhase = "reveal";
+    let micBusy = false;
+    let micDone = false;
+    let micInitialized = false;
+    let activitySaved = false;
+
+    const sentenceLines = [
+      { text:"How many triangle fish are there?", html:"How many triangle fish are there?" },
+      { text:"There are 2 triangle fish.", html:"There are 2 triangle fish." }
+    ];
+    let sentenceToken = 0;
+
+    function setConversationStatus(text){
+      if (conversationStatus) conversationStatus.textContent = text || "";
+    }
+
+    function lockMic(state){
+      micBusy = !!state;
+      if (micIconBtn) micIconBtn.classList.toggle("is-busy", !!state);
+    }
+
+    function hideAllLines(){
+      lines.forEach(line => {
+        line.classList.remove("show");
+        line.hidden = true;
+        line.style.display = "none";
+      });
+    }
+
+    function showLine(index){
+      const line = lines[index];
+      if (!line) return;
+      line.hidden = false;
+      line.classList.add("show");
+      line.style.display = "flex";
+    }
+
+    function highlightLine(index, on){
+      const line = lines[index];
+      if (!line) return;
+      const bubble = line.querySelector(".bubble");
+      if (!bubble) return;
+      bubble.classList.toggle("sparkle", !!on);
+    }
+
+    function clearHighlights(){
+      lines.forEach(line => {
+        const bubble = line.querySelector(".bubble");
+        if (bubble) bubble.classList.remove("sparkle");
+      });
+    }
+
+    function setStars(index, count){
+      const row = starRows[index];
+      if (!row) return;
+      row.innerHTML = new Array(count).fill("&#9733;").join("");
+    }
+
+    function setRepeatText(index, text){
+      const el = repeatResults[index];
+      if (!el) return;
+      el.textContent = text || "";
+    }
+
+    function stopSpeaking(){
+      try{
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      }catch(_){}
+    }
+
+    function speak(text, onend){
+      stopSpeaking();
+      if(!("speechSynthesis" in window)){
+        if (typeof onend === "function") onend();
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(text || "");
+      if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+        window.GPTracing.applyPreferredVoice(u);
+      } else {
+        u.lang = "en-US";
+      }
+      u.rate = 0.94;
+      u.pitch = 1.08;
+      u.onend = () => { if (typeof onend === "function") onend(); };
+      u.onerror = () => { if (typeof onend === "function") onend(); };
+      window.speechSynthesis.speak(u);
+    }
+
+    function showAndSpeakLine(index, onend){
+      if (index < 0 || index >= lines.length) {
+        if (typeof onend === "function") onend();
+        return;
+      }
+      showLine(index);
+      currentLineIndex = index;
+      const bubble = lines[index].querySelector(".bubble");
+      const text = bubble ? bubble.textContent.trim() : "";
+      setConversationStatus(text);
+      speak(text, onend);
+    }
+
+    function prepareMicUI(){
+      if (!micInitialized) {
+        hideAllLines();
+        showLine(0);
+        if (lines[1]) {
+          lines[1].hidden = true;
+          lines[1].classList.remove("show");
+          lines[1].style.display = "none";
+        }
+        micInitialized = true;
+        currentLineIndex = 0;
+        micPhase = "reveal";
+      }
+    }
+
+    function listenForRepeat(expectedText, onDone){
+      if (window.GPTracing && typeof window.GPTracing.listenForRepeat === "function") {
+        window.GPTracing.listenForRepeat(expectedText, onDone);
+        return;
+      }
+      onDone(0, "");
+    }
+
+    async function finishMicActivity(){
+      if (micDone) return;
+      micDone = true;
+      const remarks = ["Wow! You are super smart!", "Amazing job!", "Great! Keep it up."];
+      const remark = remarks[Math.floor(Math.random() * remarks.length)];
+      setConversationStatus(remark);
+      speak(remark);
+
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        activitySaved = true;
+        const totalStars = starsAwarded[0] + starsAwarded[1];
+        const maxStars = expectedLines.length * 3;
+        const score = Math.round((totalStars / maxStars) * 100);
+        await window.finishAndSave({
+          pageId: "LA10",
+          level: "A",
+          activityType: "speaking",
+          score,
+          stars: Math.min(5, Math.max(1, Math.round(totalStars / 2))),
+          skills: {
+            reading: 1,
+            writing: 0,
+            speaking: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0,
+            listening: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0
+          }
+        });
+      }
+    }
+
+    async function goToNextMicLine(){
+      highlightLine(currentLineIndex, false);
+      const nextIndex = currentLineIndex + 1;
+      micPhase = "reveal";
+      lockMic(false);
+
+      if (nextIndex >= expectedLines.length) {
+        await finishMicActivity();
+        return;
+      }
+
+      currentLineIndex = nextIndex;
+      showAndSpeakLine(currentLineIndex);
+      micPhase = "repeat";
+    }
+
+    async function runMicSequence(){
+      if (window.GPTracing?.prepareMicSupport) {
+        await window.GPTracing.prepareMicSupport().catch(() => {});
+      }
+      if (micDone || micBusy) return;
+
+      prepareMicUI();
+
+      if (micPhase === "reveal") {
+        lockMic(true);
+        showAndSpeakLine(currentLineIndex, () => {
+          setConversationStatus("Tap microphone again and repeat.");
+          micPhase = "repeat";
+          lockMic(false);
+        });
+        return;
+      }
+
+      if (micPhase !== "repeat") return;
+
+      lockMic(true);
+      highlightLine(currentLineIndex, true);
+      setConversationStatus("Repeat after me.");
+
+      speak("Repeat after me.", () => {
+        listenForRepeat(expectedLines[currentLineIndex], (pct, said) => {
+          const tryNo = ++attempts[currentLineIndex];
+
+          if (pct >= 50) {
+            setRepeatText(currentLineIndex, (said || expectedLines[currentLineIndex]).trim());
+            starsAwarded[currentLineIndex] =
+              window.GPTracing && typeof window.GPTracing.rewardStars === "function"
+                ? window.GPTracing.rewardStars(tryNo)
+                : (tryNo === 1 ? 3 : tryNo === 2 ? 2 : 1);
+            setStars(currentLineIndex, starsAwarded[currentLineIndex]);
+            setConversationStatus("Excellent!");
+            setTimeout(() => { goToNextMicLine(); }, 250);
+            return;
+          }
+
+          if (tryNo >= maxAttempts) {
+            setRepeatText(currentLineIndex, "Sorry, Study hard!");
+            setStars(currentLineIndex, 0);
+            speak("Sorry, Study hard!", () => {
+              setTimeout(() => { goToNextMicLine(); }, 250);
+            });
+            return;
+          }
+
+          highlightLine(currentLineIndex, false);
+          lockMic(false);
+          micPhase = "repeat";
+          setRepeatText(currentLineIndex, "Sorry, try again!");
+          setConversationStatus("Sorry, try again!");
+          speak("Sorry, try again!");
+        });
+      });
+    }
+
+    function revealSentenceLine(index, token){
+      if (token !== sentenceToken) return;
+      if (index >= sentenceLines.length) return;
+      const lineEl = girlSentenceEl.querySelector(`[data-line="${index}"]`);
+      if (!lineEl) return;
+      lineEl.classList.add("show");
+      speak(sentenceLines[index].text, () => {
+        setTimeout(() => revealSentenceLine(index + 1, token), 180);
+      });
+    }
+
+    girlBtn.addEventListener("click", () => {
+      sentenceToken += 1;
+      const token = sentenceToken;
+      girlSentenceEl.innerHTML = sentenceLines
+        .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
+        .join("");
+      setTimeout(() => revealSentenceLine(0, token), 200);
+    });
+
+    if (micIconBtn) {
+      micIconBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        runMicSequence();
+      }, { passive:false });
+    }
+
+    clearBtn.addEventListener("click", () => {
+      stopSpeaking();
+      hideAllLines();
+      clearHighlights();
+      currentLineIndex = 0;
+      micPhase = "reveal";
+      lockMic(false);
+      micDone = false;
+      micInitialized = false;
+      activitySaved = false;
+      attempts[0] = 0;
+      attempts[1] = 0;
+      starsAwarded[0] = 0;
+      starsAwarded[1] = 0;
+      setRepeatText(0, "");
+      setRepeatText(1, "");
+      setStars(0, 0);
+      setStars(1, 0);
+      setConversationStatus("");
+    });
+
+    prevBtn.addEventListener("click", async () => {
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        await window.finishAndSave({
+          pageId: "LA10",
+          level: "A",
+          activityType: "lesson",
+          score: micDone ? null : 10,
+          stars: 0,
+          skills: { reading: 1, writing: 0, speaking: 0, listening: 0 }
+        });
+        activitySaved = true;
+      }
+      window.location.href = "../monday/LA9.html";
+    });
+
+    nextBtn.addEventListener("click", async () => {
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        await window.finishAndSave({
+          pageId: "LA10",
+          level: "A",
+          activityType: "lesson",
+          score: micDone ? null : 10,
+          stars: 0,
+          skills: { reading: 1, writing: 0, speaking: 0, listening: 0 }
+        });
+        activitySaved = true;
+      }
+      window.location.href = "LA11.html";
+    });
+
+    hideAllLines();
+  </script>
+
+  <script src="../../../../activity-standardizer.js"></script>
+
+  <script type="module">
+    import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
+    window.GPProgress && window.GPProgress.installTracker && window.GPProgress.installTracker({
+      saveActivityResult,
+      markLoginPing,
+      defaultPageId: "LA10",
+      defaultLevel: "A",
+      defaultActivityType: "lesson",
+      defaultScore: 100,
+      defaultStars: 1,
+      defaultSkills: {
+        reading: 1,
+        writing: 0,
+        speaking: 1,
+        listening: 1
+      }
+    });
+
+    function getStudentSession(){
+      try{
+        return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+      }catch(e){
+        return null;
+      }
+    }
+
+    function inferProgressMeta(payload){
+      const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+      const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+      const level = (payload && payload.level)
+        || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+      const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+      const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+      const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+      const month = payload && payload.month != null ? Number(payload.month) : 1;
+      return {
+        pageId,
+        file,
+        level,
+        week: Number.isFinite(week) && week > 0 ? week : 1,
+        month: Number.isFinite(month) && month > 0 ? month : 1
+      };
+    }
+
+    function getActivityStore(){
+      try{
+        return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+      }catch(e){
+        return {};
+      }
+    }
+
+    function setActivityStore(store){
+      try{
+        localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+      }catch(e){}
+    }
+
+    function saveLocalActivityFallback(payload){
+      const session = getStudentSession() || {};
+      const meta = inferProgressMeta(payload || {});
+      const score = payload && typeof payload.score === "number" ? payload.score : 0;
+      const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+      const tracing = payload && typeof payload.tracing === "number"
+        ? payload.tracing
+        : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+      const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+
+      const entry = {
+        pageId: meta.pageId,
+        file: meta.file,
+        level: meta.level,
+        type,
+        activityType: (payload && payload.activityType) || type,
+        score,
+        stars,
+        skills: payload && payload.skills ? payload.skills : {},
+        completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+        tracing,
+        week: meta.week,
+        month: meta.month,
+        classId: (payload && payload.classId) || session.classId || null,
+        studentId: (payload && payload.studentId) || session.studentId || null,
+        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+        savedAt: new Date().toISOString(),
+        ts: Date.now()
+      };
+
+      const store = getActivityStore();
+      store[meta.pageId] = {
+        ...(store[meta.pageId] || {}),
+        ...entry
+      };
+      setActivityStore(store);
+
+      try{
+        localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+      }catch(e){}
+
+      return store[meta.pageId];
+    }
+
+    async function finishAndSave(payload){
+      const session = getStudentSession() || {};
+      const fullPayload = {
+        ...(payload || {}),
+        classId: (payload && payload.classId) || session.classId || null,
+        studentId: (payload && payload.studentId) || session.studentId || null,
+        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+      };
+
+      saveLocalActivityFallback(fullPayload);
+
+      if (typeof window.finishActivity === "function") {
+        try{
+          await window.finishActivity(fullPayload);
+        }catch(err){
+          console.warn("finishActivity failed, local fallback already saved:", err);
+        }
+      }
+
+      return fullPayload;
+    }
+
+    window.finishAndSave = finishAndSave;
+  </script>
+
+  <script>
+    window.addEventListener("load", () => {
+      if (!window.GPTrack) return;
+      const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+      GPTrack.start(pageFile || document.title || "Activity");
+    });
+
+    async function finishActivity(overrides = {}){
+      if (!window.GPTrack) return;
+      const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+      const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+        ? "A"
+        : (/^(LB|LevelB)/i.test(pageFile))
+          ? "B"
+          : (/^(LC|LevelC)/i.test(pageFile))
+            ? "C"
+            : null;
+
+      await GPTrack.finish({
+        pageId: pageFile || document.title || "Activity",
+        level: inferredLevel,
+        activityType: "activity",
+        score: null,
+        stars: 0,
+        skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+        ...overrides
+      });
+    }
+  </script>
+</body>
+</html>

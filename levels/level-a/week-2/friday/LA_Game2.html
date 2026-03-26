@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>LA Game 2 • Circle Pop Party</title>
+<style>
+  :root{
+    --bg1:#c7f9ff; --bg2:#ffd1f3; --ink:#1e1e1e;
+    --card:#ffffff; --shadow:0 18px 50px rgba(0,0,0,.14);
+    --radius:22px;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle at 20% 10%, var(--bg2), transparent 55%),
+                radial-gradient(circle at 80% 30%, #fff6a6, transparent 55%),
+                linear-gradient(135deg, var(--bg1), #d0ffdf);
+    padding:18px;
+  }
+  .app{width:min(1020px, 96vw);}
+  .top{
+    display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px;
+  }
+  .badge{
+    display:flex; align-items:center; gap:10px; background:#fff; padding:10px 14px; border-radius:999px;
+    box-shadow:0 10px 25px rgba(0,0,0,.10); font-weight:900; color:#111;
+  }
+  .badge .pill{background:#2b8a3e;color:#fff;padding:6px 10px;border-radius:999px;font-size:14px}
+  .btn{
+    border:0; cursor:pointer; border-radius:999px; padding:10px 14px; font-weight:900;
+    box-shadow:0 12px 25px rgba(0,0,0,.12); background:#fff; color:#111;
+  }
+  .btn.primary{background:#ff4d6d;color:#fff}
+  .btn:active{transform:translateY(1px)}
+  .card{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .hero{
+    padding:16px 18px 10px;
+    background: linear-gradient(90deg, #ffed9a, #c8fff7);
+    border-bottom: 2px dashed rgba(0,0,0,.08);
+  }
+  h1{margin:0;font-size:28px}
+  .sub{margin:6px 0 0; font-size:18px; opacity:.85}
+  .content{padding:16px 18px 20px; display:grid; gap:14px; grid-template-columns: 1.2fr .8fr;}
+  @media (max-width:860px){ .content{grid-template-columns:1fr} }
+  .play{
+    background:linear-gradient(180deg,#f7fbff,#ffffff);
+    border-radius:18px; padding:14px; border:2px solid rgba(0,0,0,.06);
+  }
+  .arena{
+    position:relative; height:420px; border-radius:18px;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,77,109,.25), transparent 45%),
+      radial-gradient(circle at 80% 40%, rgba(34,139,230,.25), transparent 45%),
+      linear-gradient(135deg, #fefefe, #f3fff9);
+    border:2px solid rgba(0,0,0,.06);
+    overflow:hidden;
+  }
+  .bubble{
+    position:absolute; width:78px; height:78px; border-radius:50%;
+    display:grid; place-items:center;
+    box-shadow:0 14px 28px rgba(0,0,0,.14);
+    cursor:pointer; user-select:none;
+    border:4px solid rgba(255,255,255,.8);
+    transform: translate(-50%,-50%);
+  }
+  .bubble span{font-weight:1000; font-size:18px; color:#111; text-shadow:0 2px 0 rgba(255,255,255,.6)}
+  .hud{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    margin-top:10px;
+  }
+  .stat{
+    background:#fff; border-radius:14px; padding:10px 12px;
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+    font-weight:900;
+  }
+  .right{
+    background:linear-gradient(180deg,#fff7c2,#ffffff);
+    border-radius:18px; padding:14px; border:2px solid rgba(0,0,0,.06);
+  }
+  .miniArt{height:180px;border-radius:16px; overflow:hidden; border:2px solid rgba(0,0,0,.06)}
+  .tip{
+    margin:10px 0 0; background:#fff; padding:12px; border-radius:16px;
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+    font-size:18px;
+  }
+  .stars{font-size:22px}
+  .confetti{
+    position:fixed; inset:0; pointer-events:none; overflow:hidden;
+  }
+  .confetti i{
+    position:absolute; width:10px; height:16px; border-radius:3px;
+    animation: fall 900ms linear forwards;
+    opacity:.9;
+  }
+  @keyframes fall{
+    from{transform:translateY(-20px) rotate(0deg)}
+    to{transform:translateY(110vh) rotate(260deg)}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge">
+      <span class="pill">Level A</span>
+      <span>Game 2 • Circle Pop Party</span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <button class="btn" onclick="location.href='../thursday/LA_Revision2.html'">⬅ Back</button>
+      <button class="btn" onclick="startGame()">🔁 Restart</button>
+      <button class="btn primary" onclick="location.href='LA_Quiz2.html'">Next ➜</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hero">
+      <h1>Pop ONLY the Circles! 🎯</h1>
+      <div class="sub">Circles have <b>0 vertices</b> (no corners). Pop circles to win! ✅</div>
+    </div>
+
+    <div class="content">
+      <div class="play">
+        <div class="arena" id="arena" aria-label="game arena"></div>
+
+        <div class="hud">
+          <div class="stat">⏱ Time: <span id="time">30</span>s</div>
+          <div class="stat">🎯 Popped: <span id="popped">0</span>/<span id="need">10</span></div>
+          <div class="stat">💥 Oops: <span id="oops">0</span></div>
+          <div class="stat stars">⭐ <span id="stars">0</span></div>
+        </div>
+
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn primary" onclick="startGame()">▶ Start</button>
+          <button class="btn" onclick="speakTip()">🔊 Read tip</button>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="miniArt" id="art"></div>
+        <div class="tip">
+          <b>Tip:</b> A circle is round and has <b>0 corners</b>.  
+          Pop the round ones! 🌈
+        </div>
+        <div class="tip" style="background:#e9ffef">
+          <b>Bonus:</b> Pop fast to earn 3 stars! ⭐⭐⭐
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+/* --- Tiny progress tracker + sounds (self-contained) --- */
+(function(){
+  const STORE="gpeis_progress_v1";
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE)||"{}")}catch(e){return{}} }
+  function save(db){ localStorage.setItem(STORE, JSON.stringify(db)); }
+  function now(){ return new Date().toISOString(); }
+  let ctx=null;
+  function audio(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function beep(freq, t, g=.05, type="triangle"){
+    const c=audio(), o=c.createOscillator(), gn=c.createGain();
+    o.type=type; o.frequency.value=freq; gn.gain.value=g;
+    o.connect(gn); gn.connect(c.destination);
+    o.start(); o.stop(c.currentTime+t);
+  }
+  function chime(){ try{beep(880,.08); setTimeout(()=>beep(1175,.10),90); setTimeout(()=>beep(1568,.12),200);}catch(e){} }
+  function cheer(){ try{beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+
+  window.__LegacyTrack__ = {
+    complete({level, activityId, score=0, stars=0}){
+      const db=load();
+      if(!db[level]) db[level]={level, updatedAt:now(), activities:{}};
+      const lvl=db[level];
+      if(!lvl.activities[activityId]) lvl.activities[activityId]={id:activityId, attempts:0, bestScore:0, bestStars:0, completed:false};
+      const a=lvl.activities[activityId];
+      a.attempts++; a.completed=true; a.lastScore=score; a.lastStars=stars; a.lastAt=now();
+      a.bestScore=Math.max(a.bestScore||0, score);
+      a.bestStars=Math.max(a.bestStars||0, stars);
+      lvl.updatedAt=now();
+      save(db);
+      chime(); if(stars>=2||score>=70) cheer();
+      return a;
+    }
+  };
+  window.__sound = { chime, cheer };
+})();
+
+/* --- Cute SVG art --- */
+document.getElementById("art").innerHTML = `
+<svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff7b2"/>
+      <stop offset="1" stop-color="#c7f9ff"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="520" height="320" rx="26" fill="url(#bg)"/>
+  <g filter="url(#sh)">
+    <circle cx="170" cy="175" r="92" fill="#ffbf69"/>
+    <path d="M120 175 C150 135, 195 215, 225 165" stroke="#fff" stroke-width="10" opacity=".55" fill="none"/>
+  </g>
+  <text x="290" y="140" font-size="28" font-family="Comic Sans MS, Segoe UI, Arial" font-weight="900" fill="#222">Circle</text>
+  <text x="290" y="180" font-size="24" font-family="Comic Sans MS, Segoe UI, Arial" fill="#222">Vertices = 0</text>
+  <text x="290" y="215" font-size="20" font-family="Comic Sans MS, Segoe UI, Arial" fill="#444">No corners ✅</text>
+</svg>`;
+
+/* --- Game logic --- */
+const arena = document.getElementById("arena");
+const tEl = document.getElementById("time");
+const poppedEl = document.getElementById("popped");
+const needEl = document.getElementById("need");
+const oopsEl = document.getElementById("oops");
+const starsEl = document.getElementById("stars");
+const confetti = document.getElementById("confetti");
+
+let timer=null, seconds=30, popped=0, oops=0, need=10, running=false;
+
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function makeConfetti(){
+  for(let i=0;i<60;i++){
+    const el=document.createElement("i");
+    el.style.left = rand(0,100)+"vw";
+    el.style.top = "-20px";
+    el.style.background = pick(["#ff4d6d","#4dabf7","#06d6a0","#ffd166","#9b5de5","#00bbf9"]);
+    el.style.animationDuration = rand(700,1100)+"ms";
+    confetti.appendChild(el);
+    setTimeout(()=>el.remove(),1200);
+  }
+}
+
+function spawn(){
+  arena.innerHTML="";
+  // 14 bubbles with mix of shapes, circles are targets
+  const items = [];
+  for(let i=0;i<14;i++){
+    const isCircle = (i<8); // more targets
+    items.push({ type: isCircle ? "circle":"not", color: pick(["#ffbf69","#7bdff2","#ffd166","#f15bb5","#06d6a0","#4dabf7"]) });
+  }
+  // shuffle
+  items.sort(()=>Math.random()-0.5);
+
+  items.forEach((it)=>{
+    const b=document.createElement("div");
+    b.className="bubble";
+    b.style.left = rand(12,88)+"%";
+    b.style.top  = rand(18,85)+"%";
+    b.style.background = it.color;
+    b.innerHTML = it.type==="circle" ? "<span>⭕</span>" : "<span>🔺</span>";
+    b.dataset.kind = it.type;
+    b.onclick = ()=>{
+      if(!running) return;
+      if(b.dataset.kind==="circle"){
+        popped++;
+        __sound.chime();
+        b.style.transform="translate(-50%,-50%) scale(0.1)";
+        b.style.opacity="0";
+        setTimeout(()=>b.remove(),180);
+      } else {
+        oops++;
+        __sound.cheer(); // funny sound for oops too
+        b.style.filter="grayscale(1)";
+      }
+      updateHUD();
+      if(popped>=need) finish(true);
+    };
+    arena.appendChild(b);
+  });
+}
+
+function updateHUD(){
+  tEl.textContent=seconds;
+  poppedEl.textContent=popped;
+  needEl.textContent=need;
+  oopsEl.textContent=oops;
+
+  // stars by accuracy + speed
+  const acc = popped / Math.max(1, popped+oops);
+  let stars = 0;
+  if(popped>=need){
+    if(acc>=0.9 && seconds>=12) stars=3;
+    else if(acc>=0.75) stars=2;
+    else stars=1;
+  }
+  starsEl.textContent=stars;
+}
+
+function startGame(){
+  clearInterval(timer);
+  seconds=30; popped=0; oops=0; need=10; running=true;
+  spawn(); updateHUD();
+  timer=setInterval(()=>{
+    seconds--;
+    updateHUD();
+    if(seconds<=0) finish(false);
+    if(seconds%7===0) spawn(); // refresh bubbles sometimes
+  },1000);
+}
+
+async function finish(win){
+  if(!running) return;
+  running=false;
+  clearInterval(timer);
+
+  const score = Math.max(0, Math.round((popped/need)*100 - oops*5));
+  const stars = Number(starsEl.textContent)||0;
+
+  if(win){ makeConfetti(); }
+
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LA_Game2",
+      level: "A",
+      activityType: "game",
+      score,
+      stars,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "A", activityId: "LA_Game2", score, stars });
+  }
+
+  setTimeout(()=>{
+    alert((win? "🎉 You did it!" : "⏳ Time's up!") + "\nScore: "+score+"%\nStars: "+("⭐".repeat(stars)||"0"));
+  }, 100);
+}
+
+function speakTip(){
+  const text="Pop only the circles. A circle has zero vertices, zero corners. Great job!";
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.95; u.pitch=1.1;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+</script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+</body>
+</html>

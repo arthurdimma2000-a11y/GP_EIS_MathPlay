@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C10 - Quadrangle</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<style>
+  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--shadow:0 20px 40px rgba(0,0,0,.08);}
+  body{display:flex;align-items:center;justify-content:center;background:#bfe9fb;padding:6px;}
+  .card{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:12px 12px 18px;position:relative;display:flex;flex-direction:column;justify-content:flex-start;}
+  .poster-area{position:relative;width:100%;max-width:1120px;margin:0 auto;}
+  .poster-img{width:100%;height:auto;display:block;}
+  .bubble{position:absolute;max-width:340px;background:#e3f0ff;border-radius:16px;padding:10px 14px;font-weight:700;line-height:1.3;}
+  .bubble::after{content:"";position:absolute;left:-6px;top:18px;border-width:8px 8px 8px 0;border-style:solid;border-color:transparent #e3f0ff transparent transparent;}
+  .bubble.hidden{opacity:0;}
+  .tap-row{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:12px;}
+  .tap-girl{width:82px;height:82px;border-radius:22px;box-shadow:0 6px 14px rgba(0,0,0,.2);border:4px solid #ffe3f7;cursor:pointer;}
+  .tap-label{font-weight:700;color:#d62828;}
+  .reveal-lines{min-height:2.6em;text-align:center;font-weight:700;font-size:1.35rem;margin-top:6px;}
+  .line{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
+  .line.show{opacity:1;transform:translateY(0);}
+  .red{color:#d62828;}
+  .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;width:100%;max-width:1120px;margin-left:auto;margin-right:auto;}
+  .btn{border:none;border-radius:999px;padding:10px 14px;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+  .mic-icon-btn img{width:32px;height:32px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+</style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+</head>
+<body>
+  <div class="card">
+    <div class="poster-area">
+      <img class="poster-img" src="../../../../assets/images/shapes/LevelC10.png" alt="Quadrangle poster">
+      <div class="bubble hidden" id="introBubble" style="left:10%;top:22%;">
+        A quadrangle has<br>
+        four sides<br>
+        and four vertices.
+      </div>
+    </div>
+    <div class="tap-row">
+      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn">
+      <div class="tap-label">Tap the girl</div>
+    </div>
+    <div class="reveal-lines" id="girlSentence"></div>
+
+    <div class="controls">
+      <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+        <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
+      </button>
+      <button class="btn next" id="nextBtn">Next page &#8594;</button>
+    </div>
+  </div>
+
+<script>
+  const introBubble = document.getElementById('introBubble');
+  const girlBtn = document.getElementById('girlBtn');
+  const girlSentence = document.getElementById('girlSentence');
+  const micIconBtn = document.getElementById('micIconBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function speak(text){
+    if(!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0;
+    u.pitch = 1.05;
+    window.speechSynthesis.speak(u);
+  }
+
+  function typeLines(lines, container, onDone){
+    container.innerHTML = lines.map((_, i) => `<div class="line" data-line="${i}"></div>`).join('');
+    let idx = 0;
+    function typeLine(){
+      if(idx >= lines.length){ if(onDone) onDone(); return; }
+      const el = container.querySelector(`[data-line="${idx}"]`);
+      const text = lines[idx];
+      let pos = 0;
+      const timer = setInterval(() => {
+        pos += 1;
+        el.innerHTML = text.slice(0,pos);
+        el.classList.add('show');
+        if(pos >= text.length){
+          clearInterval(timer);
+          idx += 1;
+          setTimeout(typeLine, 220);
+        }
+      }, 20);
+    }
+    typeLine();
+  }
+
+  function showIntro(){
+    // Bubble remains hidden on load; unified mic protocol reveals it.
+    introBubble.classList.add('hidden');
+  }
+  showIntro();
+
+  girlBtn.addEventListener('click', () => {
+    const text = 'A quadrangle has <span class="red">4 sides</span> and <span class="red">4 vertices</span>.';
+    typeLines([text], girlSentence, () => speak('A quadrangle has 4 sides and 4 vertices.'));
+  });
+
+  // Mic click is handled by activity-standardizer unified protocol.
+
+  if(prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../monday/LevelC9.html'; });
+  if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = 'LevelC11.html'; });
+</script>
+  <script src="../../../../activity-standardizer.js"></script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LevelC10",
+    defaultLevel: "C",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
+
+
+
+
+

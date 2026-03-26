@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level B • Game 1 — Polygon Catch!</title>
+<style>
+  :root{
+    --bg1:#fff4b8; --bg2:#c7f7ff; --bg3:#ffd1f3;
+    --ink:#1f2430; --card:#fff;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+    padding:18px;
+  }
+  .app{width:min(1100px,98vw)}
+  .top{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;
+    margin-bottom:12px;
+  }
+  .badge{
+    background:#fff; border-radius:999px; padding:10px 14px;
+    box-shadow:0 12px 28px rgba(0,0,0,.10);
+    font-weight:1000; display:flex; gap:10px; align-items:center;
+  }
+  .btn{
+    border:0; cursor:pointer; font-weight:1000; border-radius:14px;
+    padding:12px 14px; background:#fff; color:var(--ink);
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+    text-decoration:none; display:inline-flex; gap:8px; align-items:center;
+  }
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e); color:#0b1b10}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7); color:#06121d}
+  .grid{display:grid; grid-template-columns: 1fr .8fr; gap:14px}
+  @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+  .card{
+    background:var(--card); border-radius:22px; padding:14px;
+    box-shadow:0 16px 44px rgba(0,0,0,.12);
+  }
+  .title{font-size:26px; font-weight:1000; margin:6px 0 6px}
+  .subtitle{margin:0 0 10px; opacity:.85}
+  .arena{
+    border-radius:18px; height:420px; position:relative; overflow:hidden;
+    background:linear-gradient(180deg,#ffffff,#f7fbff);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .float{
+    position:absolute; width:110px; height:110px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:26px;
+    box-shadow:0 14px 28px rgba(0,0,0,.14);
+    transform:translate(-50%,-50%);
+    cursor:pointer; user-select:none;
+  }
+  .float:active{transform:translate(-50%,-50%) scale(.98)}
+  .hud{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px}
+  .pill{
+    background:#f6f7ff; border-radius:999px; padding:10px 12px; font-weight:1000;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .big{font-size:20px}
+  .msg{
+    margin-top:10px; border-radius:16px; padding:10px 12px; background:#fff;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    font-weight:1000;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Game 1 • Polygon Catch!</span></div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <a class="btn" href="../thursday/LB_Revision1.html">⬅ Back</a>
+      <a class="btn next" href="LB_Quiz1.html">Next ▶</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="title">Catch ONLY the polygons!</div>
+      <p class="subtitle">Tap the shapes that have straight sides (polygons). Avoid the circle!</p>
+
+      <div class="arena" id="arena" aria-label="Game arena"></div>
+
+      <div class="hud">
+        <div class="pill big">Score: <span id="score">0</span></div>
+        <div class="pill big">Lives: <span id="lives">❤❤❤</span></div>
+        <div class="pill big">Time: <span id="time">30</span>s</div>
+      </div>
+
+      <div class="msg" id="msg">Press Start to play! 🎮</div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+        <button class="btn primary" id="startBtn">▶ Start</button>
+        <button class="btn" id="helpBtn">❓ Help</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">Hint (from your book)</div>
+      <p class="subtitle">
+        Pentagons, hexagons and octagons are polygons. Also, you practiced vertices counts.
+      </p>
+
+      <div style="border-radius:18px; padding:12px; background:linear-gradient(180deg,#fff,#f7fbff); box-shadow:inset 0 0 0 2px rgba(0,0,0,.06)">
+        <div style="font-weight:1000">Goal ⭐</div>
+        <div style="margin-top:6px; opacity:.9">
+          Tap polygons: triangle, square, pentagon, hexagon, octagon.<br/>
+          Avoid: circle.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* --- SFX + Tracker --- */
+(function(){
+  const STORE_KEY="gpeis_progress_v1";
+  let audioCtx=null;
+  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function beep(f,t,g=0.05,type="triangle"){
+    const c=ctx(), o=c.createOscillator(), ga=c.createGain();
+    o.type=type; o.frequency.value=f; ga.gain.value=g;
+    o.connect(ga); ga.connect(c.destination);
+    o.start(); o.stop(c.currentTime+t);
+  }
+  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
+  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
+  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  window.__LegacyTrack__={
+    complete({level,activityId,score=0,stars=0}){
+      const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
+      const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
+      const a=acts[activityId];
+      a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
+      a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
+      db[level].updatedAt=new Date().toISOString(); save(db);
+      chime(); if(stars>=3||score>=85) cheer();
+      return a;
+    }
+  };
+  window.__SFX__={chime,cheer};
+})();
+
+const arena = document.getElementById("arena");
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const timeEl = document.getElementById("time");
+const msg = document.getElementById("msg");
+
+let running=false, score=0, lives=3, t=30, tick=null, spawner=null;
+
+const shapes = [
+  {key:"triangle", isPolygon:true, color:"#ff6b6b"},
+  {key:"square", isPolygon:true, color:"#4dabf7"},
+  {key:"pentagon", isPolygon:true, color:"#9b5de5"},
+  {key:"hexagon", isPolygon:true, color:"#00bbf9"},
+  {key:"octagon", isPolygon:true, color:"#f15bb5"},
+  {key:"circle", isPolygon:false, color:"#ffd166"},
+];
+
+function svgShape(key){
+  if(key==="circle") return `<svg viewBox="0 0 120 120" width="90" height="90"><circle cx="60" cy="60" r="44" fill="white" opacity=".95"/></svg>`;
+  if(key==="square") return `<svg viewBox="0 0 120 120" width="90" height="90"><rect x="24" y="24" width="72" height="72" rx="14" fill="white" opacity=".95"/></svg>`;
+  if(key==="triangle") return `<svg viewBox="0 0 120 120" width="90" height="90"><path d="M 60 20 L 98 94 L 22 94 Z" fill="white" opacity=".95"/></svg>`;
+  if(key==="pentagon") return `<svg viewBox="0 0 120 120" width="90" height="90"><path d="M60 18 L 98 44 L 84 92 L 36 92 L 22 44 Z" fill="white" opacity=".95"/></svg>`;
+  if(key==="hexagon") return `<svg viewBox="0 0 120 120" width="90" height="90"><path d="M60 18 L 95 38 L 95 82 L 60 102 L 25 82 L 25 38 Z" fill="white" opacity=".95"/></svg>`;
+  return `<svg viewBox="0 0 120 120" width="90" height="90"><path d="M44 18 L 76 18 L 98 40 L 98 80 L 76 102 L 44 102 L 22 80 L 22 40 Z" fill="white" opacity=".95"/></svg>`;
+}
+
+function setLives(){
+  livesEl.textContent = "❤".repeat(lives) + "♡".repeat(Math.max(0,3-lives));
+}
+
+function spawn(){
+  if(!running) return;
+  const s = shapes[Math.floor(Math.random()*shapes.length)];
+  const el = document.createElement("div");
+  el.className="float";
+  el.style.background = `linear-gradient(180deg, ${s.color}, #ffffff)`;
+  el.dataset.poly = s.isPolygon ? "1" : "0";
+  el.innerHTML = svgShape(s.key);
+
+  const ax = 6 + Math.random()*88;
+  const ay = 12 + Math.random()*76;
+  el.style.left = ax + "%";
+  el.style.top = ay + "%";
+
+  const vx = (-0.5 + Math.random()) * 1.2;
+  const vy = (0.4 + Math.random()) * 1.4;
+  el.dataset.vx = vx;
+  el.dataset.vy = vy;
+
+  el.addEventListener("click", ()=>{
+    if(!running) return;
+    const poly = el.dataset.poly==="1";
+    if(poly){
+      score += 10;
+      scoreEl.textContent = score;
+      msg.textContent = "✅ Nice catch!";
+      window.__SFX__.chime();
+    }else{
+      lives -= 1;
+      setLives();
+      msg.textContent = "😅 Oops! Circle is NOT a polygon.";
+      window.__SFX__.chime();
+      if(lives<=0) endGame();
+    }
+    el.remove();
+  });
+
+  arena.appendChild(el);
+
+  // auto remove after 3.2s
+  setTimeout(()=>{ if(el.isConnected) el.remove(); }, 3200);
+}
+
+function moveLoop(){
+  if(!running) return;
+  const rect = arena.getBoundingClientRect();
+  arena.querySelectorAll(".float").forEach(el=>{
+    const x = el.offsetLeft;
+    const y = el.offsetTop;
+    let vx = parseFloat(el.dataset.vx||"0");
+    let vy = parseFloat(el.dataset.vy||"0");
+
+      let nx = x + vx*3;
+      let ny = y + vy*3;
+
+    if(nx < 20 || nx > rect.width-20) vx *= -1;
+    if(ny < 20 || ny > rect.height-20) vy *= -1;
+
+    el.dataset.vx = vx;
+    el.dataset.vy = vy;
+    el.style.left = (nx/rect.width*100) + "%";
+    el.style.top = (ny/rect.height*100) + "%";
+  });
+  requestAnimationFrame(moveLoop);
+}
+
+function startGame(){
+  if(running) return;
+  running=true; score=0; lives=3; t=30;
+  scoreEl.textContent=score; setLives(); timeEl.textContent=t;
+  msg.textContent="Go! Catch polygons! ⭐";
+  arena.innerHTML="";
+  window.__SFX__.chime();
+
+  tick=setInterval(()=>{
+    t--; timeEl.textContent=t;
+    if(t<=0) endGame();
+  },1000);
+
+  spawner=setInterval(spawn, 620);
+  requestAnimationFrame(moveLoop);
+}
+
+async function endGame(){
+  if(!running) return;
+  running=false;
+  clearInterval(tick); clearInterval(spawner);
+  arena.querySelectorAll(".float").forEach(x=>x.remove());
+
+  const scorePct = Math.max(0, Math.min(100, Math.round((score/300)*100)));
+  const stars = scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
+
+  msg.textContent = `🎉 Game Over! Score ${score} (≈${scorePct}%). Stars: ${"⭐".repeat(Math.max(1,stars))}`;
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LB_Game1",
+      level: "B",
+      activityType: "game",
+      score: scorePct,
+      stars,
+      skills: { reading: 1, writing: 0, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "B", activityId: "LB_Game1", score: scorePct, stars });
+  }
+}
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("helpBtn").addEventListener("click", ()=>{
+  msg.textContent="Polygons have straight sides. Tap triangle/square/pentagon/hexagon/octagon. Avoid circle!";
+  window.__SFX__.chime();
+});
+  </script>
+  <video class="autoplay-intro" preload="auto" muted playsinline autoplay style="display:none" aria-hidden="true">
+    <source src="../../../../assets/video/LB6bvideo.mp4" type="video/mp4">
+  </video>
+  <script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+

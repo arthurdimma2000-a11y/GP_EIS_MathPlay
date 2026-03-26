@@ -1,0 +1,2229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>GP EIS • Progress Report (Firebase) — FIXED</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- PDF Export -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.3/dist/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+  :root{
+    --bgA:#5ad7ff; --bgB:#69ffb1;
+    --glass: rgba(255,255,255,.88);
+    --ink:#16233d; --muted:#546079;
+    --shadow:0 18px 45px rgba(0,0,0,.18);
+    --shadow2:0 10px 22px rgba(0,0,0,.14);
+    --r:22px;
+    --pink:#ff5aa5; --blue:#2aa8ff; --violet:#7b61ff; --green:#23c483; --gold:#ffbf1a;
+    font-family:"Baloo 2","Comic Sans MS",system-ui,-apple-system,Segoe UI,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(1100px 520px at 20% 0%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%),
+      radial-gradient(900px 520px at 90% 20%, rgba(255,255,255,.45), rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, var(--bgA), var(--bgB));
+    overflow-x:hidden;
+  }
+  .blob{position:fixed; inset:auto; filter:blur(20px); opacity:.35; pointer-events:none}
+  .blob.b1{width:420px;height:420px; left:-140px; top:60px; background:radial-gradient(circle at 30% 30%, #fff, #ff6fb5 55%, transparent 70%);}
+  .blob.b2{width:520px;height:520px; right:-200px; top:260px; background:radial-gradient(circle at 30% 30%, #fff, #3cb7ff 55%, transparent 70%);}
+  .blob.b3{width:420px;height:420px; left:20%; bottom:-220px; background:radial-gradient(circle at 30% 30%, #fff, #ffd34e 55%, transparent 70%);}
+
+  .wrap{width:min(1200px,94vw); margin:18px auto 36px; display:grid; gap:14px;}
+
+  .topbar{
+    background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+    border-radius:var(--r);
+    box-shadow:var(--shadow);
+    padding:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    position:sticky;
+    top:10px;
+    z-index:20;
+    backdrop-filter: blur(10px);
+  }
+  .brand{display:flex; align-items:center; gap:12px}
+  .logo{
+    width:58px;height:58px;border-radius:18px;
+    background:linear-gradient(135deg,#ffd45b,#ff7c5b);
+    box-shadow:inset 0 0 0 3px rgba(0,0,0,.08), 0 12px 20px rgba(0,0,0,.16);
+    display:grid;place-items:center;
+    font-weight:1000;
+    letter-spacing:.08em;
+  }
+  .brand h1{margin:0; font-size:1.1rem; line-height:1.05}
+  .brand .sub{color:var(--muted); font-weight:900; margin-top:3px; font-size:.92rem}
+
+  .chips{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .chip{
+    padding:9px 12px;
+    border-radius:999px;
+    background:#fff;
+    border:2px solid rgba(0,0,0,.08);
+    box-shadow:var(--shadow2);
+    display:flex; gap:8px; align-items:center;
+    font-weight:1000;
+  }
+  .chip select, .chip input{
+    border:none; outline:none; background:transparent;
+    font-weight:1000; color:var(--ink);
+  }
+  .btn{
+    border:none; cursor:pointer;
+    border-radius:999px;
+    padding:10px 14px;
+    font-weight:1000;
+    box-shadow:var(--shadow2);
+    background:linear-gradient(180deg,#fff3c7,#ffe06a);
+    color:#684400;
+  }
+  .btn.secondary{background:linear-gradient(180deg,#eaf6ff,#d6ecff); color:#0b4a75;}
+  .btn.danger{background:linear-gradient(180deg,#ffe3e6,#ffb7c1); color:#7c1222;}
+  .btn:active{transform:translateY(2px)}
+  .btn[disabled]{opacity:.6; cursor:not-allowed}
+
+  .grid{display:grid; grid-template-columns: 1.2fr .8fr; gap:14px; align-items:start}
+  @media(max-width:980px){ .grid{grid-template-columns:1fr;} }
+
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80));
+    border-radius:var(--r);
+    box-shadow:var(--shadow);
+    padding:14px;
+    position:relative;
+    overflow:hidden;
+    backdrop-filter: blur(10px);
+  }
+  .card > *{position:relative}
+
+  .cardhead{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-end}
+  .cardhead h2{margin:0; font-size:1.05rem}
+  .hint{color:var(--muted); font-weight:900; margin-top:2px; font-size:.92rem}
+
+  .toggleRow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .pill{
+    border:2px solid rgba(0,0,0,.08);
+    background:#fff;
+    border-radius:999px;
+    padding:7px 10px;
+    box-shadow:0 10px 18px rgba(0,0,0,.10);
+    font-weight:1000;
+    cursor:pointer;
+  }
+  .pill[aria-pressed="true"]{
+    background:linear-gradient(180deg,#2fe49b,#11b16e);
+    color:#073a27;
+    border-color:rgba(255,255,255,.55);
+  }
+
+  .legend{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .tag{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:6px 10px; border-radius:999px;
+    background:#fff; border:2px solid rgba(0,0,0,.08);
+    font-weight:1000; font-size:.86rem;
+  }
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.r{background:var(--pink)}
+  .dot.w{background:var(--blue)}
+  .dot.s{background:var(--violet)}
+  .dot.l{background:var(--green)}
+  .dot.star{background:var(--gold)}
+
+  .chartWrap{
+    background:#fff;
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+  }
+  canvas{width:100% !important; height:340px !important;}
+
+  .switcher{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .switchBtn{
+    border:none; cursor:pointer;
+    padding:9px 12px;
+    border-radius:999px;
+    font-weight:1000;
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    background:linear-gradient(180deg,#f4f6ff,#e6ebff);
+    color:#2b2b2b;
+  }
+  .switchBtn.active{
+    background:linear-gradient(180deg,#fff3c7,#ffe06a);
+    color:#684400;
+  }
+
+  .sideStack{display:grid; gap:14px}
+  .box{
+    background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+    border-radius:18px;
+    border:2px solid rgba(0,0,0,.06);
+    box-shadow:var(--shadow2);
+    padding:12px;
+    backdrop-filter: blur(10px);
+  }
+
+  .bigLine{
+    display:flex; gap:10px; align-items:flex-start;
+    border-radius:16px;
+    padding:12px;
+    border:2px solid rgba(0,0,0,.08);
+    background:linear-gradient(180deg,#f7fcff,#ffffff);
+    margin-top:10px;
+  }
+  .bigIcon{
+    width:50px;height:50px;border-radius:18px;
+    display:grid; place-items:center;
+    background:linear-gradient(180deg,#fff3c7,#ffe06a);
+    box-shadow:0 10px 16px rgba(0,0,0,.14);
+    font-size:26px;
+    flex:none;
+  }
+  .bigText{font-weight:1000; line-height:1.25}
+  .bigText .t1{font-size:1.02rem}
+  .bigText .t2{margin-top:6px; color:var(--muted); font-weight:900; font-size:.92rem}
+
+  .list{display:grid; gap:10px; margin-top:10px;}
+  .row{
+    border-radius:16px;
+    padding:10px 12px;
+    border:2px solid rgba(0,0,0,.08);
+    background:linear-gradient(180deg,#fffef6,#ffffff);
+    display:flex; justify-content:space-between; gap:10px; align-items:center;
+  }
+  .row b{font-weight:1100}
+  .mini{color:var(--muted); font-weight:900; font-size:.88rem}
+
+  /* AUTH OVERLAY */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(12, 20, 34, .55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999;
+    padding:18px;
+  }
+  .auth{
+    width:min(600px, 95vw);
+    border-radius:24px;
+    box-shadow:0 25px 70px rgba(0,0,0,.35);
+    overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.90));
+    backdrop-filter: blur(12px);
+  }
+  .authTop{
+    padding:16px;
+    background:
+      radial-gradient(700px 200px at 20% 0%, rgba(255,255,255,.65), rgba(255,255,255,0) 60%),
+      linear-gradient(135deg,#ff6fb5,#3cb7ff);
+    color:#fff;
+  }
+  .authTop h2{margin:0; font-size:1.35rem; font-weight:1200; text-shadow:0 6px 14px rgba(0,0,0,.25)}
+  .authTop p{margin:6px 0 0; opacity:.95; font-weight:900}
+  .authBody{padding:14px 16px 16px}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:8px 0 12px}
+  .tabBtn{
+    border:none; cursor:pointer;
+    padding:9px 14px;
+    border-radius:999px;
+    font-weight:1100;
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    background:linear-gradient(180deg,#eaf6ff,#d6ecff);
+    color:#0b4a75;
+  }
+  .tabBtn.active{background:linear-gradient(180deg,#fff3c7,#ffe06a); color:#684400;}
+  .form{display:grid; gap:10px; margin-top:8px}
+  .form label{font-weight:1000; color:var(--muted); font-size:.9rem}
+  .form input, .form select{
+    padding:11px 12px;
+    border-radius:14px;
+    border:2px solid rgba(0,0,0,.12);
+    outline:none;
+    font-weight:1000;
+    background:#fff;
+  }
+  .form .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  @media(max-width:520px){ .form .grid2{grid-template-columns:1fr;} }
+  .authActions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px}
+  .linkBtn{
+    border:none; background:transparent; cursor:pointer;
+    color:#0b4a75; font-weight:1000; text-decoration:underline;
+  }
+  .smallNote{margin-top:10px; text-align:center; color:var(--muted); font-weight:900; font-size:.9rem}
+  .hide{display:none !important;}
+  .teacherOnly{display:none;}
+  .parentOnly{display:none;}
+  .studentOnly{display:none;}
+  body.role-teacher .teacherOnly{display:block;}
+  body.role-parent .parentOnly{display:block;}
+  body.role-student .studentOnly{display:block;}
+
+  .warn{
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:14px;
+    border:2px solid rgba(0,0,0,.10);
+    background:linear-gradient(180deg,#fff7d6,#ffffff);
+    font-weight:900;
+    color:#6b4a00;
+    word-break:break-word;
+  }
+
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border-radius:16px;
+    border:2px solid rgba(0,0,0,.08);
+    background:#fff;
+  }
+  th, td{padding:10px 10px; font-weight:900; font-size:.92rem; text-align:left; border-bottom:1px solid rgba(0,0,0,.06);}
+  th{background:linear-gradient(180deg,#f5fbff,#ffffff); color:#0b4a75;}
+  tr:last-child td{border-bottom:none;}
+  .kpiRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+  .kpi{
+    flex:1 1 170px;
+    border-radius:16px;
+    border:2px solid rgba(0,0,0,.08);
+    background:#fff;
+    box-shadow:0 10px 18px rgba(0,0,0,.10);
+    padding:10px 12px;
+  }
+  .kpi .k1{font-size:.88rem; color:var(--muted); font-weight:1000}
+  .kpi .k2{font-size:1.15rem; font-weight:1200; margin-top:4px}
+  .tinyNote{font-size:.88rem; color:var(--muted); font-weight:900}
+
+  /* TOASTS */
+  .toasts{
+    position:fixed; right:12px; top:12px; z-index:10000;
+    display:grid; gap:10px; width:min(420px, 92vw);
+    pointer-events:none;
+  }
+  .toast{
+    pointer-events:auto;
+    border-radius:18px;
+    padding:12px 14px;
+    border:2px solid rgba(0,0,0,.10);
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.88));
+    box-shadow:0 18px 45px rgba(0,0,0,.22);
+    font-weight:1000;
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .toast .ico{font-size:22px; line-height:1}
+  .toast .msg{line-height:1.25}
+  .toast.ok{border-color:rgba(17,177,110,.35)}
+  .toast.bad{border-color:rgba(255,90,165,.35)}
+</style>
+</head>
+
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div id="toasts" class="toasts"></div>
+
+<div id="authOverlay" class="overlay">
+  <div class="auth">
+    <div class="authTop">
+      <h2>GP EIS • Login Portal</h2>
+      <p>Kids • Parents • Teachers — secure access</p>
+    </div>
+
+    <div class="authBody">
+      <div class="tabs">
+        <button class="tabBtn active" id="tabLogin" type="button">Teacher/Parent Login</button>
+        <button class="tabBtn" id="tabStudent" type="button">Student Login</button>
+        <button class="tabBtn" id="tabSignup" type="button">Sign Up</button>
+        <button class="tabBtn" id="tabForgot" type="button">Forgot Password</button>
+      </div>
+
+      <div id="authWarn" class="warn hide"></div>
+
+      <div id="panelLogin">
+        <div class="form">
+          <label>Email</label>
+          <input id="loginEmail" type="email" placeholder="e.g. teacher@email.com" autocomplete="email" />
+          <label>Password</label>
+          <input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div class="authActions">
+          <button class="btn" id="btnLogin" type="button">✅ Login</button>
+        </div>
+        <div class="smallNote">Teachers manage class & generate IDs. Parents link child. Students use Student Login tab.</div>
+      </div>
+
+      <div id="panelStudent" class="hide">
+        <div class="form">
+          <label>Class ID</label>
+          <input id="stuClassId" type="text" placeholder="e.g. classA_2026" />
+          <label>Student ID</label>
+          <input id="stuStudentId" type="text" placeholder="e.g. LA-0001" />
+          <label>PIN</label>
+          <input id="stuPin" type="password" placeholder="4–6 digits" inputmode="numeric" />
+        </div>
+        <div class="authActions">
+          <button class="btn" id="btnStudentLogin" type="button">🎒 Login as Student</button>
+        </div>
+        <div class="smallNote">Student report uses StudentID+ClassID (no email needed).</div>
+      </div>
+
+      <div id="panelSignup" class="hide">
+        <div class="form">
+          <label>Full Name</label>
+          <input id="signupName" type="text" placeholder="e.g. Nora" />
+
+          <div class="grid2">
+            <div>
+              <label>Email</label>
+              <input id="signupEmail" type="email" placeholder="e.g. parent@email.com" autocomplete="email" />
+            </div>
+            <div>
+              <label>Password</label>
+              <input id="signupPass" type="password" placeholder="Create password (min 6)" autocomplete="new-password" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Role</label>
+              <select id="signupRole">
+                <option value="parent">Parent</option>
+                <option value="teacher">Teacher</option>
+              </select>
+            </div>
+            <div>
+              <label>Class ID (Teacher only)</label>
+              <input id="signupClass" type="text" placeholder="e.g. classA_2026" />
+            </div>
+          </div>
+
+          <div class="warn" id="signupHint" style="display:block;">
+            Parents: class id not required. Teachers: class id required to manage students.
+          </div>
+        </div>
+
+        <div class="authActions">
+          <button class="btn" id="btnSignup" type="button">✨ Create Account</button>
+        </div>
+
+        <div class="smallNote">
+          Must open with <b>http://localhost</b> or hosted <b>https</b>.
+          Also enable Email/Password in Firebase Auth.
+        </div>
+      </div>
+
+      <div id="panelForgot" class="hide">
+        <div class="form">
+          <label>Enter your email to reset password</label>
+          <input id="forgotEmail" type="email" placeholder="e.g. parent@email.com" />
+        </div>
+        <div class="authActions">
+          <button class="btn secondary" id="btnReset" type="button">📩 Send Reset Link</button>
+        </div>
+        <div class="smallNote">Firebase sends a secure reset email.</div>
+      </div>
+
+      <div style="text-align:center; margin-top:10px;">
+        <button class="linkBtn" id="btnCloseAuth" type="button">Continue as Guest (Local charts only)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">GP</div>
+      <div>
+        <h1>GP EIS • Progress Report</h1>
+        <div class="sub" id="whoLine">Not logged in • Guest mode</div>
+      </div>
+    </div>
+
+    <div class="chips">
+      <div class="chip">
+        <span>Level</span>
+        <select id="levelSel">
+          <option value="A">Level A</option>
+          <option value="B">Level B</option>
+          <option value="C">Level C</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <span>Month</span>
+        <select id="monthSel"></select>
+      </div>
+
+      <div class="chip parentOnly">
+        <span>Child</span>
+        <select id="childSel"></select>
+      </div>
+
+      <button class="btn secondary" id="btnOpenAuth" type="button">🔐 Login</button>
+      <button class="btn secondary teacherOnly" id="btnExportCsv" type="button">📄 Export CSV</button>
+      <button class="btn secondary" id="btnExportPdf" type="button">🖨️ Export PDF</button>
+      <button class="btn danger" id="btnLogout" type="button">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <h2 id="chartTitle">Monthly Progress (10 months)</h2>
+          <div class="hint">Firestore: results + dailySummaries + classes/{classId}/students</div>
+          <div class="tinyNote" id="hostHint"></div>
+        </div>
+
+        <div class="toggleRow">
+          <button class="pill" id="toggleDaily" aria-pressed="true" type="button">📅 Daily</button>
+          <button class="pill" id="toggleActivity" aria-pressed="false" type="button">🎯 Activity</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px" class="legend">
+        <span class="tag"><span class="dot r"></span>Reading</span>
+        <span class="tag"><span class="dot w"></span>Writing</span>
+        <span class="tag"><span class="dot s"></span>Speaking</span>
+        <span class="tag"><span class="dot l"></span>Listening</span>
+        <span class="tag"><span class="dot star"></span>Stars</span>
+      </div>
+
+      <div class="kpiRow">
+        <div class="kpi">
+          <div class="k1">Total minutes used</div>
+          <div class="k2" id="kpiMinutes">—</div>
+        </div>
+        <div class="kpi">
+          <div class="k1">Total logins</div>
+          <div class="k2" id="kpiLogins">—</div>
+        </div>
+        <div class="kpi">
+          <div class="k1">Last active</div>
+          <div class="k2" id="kpiLastActive">—</div>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <div class="switcher" style="justify-content:flex-start; margin-bottom:10px;">
+        <button class="switchBtn active" id="btnShowMonthly" type="button">📊 Monthly</button>
+        <button class="switchBtn" id="btnShowWeekly" type="button">🗓️ Weekly</button>
+      </div>
+
+      <div class="chartWrap" id="monthlyWrap">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+
+      <div class="chartWrap hide" id="weeklyWrap">
+        <canvas id="weeklyChart"></canvas>
+      </div>
+
+      <div id="debugBox" class="warn hide" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="sideStack">
+      <div class="box">
+        <div class="cardhead" style="align-items:center;">
+          <div>
+            <h2 style="margin:0;">Auto Summary</h2>
+            <div class="hint">Scores + recent activities for the selected user.</div>
+          </div>
+          <button class="btn secondary" id="btnRefresh" type="button">🔄 Refresh</button>
+        </div>
+
+        <div class="bigLine">
+          <div class="bigIcon" id="sumIcon">🌟</div>
+          <div class="bigText">
+            <div class="t1" id="sumBig">—</div>
+            <div class="t2" id="sumSmall">Login to see real data.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="box parentOnly">
+        <div class="cardhead" style="align-items:center;">
+          <div>
+            <h2 style="margin:0;">Parent • Link Child</h2>
+            <div class="hint">Add your child using Class ID + Student ID + PIN</div>
+          </div>
+        </div>
+        <div class="form" style="margin-top:8px;">
+          <label>Child Class ID</label>
+          <input id="linkClassId" type="text" placeholder="e.g. classA_2026" />
+          <label>Child Student ID</label>
+          <input id="linkStudentId" type="text" placeholder="e.g. LA-0001" />
+          <label>Child PIN</label>
+          <input id="linkPin" type="password" placeholder="4–6 digits" inputmode="numeric" />
+        </div>
+        <div class="authActions" style="justify-content:flex-start;">
+          <button class="btn" id="btnLinkChild" type="button">➕ Link Child</button>
+        </div>
+        <div class="warn hide" id="linkMsg"></div>
+      </div>
+
+      <div class="box">
+        <div class="cardhead" style="align-items:center;">
+          <div>
+            <h2 style="margin:0;">Recent Activities</h2>
+            <div class="hint">Latest results (filtered by role).</div>
+          </div>
+        </div>
+        <div class="list" id="recentList"></div>
+      </div>
+
+      <div class="box teacherOnly">
+        <div class="cardhead" style="align-items:center;">
+          <div>
+            <h2 style="margin:0;">Teacher Class Table</h2>
+            <div class="hint">Logins + minutes + avg score per student.</div>
+          </div>
+        </div>
+
+        <div class="bigLine" style="margin-top:10px;">
+          <div class="bigIcon">🏫</div>
+          <div class="bigText">
+            <div class="t1" id="classBig">—</div>
+            <div class="t2" id="classSmall">—</div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px; overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Logins</th>
+                <th>Minutes</th>
+                <th>Avg (7d)</th>
+                <th>Stars (7d)</th>
+              </tr>
+            </thead>
+            <tbody id="teacherTableBody">
+              <tr><td colspan="5" class="mini">Login as teacher to see class.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mini" style="margin-top:10px;">
+          Tip: lesson pages must include <b>progress-tracker.js</b> to update this report.
+        </div>
+      </div>
+
+      <div class="box teacherOnly">
+        <div class="cardhead" style="align-items:center;">
+          <div>
+            <h2 style="margin:0;">Teacher • Generate Student IDs</h2>
+            <div class="hint">Create 1–40 student IDs + PINs for a class.</div>
+          </div>
+        </div>
+
+        <div class="form" style="margin-top:10px;">
+          <label>Class ID</label>
+          <input id="genClassId" type="text" placeholder="e.g. classA_2026" />
+
+          <div class="grid2">
+            <div>
+              <label>Level</label>
+              <select id="genLevel">
+                <option value="A">Level A</option>
+                <option value="B">Level B</option>
+                <option value="C">Level C</option>
+              </select>
+            </div>
+            <div>
+              <label>Prefix</label>
+              <input id="genPrefix" type="text" placeholder="e.g. LA-" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Start Number</label>
+              <input id="genStart" type="number" value="1" min="1" max="9999" />
+            </div>
+            <div>
+              <label>Count (1–40)</label>
+              <input id="genCount" type="number" value="40" min="1" max="40" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>PIN digits (4–6)</label>
+              <input id="genPinDigits" type="number" value="4" min="4" max="6" />
+            </div>
+            <div>
+              <label>Auto Name</label>
+              <input id="genNameBase" type="text" value="Student" />
+            </div>
+          </div>
+
+          <div class="authActions" style="justify-content:flex-start;">
+            <button class="btn" id="btnGenerateStudents" type="button">🧾 Generate IDs + PINs</button>
+            <button class="btn secondary" id="btnDownloadPins" type="button">⬇️ Download CSV</button>
+          </div>
+
+          <div class="warn hide" id="genResultBox"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== Small helpers: Toast + Sounds ====== */
+(() => {
+  const toasts = document.getElementById("toasts");
+
+  function toast(msg, kind="ok", ico="✅", ms=3600){
+    const el = document.createElement("div");
+    el.className = `toast ${kind}`;
+    el.innerHTML = `<div class="ico">${ico}</div><div class="msg">${msg}</div>`;
+    toasts.appendChild(el);
+    setTimeout(()=>{ el.style.opacity="0"; el.style.transform="translateY(-6px)"; }, Math.max(800, ms-600));
+    setTimeout(()=>{ el.remove(); }, ms);
+  }
+
+  // Simple kid-friendly chime/cheer with WebAudio (no files needed)
+  let audioCtx = null;
+  function ensureAudio(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+  function beep(freq, t, type="sine", gain=0.08){
+    const ctx = ensureAudio(); if(!ctx) return;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = 0.0001;
+    o.connect(g); g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    o.start(now);
+    g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + t);
+    o.stop(now + t + 0.02);
+  }
+  function playChime(){
+    beep(880, 0.12, "triangle", 0.10);
+    setTimeout(()=>beep(1175, 0.12, "triangle", 0.10), 120);
+    setTimeout(()=>beep(1568, 0.14, "triangle", 0.11), 240);
+  }
+  function playCheer(){
+    // little “ta-da”
+    beep(523, 0.10, "sine", 0.07);
+    setTimeout(()=>beep(659, 0.10, "sine", 0.08), 90);
+    setTimeout(()=>beep(784, 0.12, "sine", 0.09), 180);
+    setTimeout(()=>beep(1046,0.16, "sine", 0.10), 300);
+  }
+
+  window.__FX__ = { toast, playChime, playCheer };
+})();
+</script>
+
+<script>
+/* ====== UI overlay + tabs ====== */
+(() => {
+  const $ = (id)=>document.getElementById(id);
+  const authOverlay = $("authOverlay");
+  const authWarn = $("authWarn");
+
+  const tabLogin = $("tabLogin");
+  const tabStudent = $("tabStudent");
+  const tabSignup = $("tabSignup");
+  const tabForgot = $("tabForgot");
+
+  const panelLogin = $("panelLogin");
+  const panelStudent = $("panelStudent");
+  const panelSignup = $("panelSignup");
+  const panelForgot = $("panelForgot");
+
+  const btnOpenAuth = $("btnOpenAuth");
+  const btnCloseAuth = $("btnCloseAuth");
+
+  window.__UI__ = {
+    showWarn(msg){
+      authWarn.textContent = msg;
+      authWarn.classList.remove("hide");
+      const dbg = document.getElementById("debugBox");
+      if(dbg){
+        dbg.textContent = msg;
+        dbg.classList.remove("hide");
+      }
+    },
+    hideWarn(){
+      authWarn.classList.add("hide");
+      authWarn.textContent = "";
+      const dbg = document.getElementById("debugBox");
+      if(dbg){
+        dbg.classList.add("hide");
+        dbg.textContent = "";
+      }
+    },
+    openAuth(){ authOverlay.classList.remove("hide"); },
+    closeAuth(){ authOverlay.classList.add("hide"); },
+    setAuthTab(which){
+      window.__UI__.hideWarn();
+      [tabLogin, tabStudent, tabSignup, tabForgot].forEach(b=>b.classList.remove("active"));
+      [panelLogin, panelStudent, panelSignup, panelForgot].forEach(p=>p.classList.add("hide"));
+      if(which==="login"){ tabLogin.classList.add("active"); panelLogin.classList.remove("hide"); }
+      if(which==="student"){ tabStudent.classList.add("active"); panelStudent.classList.remove("hide"); }
+      if(which==="signup"){ tabSignup.classList.add("active"); panelSignup.classList.remove("hide"); }
+      if(which==="forgot"){ tabForgot.classList.add("active"); panelForgot.classList.remove("hide"); }
+    }
+  };
+
+  btnOpenAuth?.addEventListener("click", window.__UI__.openAuth);
+  btnCloseAuth?.addEventListener("click", window.__UI__.closeAuth);
+  tabLogin?.addEventListener("click", ()=>window.__UI__.setAuthTab("login"));
+  tabStudent?.addEventListener("click", ()=>window.__UI__.setAuthTab("student"));
+  tabSignup?.addEventListener("click", ()=>window.__UI__.setAuthTab("signup"));
+  tabForgot?.addEventListener("click", ()=>window.__UI__.setAuthTab("forgot"));
+
+  // Helpful host hint (this is where many Firebase login problems come from)
+  const hostHint = document.getElementById("hostHint");
+  const host = location.host || "(file://)";
+  const proto = location.protocol;
+  const ok = (proto === "https:" || host.startsWith("localhost") || host.startsWith("127.0.0.1"));
+  hostHint.textContent = ok
+    ? `✅ Running on ${proto}//${host} (OK for Firebase)`
+    : `⚠️ You are running on ${proto}//${host}. Use Live Server (http://localhost) or https hosting (Netlify) — file:// breaks Firebase Auth + crypto.`;
+
+  if(!ok){
+    window.__UI__.showWarn("⚠️ IMPORTANT: Open this page using Live Server (http://localhost:5500) OR upload to Netlify (https). Do NOT open with file://");
+  }
+})();
+</script>
+
+<script>
+/* ====== Charts (guest defaults) ====== */
+(() => {
+  const $ = (id)=>document.getElementById(id);
+  const monthSel = $("monthSel");
+  const levelSel = $("levelSel");
+  const childSel = $("childSel");
+  const toggleDaily = $("toggleDaily");
+  const toggleActivity = $("toggleActivity");
+  const btnShowMonthly = $("btnShowMonthly");
+  const btnShowWeekly = $("btnShowWeekly");
+  const monthlyWrap = $("monthlyWrap");
+  const weeklyWrap = $("weeklyWrap");
+  const chartTitle = $("chartTitle");
+  const sumIcon = $("sumIcon");
+  const sumBig = $("sumBig");
+  const sumSmall = $("sumSmall");
+  const btnRefresh = $("btnRefresh");
+  const recentList = $("recentList");
+  const btnExportPdf = $("btnExportPdf");
+  const kpiMinutes = $("kpiMinutes");
+  const kpiLogins = $("kpiLogins");
+  const kpiLastActive = $("kpiLastActive");
+  const monthlyCtx = $("monthlyChart");
+  const weeklyCtx = $("weeklyChart");
+
+  let monthlyChart, weeklyChart;
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function toISODate(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+
+  function buildMonthWindows(){
+    const now = new Date();
+    const windows = [];
+    for(let i=9;i>=0;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      const start = new Date(d.getFullYear(), d.getMonth(), 1, 0,0,0,0);
+      const end = new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59,999);
+      const label = d.toLocaleString("en-US",{month:"short"}) + " " + d.getFullYear();
+      windows.push({label, start, end});
+    }
+    return windows;
+  }
+  const MONTHS = buildMonthWindows();
+  monthSel.innerHTML = "";
+  MONTHS.forEach((m, idx)=>{
+    const opt = document.createElement("option");
+    opt.value = String(idx);
+    opt.textContent = m.label;
+    monthSel.appendChild(opt);
+  });
+  monthSel.value = String(MONTHS.length-1);
+
+  const COLORS = {
+    reading: getComputedStyle(document.documentElement).getPropertyValue("--pink").trim(),
+    writing: getComputedStyle(document.documentElement).getPropertyValue("--blue").trim(),
+    speaking: getComputedStyle(document.documentElement).getPropertyValue("--violet").trim(),
+    listening: getComputedStyle(document.documentElement).getPropertyValue("--green").trim(),
+    stars: getComputedStyle(document.documentElement).getPropertyValue("--gold").trim()
+  };
+
+  function rgba(hexOrRgb, a){
+    if(!hexOrRgb) return hexOrRgb;
+    if(hexOrRgb.startsWith("rgb(")) return hexOrRgb.replace("rgb(", "rgba(").replace(")", `, ${a})`);
+    if(hexOrRgb.startsWith("#")){
+      const h = hexOrRgb.slice(1);
+      const full = h.length===3 ? h.split("").map(c=>c+c).join("") : h;
+      const r = parseInt(full.slice(0,2),16);
+      const g = parseInt(full.slice(2,4),16);
+      const b = parseInt(full.slice(4,6),16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+    return hexOrRgb;
+  }
+
+  function emptySeries(n){
+    return { reading:Array(n).fill(0), writing:Array(n).fill(0), speaking:Array(n).fill(0), listening:Array(n).fill(0), stars:Array(n).fill(0) };
+  }
+
+  function makeMonthlyChart(labels, series){
+    if(monthlyChart) monthlyChart.destroy();
+    monthlyChart = new Chart(monthlyCtx,{
+      type:"bar",
+      data:{
+        labels,
+        datasets:[
+          { label:"Reading", data:series.reading, backgroundColor:rgba(COLORS.reading,.70), borderColor:COLORS.reading, borderWidth:2, borderRadius:10, maxBarThickness:22 },
+          { label:"Writing", data:series.writing, backgroundColor:rgba(COLORS.writing,.70), borderColor:COLORS.writing, borderWidth:2, borderRadius:10, maxBarThickness:22 },
+          { label:"Speaking", data:series.speaking, backgroundColor:rgba(COLORS.speaking,.65), borderColor:COLORS.speaking, borderWidth:2, borderRadius:10, maxBarThickness:22 },
+          { label:"Listening", data:series.listening, backgroundColor:rgba(COLORS.listening,.65), borderColor:COLORS.listening, borderWidth:2, borderRadius:10, maxBarThickness:22 },
+          { type:"line", label:"Stars", data:series.stars, borderColor:COLORS.stars, pointBackgroundColor:COLORS.stars, borderWidth:3, tension:.35, fill:false }
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:"bottom", labels:{ font:{weight:"bold"} } } },
+        scales:{
+          y:{ min:0, max:100, ticks:{ callback:(v)=>v+"%", font:{weight:"bold"} }, grid:{ color:"rgba(0,0,0,.08)" } },
+          x:{ ticks:{ font:{weight:"bold"} }, grid:{ display:false } }
+        }
+      }
+    });
+  }
+
+  function makeWeeklyChart(labels, series){
+    if(weeklyChart) weeklyChart.destroy();
+    weeklyChart = new Chart(weeklyCtx,{
+      type:"line",
+      data:{
+        labels,
+        datasets:[
+          { label:"Reading", data:series.reading, borderColor:COLORS.reading, backgroundColor:rgba(COLORS.reading,.10), fill:true, tension:.35, borderWidth:3, pointRadius:4 },
+          { label:"Writing", data:series.writing, borderColor:COLORS.writing, backgroundColor:rgba(COLORS.writing,.10), fill:true, tension:.35, borderWidth:3, pointRadius:4 },
+          { label:"Speaking", data:series.speaking, borderColor:COLORS.speaking, backgroundColor:rgba(COLORS.speaking,.08), fill:true, tension:.35, borderWidth:3, pointRadius:4 },
+          { label:"Listening", data:series.listening, borderColor:COLORS.listening, backgroundColor:rgba(COLORS.listening,.08), fill:true, tension:.35, borderWidth:3, pointRadius:4 },
+          { label:"Stars", data:series.stars, borderColor:COLORS.stars, fill:false, tension:.35, borderWidth:3, pointRadius:4 }
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:"bottom", labels:{ font:{weight:"bold"} } } },
+        scales:{
+          y:{ min:0, max:100, ticks:{ callback:(v)=>v+"%", font:{weight:"bold"} }, grid:{ color:"rgba(0,0,0,.08)" } },
+          x:{ ticks:{ font:{weight:"bold"} }, grid:{ display:false } }
+        }
+      }
+    });
+  }
+
+  function renderRecent(items){
+    recentList.innerHTML = "";
+    if(!items?.length){
+      recentList.innerHTML = `<div class="mini">No activities yet.</div>`;
+      return;
+    }
+    for(const it of items){
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `
+        <div>
+          <div><b>${it.pageId || "Activity"}</b> <span class="mini">• ${(it.activityType||"").toUpperCase()}</span></div>
+          <div class="mini">${it.tsText || ""}</div>
+        </div>
+        <div style="text-align:right">
+          <div><b>${(it.score ?? "—")}%</b></div>
+          <div class="mini">⭐ ${it.stars ?? 0}</div>
+        </div>
+      `;
+      recentList.appendChild(row);
+    }
+  }
+
+  function showMonthly(){
+    btnShowMonthly.classList.add("active");
+    btnShowWeekly.classList.remove("active");
+    monthlyWrap.classList.remove("hide");
+    weeklyWrap.classList.add("hide");
+    chartTitle.textContent = "Monthly Progress (10 months)";
+  }
+  function showWeekly(){
+    btnShowWeekly.classList.add("active");
+    btnShowMonthly.classList.remove("active");
+    weeklyWrap.classList.remove("hide");
+    monthlyWrap.classList.add("hide");
+    chartTitle.textContent = "Weekly Progress (4 weeks)";
+  }
+  btnShowMonthly.addEventListener("click", showMonthly);
+  btnShowWeekly.addEventListener("click", showWeekly);
+  showMonthly();
+
+  window.__MODE__ = "daily";
+  function setMode(mode){
+    window.__MODE__ = mode;
+    toggleDaily.setAttribute("aria-pressed", mode==="daily" ? "true":"false");
+    toggleActivity.setAttribute("aria-pressed", mode==="activity" ? "true":"false");
+    window.__refreshAllSafe && window.__refreshAllSafe();
+  }
+  toggleDaily.addEventListener("click", ()=>setMode("daily"));
+  toggleActivity.addEventListener("click", ()=>setMode("activity"));
+
+  // Guest defaults
+  makeMonthlyChart(MONTHS.map(m=>m.label), emptySeries(10));
+  makeWeeklyChart(["Week 1","Week 2","Week 3","Week 4"], emptySeries(4));
+  renderRecent([]);
+
+  btnExportPdf.addEventListener("click", ()=>{
+    const whoLine = document.getElementById("whoLine");
+    const userLine = whoLine ? whoLine.textContent : "Guest Mode";
+    const docPdf = new window.jspdf.jsPDF({ orientation:"p", unit:"pt", format:"a4" });
+    docPdf.setFontSize(16);
+    docPdf.text("GP EIS Progress Report", 40, 40);
+    docPdf.setFontSize(10);
+    docPdf.text(userLine, 40, 60);
+    docPdf.autoTable({
+      startY: 80,
+      head: [["Recent Activity", "Score"]],
+      body: [["No data (Guest mode)", "—"]],
+      theme: "striped",
+      styles: { fontSize: 10 }
+    });
+    docPdf.save("GP_EIS_ProgressReport.pdf");
+  });
+
+  window.__CHARTS__ = {
+    MONTHS,
+    toISODate,
+    emptySeries,
+    makeMonthlyChart,
+    makeWeeklyChart,
+    renderRecent,
+    showGuest(){
+      makeMonthlyChart(MONTHS.map(m=>m.label), emptySeries(10));
+      makeWeeklyChart(["Week 1","Week 2","Week 3","Week 4"], emptySeries(4));
+      sumIcon.textContent = "🌟";
+      sumBig.textContent = "—";
+      sumSmall.textContent = "Login to see real data.";
+      kpiMinutes.textContent = "—";
+      kpiLogins.textContent = "—";
+      kpiLastActive.textContent = "—";
+      renderRecent([]);
+    }
+  };
+
+  btnRefresh.addEventListener("click", ()=>window.__refreshAllSafe && window.__refreshAllSafe());
+  monthSel.addEventListener("change", ()=>window.__refreshAllSafe && window.__refreshAllSafe());
+  levelSel.addEventListener("change", ()=>window.__refreshAllSafe && window.__refreshAllSafe());
+  childSel.addEventListener("change", ()=>window.__onChildSelChange && window.__onChildSelChange());
+})();
+</script>
+
+<script type="module">
+/* ====== Firebase + Auth/Role Fixes (Teacher/Parent/Student) ====== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc, setDoc, getDoc, updateDoc,
+  collection, query, where, orderBy, limit,
+  getDocs, onSnapshot, writeBatch, increment, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+(async function(){
+  const UI = window.__UI__;
+  const CH = window.__CHARTS__;
+  const FX = window.__FX__;
+  const $ = (id)=>document.getElementById(id);
+
+  const debugBox = $("debugBox");
+  const debug = (msg)=>{
+    console.log(msg);
+    if(debugBox){
+      debugBox.textContent = msg;
+      debugBox.classList.remove("hide");
+    }
+  };
+
+  // ✅ Firebase config (yours)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBINtAMsH445X_btGDH_iX3RUwbztZTwCY",
+    authDomain: "gp-eis-f4a2d.firebaseapp.com",
+    projectId: "gp-eis-f4a2d",
+    storageBucket: "gp-eis-f4a2d.appspot.com",
+    messagingSenderId: "73391020351",
+    appId: "1:73391020351:web:68b0c7c122e7518ac81b8a",
+    measurementId: "G-01CJEDM9BD"
+  };
+
+  const STUDENT_SESSION_KEY = "GP_EIS_STUDENT_SESSION"; // {classId, studentId, displayName, level}
+  const AUTH_GATE_KEY = "GP_EIS_AUTH_GATE";
+  const CHILD_KEY = (classId, studentId)=>`${classId}|${studentId}`;
+  const NEXT_AFTER_AUTH = new URLSearchParams(location.search).get("next") || "";
+
+  function setAuthGate(role){
+    try{
+      localStorage.setItem(AUTH_GATE_KEY, JSON.stringify({ role: role || "user", ts: Date.now() }));
+    }catch(_){}
+  }
+  function clearAuthGate(){
+    try{ localStorage.removeItem(AUTH_GATE_KEY); }catch(_){}
+  }
+  function navigateAfterAuth(){
+    const target = String(NEXT_AFTER_AUTH || "").trim();
+    if(!target) return;
+    if(!/^[A-Za-z0-9_./?=&-]+$/.test(target)) return;
+    setTimeout(()=>{ window.location.href = target; }, 180);
+  }
+
+  function setBodyRole(role){
+    document.body.classList.remove("role-teacher","role-parent","role-student");
+    if(role==="teacher") document.body.classList.add("role-teacher");
+    if(role==="parent") document.body.classList.add("role-parent");
+    if(role==="student") document.body.classList.add("role-student");
+  }
+
+  // Robust email normalization (fixes auth/invalid-email from hidden spaces/newlines)
+  function cleanEmail(raw){
+    return String(raw || "")
+      .trim()
+      .replace(/\u200B/g, "")      // zero-width space
+      .replace(/\s+/g, "")         // remove ALL whitespace inside
+      .toLowerCase();
+  }
+
+  function isValidEmail(email){
+    // practical simple check (Firebase will still validate server-side)
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  async function sha256Hex(str){
+    if(!crypto?.subtle) throw new Error("Secure context required for PIN hashing. Use http://localhost or https.");
+    const enc = new TextEncoder().encode(String(str));
+    const buf = await crypto.subtle.digest("SHA-256", enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+
+  function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+  function scoreToPct(score){ return clamp(Math.round(score||0), 0, 100); }
+
+  function fmtMinutesFromSeconds(sec){
+    const m = Math.round((Number(sec||0)/60)*10)/10;
+    return isFinite(m) ? String(m) : "0";
+  }
+  function fmtDate(ts){
+    if(!ts) return "—";
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return isNaN(d.getTime()) ? "—" : d.toLocaleString();
+  }
+
+  function overallEmoji(overall){
+    if(overall >= 85) return "🏆";
+    if(overall >= 70) return "🌟";
+    if(overall >= 55) return "🙂";
+    return "🌱";
+  }
+  function aggregateSkillsToPct(skillsCount){
+    const target = 12;
+    const pct = (v)=> scoreToPct((v/target)*100);
+    return {
+      reading: pct(skillsCount.reading||0),
+      writing: pct(skillsCount.writing||0),
+      speaking: pct(skillsCount.speaking||0),
+      listening: pct(skillsCount.listening||0),
+    };
+  }
+
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Force persistence so login doesn't “look like guest” after refresh
+  try{
+    await setPersistence(auth, browserLocalPersistence);
+  }catch(e){
+    debug("PERSISTENCE WARN: " + (e?.message || e));
+  }
+
+  // UI refs
+  const whoLine = $("whoLine");
+  const btnLogout = $("btnLogout");
+
+  // Auth inputs
+  const loginEmail = $("loginEmail");
+  const loginPass = $("loginPass");
+  const btnLogin = $("btnLogin");
+
+  const signupName = $("signupName");
+  const signupEmail = $("signupEmail");
+  const signupPass = $("signupPass");
+  const signupRole = $("signupRole");
+  const signupClass = $("signupClass");
+  const btnSignup = $("btnSignup");
+
+  const forgotEmail = $("forgotEmail");
+  const btnReset = $("btnReset");
+
+  // Student login
+  const stuClassId = $("stuClassId");
+  const stuStudentId = $("stuStudentId");
+  const stuPin = $("stuPin");
+  const btnStudentLogin = $("btnStudentLogin");
+
+  // Parent link child
+  const linkClassId = $("linkClassId");
+  const linkStudentId = $("linkStudentId");
+  const linkPin = $("linkPin");
+  const btnLinkChild = $("btnLinkChild");
+  const linkMsg = $("linkMsg");
+
+  // Teacher generator
+  const genClassId = $("genClassId");
+  const genLevel = $("genLevel");
+  const genPrefix = $("genPrefix");
+  const genStart = $("genStart");
+  const genCount = $("genCount");
+  const genPinDigits = $("genPinDigits");
+  const genNameBase = $("genNameBase");
+  const btnGenerateStudents = $("btnGenerateStudents");
+  const btnDownloadPins = $("btnDownloadPins");
+  const genResultBox = $("genResultBox");
+
+  // Top filters
+  const levelSel = $("levelSel");
+  const monthSel = $("monthSel");
+  const childSel = $("childSel");
+
+  // KPI + summary
+  const kpiMinutes = $("kpiMinutes");
+  const kpiLogins = $("kpiLogins");
+  const kpiLastActive = $("kpiLastActive");
+  const sumIcon = $("sumIcon");
+  const sumBig = $("sumBig");
+  const sumSmall = $("sumSmall");
+
+  // Teacher table
+  const teacherTableBody = $("teacherTableBody");
+  const classBig = $("classBig");
+  const classSmall = $("classSmall");
+
+  // Export CSV
+  const btnExportCsv = $("btnExportCsv");
+
+  let CURRENT = {
+    role: "guest",
+    uid: null,
+    displayName: "Guest",
+    classId: null,
+    studentId: null,
+    studentClassId: null,
+    studentLevel: null,
+    targetStudentId: null,
+    targetClassId: null,
+    targetLevel: null,
+    targetName: null
+  };
+  let __rtUnsubs = [];
+  let __rtKey = "";
+
+  function clearRealtimeSubscriptions(){
+    __rtUnsubs.forEach((fn) => { try { fn && fn(); } catch(_){} });
+    __rtUnsubs = [];
+    __rtKey = "";
+  }
+
+  function currentStudentKey(){
+    if(CURRENT.role === "student"){
+      const classId = CURRENT.studentClassId;
+      const studentId = CURRENT.studentId;
+      if(!classId || !studentId) return null;
+      return { classId, studentId, studentKey: CHILD_KEY(classId, studentId), level: CURRENT.studentLevel || levelSel.value };
+    }
+    if(CURRENT.role === "parent"){
+      const classId = CURRENT.targetClassId;
+      const studentId = CURRENT.targetStudentId;
+      if(!classId || !studentId) return null;
+      return { classId, studentId, studentKey: CHILD_KEY(classId, studentId), level: CURRENT.targetLevel || levelSel.value };
+    }
+    return null;
+  }
+
+  function setWhoLine(){
+    if(CURRENT.role === "teacher"){
+      whoLine.textContent = `${CURRENT.displayName} • TEACHER • Class: ${CURRENT.classId || "—"}`;
+      return;
+    }
+    if(CURRENT.role === "parent"){
+      whoLine.textContent = `${CURRENT.displayName} • PARENT • Child: ${CURRENT.targetName || "—"}`;
+      return;
+    }
+    if(CURRENT.role === "student"){
+      whoLine.textContent = `${CURRENT.displayName} • STUDENT • ${CURRENT.studentClassId || "—"} • ${CURRENT.studentId || ""}`;
+      return;
+    }
+    whoLine.textContent = "Not logged in • Guest mode";
+  }
+
+  function showLinkMsg(msg){
+    linkMsg.textContent = msg;
+    linkMsg.classList.remove("hide");
+  }
+  function hideLinkMsg(){
+    linkMsg.classList.add("hide");
+    linkMsg.textContent = "";
+  }
+
+  function mapAuthError(e){
+    const code = String(e?.code || "");
+    if(code.includes("auth/invalid-email")) return "❌ Invalid email. Please type a real email like name@gmail.com (no spaces).";
+    if(code.includes("auth/user-not-found")) return "❌ Account not found. Please Sign Up first.";
+    if(code.includes("auth/wrong-password")) return "❌ Wrong password. Try again or use Forgot Password.";
+    if(code.includes("auth/invalid-credential")) return "❌ Invalid login. Check email/password carefully.";
+    if(code.includes("auth/too-many-requests")) return "⚠️ Too many attempts. Wait a bit and try again.";
+    if(code.includes("auth/unauthorized-domain")){
+      const host = location.host || "(file://)";
+      return `❌ Unauthorized domain: ${host}. Firebase Console → Authentication → Settings → Authorized domains → add: ${host.startsWith("localhost")||host.startsWith("127.0.0.1") ? "localhost" : host}`;
+    }
+    return e?.message || String(e);
+  }
+
+  // AUTH: Teacher/Parent login
+  btnLogin.addEventListener("click", async ()=>{
+    UI.hideWarn();
+    try{
+      const email = cleanEmail(loginEmail.value);
+      const pass = String(loginPass.value || "");
+      if(!email || !pass) return UI.showWarn("Enter email + password.");
+      if(!isValidEmail(email)) return UI.showWarn("Invalid email format. Example: teacher@gmail.com");
+
+      await signInWithEmailAndPassword(auth, email, pass);
+
+      // ✅ Success feedback
+      setAuthGate("adult");
+      FX.playCheer(); FX.playChime();
+      FX.toast("Welcome to the Progress Report Page 🎉", "ok", "🏆");
+      UI.closeAuth();
+      navigateAfterAuth();
+    }catch(e){
+      const msg = mapAuthError(e);
+      UI.showWarn(msg);
+      FX.toast(msg, "bad", "❌", 5200);
+      debug("LOGIN ERROR: " + (e?.code || e?.message || e));
+    }
+  });
+
+  // SIGNUP (Teacher/Parent)
+  btnSignup.addEventListener("click", async ()=>{
+    UI.hideWarn();
+    try{
+      const name = (signupName.value||"").trim();
+      const email = cleanEmail(signupEmail.value);
+      const pass = String(signupPass.value||"");
+      const role = signupRole.value;
+      const classId = (signupClass.value||"").trim();
+
+      if(!name || !email || !pass) return UI.showWarn("Fill name, email, password.");
+      if(!isValidEmail(email)) return UI.showWarn("Invalid email. Example: parent@gmail.com");
+      if(pass.length < 6) return UI.showWarn("Password must be at least 6 characters.");
+      if(role === "teacher" && !classId) return UI.showWarn("Teacher must enter Class ID.");
+
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+
+      // IMPORTANT: store role/profile so next login is not “guest”
+      await setDoc(doc(db,"users", cred.user.uid),{
+        role,
+        displayName: name,
+        classId: role==="teacher" ? classId : null,
+        createdAt: serverTimestamp()
+      }, { merge:true });
+
+      setAuthGate(role);
+      FX.playCheer(); FX.playChime();
+      FX.toast("You Signup Successfully ✅🎉", "ok", "✨");
+      UI.closeAuth();
+      navigateAfterAuth();
+    }catch(e){
+      const msg = mapAuthError(e);
+      UI.showWarn(msg);
+      FX.toast(msg, "bad", "❌", 6200);
+      debug("SIGNUP ERROR: " + (e?.code || e?.message || e));
+    }
+  });
+
+  // FORGOT
+  btnReset.addEventListener("click", async ()=>{
+    UI.hideWarn();
+    try{
+      const email = cleanEmail(forgotEmail.value);
+      if(!email) return UI.showWarn("Enter your email.");
+      if(!isValidEmail(email)) return UI.showWarn("Invalid email format.");
+
+      await sendPasswordResetEmail(auth, email);
+
+      FX.playChime();
+      FX.toast("Reset email sent ✅ Check your inbox 📩", "ok", "📩");
+      UI.setAuthTab("login");
+    }catch(e){
+      const msg = mapAuthError(e);
+      UI.showWarn(msg);
+      FX.toast(msg, "bad", "❌", 6200);
+      debug("RESET ERROR: " + (e?.code || e?.message || e));
+    }
+  });
+
+  // STUDENT PIN LOGIN
+  btnStudentLogin.addEventListener("click", async ()=>{
+    UI.hideWarn();
+    try{
+      const classId = (stuClassId.value||"").trim();
+      const studentId = (stuStudentId.value||"").trim();
+      const pin = (stuPin.value||"").trim();
+      if(!classId || !studentId || !pin) return UI.showWarn("Enter Class ID + Student ID + PIN.");
+
+      const sref = doc(db,"classes", classId, "students", studentId);
+      const sdoc = await getDoc(sref);
+      if(!sdoc.exists()) return UI.showWarn("Student not found. Check Class ID + Student ID.");
+
+      const s = sdoc.data() || {};
+      const expected = s.pinHash || "";
+      if(!expected) return UI.showWarn("This student has no PIN set. Ask teacher to generate.");
+
+      const inputHash = await sha256Hex(pin);
+      if(inputHash !== expected) return UI.showWarn("Wrong PIN.");
+
+      await updateDoc(sref,{
+        totalLogins: increment(1),
+        lastActiveAt: serverTimestamp()
+      });
+
+      const session = {
+        classId,
+        studentId,
+        displayName: s.displayName || studentId,
+        level: s.level || null,
+        ts: Date.now()
+      };
+      localStorage.setItem(STUDENT_SESSION_KEY, JSON.stringify(session));
+      setAuthGate("student");
+
+      CURRENT.role = "student";
+      CURRENT.uid = null;
+      CURRENT.displayName = session.displayName;
+      CURRENT.studentClassId = classId;
+      CURRENT.studentId = studentId;
+      CURRENT.studentLevel = session.level || null;
+
+      setBodyRole("student");
+      setWhoLine();
+
+      FX.playCheer(); FX.playChime();
+      FX.toast("Student Login Successful 🎒⭐", "ok", "🎒");
+
+      UI.closeAuth();
+      await refreshAllSafe();
+      navigateAfterAuth();
+    }catch(e){
+      const msg = e?.message || String(e);
+      UI.showWarn(msg);
+      FX.toast(msg, "bad", "❌", 6200);
+      debug("STUDENT LOGIN ERROR: " + (e?.code || e?.message || e));
+    }
+  });
+
+  // Parent link child
+  btnLinkChild?.addEventListener("click", async ()=>{
+    hideLinkMsg();
+    try{
+      if(!auth.currentUser) return showLinkMsg("Please login as Parent first (email).");
+      const classId = (linkClassId.value||"").trim();
+      const studentId = (linkStudentId.value||"").trim();
+      const pin = (linkPin.value||"").trim();
+      if(!classId || !studentId || !pin) return showLinkMsg("Enter Class ID + Student ID + PIN.");
+
+      const sref = doc(db,"classes", classId, "students", studentId);
+      const sdoc = await getDoc(sref);
+      if(!sdoc.exists()) return showLinkMsg("Student not found.");
+
+      const s = sdoc.data() || {};
+      const expected = s.pinHash || "";
+      if(!expected) return showLinkMsg("No PIN found for this student.");
+
+      const inputHash = await sha256Hex(pin);
+      if(inputHash !== expected) return showLinkMsg("Wrong PIN.");
+
+      const childKey = CHILD_KEY(classId, studentId);
+      await setDoc(doc(db,"users", auth.currentUser.uid, "children", childKey),{
+        classId, studentId,
+        displayName: s.displayName || studentId,
+        level: s.level || null,
+        linkedAt: serverTimestamp()
+      }, { merge:true });
+
+      FX.playChime();
+      FX.toast("Child linked successfully ✅👨‍👩‍👧", "ok", "➕");
+
+      showLinkMsg("✅ Child linked successfully! Choose the child from the Child dropdown above.");
+      await loadParentChildren(auth.currentUser.uid);
+      await refreshAllSafe();
+    }catch(e){
+      showLinkMsg(e?.message || String(e));
+      FX.toast(e?.message || String(e), "bad", "❌", 6200);
+      debug("LINK CHILD ERROR: " + (e?.code || e?.message || e));
+    }
+  });
+
+  // Teacher generator
+  let lastGenerated = [];
+  function randDigits(n){
+    let out="";
+    const buf = new Uint8Array(n);
+    crypto.getRandomValues(buf);
+    for(let i=0;i<n;i++) out += String(buf[i] % 10);
+    return out;
+  }
+
+  btnGenerateStudents?.addEventListener("click", async ()=>{
+    UI.hideWarn();
+    genResultBox.classList.add("hide");
+    genResultBox.textContent = "";
+    lastGenerated = [];
+
+    try{
+      const user = auth.currentUser;
+      if(!user) return UI.showWarn("Login as teacher first.");
+
+      // Verify role from users/{uid}
+      const usnap = await getDoc(doc(db,"users", user.uid));
+      const u = usnap.exists() ? usnap.data() : {};
+      if(u.role !== "teacher") return UI.showWarn("Only teachers can generate student IDs.");
+      if(!u.classId && !(genClassId.value||"").trim()) return UI.showWarn("Teacher missing Class ID. Enter it here or re-signup as Teacher with Class ID.");
+
+      const classId = (genClassId.value || u.classId || "").trim();
+      const level = (genLevel.value || "A").trim();
+      const prefix = (genPrefix.value || (level==="A"?"LA-":level==="B"?"LB-":"LC-")).trim();
+      const startNum = parseInt(genStart.value || "1", 10);
+      const count = Math.max(1, Math.min(40, parseInt(genCount.value || "40", 10)));
+      const pinDigits = Math.max(4, Math.min(6, parseInt(genPinDigits.value || "4", 10)));
+      const nameBase = (genNameBase.value || "Student").trim() || "Student";
+
+      const batch = writeBatch(db);
+
+      for(let i=0;i<count;i++){
+        const num = startNum + i;
+        const studentId = `${prefix}${String(num).padStart(4,"0")}`;
+        const pin = randDigits(pinDigits);
+        const pinHash = await sha256Hex(pin);
+        const displayName = `${nameBase} ${num}`;
+        const studentKey = CHILD_KEY(classId, studentId);
+
+        const ref = doc(db,"classes", classId, "students", studentId);
+        batch.set(ref,{
+          studentId, studentKey, classId, level, displayName, pinHash,
+          createdAt: serverTimestamp(),
+          totalSeconds: 0, totalLogins: 0, totalStars: 0,
+          lastActiveAt: serverTimestamp()
+        }, { merge:true });
+
+        lastGenerated.push({ classId, level, studentId, pin, displayName });
+      }
+
+      await batch.commit();
+
+      FX.playCheer(); FX.playChime();
+      FX.toast(`Generated ${count} students ✅🧾`, "ok", "🧾");
+
+      genResultBox.textContent = `✅ Generated ${count} students for ${classId}. Click "Download CSV" to save Student IDs + PINs.`;
+      genResultBox.classList.remove("hide");
+
+      // refresh table
+      CURRENT.classId = classId;
+      await refreshAllSafe();
+    }catch(e){
+      const code = String(e?.code || "");
+      const msg = e?.message || String(e);
+
+      if(code.includes("permission-denied")){
+        UI.showWarn("❌ Firestore rules blocked teacher write. You MUST allow teachers to write to classes/{classId}/students.\nI can show you the exact rules to paste if you want.");
+      }else{
+        UI.showWarn(msg);
+      }
+      FX.toast(msg, "bad", "❌", 7200);
+      debug("GENERATOR ERROR: " + (e?.code || e?.message || e));
+    }
+  });
+
+  btnDownloadPins?.addEventListener("click", ()=>{
+    if(!lastGenerated.length){
+      genResultBox.textContent = "No generated students yet. Click Generate first.";
+      genResultBox.classList.remove("hide");
+      return;
+    }
+    const rows = [
+      ["classId","level","studentId","pin","displayName"].join(","),
+      ...lastGenerated.map(r=>[r.classId,r.level,r.studentId,r.pin,r.displayName].join(","))
+    ];
+    const csv = rows.join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `GP_EIS_${lastGenerated[0].classId}_StudentPins.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Export CSV (teacher only)
+  btnExportCsv?.addEventListener("click", async ()=>{
+    try{
+      const user = auth.currentUser;
+      if(!user) return alert("Login first.");
+      const usnap = await getDoc(doc(db,"users", user.uid));
+      const u = usnap.exists() ? usnap.data() : {};
+      if(u.role !== "teacher") return alert("Teacher only.");
+      const classId = u.classId;
+      if(!classId) return alert("Teacher missing classId in users/{uid}.");
+
+      const qref = query(
+        collection(db,"results"),
+        where("classId","==",classId),
+        orderBy("ts","desc"),
+        limit(500)
+      );
+      const snap = await getDocs(qref);
+
+      const rows = [["date","classId","studentId","pageId","activityType","score","stars"].join(",")];
+      snap.forEach(d=>{
+        const x = d.data() || {};
+        const ts = x.ts?.toDate ? x.ts.toDate() : null;
+        const date = ts ? CH.toISODate(ts) : "";
+        rows.push([
+          date, x.classId||"", x.studentId||"", x.pageId||"", x.activityType||"",
+          (x.score==null ? "" : x.score),
+          (x.stars==null ? "" : x.stars)
+        ].map(v=>String(v).replaceAll(","," ")).join(","));
+      });
+
+      const csv = rows.join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `GP_EIS_${classId}_results.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      FX.playChime();
+      FX.toast("CSV Exported ✅📄", "ok", "📄");
+    }catch(e){
+      alert(e?.message || String(e));
+      debug("EXPORT CSV ERROR: " + (e?.code || e?.message || e));
+    }
+  });
+
+  // Logout
+  btnLogout.addEventListener("click", async ()=>{
+    try{ await signOut(auth); }catch(e){}
+    localStorage.removeItem(STUDENT_SESSION_KEY);
+    clearAuthGate();
+    clearRealtimeSubscriptions();
+      CURRENT = {
+        role: "guest", uid:null, displayName:"Guest", classId:null,
+        studentId:null, studentClassId:null, studentLevel:null,
+        targetStudentId:null, targetClassId:null, targetLevel:null, targetName:null
+      };
+      clearRealtimeSubscriptions();
+      setBodyRole("guest");
+      setWhoLine();
+      CH.showGuest();
+    FX.playChime();
+    FX.toast("Logged out ✅", "ok", "🚪");
+    UI.openAuth();
+  });
+
+  // Parent children dropdown
+  async function loadParentChildren(parentUid){
+    const snap = await getDocs(collection(db,"users", parentUid, "children"));
+    const kids = [];
+    snap.forEach(d=>{
+      const x = d.data() || {};
+      kids.push({
+        key: d.id,
+        classId: x.classId,
+        studentId: x.studentId,
+        displayName: x.displayName || x.studentId,
+        level: x.level || null
+      });
+    });
+
+    childSel.innerHTML = "";
+    if(!kids.length){
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "No linked child";
+      childSel.appendChild(opt);
+      CURRENT.targetStudentId = null;
+      CURRENT.targetClassId = null;
+      CURRENT.targetName = null;
+      return;
+    }
+
+    kids.sort((a,b)=> (a.displayName||"").localeCompare(b.displayName||""));
+    for(const k of kids){
+      const opt = document.createElement("option");
+      opt.value = k.key;
+      opt.textContent = `${k.displayName} • ${k.classId}`;
+      opt.dataset.level = k.level || "";
+      childSel.appendChild(opt);
+    }
+
+    childSel.value = childSel.options[0].value;
+    const [classId, studentId] = childSel.value.split("|");
+    CURRENT.targetClassId = classId;
+    CURRENT.targetStudentId = studentId;
+    CURRENT.targetName = childSel.options[0].textContent;
+    CURRENT.targetLevel = childSel.options[0].dataset.level || null;
+  }
+
+  window.__onChildSelChange = async function(){
+    if(!childSel.value) return;
+    const [classId, studentId] = childSel.value.split("|");
+    CURRENT.targetClassId = classId;
+    CURRENT.targetStudentId = studentId;
+    CURRENT.targetName = childSel.options[childSel.selectedIndex]?.textContent || studentId;
+    CURRENT.targetLevel = childSel.options[childSel.selectedIndex]?.dataset.level || null;
+    setWhoLine();
+    await refreshAllSafe();
+  };
+
+  async function loadMonthlySeriesByStudentKey(studentKey, mode){
+    const series = CH.emptySeries(10);
+
+    if(mode === "daily"){
+      const qref = query(
+        collection(db,"dailySummaries"),
+        where("studentKey","==",studentKey),
+        orderBy("date","desc"),
+        limit(400)
+      );
+      const snap = await getDocs(qref);
+
+      const buckets = CH.MONTHS.map(()=>({ skills:{reading:0,writing:0,speaking:0,listening:0}, stars:0 }));
+      snap.forEach(d=>{
+        const x = d.data() || {};
+        const dt = new Date((x.date||"") + "T00:00:00");
+        if(isNaN(dt.getTime())) return;
+
+        for(let i=0;i<CH.MONTHS.length;i++){
+          const win = CH.MONTHS[i];
+          if(dt >= win.start && dt <= win.end){
+            const sk = x.skills || {};
+            buckets[i].skills.reading += sk.reading||0;
+            buckets[i].skills.writing += sk.writing||0;
+            buckets[i].skills.speaking += sk.speaking||0;
+            buckets[i].skills.listening += sk.listening||0;
+            buckets[i].stars += x.totalStars||0;
+            break;
+          }
+        }
+      });
+
+      for(let i=0;i<buckets.length;i++){
+        const pctSkills = aggregateSkillsToPct(buckets[i].skills);
+        series.reading[i] = pctSkills.reading;
+        series.writing[i] = pctSkills.writing;
+        series.speaking[i] = pctSkills.speaking;
+        series.listening[i] = pctSkills.listening;
+        series.stars[i] = scoreToPct((buckets[i].stars / 20) * 100);
+      }
+      return series;
+    }
+
+    const qref = query(
+      collection(db,"results"),
+      where("studentKey","==",studentKey),
+      orderBy("ts","desc"),
+      limit(800)
+    );
+    const snap = await getDocs(qref);
+
+    const buckets = CH.MONTHS.map(()=>({ skills:{reading:0,writing:0,speaking:0,listening:0}, stars:0 }));
+    snap.forEach(d=>{
+      const x = d.data() || {};
+      const ts = x.ts?.toDate ? x.ts.toDate() : null;
+      if(!ts) return;
+
+      for(let i=0;i<CH.MONTHS.length;i++){
+        const win = CH.MONTHS[i];
+        if(ts >= win.start && ts <= win.end){
+          const sk = x.skills || {};
+          buckets[i].skills.reading += sk.reading||0;
+          buckets[i].skills.writing += sk.writing||0;
+          buckets[i].skills.speaking += sk.speaking||0;
+          buckets[i].skills.listening += sk.listening||0;
+          buckets[i].stars += x.stars||0;
+          break;
+        }
+      }
+    });
+
+    for(let i=0;i<buckets.length;i++){
+      const pctSkills = aggregateSkillsToPct(buckets[i].skills);
+      series.reading[i] = pctSkills.reading;
+      series.writing[i] = pctSkills.writing;
+      series.speaking[i] = pctSkills.speaking;
+      series.listening[i] = pctSkills.listening;
+      series.stars[i] = scoreToPct((buckets[i].stars / 20) * 100);
+    }
+    return series;
+  }
+
+  async function loadWeeklySeriesByStudentKey(studentKey, mode, monthIndex){
+    const labels = ["Week 1","Week 2","Week 3","Week 4"];
+    const series = CH.emptySeries(4);
+    const win = CH.MONTHS[monthIndex];
+    const buckets = [0,0,0,0].map(()=>({ skills:{reading:0,writing:0,speaking:0,listening:0}, stars:0 }));
+
+    if(mode === "daily"){
+      const qref = query(
+        collection(db,"dailySummaries"),
+        where("studentKey","==",studentKey),
+        orderBy("date","desc"),
+        limit(80)
+      );
+      const snap = await getDocs(qref);
+      snap.forEach(d=>{
+        const x = d.data() || {};
+        const dt = new Date((x.date||"") + "T00:00:00");
+        if(isNaN(dt.getTime())) return;
+        if(dt < win.start || dt > win.end) return;
+
+        const day = dt.getDate();
+        const wi = day<=7 ? 0 : day<=14 ? 1 : day<=21 ? 2 : 3;
+
+        const sk = x.skills || {};
+        buckets[wi].skills.reading += sk.reading||0;
+        buckets[wi].skills.writing += sk.writing||0;
+        buckets[wi].skills.speaking += sk.speaking||0;
+        buckets[wi].skills.listening += sk.listening||0;
+        buckets[wi].stars += x.totalStars||0;
+      });
+    }else{
+      const qref = query(
+        collection(db,"results"),
+        where("studentKey","==",studentKey),
+        orderBy("ts","desc"),
+        limit(200)
+      );
+      const snap = await getDocs(qref);
+      snap.forEach(d=>{
+        const x = d.data() || {};
+        const ts = x.ts?.toDate ? x.ts.toDate() : null;
+        if(!ts) return;
+        if(ts < win.start || ts > win.end) return;
+
+        const day = ts.getDate();
+        const wi = day<=7 ? 0 : day<=14 ? 1 : day<=21 ? 2 : 3;
+
+        const sk = x.skills || {};
+        buckets[wi].skills.reading += sk.reading||0;
+        buckets[wi].skills.writing += sk.writing||0;
+        buckets[wi].skills.speaking += sk.speaking||0;
+        buckets[wi].skills.listening += sk.listening||0;
+        buckets[wi].stars += x.stars||0;
+      });
+    }
+
+    buckets.forEach((b,i)=>{
+      const pctSkills = aggregateSkillsToPct(b.skills);
+      series.reading[i] = pctSkills.reading;
+      series.writing[i] = pctSkills.writing;
+      series.speaking[i] = pctSkills.speaking;
+      series.listening[i] = pctSkills.listening;
+      series.stars[i] = scoreToPct((b.stars/10)*100);
+    });
+
+    return { labels, series };
+  }
+
+  async function loadRecentByStudentKey(studentKey){
+    const qref = query(
+      collection(db,"results"),
+      where("studentKey","==",studentKey),
+      orderBy("ts","desc"),
+      limit(8)
+    );
+    const snap = await getDocs(qref);
+    const items = [];
+    snap.forEach(d=>{
+      const x = d.data() || {};
+      const ts = x.ts?.toDate ? x.ts.toDate() : null;
+      items.push({
+        pageId: x.pageId || "Activity",
+        activityType: x.activityType || "activity",
+        score: (x.score==null ? "—" : scoreToPct(x.score)),
+        stars: x.stars || 0,
+        tsText: ts ? ts.toLocaleString() : ""
+      });
+    });
+    CH.renderRecent(items);
+  }
+
+  async function loadKPIsFromStudentDoc(classId, studentId){
+    const sref = doc(db,"classes", classId, "students", studentId);
+    const sdoc = await getDoc(sref);
+    const s = sdoc.exists() ? sdoc.data() : {};
+    kpiMinutes.textContent = fmtMinutesFromSeconds(s.totalSeconds || 0);
+    kpiLogins.textContent = String(s.totalLogins || 0);
+    kpiLastActive.textContent = fmtDate(s.lastActiveAt);
+  }
+
+  async function loadTeacherTable(classId){
+    teacherTableBody.innerHTML = `<tr><td colspan="5" class="mini">Loading…</td></tr>`;
+    const rosterSnap = await getDocs(collection(db,"classes", classId, "students"));
+    const students = [];
+    rosterSnap.forEach(d=>{
+      const x = d.data() || {};
+      students.push({
+        studentId: d.id,
+        name: x.displayName || d.id,
+        totalSeconds: x.totalSeconds || 0,
+        totalLogins: x.totalLogins || 0,
+        level: x.level || ""
+      });
+    });
+
+    const rows = [];
+    for(const s of students){
+      const studentKey = CHILD_KEY(classId, s.studentId);
+      const qref = query(
+        collection(db,"dailySummaries"),
+        where("studentKey","==",studentKey),
+        orderBy("date","desc"),
+        limit(7)
+      );
+      const snap = await getDocs(qref);
+      let avgSum=0, n=0, starsSum=0;
+      snap.forEach(d=>{
+        const x = d.data() || {};
+        avgSum += (x.avgScore||0);
+        n += 1;
+        starsSum += (x.totalStars||0);
+      });
+
+      rows.push({ ...s, avg7: n ? Math.round(avgSum/n) : 0, stars7: starsSum });
+    }
+
+    rows.sort((a,b)=> (b.avg7 - a.avg7) || (b.stars7 - a.stars7));
+
+    teacherTableBody.innerHTML = "";
+    if(!rows.length){
+      teacherTableBody.innerHTML = `<tr><td colspan="5" class="mini">No students yet.</td></tr>`;
+      return;
+    }
+
+    for(const r of rows){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.name} <span class="mini">• ${r.studentId}</span></td>
+        <td>${r.totalLogins}</td>
+        <td>${fmtMinutesFromSeconds(r.totalSeconds)}</td>
+        <td>${r.avg7}%</td>
+        <td>⭐ ${r.stars7}</td>
+      `;
+      teacherTableBody.appendChild(tr);
+    }
+
+    const classAvg = rows.length ? Math.round(rows.reduce((a,b)=>a+b.avg7,0)/rows.length) : 0;
+    const classStars = rows.reduce((a,b)=>a+b.stars7,0);
+    classBig.textContent = `${classId} • ${rows.length} students`;
+    classSmall.textContent = `Class Avg (7d): ${classAvg}% • Total ⭐ (7d): ${classStars}`;
+  }
+
+  function renderSummary(monthlySeries, monthIndex){
+    const r = monthlySeries.reading[monthIndex] || 0;
+    const w = monthlySeries.writing[monthIndex] || 0;
+    const s = monthlySeries.speaking[monthIndex] || 0;
+    const l = monthlySeries.listening[monthIndex] || 0;
+    const overall = Math.round((r+w+s+l)/4);
+    sumIcon.textContent = overallEmoji(overall);
+    sumBig.textContent = `Overall: ${overall}%`;
+    sumSmall.textContent = `Reading ${r}% • Writing ${w}% • Speaking ${s}% • Listening ${l}%`;
+  }
+
+  function ensureRealtimeSubscriptions(){
+    let key = "";
+    if(CURRENT.role === "teacher") key = `teacher|${CURRENT.classId || ""}`;
+    else if(CURRENT.role === "student") key = `student|${CURRENT.studentClassId || ""}|${CURRENT.studentId || ""}`;
+    else if(CURRENT.role === "parent") key = `parent|${CURRENT.targetClassId || ""}|${CURRENT.targetStudentId || ""}`;
+    else key = "guest";
+
+    if(key === __rtKey) return;
+    clearRealtimeSubscriptions();
+    __rtKey = key;
+    if(CURRENT.role === "guest") return;
+
+    const trigger = (() => {
+      let t = 0;
+      return () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          if(window.__refreshAllSafe) window.__refreshAllSafe();
+        }, 220);
+      };
+    })();
+
+    if(CURRENT.role === "teacher" && CURRENT.classId){
+      const q = query(
+        collection(db, "results"),
+        where("classId", "==", CURRENT.classId),
+        limit(60)
+      );
+      __rtUnsubs.push(onSnapshot(q, trigger));
+      return;
+    }
+
+    const tgt = currentStudentKey();
+    if(!tgt) return;
+    const qRes = query(
+      collection(db, "results"),
+      where("studentKey", "==", tgt.studentKey),
+      limit(120)
+    );
+    const qDay = query(
+      collection(db, "dailySummaries"),
+      where("studentKey", "==", tgt.studentKey),
+      limit(120)
+    );
+    const sref = doc(db, "classes", tgt.classId, "students", tgt.studentId);
+
+    __rtUnsubs.push(onSnapshot(qRes, trigger));
+    __rtUnsubs.push(onSnapshot(qDay, trigger));
+    __rtUnsubs.push(onSnapshot(sref, trigger));
+  }
+
+  let refreshInFlight = false;
+  async function refreshAllSafe(){
+    if(refreshInFlight) return;
+    refreshInFlight = true;
+    try{
+      ensureRealtimeSubscriptions();
+      const mode = window.__MODE__ || "daily";
+      const monthIndex = parseInt(monthSel.value,10);
+
+      if(CURRENT.role === "guest"){
+        CH.showGuest();
+        return;
+      }
+
+      if(CURRENT.role === "teacher"){
+        CH.makeMonthlyChart(CH.MONTHS.map(m=>m.label), CH.emptySeries(10));
+        CH.makeWeeklyChart(["Week 1","Week 2","Week 3","Week 4"], CH.emptySeries(4));
+        sumIcon.textContent = "🏫";
+        sumBig.textContent = "Teacher Dashboard";
+        sumSmall.textContent = "Use the Class Table + Student IDs Generator.";
+        kpiMinutes.textContent = "—";
+        kpiLogins.textContent = "—";
+        kpiLastActive.textContent = "—";
+
+        if(CURRENT.classId) await loadTeacherTable(CURRENT.classId);
+        CH.renderRecent([]);
+        return;
+      }
+
+      const tgt = currentStudentKey();
+      if(!tgt){
+        CH.showGuest();
+        sumBig.textContent = "No student selected";
+        sumSmall.textContent = (CURRENT.role==="parent")
+          ? "Parent: link a child, then choose them from the Child dropdown."
+          : "Student session missing. Login again.";
+        return;
+      }
+
+      const monthly = await loadMonthlySeriesByStudentKey(tgt.studentKey, mode);
+      CH.makeMonthlyChart(CH.MONTHS.map(m=>m.label), monthly);
+
+      const weekly = await loadWeeklySeriesByStudentKey(tgt.studentKey, mode, monthIndex);
+      CH.makeWeeklyChart(weekly.labels, weekly.series);
+
+      renderSummary(monthly, monthIndex);
+
+      await loadKPIsFromStudentDoc(tgt.classId, tgt.studentId);
+      await loadRecentByStudentKey(tgt.studentKey);
+
+    }catch(err){
+      console.error(err);
+      UI.showWarn("Data load error. If console says 'index required', create the index it suggests (one-time).");
+      debug("DATA ERROR: " + (err?.code || err?.message || err));
+    }finally{
+      refreshInFlight = false;
+    }
+  }
+  window.__refreshAllSafe = refreshAllSafe;
+
+  function tryRestoreStudentSession(){
+    const raw = localStorage.getItem(STUDENT_SESSION_KEY);
+    if(!raw) return false;
+    try{
+      const s = JSON.parse(raw);
+      if(!s?.classId || !s?.studentId) return false;
+
+      CURRENT.role = "student";
+      CURRENT.uid = null;
+      CURRENT.displayName = s.displayName || s.studentId;
+      CURRENT.studentClassId = s.classId;
+      CURRENT.studentId = s.studentId;
+      CURRENT.studentLevel = s.level || null;
+      setBodyRole("student");
+      setWhoLine();
+      UI.closeAuth();
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  // ✅ CRITICAL FIX: onAuthStateChanged now has try/catch.
+  // If Firestore rules block reading users/{uid}, you will NOT silently become “guest”.
+  onAuthStateChanged(auth, async(user)=>{
+    UI.hideWarn();
+    hideLinkMsg();
+
+    if(user){
+      localStorage.removeItem(STUDENT_SESSION_KEY);
+
+      try{
+        const usnap = await getDoc(doc(db,"users", user.uid));
+        const u = usnap.exists() ? usnap.data() : {};
+
+        // If user doc missing, default to parent but still logged-in
+        const role = u.role || "parent";
+        const name = u.displayName || user.email;
+        const classId = u.classId || null;
+
+        CURRENT.role = role;
+        CURRENT.uid = user.uid;
+        CURRENT.displayName = name;
+        CURRENT.classId = classId;
+
+        CURRENT.studentClassId = null;
+        CURRENT.studentId = null;
+        CURRENT.studentLevel = null;
+
+        setAuthGate(role);
+        setBodyRole(role);
+
+        if(role === "parent"){
+          await loadParentChildren(user.uid);
+          if(childSel.value){
+            const [cid, sid] = childSel.value.split("|");
+            CURRENT.targetClassId = cid;
+            CURRENT.targetStudentId = sid;
+            CURRENT.targetName = childSel.options[childSel.selectedIndex]?.textContent || sid;
+            CURRENT.targetLevel = childSel.options[childSel.selectedIndex]?.dataset.level || null;
+          }
+        }
+
+        setWhoLine();
+        UI.closeAuth();
+
+        FX.playChime();
+        FX.toast("Welcome to the Progress Report Page 🎉", "ok", "🌈");
+
+        await refreshAllSafe();
+        navigateAfterAuth();
+        return;
+      }catch(e){
+        // This is the BIG reason people "log in" but see Guest: rules blocked user profile read
+        const code = String(e?.code || "");
+        debug("PROFILE LOAD ERROR: " + (e?.code || e?.message || e));
+
+        CURRENT.role = "parent"; // still logged in, but limited until rules fixed
+        CURRENT.uid = user.uid;
+        CURRENT.displayName = user.email || "User";
+        CURRENT.classId = null;
+        setBodyRole("parent");
+        setWhoLine();
+
+        UI.openAuth();
+        UI.setAuthTab("login");
+
+        const host = location.host || "(file://)";
+        const msg = code.includes("permission-denied")
+          ? "❌ Login OK, but Firestore rules blocked reading your profile (users/{uid}).\nFix: Firestore Rules must allow authenticated user to read/write users/{uid}.\nAfter fixing rules, refresh the page."
+          : "❌ Logged in, but could not load profile. Check console for details.";
+
+        UI.showWarn(msg);
+        FX.toast(msg, "bad", "⚠️", 9000);
+        return;
+      }
+    }
+
+    if(tryRestoreStudentSession()){
+      setAuthGate("student");
+      await refreshAllSafe();
+      navigateAfterAuth();
+      return;
+    }
+
+    clearAuthGate();
+
+    CURRENT = {
+      role: "guest", uid:null, displayName:"Guest", classId:null,
+      studentId:null, studentClassId:null, studentLevel:null,
+      targetStudentId:null, targetClassId:null, targetLevel:null, targetName:null
+    };
+    setBodyRole("guest");
+    setWhoLine();
+    CH.showGuest();
+  });
+
+  setWhoLine();
+  await refreshAllSafe();
+
+  // Open login automatically on first load (helps user know what to do)
+  UI.openAuth();
+})();
+</script>
+
+</body>
+</html>

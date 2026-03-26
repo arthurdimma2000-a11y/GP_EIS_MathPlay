@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C - Game 1 (Tangram Piece Counter)</title>
+<style>
+  :root{
+    --bg1:#b9f5ff; --bg2:#fff3b0; --card:#ffffffcc; --ink:#14324a;
+    --a:#ff4d6d; --b:#00bbf9; --c:#00f5a0; --d:#f7b801; --e:#9b5de5;
+    font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(1000px 600px at 20% 10%, #ffffffaa, transparent 60%),
+      radial-gradient(1000px 600px at 80% 20%, #ffffffaa, transparent 60%),
+      linear-gradient(135deg,var(--bg1),var(--bg2));
+    display:flex; align-items:center; justify-content:center; padding:18px;
+  }
+  .app{width:min(1100px,96vw);}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; border-radius:18px;
+    background:linear-gradient(180deg,#ffffffdd,#ffffffaa);
+    box-shadow:0 14px 35px rgba(0,0,0,.12);
+    position:sticky; top:10px; backdrop-filter: blur(10px);
+  }
+  .brand{display:flex; align-items:center; gap:10px}
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:999px;
+    background:linear-gradient(135deg,#ff4d6d,#ffd166);
+    color:#fff; font-weight:900; letter-spacing:.5px;
+    box-shadow:0 10px 22px rgba(255,77,109,.25);
+  }
+  .tiny{font-size:12px; opacity:.9; font-weight:800}
+  .title{font-weight:1000; font-size:18px; margin:0}
+  .sub{margin:0; font-size:13px; opacity:.85; font-weight:800}
+  .btn{
+    border:0; cursor:pointer; font-weight:1000;
+    padding:10px 14px; border-radius:14px;
+    background:#fff; color:var(--ink);
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:active{transform:translateY(1px) scale(.99); box-shadow:0 8px 14px rgba(0,0,0,.10)}
+  .btn.primary{background:linear-gradient(135deg,#00bbf9,#00f5a0); color:#063b2a}
+  .btn.warn{background:linear-gradient(135deg,#ffd166,#ff4d6d); color:#4a1020}
+  .grid{display:grid; grid-template-columns: 1.2fr .8fr; gap:16px; margin-top:14px}
+  @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
+
+  .card{
+    background:linear-gradient(180deg,#ffffffdd,#ffffffb8);
+    border:2px solid #ffffff;
+    border-radius:22px;
+    box-shadow:0 18px 45px rgba(0,0,0,.12);
+    padding:16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card:before{
+    content:""; position:absolute; inset:-40% -30%;
+    background:radial-gradient(circle at 20% 20%, #ffffffaa, transparent 55%),
+               radial-gradient(circle at 80% 30%, #ffffffaa, transparent 55%);
+    transform:rotate(-8deg);
+    pointer-events:none;
+  }
+  .card > *{position:relative}
+  .h{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    margin-bottom:10px;
+  }
+  .h h2{margin:0; font-size:22px}
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 10px; border-radius:999px; font-weight:1000;
+    background:#0b1b2a; color:#fff; font-size:12px;
+  }
+  .stage{
+    border-radius:18px;
+    background:linear-gradient(180deg,#f6fbff,#ffffff);
+    border:2px dashed rgba(20,50,74,.25);
+    padding:14px;
+  }
+  .row{display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+  .q{
+    font-size:22px; font-weight:1000; margin:10px 0 8px;
+  }
+  .choices{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin-top:10px}
+  @media (max-width:650px){ .choices{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .choice{
+    border:0; cursor:pointer; border-radius:18px; padding:14px 10px;
+    background:#fff;
+    box-shadow:0 10px 18px rgba(0,0,0,.10);
+    font-weight:1000; font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+    min-height:56px;
+  }
+  .choice.good{outline:4px solid rgba(0,245,160,.55)}
+  .choice.bad{outline:4px solid rgba(255,77,109,.45)}
+  .spark{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin-top:12px;
+  }
+  .meter{
+    flex:1; min-width:220px;
+    background:#eaf6ff; border-radius:999px; padding:6px;
+    border:1px solid rgba(0,0,0,.06);
+  }
+  .bar{height:14px; width:0%; border-radius:999px; background:linear-gradient(90deg,#00bbf9,#00f5a0); transition:width .25s ease;}
+  .stat{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px
+  }
+  .kpi{
+    background:#fff; border-radius:18px; padding:12px;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:0 10px 18px rgba(0,0,0,.06);
+  }
+  .kpi .big{font-size:22px; font-weight:1000}
+  .kpi .lbl{font-size:12px; opacity:.85; font-weight:900}
+  .toast{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    background:#0b1b2a; color:#fff; padding:12px 14px; border-radius:16px;
+    box-shadow:0 18px 35px rgba(0,0,0,.25);
+    display:none; max-width:min(92vw,720px);
+    font-weight:900;
+  }
+  .svgwrap{display:flex; justify-content:center}
+  svg{max-width:100%; height:auto}
+  .nav{
+    display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+  }
+  .linkbtn{
+    text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge">
+        <span style="font-size:16px">🏷️</span>
+        <div>
+          <div style="line-height:1.05">Level C</div>
+          <div class="tiny">Tangram Games</div>
+        </div>
+      </div>
+      <div>
+        <p class="title">Game 1: Tangram Piece Counter</p>
+        <p class="sub">Answer fast • Get stars • Hear cheers 🎉</p>
+      </div>
+    </div>
+    <div class="nav">
+      <a class="linkbtn btn" href="../thursday/LevelC_Revision1.html">⬅ Back</a>
+      <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
+      <button class="btn primary" id="startBtn" type="button">▶ Start</button>
+      <a class="linkbtn btn primary" href="LevelC_Quiz1.html">Next ➜</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div class="h">
+        <h2>🧩 Your Tangram Set</h2>
+        <span class="pill">Goal: 10 questions</span>
+      </div>
+
+      <div class="stage">
+        <div class="row">
+          <div style="font-weight:1000">Tip:</div>
+          <div style="font-weight:900; opacity:.9">Tangram has triangles, a square, and a parallelogram!</div>
+        </div>
+        <div class="svgwrap" style="margin-top:12px">
+          <svg viewBox="0 0 600 260" aria-label="Tangram pieces">
+            <defs>
+              <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="10" stdDeviation="8" flood-opacity=".18"/>
+              </filter>
+            </defs>
+            <!-- Big pieces cluster -->
+            <g filter="url(#shadow)">
+              <polygon points="60,200 160,100 260,200" fill="#00bbf9" opacity=".95"/>
+              <polygon points="260,200 360,100 460,200" fill="#ff4d6d" opacity=".95"/>
+              <polygon points="180,60 260,140 100,140" fill="#00f5a0" opacity=".95"/>
+              <polygon points="320,60 420,140 260,140" fill="#ffd166" opacity=".95"/>
+              <polygon points="500,70 560,130 500,190 440,130" fill="#9b5de5" opacity=".95"/>
+              <rect x="60" y="60" width="70" height="70" rx="10" fill="#f7b801" opacity=".95"/>
+              <polygon points="160,200 230,200 195,165" fill="#34d399" opacity=".95"/>
+            </g>
+            <text x="20" y="245" font-size="16" font-weight="900" fill="#14324a">Colorful pieces = fun learning!</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat">
+        <div class="kpi">
+          <div class="big" id="qNum">0/10</div>
+          <div class="lbl">Question</div>
+        </div>
+        <div class="kpi">
+          <div class="big" id="score">0</div>
+          <div class="lbl">Score</div>
+        </div>
+        <div class="kpi">
+          <div class="big" id="stars">⭐ 0</div>
+          <div class="lbl">Stars</div>
+        </div>
+      </div>
+
+      <div class="spark">
+        <div class="meter"><div class="bar" id="bar"></div></div>
+        <button class="btn warn" id="resetBtn" type="button">↻ Reset</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="h">
+        <h2>🎯 Question</h2>
+        <span class="pill" id="modePill">Ready?</span>
+      </div>
+
+      <div class="stage">
+        <div class="q" id="question">Press Start to begin!</div>
+        <div class="choices" id="choices"></div>
+        <div style="margin-top:10px; font-weight:900; opacity:.85" id="hint"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== Level C tracker payload (localStorage) ====== */
+const TRACK_LEVEL = "C";
+const PAGE_ID = "LevelC_Game1";
+
+function getProgressStore(){
+  try{ return JSON.parse(localStorage.getItem("gpeis_progress_v1")||"{}"); }
+  catch(e){ return {}; }
+}
+function saveProgress(entry){
+  const store = getProgressStore();
+  const arr = Array.isArray(store.entries) ? store.entries : [];
+  arr.push(entry);
+  store.entries = arr;
+  store.last = entry;
+  localStorage.setItem("gpeis_progress_v1", JSON.stringify(store));
+}
+
+/* ====== Sound + Cheer (no external files) ====== */
+let SOUND_ON = true;
+const soundBtn = document.getElementById("soundBtn");
+soundBtn.addEventListener("click", ()=>{
+  SOUND_ON = !SOUND_ON;
+  soundBtn.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+});
+
+function beep(freq=440, ms=120, type="sine", gain=0.06){
+  if(!SOUND_ON) return;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+}
+
+function chimeSuccess(){
+  beep(523,110,"sine",0.07);
+  setTimeout(()=>beep(659,110,"sine",0.07),120);
+  setTimeout(()=>beep(784,150,"sine",0.07),240);
+}
+function buzzWrong(){
+  beep(180,140,"square",0.05);
+  setTimeout(()=>beep(140,160,"square",0.05),160);
+}
+function speak(text){
+  if(!SOUND_ON) return;
+  if(!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.02; u.pitch = 1.12; u.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+/* ====== Game logic ====== */
+const Q_TOTAL = 10;
+const questionEl = document.getElementById("question");
+const choicesEl = document.getElementById("choices");
+const qNumEl = document.getElementById("qNum");
+const scoreEl = document.getElementById("score");
+const starsEl = document.getElementById("stars");
+const barEl = document.getElementById("bar");
+const modePill = document.getElementById("modePill");
+const hintEl = document.getElementById("hint");
+const toast = document.getElementById("toast");
+
+let qIndex=0, score=0, stars=0, locked=false;
+
+const questions = [
+  {q:"How many triangles are in a tangram set?", a:5, hint:"There are small, medium, and large triangles."},
+  {q:"How many squares are in a tangram set?", a:1, hint:"Just one square piece."},
+  {q:"How many parallelograms are in a tangram set?", a:1, hint:"Just one slanted parallelogram piece."},
+  {q:"How many pieces are in a tangram set in total?", a:7, hint:"Use all seven pieces. That's the rule!"}
+];
+
+function toastShow(msg){
+  toast.textContent = msg;
+  toast.style.display = "block";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>toast.style.display="none", 1600);
+}
+
+function setProgress(){
+  qNumEl.textContent = `${qIndex}/${Q_TOTAL}`;
+  scoreEl.textContent = score;
+  starsEl.textContent = `⭐ ${stars}`;
+  barEl.style.width = `${(qIndex/Q_TOTAL)*100}%`;
+}
+
+function buildChoices(correct){
+  const pool = new Set([correct]);
+  while(pool.size < 4){
+    const v = Math.max(0, correct + (Math.floor(Math.random()*9)-4));
+    pool.add(v);
+  }
+  const opts = Array.from(pool).sort(()=>Math.random()-0.5);
+  choicesEl.innerHTML = "";
+  opts.forEach(v=>{
+    const b = document.createElement("button");
+    b.className = "choice";
+    b.textContent = v;
+    b.addEventListener("click", ()=>pick(v,b,correct));
+    choicesEl.appendChild(b);
+  });
+}
+
+function nextQ(){
+  locked=false;
+  if(qIndex>=Q_TOTAL){
+    finish();
+    return;
+  }
+  modePill.textContent = "Go!";
+  const base = questions[Math.floor(Math.random()*questions.length)];
+  const qObj = {...base};
+
+  // Add some “story” variations using the book ideas (count triangles/square/parallelogram).
+  const variants = [
+    qObj,
+    {q:"You must use all seven pieces. How many pieces is that?", a:7, hint:"Rule time! All seven pieces."},
+    {q:"A tangram puzzle has 5 triangles. True or false? (Pick 1 for True, 0 for False)", a:1, hint:"Yes—five triangles!"},
+    {q:"A tangram puzzle has 1 square. True or false? (Pick 1 for True, 0 for False)", a:1, hint:"Yes—one square."},
+  ];
+  const pickVar = variants[Math.floor(Math.random()*variants.length)];
+  questionEl.textContent = pickVar.q;
+  hintEl.textContent = "Hint: " + pickVar.hint;
+  buildChoices(pickVar.a);
+}
+
+function pick(val, btn, correct){
+  if(locked) return;
+  locked=true;
+  const buttons = [...choicesEl.querySelectorAll("button")];
+  buttons.forEach(b=>b.disabled=true);
+
+  if(val===correct){
+    btn.classList.add("good");
+    score += 10;
+    stars += 1;
+    chimeSuccess();
+    speak(["Awesome!","Great job!","You got it!","Super star!"][Math.floor(Math.random()*4)]);
+    toastShow("✅ Correct! +10 points ⭐");
+  }else{
+    btn.classList.add("bad");
+    score = Math.max(0, score-2);
+    buzzWrong();
+    speak("Try again next one!");
+    toastShow("❌ Oops! Keep going!");
+    // show correct
+    const cbtn = buttons.find(b=>Number(b.textContent)===correct);
+    if(cbtn) cbtn.classList.add("good");
+  }
+  qIndex++;
+  setProgress();
+  setTimeout(nextQ, 900);
+}
+
+function finish(){
+  modePill.textContent = "Finished!";
+  questionEl.textContent = "🎉 Game Complete!";
+  choicesEl.innerHTML = "";
+  hintEl.textContent = `You scored ${score} points and earned ${stars} stars!`;
+  chimeSuccess();
+  setTimeout(()=>chimeSuccess(), 320);
+  speak("Fantastic! You finished the game!");
+  saveProgress({
+    level: TRACK_LEVEL,
+    page: PAGE_ID,
+    type: "game",
+    score, stars,
+    ts: new Date().toISOString()
+  });
+  toastShow("Saved to Progress Report ✅");
+}
+
+function resetAll(){
+  qIndex=0; score=0; stars=0;
+  setProgress();
+  modePill.textContent = "Ready?";
+  questionEl.textContent = "Press Start to begin!";
+  choicesEl.innerHTML = "";
+  hintEl.textContent = "";
+}
+
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  if(qIndex===0 && score===0) speak("Let’s play!");
+  nextQ();
+});
+document.getElementById("resetBtn").addEventListener("click", resetAll);
+
+setProgress();
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+
+
+

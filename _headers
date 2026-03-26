@@ -1,0 +1,11 @@
+/index.html
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/service-worker.js
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/levels/*
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/shared/js/*
+  Cache-Control: no-store, no-cache, must-revalidate

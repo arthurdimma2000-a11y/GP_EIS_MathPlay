@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C - Quiz 2 (Find the Mistake)</title>
+<style>
+  :root{--ink:#14324a; font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 20% 20%, #ffffffcc, transparent 60%),
+      radial-gradient(900px 500px at 80% 30%, #ffffffcc, transparent 60%),
+      linear-gradient(135deg,#c7ffd8,#fff3b0);
+    display:flex; justify-content:center; padding:18px;
+  }
+  .app{width:min(1100px,96vw);}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; border-radius:18px;
+    background:linear-gradient(180deg,#ffffffdd,#ffffffaa);
+    box-shadow:0 14px 35px rgba(0,0,0,.12);
+    backdrop-filter: blur(10px);
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:999px;
+    background:linear-gradient(135deg,#9b5de5,#ffd166);
+    color:#1f103a; font-weight:1000;
+  }
+  .btn{
+    border:0; cursor:pointer; font-weight:1000;
+    padding:10px 14px; border-radius:14px;
+    background:#fff; color:var(--ink);
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:transform .08s ease;
+    text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .btn:active{transform:translateY(1px) scale(.99)}
+  .btn.primary{background:linear-gradient(135deg,#00bbf9,#00f5a0); color:#063b2a}
+  .btn.warn{background:linear-gradient(135deg,#ff4d6d,#ffd166); color:#4a1020}
+  .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; margin-top:14px}
+  @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
+  .card{
+    background:linear-gradient(180deg,#ffffffdd,#ffffffb8);
+    border:2px solid #ffffff;
+    border-radius:22px;
+    box-shadow:0 18px 45px rgba(0,0,0,.12);
+    padding:14px;
+  }
+  h1{margin:0; font-size:18px}
+  h2{margin:0 0 10px; font-size:20px}
+  .stage{
+    background:linear-gradient(180deg,#f6fbff,#ffffff);
+    border:2px dashed rgba(20,50,74,.25);
+    border-radius:18px;
+    padding:12px;
+  }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 10px; border-radius:999px; font-weight:1000;
+    background:#0b1b2a; color:#fff; font-size:12px;
+  }
+  .cards{display:grid; gap:10px}
+  .opt{
+    border-radius:18px; background:#fff; border:1px solid rgba(0,0,0,.06);
+    box-shadow:0 10px 18px rgba(0,0,0,.06);
+    padding:12px;
+    cursor:pointer;
+    transition:transform .08s ease;
+  }
+  .opt:active{transform:translateY(1px) scale(.99)}
+  .opt.good{outline:4px solid rgba(0,245,160,.55)}
+  .opt.bad{outline:4px solid rgba(255,77,109,.45)}
+  .optHead{display:flex; justify-content:space-between; align-items:center; gap:10px}
+  .tag{font-weight:1000; opacity:.85}
+  svg{width:100%; height:auto}
+  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px}
+  .kpi{background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,.06)}
+  .kpi .big{font-size:20px; font-weight:1000}
+  .toast{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    background:#0b1b2a; color:#fff; padding:12px 14px; border-radius:16px;
+    box-shadow:0 18px 35px rgba(0,0,0,.25);
+    display:none; max-width:min(92vw,720px);
+    font-weight:900;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div style="display:flex; gap:10px; align-items:center">
+      <div class="badge">🏷️ <b>Level C</b> <span style="opacity:.9">• Quiz 2</span></div>
+      <div>
+        <h1>Find the Mistake</h1>
+        <div style="font-weight:900; opacity:.85; font-size:13px">Which picture breaks the rule? (Hint: use all 7 pieces!)</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
+      <a class="btn" href="LevelC_Game2.html">⬅ Back</a>
+      <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
+      <button class="btn primary" id="newBtn" type="button">🔁 New Round</button>
+      <a class="btn primary" href="../../week-3/monday/LevelC14.html">Next ➜</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+        <h2>🔎 Choose the wrong one</h2>
+        <span class="pill" id="statusPill">Round 1</span>
+      </div>
+      <div class="stage">
+        <div style="font-weight:1000; margin-bottom:10px">
+          Rule: Use <span style="color:#9b5de5">all seven pieces</span> ✅
+        </div>
+        <div class="cards" id="options"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>⭐ Score</h2>
+      <div class="stage">
+        <div class="kpis">
+          <div class="kpi"><div class="big" id="score">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Score</div></div>
+          <div class="kpi"><div class="big" id="stars">⭐ 0</div><div style="font-weight:900; opacity:.85; font-size:12px">Stars</div></div>
+          <div class="kpi"><div class="big" id="wrong">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Wrong</div></div>
+        </div>
+        <div style="margin-top:10px; font-weight:900; opacity:.85" id="msg">
+          Tap the picture that uses <b>not 7</b> pieces.
+        </div>
+      </div>
+
+      <div class="stage" style="margin-top:12px">
+        <div style="font-weight:1000; margin-bottom:8px">Auto-save</div>
+        <div style="font-weight:900; opacity:.85">
+          After 3 rounds, your result is saved ✅
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== Tracker ====== */
+const TRACK_LEVEL="C";
+const PAGE_ID="LevelC_Quiz2";
+function getProgressStore(){ try{return JSON.parse(localStorage.getItem("gpeis_progress_v1")||"{}");}catch(e){return{};} }
+function saveProgress(entry){
+  const s=getProgressStore();
+  const arr=Array.isArray(s.entries)?s.entries:[];
+  arr.push(entry); s.entries=arr; s.last=entry;
+  localStorage.setItem("gpeis_progress_v1", JSON.stringify(s));
+}
+
+/* ====== Sound + Voice ====== */
+let SOUND_ON=true;
+document.getElementById("soundBtn").addEventListener("click", ()=>{
+  SOUND_ON=!SOUND_ON;
+  document.getElementById("soundBtn").textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+});
+function beep(freq=440, ms=120, type="sine", gain=0.06){
+  if(!SOUND_ON) return;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+}
+function chimeSuccess(){ beep(523,110,"sine",0.07); setTimeout(()=>beep(659,110,"sine",0.07),120); setTimeout(()=>beep(784,160,"sine",0.07),240); }
+function buzzWrong(){ beep(180,140,"square",0.05); setTimeout(()=>beep(140,160,"square",0.05),160); }
+function speak(text){
+  if(!SOUND_ON) return;
+  if(!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate=1.02; u.pitch=1.12; u.volume=1;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+const toast=document.getElementById("toast");
+function toastShow(msg){
+  toast.textContent=msg; toast.style.display="block";
+  clearTimeout(toast._t); toast._t=setTimeout(()=>toast.style.display="none", 1600);
+}
+
+/* ====== Quiz logic ====== */
+const optionsEl=document.getElementById("options");
+const statusPill=document.getElementById("statusPill");
+const scoreEl=document.getElementById("score");
+const starsEl=document.getElementById("stars");
+const wrongEl=document.getElementById("wrong");
+const msgEl=document.getElementById("msg");
+
+let round=1, score=0, stars=0, wrong=0, locked=false;
+let correctIndex=0;
+
+function miniTangramSVG(pieceCount){
+  // Simple abstract “tangram-like” blocks; we only need count difference visually.
+  const colors = ["#ff4d6d","#00bbf9","#00f5a0","#ffd166","#9b5de5","#34d399","#f7b801"];
+  const blocks = [];
+  for(let i=0;i<pieceCount;i++){
+    const x = 10 + (i%4)*55;
+    const y = 10 + Math.floor(i/4)*45;
+    blocks.push(`<rect x="${x}" y="${y}" width="48" height="38" rx="10" fill="${colors[i%colors.length]}" opacity=".92"/>`);
+  }
+  return `
+    <svg viewBox="0 0 240 120" aria-label="${pieceCount} pieces">
+      <defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="10" stdDeviation="8" flood-opacity=".15"/>
+      </filter></defs>
+      <g filter="url(#sh)">
+        <rect x="6" y="6" width="228" height="108" rx="18" fill="#ffffff"/>
+        ${blocks.join("")}
+      </g>
+      <text x="120" y="114" text-anchor="middle" font-size="14" font-weight="900" fill="#14324a">${pieceCount} pieces</text>
+    </svg>
+  `;
+}
+
+function updateUI(){
+  statusPill.textContent = `Round ${round}`;
+  scoreEl.textContent=score;
+  starsEl.textContent=`⭐ ${stars}`;
+  wrongEl.textContent=wrong;
+}
+
+function renderRound(){
+  locked=false;
+  msgEl.textContent="Tap the picture that uses NOT 7 pieces.";
+  optionsEl.innerHTML="";
+
+  // Build 3 options: two have 7 pieces, one has 6 or 5
+  const wrongPieces = [5,6][Math.floor(Math.random()*2)];
+  const arr = [
+    {pieces:7, ok:true},
+    {pieces:7, ok:true},
+    {pieces:wrongPieces, ok:false}
+  ].sort(()=>Math.random()-0.5);
+
+  correctIndex = arr.findIndex(x=>!x.ok);
+
+  arr.forEach((opt,i)=>{
+    const div=document.createElement("div");
+    div.className="opt";
+    div.innerHTML = `
+      <div class="optHead">
+        <div style="font-weight:1000; font-size:16px">Picture ${i+1}</div>
+        <div class="tag">${opt.ok ? "✅ uses 7?" : "❌ mistake?"}</div>
+      </div>
+      <div style="margin-top:10px">${miniTangramSVG(opt.pieces)}</div>
+    `;
+    div.addEventListener("click", ()=>pick(i, div, opt.ok));
+    optionsEl.appendChild(div);
+  });
+
+  updateUI();
+}
+
+function pick(i, el, ok){
+  if(locked) return;
+  locked=true;
+  const opts=[...document.querySelectorAll(".opt")];
+
+  if(i===correctIndex){
+    el.classList.add("good");
+    score += 20; stars += 1;
+    chimeSuccess(); speak("Great! You found the mistake!");
+    toastShow("✅ Correct!");
+    msgEl.textContent="Yes! That one breaks the rule.";
+  }else{
+    el.classList.add("bad");
+    wrong++; score=Math.max(0, score-2);
+    buzzWrong(); speak("Try again next round!");
+    toastShow("❌ Oops!");
+    msgEl.textContent="Not that one. Remember: must use all seven pieces.";
+    opts[correctIndex].classList.add("good");
+  }
+
+  round++;
+  updateUI();
+
+  if(round===4){
+    // finish after 3 rounds
+    setTimeout(()=>{
+      chimeSuccess(); setTimeout(chimeSuccess, 240);
+      speak("Quiz finished!");
+      toastShow("Saved to Progress Report ✅");
+      saveProgress({
+        level:TRACK_LEVEL,
+        page:PAGE_ID,
+        type:"quiz",
+        score, stars, wrong,
+        rounds:3,
+        ts:new Date().toISOString()
+      });
+      if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+        window.GPTrack.finish({
+          pageId: PAGE_ID,
+          level: TRACK_LEVEL,
+          activityType: "quiz",
+          score,
+          stars,
+          skills: { reading: 1, writing: 0, speaking: 0, listening: 1 },
+          extra: { wrong, rounds: 3 }
+        }).catch(() => {});
+      }
+    }, 800);
+  }else{
+    setTimeout(renderRound, 900);
+  }
+}
+
+document.getElementById("newBtn").addEventListener("click", ()=>{
+  renderRound();
+});
+
+renderRound();
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+
+
+

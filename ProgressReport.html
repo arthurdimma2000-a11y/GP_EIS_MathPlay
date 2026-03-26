@@ -1,0 +1,1596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>GP EIS • Progress Report</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.3/dist/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+  :root{
+    --bgA:#61d7ff;
+    --bgB:#77efb8;
+    --ink:#16233d;
+    --muted:#60708b;
+    --card:rgba(255,255,255,.92);
+    --card-soft:rgba(255,255,255,.84);
+    --line:rgba(0,0,0,.08);
+    --shadow:0 18px 45px rgba(0,0,0,.16);
+    --shadow2:0 10px 22px rgba(0,0,0,.12);
+    --r:24px;
+
+    --pink:#ff5aa5;
+    --blue:#2aa8ff;
+    --violet:#7b61ff;
+    --green:#23c483;
+    --gold:#ffbf1a;
+    --red:#ff6d7a;
+
+    font-family:"Baloo 2","Comic Sans MS",system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+
+  body{
+    margin:0;
+    color:var(--ink);
+    background:
+      radial-gradient(1100px 520px at 20% 0%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%),
+      radial-gradient(900px 520px at 90% 20%, rgba(255,255,255,.45), rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, var(--bgA), var(--bgB));
+    overflow-x:hidden;
+  }
+
+  .blob{position:fixed; filter:blur(20px); opacity:.32; pointer-events:none}
+  .blob.b1{width:420px;height:420px; left:-140px; top:60px; background:radial-gradient(circle at 30% 30%, #fff, #ff6fb5 55%, transparent 70%)}
+  .blob.b2{width:520px;height:520px; right:-200px; top:260px; background:radial-gradient(circle at 30% 30%, #fff, #3cb7ff 55%, transparent 70%)}
+  .blob.b3{width:420px;height:420px; left:20%; bottom:-220px; background:radial-gradient(circle at 30% 30%, #fff, #ffd34e 55%, transparent 70%)}
+
+  .wrap{
+    width:min(1260px,94vw);
+    margin:18px auto 36px;
+    display:grid;
+    gap:14px;
+  }
+
+  .topbar{
+    background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.84));
+    border-radius:var(--r);
+    box-shadow:var(--shadow);
+    padding:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    position:sticky;
+    top:10px;
+    z-index:40;
+    backdrop-filter:blur(10px);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
+
+  .logo{
+    width:62px;
+    height:62px;
+    border-radius:18px;
+    object-fit:contain;
+    background:linear-gradient(180deg,#fff,#eef5ff);
+    padding:6px;
+    box-shadow:var(--shadow2);
+  }
+
+  .brand h1{
+    margin:0;
+    font-size:1.08rem;
+    line-height:1.05;
+  }
+
+  .brand .sub{
+    color:var(--muted);
+    font-weight:900;
+    margin-top:3px;
+    font-size:.92rem;
+  }
+
+  .chips{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+
+  .chip{
+    padding:9px 12px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow2);
+    display:flex;
+    gap:8px;
+    align-items:center;
+    font-weight:1000;
+  }
+
+  .chip select,
+  .chip input{
+    border:none;
+    outline:none;
+    background:transparent;
+    font-weight:1000;
+    color:var(--ink);
+    min-width:70px;
+  }
+
+  .btn{
+    border:none;
+    cursor:pointer;
+    border-radius:999px;
+    padding:10px 14px;
+    font-weight:1000;
+    box-shadow:var(--shadow2);
+    transition:transform .12s ease, opacity .12s ease;
+    background:linear-gradient(180deg,#fff3c7,#ffe06a);
+    color:#684400;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn:active{transform:translateY(2px)}
+  .btn.secondary{background:linear-gradient(180deg,#eaf6ff,#d6ecff); color:#0b4a75;}
+  .btn.green{background:linear-gradient(180deg,#ddffe9,#b9f1d0); color:#0b5c36;}
+  .btn.pink{background:linear-gradient(180deg,#ffdce9,#ffbad1); color:#7a2144;}
+  .btn.red{background:linear-gradient(180deg,#ffe1e5,#ffbcc5); color:#7a1222;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:14px;
+    align-items:start;
+  }
+
+  @media(max-width:1000px){
+    .grid{grid-template-columns:1fr}
+  }
+
+  .card{
+    background:linear-gradient(180deg,var(--card),var(--card-soft));
+    border-radius:var(--r);
+    box-shadow:var(--shadow);
+    padding:16px;
+    position:relative;
+    overflow:hidden;
+    backdrop-filter:blur(10px);
+  }
+
+  .cardhead{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    margin-bottom:10px;
+  }
+
+  .cardhead h2{
+    margin:0;
+    font-size:1.08rem;
+  }
+
+  .softline{
+    color:var(--muted);
+    font-weight:900;
+    font-size:.92rem;
+  }
+
+  .kpiRow{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+
+  .kpi{
+    flex:1 1 170px;
+    border-radius:18px;
+    border:1px solid var(--line);
+    background:#fff;
+    box-shadow:0 10px 18px rgba(0,0,0,.08);
+    padding:12px;
+  }
+
+  .kpi .k1{
+    font-size:.86rem;
+    color:var(--muted);
+    font-weight:1000;
+  }
+
+  .kpi .k2{
+    font-size:1.18rem;
+    font-weight:1200;
+    margin-top:4px;
+  }
+
+  .chartWrap{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
+    margin-top:12px;
+  }
+
+  canvas{
+    width:100% !important;
+    height:340px !important;
+  }
+
+  .box{
+    background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.88));
+    border-radius:20px;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow2);
+    padding:12px;
+    margin-top:14px;
+  }
+
+  .bigLine{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    border-radius:18px;
+    padding:12px;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,#f7fcff,#ffffff);
+    margin-top:6px;
+  }
+
+  .bigIcon{
+    width:56px;
+    height:56px;
+    border-radius:18px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(180deg,#fff3c7,#ffe06a);
+    box-shadow:0 10px 16px rgba(0,0,0,.12);
+    font-size:26px;
+    flex:none;
+  }
+
+  .bigText{
+    font-weight:1000;
+    line-height:1.25;
+  }
+
+  .bigText .t1{
+    font-size:1.02rem;
+  }
+
+  .bigText .t2{
+    margin-top:6px;
+    color:var(--muted);
+    font-weight:900;
+    font-size:.92rem;
+  }
+
+  .list{
+    display:grid;
+    gap:10px;
+    margin-top:10px;
+  }
+
+  .row{
+    border-radius:16px;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,#fffef8,#ffffff);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+  }
+
+  .row b{font-weight:1100}
+  .mini{
+    color:var(--muted);
+    font-weight:900;
+    font-size:.88rem;
+  }
+
+  .form{
+    display:grid;
+    gap:10px;
+    margin-top:10px;
+  }
+
+  .form label{
+    font-weight:1000;
+    color:var(--muted);
+    font-size:.9rem;
+  }
+
+  .form input,
+  .form select{
+    padding:11px 12px;
+    border-radius:14px;
+    border:1px solid rgba(0,0,0,.12);
+    outline:none;
+    font-weight:1000;
+    background:#fff;
+    width:100%;
+  }
+
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  @media(max-width:520px){
+    .grid2{grid-template-columns:1fr}
+  }
+
+  .authActions{
+    display:flex;
+    gap:10px;
+    justify-content:flex-start;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .warn{
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(0,0,0,.10);
+    background:linear-gradient(180deg,#fff7d6,#ffffff);
+    font-weight:900;
+    color:#6b4a00;
+    word-break:break-word;
+  }
+
+  .hide{display:none !important;}
+
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:#fff;
+    margin-top:10px;
+  }
+
+  th, td{
+    padding:10px 10px;
+    font-weight:900;
+    font-size:.92rem;
+    text-align:left;
+    border-bottom:1px solid rgba(0,0,0,.06);
+    vertical-align:middle;
+  }
+
+  th{
+    background:linear-gradient(180deg,#f5fbff,#ffffff);
+    color:#0b4a75;
+  }
+
+  tr:last-child td{border-bottom:none;}
+
+  .photoPreview{
+    width:82px;
+    height:82px;
+    border-radius:20px;
+    object-fit:cover;
+    border:1px solid var(--line);
+    background:#fff;
+    box-shadow:0 10px 16px rgba(0,0,0,.10);
+    display:none;
+  }
+
+  .sectionTitle{
+    margin:0;
+    font-size:1.02rem;
+  }
+
+  .toasts{
+    position:fixed;
+    right:12px;
+    top:12px;
+    z-index:10000;
+    display:grid;
+    gap:10px;
+    width:min(420px, 92vw);
+    pointer-events:none;
+  }
+
+  .toast{
+    pointer-events:auto;
+    border-radius:18px;
+    padding:12px 14px;
+    border:1px solid rgba(0,0,0,.10);
+    background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.90));
+    box-shadow:0 18px 45px rgba(0,0,0,.20);
+    font-weight:1000;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+
+  .toast .ico{
+    font-size:22px;
+    line-height:1;
+  }
+
+  .toast .msg{
+    line-height:1.25;
+  }
+</style>
+</head>
+
+<body>
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+<div id="toasts" class="toasts"></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <img class="logo" src="assets/images/avatars/gplogo.png" alt="GP EIS Logo">
+      <div>
+        <h1>GP EIS • Progress Report</h1>
+        <div class="sub" id="whoLine">Loading report...</div>
+      </div>
+    </div>
+
+    <div class="chips">
+      <div class="chip">
+        <span>Role</span>
+        <input id="roleView" type="text" value="student" readonly />
+      </div>
+
+      <div class="chip">
+        <span>Level</span>
+        <select id="levelSel">
+          <option value="A">Level A</option>
+          <option value="B">Level B</option>
+          <option value="C">Level C</option>
+        </select>
+      </div>
+
+      <div class="chip">
+        <span>Month</span>
+        <select id="monthSel"></select>
+      </div>
+
+      <div class="chip">
+        <span>Student</span>
+        <select id="studentSel"></select>
+      </div>
+
+      <button class="btn secondary" id="btnBackHome" type="button">🏠 Back Home</button>
+      <button class="btn secondary" id="btnAnalysis" type="button">🧠 Performance Analysis</button>
+      <button class="btn secondary" id="btnRefresh" type="button">🔄 Refresh</button>
+      <button class="btn secondary" id="btnExportCsv" type="button">📄 Export CSV</button>
+      <button class="btn secondary" id="btnExportPdf" type="button">🖨️ Export PDF</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="cardhead">
+          <div>
+            <h2 id="chartTitle">Progress Overview</h2>
+            <div class="softline">Monthly and weekly performance</div>
+          </div>
+        </div>
+
+        <div class="kpiRow">
+          <div class="kpi">
+            <div class="k1">Completed Activities</div>
+            <div class="k2" id="kpiActivities">0</div>
+          </div>
+          <div class="kpi">
+            <div class="k1">Average Score</div>
+            <div class="k2" id="kpiAvgScore">0%</div>
+          </div>
+          <div class="kpi">
+            <div class="k1">Average Tracing</div>
+            <div class="k2" id="kpiTracing">0%</div>
+          </div>
+          <div class="kpi">
+            <div class="k1">Last Active</div>
+            <div class="k2" id="kpiLastActive">—</div>
+          </div>
+        </div>
+
+        <div class="chartWrap">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+
+        <div class="chartWrap">
+          <canvas id="weeklyChart"></canvas>
+        </div>
+
+        <div class="box">
+          <div class="bigLine">
+            <div class="bigIcon" id="sumIcon">🌟</div>
+            <div class="bigText">
+              <div class="t1" id="sumBig">No activity yet</div>
+              <div class="t2" id="sumSmall">Your latest learning summary will appear here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardhead">
+          <div>
+            <h2 class="sectionTitle">Recent Activities</h2>
+            <div class="softline">Latest saved lesson results</div>
+          </div>
+        </div>
+        <div class="list" id="recentList"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="cardhead">
+          <div>
+            <h2 class="sectionTitle">Student Profile</h2>
+            <div class="softline">Used for report identity and PDF export</div>
+          </div>
+        </div>
+
+        <div class="bigLine">
+          <img id="studentPhotoPreview" class="photoPreview" alt="Student photo preview" />
+          <div class="bigText">
+            <div class="t1" id="profileNameText">No saved student profile yet</div>
+            <div class="t2" id="profileIdText">No student selected</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="teacherManagerCard">
+        <div class="cardhead">
+          <div>
+            <h2 class="sectionTitle">Teacher Student Manager</h2>
+            <div class="softline">Generate and manage local student records</div>
+          </div>
+        </div>
+
+        <div class="form">
+          <label>Class ID</label>
+          <input id="genClassId" type="text" placeholder="e.g. classA_2026" />
+
+          <div class="grid2">
+            <div>
+              <label>Level</label>
+              <select id="genLevel">
+                <option value="A">Level A</option>
+                <option value="B">Level B</option>
+                <option value="C">Level C</option>
+              </select>
+            </div>
+            <div>
+              <label>Prefix</label>
+              <input id="genPrefix" type="text" placeholder="e.g. LA-" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Start Number</label>
+              <input id="genStart" type="number" value="1" min="1" max="9999" />
+            </div>
+            <div>
+              <label>Count</label>
+              <input id="genCount" type="number" value="5" min="1" max="40" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>PIN Digits</label>
+              <input id="genPinDigits" type="number" value="4" min="4" max="6" />
+            </div>
+            <div>
+              <label>Name Base</label>
+              <input id="genNameBase" type="text" value="Student" />
+            </div>
+          </div>
+
+          <div class="authActions">
+            <button class="btn green" id="btnGenerateStudents" type="button">🧾 Generate IDs + PINs</button>
+            <button class="btn secondary" id="btnDownloadPins" type="button">⬇️ Download CSV</button>
+          </div>
+
+          <div id="genResultBox" class="warn hide"></div>
+        </div>
+
+        <div class="box">
+          <div class="cardhead">
+            <div>
+              <h2 class="sectionTitle">Edit Selected Student</h2>
+              <div class="softline">Save real name and picture</div>
+            </div>
+          </div>
+
+          <div class="form">
+            <label>Selected Student ID</label>
+            <input id="editStudentId" type="text" readonly />
+
+            <label>Real Student Name</label>
+            <input id="editStudentName" type="text" placeholder="Enter full student name" />
+
+            <label>Upload Student Picture</label>
+            <input id="editStudentPhoto" type="file" accept="image/*" />
+
+            <div class="authActions">
+              <button class="btn pink" id="btnSaveStudentProfile" type="button">💾 Save Profile</button>
+              <button class="btn red" id="btnClearStudentPhoto" type="button">🗑️ Remove Picture</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="cardhead">
+            <div>
+              <h2 class="sectionTitle">Generated Students</h2>
+              <div class="softline">Saved local student list</div>
+            </div>
+          </div>
+
+          <div style="overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Class ID</th>
+                  <th>Student ID</th>
+                  <th>PIN</th>
+                  <th>Name</th>
+                  <th>Level</th>
+                </tr>
+              </thead>
+              <tbody id="teacherTableBody">
+                <tr><td colspan="5" class="mini">No generated students yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const toasts = document.getElementById("toasts");
+
+  function toast(msg, ico="✅", ms=2800){
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.innerHTML = `<div class="ico">${ico}</div><div class="msg">${msg}</div>`;
+    toasts.appendChild(el);
+    setTimeout(() => {
+      el.style.opacity = "0";
+      el.style.transform = "translateY(-6px)";
+    }, Math.max(700, ms - 500));
+    setTimeout(() => el.remove(), ms);
+  }
+
+  let audioCtx = null;
+
+  function ensureAudio(){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return null;
+    if(!audioCtx) audioCtx = new AC();
+    if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+
+  function beep(freq=880, dur=0.10, type="sine", gain=0.05){
+    const ctx = ensureAudio();
+    if(!ctx) return;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.value = 0.0001;
+    osc.connect(g);
+    g.connect(ctx.destination);
+    const now = ctx.currentTime;
+    osc.start(now);
+    g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.stop(now + dur + 0.02);
+  }
+
+  function playClick(){
+    beep(720, 0.05, "triangle", 0.035);
+  }
+
+  function playSuccess(){
+    beep(740, 0.08, "triangle", 0.05);
+    setTimeout(() => beep(988, 0.08, "triangle", 0.05), 90);
+    setTimeout(() => beep(1318, 0.10, "triangle", 0.06), 180);
+  }
+
+  function playSoftOpen(){
+    beep(560, 0.06, "sine", 0.035);
+    setTimeout(() => beep(680, 0.07, "sine", 0.04), 80);
+  }
+
+  window.GPToast = toast;
+  window.GPSound = { playClick, playSuccess, playSoftOpen };
+})();
+</script>
+
+<script>
+(() => {
+  const STORAGE_KEYS = {
+    session: "GP_EIS_STUDENT_SESSION",
+    role: "GP_EIS_SELECTED_ROLE",
+    level: "gpeis_selected_level",
+    activities: "GP_EIS_ACTIVITY_RESULTS",
+    progress: "GP_EIS_PROGRESS_MAP",
+    lastFile: "GP_EIS_LAST_FILE",
+    localStudents: "GP_EIS_LOCAL_STUDENTS"
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const query = new URLSearchParams(location.search);
+
+  const roleView = $("roleView");
+  const levelSel = $("levelSel");
+  const monthSel = $("monthSel");
+  const studentSel = $("studentSel");
+  const whoLine = $("whoLine");
+
+  const kpiActivities = $("kpiActivities");
+  const kpiAvgScore = $("kpiAvgScore");
+  const kpiTracing = $("kpiTracing");
+  const kpiLastActive = $("kpiLastActive");
+
+  const sumIcon = $("sumIcon");
+  const sumBig = $("sumBig");
+  const sumSmall = $("sumSmall");
+
+  const recentList = $("recentList");
+
+  const teacherManagerCard = $("teacherManagerCard");
+  const teacherTableBody = $("teacherTableBody");
+
+  const genClassId = $("genClassId");
+  const genLevel = $("genLevel");
+  const genPrefix = $("genPrefix");
+  const genStart = $("genStart");
+  const genCount = $("genCount");
+  const genPinDigits = $("genPinDigits");
+  const genNameBase = $("genNameBase");
+  const btnGenerateStudents = $("btnGenerateStudents");
+  const btnDownloadPins = $("btnDownloadPins");
+  const genResultBox = $("genResultBox");
+
+  const editStudentId = $("editStudentId");
+  const editStudentName = $("editStudentName");
+  const editStudentPhoto = $("editStudentPhoto");
+  const btnSaveStudentProfile = $("btnSaveStudentProfile");
+  const btnClearStudentPhoto = $("btnClearStudentPhoto");
+
+  const studentPhotoPreview = $("studentPhotoPreview");
+  const profileNameText = $("profileNameText");
+  const profileIdText = $("profileIdText");
+
+  const btnBackHome = $("btnBackHome");
+  const btnAnalysis = $("btnAnalysis");
+  const btnRefresh = $("btnRefresh");
+  const btnExportCsv = $("btnExportCsv");
+  const btnExportPdf = $("btnExportPdf");
+
+  let monthlyChart = null;
+  let weeklyChart = null;
+  let lastGenerated = [];
+
+  function soundClick(){ window.GPSound && window.GPSound.playClick(); }
+  function soundSuccess(){ window.GPSound && window.GPSound.playSuccess(); }
+  function soundOpen(){ window.GPSound && window.GPSound.playSoftOpen(); }
+
+  function safeParse(raw, fallback){
+    try{ return JSON.parse(raw); }catch(e){ return fallback; }
+  }
+
+  function getLocal(key, fallback){
+    const raw = localStorage.getItem(key);
+    if(raw == null) return fallback;
+    return safeParse(raw, fallback);
+  }
+
+  function setLocal(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function getActivities(){
+    return getLocal(STORAGE_KEYS.activities, {});
+  }
+
+  function getProgressMap(){
+    return getLocal(STORAGE_KEYS.progress, {
+      A:{openWeeks:1,lessons:0,quizzes:0,tracing:0},
+      B:{openWeeks:1,lessons:0,quizzes:0,tracing:0},
+      C:{openWeeks:1,lessons:0,quizzes:0,tracing:0}
+    });
+  }
+
+  function getLocalStudents(){
+    return getLocal(STORAGE_KEYS.localStudents, []);
+  }
+
+  function setLocalStudents(list){
+    setLocal(STORAGE_KEYS.localStudents, list);
+  }
+
+  function currentRole(){
+    return (query.get("role") || localStorage.getItem(STORAGE_KEYS.role) || "student").toLowerCase();
+  }
+
+  function currentLevel(){
+    return (query.get("level") || localStorage.getItem(STORAGE_KEYS.level) || "A").toUpperCase();
+  }
+
+  function currentSession(){
+    return getLocal(STORAGE_KEYS.session, null);
+  }
+
+  function currentStudentFilter(){
+    const session = currentSession();
+    const selectedStudent = studentSel.value || "";
+    const students = getLocalStudents();
+
+    if(selectedStudent){
+      return students.find(s => s.studentId === selectedStudent) || null;
+    }
+
+    if(session && session.studentId){
+      return students.find(s => s.studentId === session.studentId && (!session.classId || s.classId === session.classId)) || {
+        classId: session.classId || "",
+        studentId: session.studentId || "",
+        displayName: session.name || session.displayName || session.studentId || "",
+        level: session.level || currentLevel(),
+        photoDataUrl: ""
+      };
+    }
+
+    return null;
+  }
+
+  function setTopState(){
+    const role = currentRole();
+    const level = currentLevel();
+    const session = currentSession();
+
+    roleView.value = role;
+    levelSel.value = level;
+    genLevel.value = level;
+
+    if(role === "teacher"){
+      teacherManagerCard.classList.remove("hide");
+    } else {
+      teacherManagerCard.classList.add("hide");
+    }
+
+    const selectedStudent = currentStudentFilter();
+    const profileName = selectedStudent?.displayName || session?.name || session?.displayName || "No saved student profile yet";
+    const profileId = selectedStudent?.studentId || session?.studentId || "No student selected";
+    const photo = selectedStudent?.photoDataUrl || "";
+
+    profileNameText.textContent = profileName;
+    profileIdText.textContent = profileId;
+
+    if(photo){
+      studentPhotoPreview.src = photo;
+      studentPhotoPreview.style.display = "block";
+    } else {
+      studentPhotoPreview.removeAttribute("src");
+      studentPhotoPreview.style.display = "none";
+    }
+
+    if(session && session.studentId){
+      whoLine.textContent = `${role.toUpperCase()} • ${session.name || session.displayName || session.studentId} • Level ${level}`;
+    } else {
+      whoLine.textContent = `${role.toUpperCase()} • Level ${level}`;
+    }
+  }
+
+  function buildMonthWindows(){
+    const now = new Date();
+    const windows = [];
+    for(let i=9;i>=0;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      const start = new Date(d.getFullYear(), d.getMonth(), 1, 0,0,0,0);
+      const end = new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59,999);
+      const label = d.toLocaleString("en-US",{month:"short"}) + " " + d.getFullYear();
+      windows.push({label, start, end});
+    }
+    return windows;
+  }
+
+  const MONTHS = buildMonthWindows();
+
+  function buildMonthSelect(){
+    monthSel.innerHTML = "";
+    MONTHS.forEach((m, idx) => {
+      const opt = document.createElement("option");
+      opt.value = String(idx);
+      opt.textContent = m.label;
+      monthSel.appendChild(opt);
+    });
+    monthSel.value = String(MONTHS.length - 1);
+  }
+
+  function buildStudentSelect(){
+    const session = currentSession();
+    const level = levelSel.value;
+    const students = getLocalStudents().filter(s => (s.level || "").toUpperCase() === level);
+
+    studentSel.innerHTML = "";
+
+    if(session && session.studentId){
+      const opt = document.createElement("option");
+      opt.value = session.studentId;
+      opt.textContent = `${session.name || session.displayName || session.studentId}`;
+      studentSel.appendChild(opt);
+    }
+
+    students.forEach(s => {
+      if(session && s.studentId === session.studentId) return;
+      const opt = document.createElement("option");
+      opt.value = s.studentId;
+      opt.textContent = `${s.displayName || s.studentId}`;
+      studentSel.appendChild(opt);
+    });
+
+    if(!studentSel.options.length){
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "No saved student";
+      studentSel.appendChild(opt);
+    }
+  }
+
+  function inferType(file, entry){
+    const name = String(file || "").toLowerCase();
+    if(entry?.type) return String(entry.type).toLowerCase();
+    if(name.includes("quiz") || name.includes("final")) return "quiz";
+    if(name.includes("game")) return "game";
+    if(name.includes("revision")) return "revision";
+    if(Number(entry?.tracing || 0) > 0) return "tracing";
+    return "lesson";
+  }
+
+  function getActivityDateValue(item){
+    return item.updatedAt || item.savedAt || item.loginAt || item.ts || 0;
+  }
+
+  function getFilteredActivityEntries(){
+    const all = getActivities();
+    const level = levelSel.value;
+    const selectedStudent = currentStudentFilter();
+
+    return Object.entries(all)
+      .map(([key, entry]) => ({
+        file: entry?.file || key,
+        ...(entry || {})
+      }))
+      .filter(item => {
+        const itemLevel = String(item.level || "").toUpperCase();
+        if(itemLevel && itemLevel !== level) return false;
+
+        if(selectedStudent && selectedStudent.studentId){
+          if(item.studentId && item.studentId !== selectedStudent.studentId) return false;
+          if(item.classId && selectedStudent.classId && item.classId !== selectedStudent.classId) return false;
+        }
+
+        return true;
+      })
+      .sort((a,b) => {
+        const ta = new Date(getActivityDateValue(a)).getTime();
+        const tb = new Date(getActivityDateValue(b)).getTime();
+        return tb - ta;
+      });
+  }
+
+  function formatDateText(v){
+    const d = new Date(v || 0);
+    return isNaN(d.getTime()) ? "—" : d.toLocaleString();
+  }
+
+  function buildSummary(entries){
+    const completed = entries.filter(e => e.completed === true || Number(e.score || 0) > 0 || Number(e.tracing || 0) > 0);
+    const scores = completed.filter(e => Number.isFinite(Number(e.score))).map(e => Number(e.score));
+    const tracing = completed.filter(e => Number.isFinite(Number(e.tracing))).map(e => Number(e.tracing));
+
+    const avgScore = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0) / scores.length) : 0;
+    const avgTracing = tracing.length ? Math.round(tracing.reduce((a,b)=>a+b,0) / tracing.length) : 0;
+    const last = completed[0] ? getActivityDateValue(completed[0]) : "";
+
+    kpiActivities.textContent = String(completed.length);
+    kpiAvgScore.textContent = avgScore + "%";
+    kpiTracing.textContent = avgTracing + "%";
+    kpiLastActive.textContent = formatDateText(last);
+
+    const progress = getProgressMap()[levelSel.value] || { openWeeks:1 };
+    const lastFile = localStorage.getItem(STORAGE_KEYS.lastFile) || "None";
+
+    if(completed.length === 0){
+      sumIcon.textContent = "🌱";
+      sumBig.textContent = "No activity yet";
+      sumSmall.textContent = `Open Weeks: ${progress.openWeeks} • Last Lesson: ${lastFile}`;
+      return;
+    }
+
+    const overall = Math.round((avgScore + avgTracing) / 2);
+    const icon = overall >= 85 ? "🏆" : overall >= 70 ? "🌟" : overall >= 55 ? "🙂" : "🌱";
+
+    sumIcon.textContent = icon;
+    sumBig.textContent = `Overall Progress: ${overall}%`;
+    sumSmall.textContent = `Open Weeks: ${progress.openWeeks} • Last Lesson: ${lastFile}`;
+  }
+
+  function buildRecent(entries){
+    recentList.innerHTML = "";
+    if(!entries.length){
+      recentList.innerHTML = `<div class="mini">No saved lesson activity yet.</div>`;
+      return;
+    }
+
+    entries.slice(0, 8).forEach(item => {
+      const row = document.createElement("div");
+      row.className = "row";
+      const type = inferType(item.file, item);
+      row.innerHTML = `
+        <div>
+          <div><b>${item.file}</b> <span class="mini">• ${type.toUpperCase()}</span></div>
+          <div class="mini">${formatDateText(getActivityDateValue(item))}</div>
+        </div>
+        <div style="text-align:right">
+          <div><b>${Number(item.score || 0)}%</b></div>
+          <div class="mini">Trace ${Number(item.tracing || 0)}%</div>
+        </div>
+      `;
+      recentList.appendChild(row);
+    });
+  }
+
+  function monthlySeries(entries){
+    const labels = MONTHS.map(m => m.label);
+    const lessonData = Array(labels.length).fill(0);
+    const quizData = Array(labels.length).fill(0);
+    const tracingData = Array(labels.length).fill(0);
+    const avgScoreData = Array(labels.length).fill(0);
+
+    const scoreBuckets = Array(labels.length).fill(0).map(() => []);
+    const tracingBuckets = Array(labels.length).fill(0).map(() => []);
+
+    entries.forEach(item => {
+      const d = new Date(getActivityDateValue(item));
+      if(isNaN(d.getTime())) return;
+      const idx = MONTHS.findIndex(m => d >= m.start && d <= m.end);
+      if(idx < 0) return;
+
+      const type = inferType(item.file, item);
+      if(type === "quiz") quizData[idx] += 1;
+      else lessonData[idx] += 1;
+
+      if(Number(item.score || 0) > 0) scoreBuckets[idx].push(Number(item.score));
+      if(Number(item.tracing || 0) > 0) tracingBuckets[idx].push(Number(item.tracing));
+    });
+
+    scoreBuckets.forEach((list, i) => {
+      avgScoreData[i] = list.length ? Math.round(list.reduce((a,b)=>a+b,0) / list.length) : 0;
+    });
+
+    tracingBuckets.forEach((list, i) => {
+      tracingData[i] = list.length ? Math.round(list.reduce((a,b)=>a+b,0) / list.length) : 0;
+    });
+
+    return { labels, lessonData, quizData, tracingData, avgScoreData };
+  }
+
+  function weeklySeries(entries){
+    const labels = ["Week 1","Week 2","Week 3","Week 4"];
+    const lessonData = [0,0,0,0];
+    const quizData = [0,0,0,0];
+    const tracingData = [0,0,0,0];
+    const avgScoreData = [0,0,0,0];
+
+    const monthIndex = Number(monthSel.value || 0);
+    const monthWindow = MONTHS[monthIndex];
+    const scoreBuckets = [[],[],[],[]];
+    const tracingBuckets = [[],[],[],[]];
+
+    entries.forEach(item => {
+      const d = new Date(getActivityDateValue(item));
+      if(isNaN(d.getTime())) return;
+      if(d < monthWindow.start || d > monthWindow.end) return;
+
+      const day = d.getDate();
+      const wi = day <= 7 ? 0 : day <= 14 ? 1 : day <= 21 ? 2 : 3;
+
+      const type = inferType(item.file, item);
+      if(type === "quiz") quizData[wi] += 1;
+      else lessonData[wi] += 1;
+
+      if(Number(item.score || 0) > 0) scoreBuckets[wi].push(Number(item.score));
+      if(Number(item.tracing || 0) > 0) tracingBuckets[wi].push(Number(item.tracing));
+    });
+
+    scoreBuckets.forEach((list, i) => {
+      avgScoreData[i] = list.length ? Math.round(list.reduce((a,b)=>a+b,0) / list.length) : 0;
+    });
+
+    tracingBuckets.forEach((list, i) => {
+      tracingData[i] = list.length ? Math.round(list.reduce((a,b)=>a+b,0) / list.length) : 0;
+    });
+
+    return { labels, lessonData, quizData, tracingData, avgScoreData };
+  }
+
+  function renderMonthlyChart(data){
+    const ctx = document.getElementById("monthlyChart");
+    if(monthlyChart) monthlyChart.destroy();
+
+    monthlyChart = new Chart(ctx, {
+      type:"bar",
+      data:{
+        labels:data.labels,
+        datasets:[
+          {
+            label:"Lessons",
+            data:data.lessonData,
+            backgroundColor:"rgba(255,90,165,.65)",
+            borderColor:"#ff5aa5",
+            borderWidth:2,
+            borderRadius:10
+          },
+          {
+            label:"Quizzes",
+            data:data.quizData,
+            backgroundColor:"rgba(42,168,255,.65)",
+            borderColor:"#2aa8ff",
+            borderWidth:2,
+            borderRadius:10
+          },
+          {
+            label:"Tracing %",
+            data:data.tracingData,
+            type:"line",
+            borderColor:"#23c483",
+            backgroundColor:"rgba(35,196,131,.10)",
+            borderWidth:3,
+            tension:.35
+          },
+          {
+            label:"Avg Score %",
+            data:data.avgScoreData,
+            type:"line",
+            borderColor:"#7b61ff",
+            backgroundColor:"rgba(123,97,255,.10)",
+            borderWidth:3,
+            tension:.35
+          }
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{ position:"bottom" } },
+        scales:{
+          y:{ beginAtZero:true },
+          x:{ grid:{ display:false } }
+        }
+      }
+    });
+  }
+
+  function renderWeeklyChart(data){
+    const ctx = document.getElementById("weeklyChart");
+    if(weeklyChart) weeklyChart.destroy();
+
+    weeklyChart = new Chart(ctx, {
+      type:"line",
+      data:{
+        labels:data.labels,
+        datasets:[
+          {
+            label:"Lessons",
+            data:data.lessonData,
+            borderColor:"#ff5aa5",
+            backgroundColor:"rgba(255,90,165,.12)",
+            borderWidth:3,
+            tension:.35
+          },
+          {
+            label:"Quizzes",
+            data:data.quizData,
+            borderColor:"#2aa8ff",
+            backgroundColor:"rgba(42,168,255,.12)",
+            borderWidth:3,
+            tension:.35
+          },
+          {
+            label:"Tracing %",
+            data:data.tracingData,
+            borderColor:"#23c483",
+            backgroundColor:"rgba(35,196,131,.12)",
+            borderWidth:3,
+            tension:.35
+          },
+          {
+            label:"Avg Score %",
+            data:data.avgScoreData,
+            borderColor:"#7b61ff",
+            backgroundColor:"rgba(123,97,255,.12)",
+            borderWidth:3,
+            tension:.35
+          }
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{ legend:{ position:"bottom" } },
+        scales:{
+          y:{ beginAtZero:true },
+          x:{ grid:{ display:false } }
+        }
+      }
+    });
+  }
+
+  function randomDigits(n){
+    let out = "";
+    for(let i=0;i<n;i++) out += String(Math.floor(Math.random() * 10));
+    return out;
+  }
+
+  function generateStudents(){
+    soundClick();
+
+    const classId = (genClassId.value || "").trim();
+    const level = (genLevel.value || levelSel.value || "A").trim().toUpperCase();
+    const prefix = (genPrefix.value || (level === "A" ? "LA-" : level === "B" ? "LB-" : "LC-")).trim();
+    const start = Math.max(1, parseInt(genStart.value || "1", 10));
+    const count = Math.max(1, Math.min(40, parseInt(genCount.value || "5", 10)));
+    const pinDigits = Math.max(4, Math.min(6, parseInt(genPinDigits.value || "4", 10)));
+    const nameBase = (genNameBase.value || "Student").trim() || "Student";
+
+    if(!classId){
+      GPToast("Please enter Class ID first.", "⚠️");
+      return;
+    }
+
+    const students = getLocalStudents();
+    lastGenerated = [];
+
+    for(let i=0;i<count;i++){
+      const num = start + i;
+      const studentId = `${prefix}${String(num).padStart(4, "0")}`;
+      const pin = randomDigits(pinDigits);
+      const existingIndex = students.findIndex(s => s.classId === classId && s.studentId === studentId);
+
+      const entry = {
+        classId,
+        studentId,
+        pin,
+        displayName: `${nameBase} ${num}`,
+        level,
+        photoDataUrl: existingIndex >= 0 ? students[existingIndex].photoDataUrl || "" : ""
+      };
+
+      if(existingIndex >= 0) students[existingIndex] = entry;
+      else students.push(entry);
+
+      lastGenerated.push(entry);
+    }
+
+    setLocalStudents(students);
+    genResultBox.textContent = `Generated ${count} student record(s) for ${classId}.`;
+    genResultBox.classList.remove("hide");
+    buildStudentSelect();
+    renderTeacherTable();
+    refreshReport();
+    soundSuccess();
+    GPToast("Student IDs generated successfully.", "🧾");
+  }
+
+  function renderTeacherTable(){
+    const students = getLocalStudents().filter(s => (s.level || "").toUpperCase() === levelSel.value.toUpperCase());
+    teacherTableBody.innerHTML = "";
+
+    if(!students.length){
+      teacherTableBody.innerHTML = `<tr><td colspan="5" class="mini">No generated students yet.</td></tr>`;
+      return;
+    }
+
+    students.forEach(s => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${s.classId || ""}</td>
+        <td>${s.studentId || ""}</td>
+        <td>${s.pin || ""}</td>
+        <td>${s.displayName || ""}</td>
+        <td>${s.level || ""}</td>
+      `;
+      teacherTableBody.appendChild(tr);
+    });
+  }
+
+  function fillEditProfile(){
+    const selected = currentStudentFilter();
+    editStudentId.value = selected?.studentId || "";
+    editStudentName.value = selected?.displayName || "";
+    profileNameText.textContent = selected?.displayName || "No saved student profile yet";
+    profileIdText.textContent = selected?.studentId || "No student selected";
+
+    if(selected?.photoDataUrl){
+      studentPhotoPreview.src = selected.photoDataUrl;
+      studentPhotoPreview.style.display = "block";
+    } else {
+      studentPhotoPreview.removeAttribute("src");
+      studentPhotoPreview.style.display = "none";
+    }
+  }
+
+  function fileToDataUrl(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function saveStudentProfile(){
+    soundClick();
+
+    const selected = currentStudentFilter();
+    if(!selected || !selected.studentId){
+      GPToast("Please select a student first.", "⚠️");
+      return;
+    }
+
+    const students = getLocalStudents();
+    const index = students.findIndex(s => s.studentId === selected.studentId && s.classId === selected.classId);
+
+    if(index < 0){
+      GPToast("Student record not found.", "⚠️");
+      return;
+    }
+
+    students[index].displayName = (editStudentName.value || selected.displayName || selected.studentId).trim();
+
+    const file = editStudentPhoto.files?.[0];
+    if(file){
+      students[index].photoDataUrl = await fileToDataUrl(file);
+    }
+
+    setLocalStudents(students);
+    buildStudentSelect();
+    fillEditProfile();
+    setTopState();
+    soundSuccess();
+    GPToast("Student profile saved.", "💾");
+  }
+
+  function clearStudentPhoto(){
+    soundClick();
+
+    const selected = currentStudentFilter();
+    if(!selected || !selected.studentId){
+      GPToast("Please select a student first.", "⚠️");
+      return;
+    }
+
+    const students = getLocalStudents();
+    const index = students.findIndex(s => s.studentId === selected.studentId && s.classId === selected.classId);
+    if(index < 0) return;
+
+    students[index].photoDataUrl = "";
+    setLocalStudents(students);
+    fillEditProfile();
+    setTopState();
+    soundSuccess();
+    GPToast("Student picture removed.", "🗑️");
+  }
+
+  function exportGeneratedCsv(){
+    soundClick();
+
+    if(!lastGenerated.length){
+      GPToast("No newly generated students yet.", "⚠️");
+      return;
+    }
+
+    const rows = [
+      ["classId","studentId","pin","displayName","level"].join(","),
+      ...lastGenerated.map(r => [r.classId, r.studentId, r.pin, r.displayName, r.level].join(","))
+    ];
+
+    const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "GP_EIS_Student_IDs.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    soundSuccess();
+    GPToast("CSV downloaded.", "📄");
+  }
+
+  function exportActivityCsv(){
+    soundClick();
+
+    const entries = getFilteredActivityEntries();
+    const rows = [
+      ["file","type","score","tracing","level","week","savedAt","studentId","classId"].join(","),
+      ...entries.map(item => [
+        item.file || "",
+        inferType(item.file, item),
+        item.score ?? "",
+        item.tracing ?? "",
+        item.level ?? "",
+        item.week ?? "",
+        getActivityDateValue(item) ?? "",
+        item.studentId ?? "",
+        item.classId ?? ""
+      ].join(","))
+    ];
+
+    const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "GP_EIS_ProgressReport.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    soundSuccess();
+    GPToast("Progress CSV exported.", "📄");
+  }
+
+  async function exportPdf(){
+    soundClick();
+
+    const doc = new window.jspdf.jsPDF({ orientation:"p", unit:"pt", format:"a4" });
+    const entries = getFilteredActivityEntries();
+    const selected = currentStudentFilter();
+    const role = currentRole();
+    const level = levelSel.value;
+
+    doc.setFontSize(16);
+    doc.text("GP EIS Progress Report", 40, 40);
+
+    doc.setFontSize(10);
+    doc.text(`Role: ${role.toUpperCase()}`, 40, 60);
+    doc.text(`Level: ${level}`, 40, 75);
+    doc.text(`Student: ${selected?.displayName || selected?.studentId || "Not selected"}`, 40, 90);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 105);
+
+    if(selected?.photoDataUrl){
+      try{
+        doc.addImage(selected.photoDataUrl, "PNG", 430, 36, 90, 90);
+      }catch(e){}
+    }
+
+    const rows = entries.slice(0, 20).map(item => [
+      item.file || "",
+      inferType(item.file, item),
+      String(item.score ?? ""),
+      String(item.tracing ?? ""),
+      formatDateText(getActivityDateValue(item))
+    ]);
+
+    doc.autoTable({
+      startY: 130,
+      head: [["File","Type","Score","Tracing","Updated"]],
+      body: rows.length ? rows : [["No data yet","","","",""]],
+      theme: "striped",
+      styles: { fontSize: 9 }
+    });
+
+    doc.save("GP_EIS_ProgressReport.pdf");
+    soundSuccess();
+    GPToast("PDF exported successfully.", "🖨️");
+  }
+
+  function refreshReport(){
+    buildStudentSelect();
+    setTopState();
+    fillEditProfile();
+
+    const entries = getFilteredActivityEntries();
+    buildSummary(entries);
+    buildRecent(entries);
+    renderTeacherTable();
+    renderMonthlyChart(monthlySeries(entries));
+    renderWeeklyChart(weeklySeries(entries));
+  }
+
+  btnGenerateStudents.addEventListener("click", generateStudents);
+  btnDownloadPins.addEventListener("click", exportGeneratedCsv);
+  btnSaveStudentProfile.addEventListener("click", saveStudentProfile);
+  btnClearStudentPhoto.addEventListener("click", clearStudentPhoto);
+
+  btnExportCsv.addEventListener("click", exportActivityCsv);
+  btnExportPdf.addEventListener("click", exportPdf);
+  btnAnalysis.addEventListener("click", () => {
+    const role = currentRole();
+    const level = levelSel.value;
+    location.href = `./PerformanceAnalysis.html?role=${encodeURIComponent(role)}&level=${encodeURIComponent(level)}`;
+  });
+
+  btnBackHome.addEventListener("click", () => {
+    soundOpen();
+    window.location.assign("./index.html");
+  });
+
+  btnRefresh.addEventListener("click", () => {
+    soundClick();
+    refreshReport();
+    GPToast("Report refreshed.", "🔄");
+  });
+
+  levelSel.addEventListener("change", () => {
+    soundClick();
+    localStorage.setItem(STORAGE_KEYS.level, levelSel.value);
+    refreshReport();
+  });
+
+  monthSel.addEventListener("change", () => {
+    soundClick();
+    refreshReport();
+  });
+
+  studentSel.addEventListener("change", () => {
+    soundClick();
+    refreshReport();
+  });
+
+  document.querySelectorAll("button, select").forEach(el => {
+    el.addEventListener("pointerdown", () => {
+      if(el.id !== "btnGenerateStudents" && el.id !== "btnSaveStudentProfile" && el.id !== "btnClearStudentPhoto" && el.id !== "btnExportCsv" && el.id !== "btnExportPdf" && el.id !== "btnDownloadPins"){
+        soundClick();
+      }
+    }, { passive:true });
+  });
+
+  window.addEventListener("focus", refreshReport);
+  window.addEventListener("pageshow", refreshReport);
+  window.addEventListener("storage", refreshReport);
+
+  buildMonthSelect();
+  refreshReport();
+  soundOpen();
+})();
+</script>
+</body>
+</html>

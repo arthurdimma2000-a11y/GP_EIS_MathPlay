@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C • Revision 1 — Tangram Pieces</title>
+<style>
+  :root{
+    --bg1:#fff4b8; --bg2:#c7f7ff; --bg3:#ffd1f3;
+    --card:#ffffff; --ink:#1f2430;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));padding:18px}
+  .app{width:min(1100px,98vw)}
+  .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+  .badge{display:inline-flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 12px 28px rgba(0,0,0,.10);font-weight:1000;color:var(--ink)}
+  .btn{border:0;cursor:pointer;font-weight:1000;padding:12px 14px;border-radius:14px;box-shadow:0 10px 22px rgba(0,0,0,.12);background:#fff;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#0b1b10}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7);color:#06121d}
+  .grid{display:grid;gap:14px;grid-template-columns:1.2fr .8fr}
+  @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
+  .title{font-size:26px;font-weight:1000;margin:6px 0 4px}
+  .subtitle{font-size:16px;opacity:.85;margin:0 0 10px}
+  .art{width:100%;height:300px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#fff,#f7fbff);
+       box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center}
+  .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+  .pill{background:#f6f7ff;border-radius:999px;padding:10px 12px;font-weight:1000;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06)}
+  .board{border-radius:18px;padding:12px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06)}
+  .bins{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media (max-width:680px){.bins{grid-template-columns:1fr}}
+  .bin{border-radius:16px;padding:10px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.08);min-height:86px}
+  .drop{margin-top:8px;border-radius:14px;min-height:44px;padding:8px;display:flex;gap:8px;flex-wrap:wrap;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06)}
+  .chip{padding:10px 12px;border-radius:999px;background:#fff;box-shadow:0 10px 22px rgba(0,0,0,.12);font-weight:1000;cursor:grab;user-select:none}
+  .msg{margin-top:10px;padding:10px 12px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
+  .stars{font-size:22px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="badge">🟦 <b>Level C</b> <span style="opacity:.8">Revision 1 • Tangram Pieces</span></div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <a class="btn" href="../wednesday/LevelC7.html">⬅ Back</a>
+      <a class="btn next" href="../friday/LevelC_Game1.html">Next ▶</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="title">Tangram Puzzle Pieces</div>
+      <p class="subtitle">
+        From your book: there are <b>5 triangles</b>, <b>1 square</b>, and <b>1 parallelogram</b>. :contentReference[oaicite:15]{index=15}
+      </p>
+
+      <div class="art" id="art"></div>
+
+      <div class="pills">
+        <div class="pill">⭐ Total pieces = 7</div>
+        <div class="pill">Triangles = 5 • Square = 1 • Parallelogram = 1 :contentReference[oaicite:16]{index=16}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">Match the Names</div>
+      <p class="subtitle">Drag each label into the correct box.</p>
+
+      <div class="board">
+        <div id="tray" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+
+        <div class="bins">
+          <div class="bin">
+            <b>Triangles</b>
+            <div class="drop" data-bin="tri">Drop here</div>
+          </div>
+          <div class="bin">
+            <b>Square</b>
+            <div class="drop" data-bin="sq">Drop here</div>
+          </div>
+          <div class="bin">
+            <b>Parallelogram</b>
+            <div class="drop" data-bin="pa">Drop here</div>
+          </div>
+          <div class="bin">
+            <b>Bonus: Triangle sizes</b>
+            <div style="margin-top:6px;opacity:.85">
+              2 small, 1 medium, 2 large triangles :contentReference[oaicite:17]{index=17}
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
+          <button class="btn primary" id="checkBtn">✅ Check</button>
+          <button class="btn" id="resetBtn">🔄 Reset</button>
+        </div>
+      </div>
+
+      <div class="msg" id="msg">Tip: Use the book counts to help you! 🎯</div>
+      <div class="msg" id="starsBox" style="display:none">Stars: <span class="stars" id="stars">⭐</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* --- SFX + Tracker --- */
+(function(){
+  const STORE_KEY="gpeis_progress_v1";
+  let audioCtx=null;
+  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function beep(f,t,g=0.05,type="triangle"){ const c=ctx(),o=c.createOscillator(),ga=c.createGain();
+    o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
+  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
+  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
+  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
+    const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
+    const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
+    const a=acts[activityId];
+    a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
+    a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
+    db[level].updatedAt=new Date().toISOString(); save(db);
+    chime(); if(stars>=3||score>=85) cheer();
+    return a;
+  }};
+  window.__SFX__={chime,cheer};
+})();
+
+/* --- Tangram SVG art --- */
+document.getElementById("art").innerHTML = `
+<svg viewBox="0 0 740 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff7b2"/>
+      <stop offset="0.5" stop-color="#c7f9ff"/>
+      <stop offset="1" stop-color="#ffd1f3"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="740" height="320" rx="26" fill="url(#bg)"/>
+  <g filter="url(#sh)">
+    <!-- 5 triangles -->
+    <polygon points="80,260 210,130 210,260" fill="#00a8e8"/>
+    <polygon points="210,130 340,260 210,260" fill="#ff6b6b"/>
+    <polygon points="210,260 340,260 275,315" fill="#ffd166"/>
+    <polygon points="80,260 210,260 145,315" fill="#06d6a0"/>
+    <polygon points="360,250 450,160 450,305" fill="#4dabf7"/>
+    <!-- 1 square -->
+    <rect x="470" y="140" width="75" height="75" rx="12" fill="#9b5de5"/>
+    <!-- 1 parallelogram -->
+    <polygon points="560,205 660,150 660,265 560,320" fill="#f15bb5"/>
+  </g>
+  <g font-family="Comic Sans MS, Segoe UI, Arial" font-weight="900" fill="#1f2430">
+    <text x="30" y="62" font-size="26">Tangram Set (7 pieces)</text>
+    <text x="30" y="98" font-size="18">5 triangles • 1 square • 1 parallelogram</text>
+  </g>
+</svg>`;
+
+/* --- Drag match activity --- */
+const tray=document.getElementById("tray");
+const drops=[...document.querySelectorAll(".drop")];
+const msg=document.getElementById("msg");
+const starsBox=document.getElementById("starsBox");
+const starsEl=document.getElementById("stars");
+
+function makeChip(text, bin){
+  const el=document.createElement("div");
+  el.className="chip";
+  el.textContent=text;
+  el.draggable=true;
+  el.dataset.bin=bin;
+  el.dataset.id = "c" + Math.random().toString(16).slice(2);
+  el.addEventListener("dragstart",(e)=>{
+    e.dataTransfer.setData("id", el.dataset.id);
+    window.__SFX__.chime();
+  });
+  return el;
+}
+
+function seed(){
+  tray.innerHTML="";
+  drops.forEach(d=>d.innerHTML="Drop here");
+
+  const chips=[
+    makeChip("Triangles = 5", "tri"),
+    makeChip("Square = 1", "sq"),
+    makeChip("Parallelogram = 1", "pa"),
+  ].sort(()=>Math.random()-0.5);
+
+  chips.forEach(c=>tray.appendChild(c));
+  msg.textContent="Drag each label into the correct box! 🎯";
+  starsBox.style.display="none";
+}
+
+drops.forEach(drop=>{
+  drop.addEventListener("dragover",(e)=>e.preventDefault());
+  drop.addEventListener("drop",(e)=>{
+    e.preventDefault();
+    const id=e.dataTransfer.getData("id");
+    const el=[...document.querySelectorAll(".chip")].find(x=>x.dataset.id===id);
+    if(!el) return;
+    drop.innerHTML="";
+    drop.appendChild(el);
+    window.__SFX__.chime();
+  });
+});
+
+document.getElementById("resetBtn").addEventListener("click", seed);
+
+document.getElementById("checkBtn").addEventListener("click", async ()=>{
+  let correct=0, total=3;
+  drops.forEach(drop=>{
+    const need=drop.dataset.bin;
+    const chip=drop.querySelector(".chip");
+    const ok = chip && chip.dataset.bin===need;
+    if(ok) correct++;
+    drop.style.outline = ok ? "4px solid rgba(34,197,94,.8)" : "4px solid rgba(255,107,107,.85)";
+    drop.style.outlineOffset="3px";
+  });
+
+  const score=Math.round((correct/total)*100);
+  const st=score===100?3:score>=67?2:score>=34?1:0;
+
+  starsBox.style.display="block";
+  starsEl.textContent="⭐".repeat(Math.max(1,st));
+
+  if(score===100){
+    msg.textContent="🎉 Perfect! You matched them all!";
+    window.__SFX__.cheer();
+  }else{
+    msg.textContent=`✅ ${correct}/3 correct. Check the book counts and try again!`;
+    window.__SFX__.chime();
+  }
+
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LevelC_Revision1",
+      level: "C",
+      activityType: "revision",
+      score,
+      stars: st,
+      skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "C", activityId: "LevelC_Revision1", score, stars: st });
+  }
+});
+
+seed();
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+

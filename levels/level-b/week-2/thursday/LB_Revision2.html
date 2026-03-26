@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>LB Revision 2 – Vertices Tap!</title>
+  <style>
+    :root{
+      --bg:#f3fbff;
+      --card:#ffffff;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --brand:#ff7aa6;
+      --brand2:#35b8ff;
+      --good:#18b56a;
+      --warn:#ffb020;
+      --shadow:0 18px 40px rgba(0,0,0,.10);
+      --radius:18px;
+      font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(1200px 700px at 30% -80px, #ffffff 0%, var(--bg) 60%, #eaf4ff 100%),
+        linear-gradient(180deg,#fff, #f3fbff);
+      color:var(--ink);
+      padding:16px;
+    }
+    .app{
+      width:min(1040px,96vw);
+      background:linear-gradient(180deg,#fff, #fbfdff);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      border:3px solid rgba(0,0,0,.06);
+      position:relative;
+    }
+    .top{
+      padding:14px 16px 10px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      background:
+        radial-gradient(600px 180px at 20% 40%, rgba(255,122,166,.28), transparent 60%),
+        radial-gradient(600px 180px at 80% 40%, rgba(53,184,255,.25), transparent 60%),
+        linear-gradient(180deg,#fff,#fff7fb);
+      border-bottom:2px solid rgba(0,0,0,.06);
+    }
+    .badge{
+      display:flex; align-items:center; gap:10px;
+      font-weight:1000;
+    }
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#ff7aa6,#ff4f8e);
+      color:#fff;
+      box-shadow:0 10px 18px rgba(255,79,142,.25);
+      border:2px solid rgba(255,255,255,.55);
+    }
+    .title{
+      font-size:1.25rem;
+      font-weight:1000;
+      letter-spacing:.01em;
+    }
+    .sub{
+      font-size:.92rem;
+      font-weight:800;
+      color:var(--muted);
+      margin-top:2px;
+    }
+    .rightTop{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .mini{
+      padding:8px 10px;
+      border-radius:12px;
+      background:linear-gradient(180deg,#f5fbff,#eef8ff);
+      border:2px solid rgba(53,184,255,.22);
+      font-weight:900;
+      color:#0b4a66;
+    }
+    .wrap{
+      padding:14px 16px 18px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:14px;
+    }
+    @media (max-width: 920px){ .wrap{grid-template-columns:1fr; } }
+
+    .panel{
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+      border-radius:20px;
+      padding:14px;
+      border:2px solid rgba(0,0,0,.06);
+      box-shadow:0 12px 22px rgba(0,0,0,.08);
+      position:relative;
+      overflow:hidden;
+    }
+    .panel::before{
+      content:"";
+      position:absolute; inset:-80px auto auto -80px;
+      width:220px;height:220px;border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, rgba(255,122,166,.22), transparent 70%);
+      pointer-events:none;
+    }
+    .panel h2{
+      margin:0 0 8px;
+      font-size:1.18rem;
+      font-weight:1000;
+    }
+    .how{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:10px;
+      font-weight:900;
+      color:#3b3b3b;
+    }
+    .chip{
+      padding:7px 10px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#fff6d4,#ffe9a4);
+      border:2px solid rgba(255,176,32,.35);
+      box-shadow:0 10px 16px rgba(255,176,32,.15);
+      font-size:.92rem;
+    }
+
+    .arena{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width: 560px){ .arena{grid-template-columns:1fr; } }
+
+    .shapeCard{
+      border-radius:18px;
+      padding:12px 12px 14px;
+      background:linear-gradient(180deg,#fff,#fbfbff);
+      border:2px solid rgba(0,0,0,.08);
+      box-shadow:0 12px 18px rgba(0,0,0,.08);
+      position:relative;
+      overflow:hidden;
+    }
+    .shapeTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .shapeName{
+      font-weight:1000;
+      font-size:1.05rem;
+    }
+    .need{
+      font-weight:1000;
+      color:#7a2f45;
+      background:rgba(255,122,166,.16);
+      border:1px solid rgba(255,122,166,.22);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+
+    .svgWrap{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:170px;
+      background:linear-gradient(180deg,#f3fbff,#ffffff);
+      border-radius:14px;
+      border:2px dashed rgba(53,184,255,.35);
+      position:relative;
+    }
+    svg{max-width:100%; height:auto;}
+    .vDot{
+      cursor:pointer;
+      transition: transform .08s ease, filter .12s ease;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.14));
+    }
+    .vDot:hover{ transform: scale(1.08); }
+    .vDot.hit{ opacity:.25; filter:none; cursor:default; transform:none; }
+
+    .scoreBox{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .stat{
+      border-radius:16px;
+      padding:10px 12px;
+      background:linear-gradient(180deg,#f7fff9,#ebfff3);
+      border:2px solid rgba(24,181,106,.22);
+      font-weight:1000;
+    }
+    .stat small{display:block;color:#0b5b39;font-weight:1000; opacity:.85;}
+    .big{font-size:1.7rem;}
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      margin-top:12px;
+      align-items:center;
+    }
+    .btns{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    button,a.btnLink{
+      border:none;
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow:0 6px 0 rgba(0,0,0,.14);
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .btnBack{ background:linear-gradient(180deg,#eaf2ff,#d9e9ff); color:#134a8b; }
+    .btnNext{ background:linear-gradient(180deg,#2fe49b,#11b16e); color:#05311f; }
+    .btnReset{ background:linear-gradient(180deg,#fff3d3,#ffe39a); color:#7a5600; }
+    .btnDone{ background:linear-gradient(180deg,#ff8fb5,#ff4f8e); color:#fff; }
+    button:active,a.btnLink:active{ transform: translateY(2px); box-shadow:0 3px 0 rgba(0,0,0,.18); }
+
+    .coach{
+      background:linear-gradient(180deg,#ffffff,#fff7fb);
+      border:2px solid rgba(255,79,142,.18);
+      border-radius:20px;
+      padding:14px;
+      box-shadow:0 12px 22px rgba(0,0,0,.08);
+    }
+    .coach h3{margin:0 0 8px; font-size:1.1rem; font-weight:1000;}
+    .coach p{margin:8px 0; font-weight:800; color:#3b3b3b;}
+    .toast{
+      margin-top:10px;
+      min-height:1.4em;
+      font-weight:1000;
+      color:#0b5b39;
+    }
+    .confetti{
+      position:absolute; inset:0; pointer-events:none; display:none;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,122,166,.35), transparent 40%),
+        radial-gradient(circle at 90% 30%, rgba(53,184,255,.35), transparent 42%),
+        radial-gradient(circle at 40% 80%, rgba(255,176,32,.30), transparent 45%),
+        radial-gradient(circle at 70% 75%, rgba(24,181,106,.25), transparent 45%);
+      animation: pop .65s ease;
+    }
+    @keyframes pop{ from{opacity:0; transform:scale(.98);} to{opacity:1; transform:scale(1);} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="badge">
+        <div class="pill">Level B</div>
+        <div>
+          <div class="title">Revision 2 — Vertices Tap! ⭐</div>
+          <div class="sub">Tap every corner (vertex) on each shape.</div>
+        </div>
+      </div>
+      <div class="rightTop">
+        <div class="mini">Back: <b>LevelBHomeP.html</b></div>
+        <div class="mini">Next: <b>LB_Revision3.html</b></div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <section class="panel">
+        <h2>Tap the vertices 👆</h2>
+        <div class="how">
+          <span class="chip">✅ Tap ALL corners</span>
+          <span class="chip">🎵 Get chime + cheer</span>
+          <span class="chip">⭐ Save progress when finished</span>
+        </div>
+
+        <div class="arena" id="arena"></div>
+
+        <div class="scoreBox">
+          <div class="stat"><small>Vertices tapped</small><div class="big" id="hitCount">0</div></div>
+          <div class="stat"><small>Total vertices</small><div class="big" id="totalCount">0</div></div>
+        </div>
+
+        <div class="btnRow">
+          <div class="btns">
+            <a class="btnLink btnBack" href="../wednesday/LB13.html">⬅ Back</a>
+            <button class="btnReset" id="resetBtn" type="button">🔄 Reset</button>
+            <button class="btnDone" id="doneBtn" type="button">🏁 Finish & Save</button>
+          </div>
+          <a class="btnLink btnNext" href="../friday/LB_Game2.html" id="nextLink">Next ➜</a>
+        </div>
+
+        <div class="toast" id="toast"></div>
+        <div class="confetti" id="confetti"></div>
+      </section>
+
+      <aside class="coach">
+        <h3>Prof Tip 🧠</h3>
+        <p><b>Vertices</b> are the <b>corners</b> of a polygon.</p>
+        <p>Quadrangle = 4 vertices • Pentagon = 5 • Hexagon = 6 • Octagon = 8</p>
+        <p style="color:#6b7280">Try to tap slowly and count with your finger: “1, 2, 3…”</p>
+        <hr style="border:none;border-top:2px dashed rgba(0,0,0,.12); margin:12px 0;">
+        <p><b>Goal:</b> Tap all vertices on every shape card.</p>
+        <p id="statusLine" style="font-weight:1000;color:#0b4a66;"></p>
+      </aside>
+    </div>
+  </div>
+<script>
+    // ---------- SFX (file or fallback beep) ----------
+    function beep(freq=740, dur=0.08){
+      try{
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type="sine";
+        o.frequency.value=freq;
+        g.gain.value=0.06;
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        setTimeout(()=>{o.stop(); ctx.close();}, dur*1000);
+      }catch(e){}
+    }
+    function playSfx(file, fallbackFreq){
+      try{
+        const a = new Audio(file);
+        a.preload = "auto";
+        const p = a.play();
+        if (p && typeof p.catch === "function") p.catch(()=>beep(fallbackFreq));
+      }catch(e){ beep(fallbackFreq); }
+    }
+
+    // ---------- Shapes data ----------
+    const shapes = [
+      { name:"Quadrangle",  vertices: [[82,18],[152,48],[134,150],[24,126]], fill:"#ff5a5f" },
+      { name:"Quadrangle",    vertices: [[30,30],[150,30],[150,150],[30,150]], fill:"#3cc7ff" },
+      { name:"Quadrangle",  vertices: [[36,38],[148,26],[126,148],[18,132]], fill:"#ffb020" },
+      { name:"Hexagon",   vertices: [[60,20],[120,20],[160,90],[120,160],[60,160],[20,90]], fill:"#21c57a" },
+      { name:"Octagon",   vertices: [[60,20],[120,20],[160,60],[160,120],[120,160],[60,160],[20,120],[20,60]], fill:"#8b5cf6" },
+      { name:"Pentagon", vertices:[[90,18],[160,70],[132,150],[48,150],[20,70]], fill:"#ff7aa6" }
+    ];
+
+    const arena = document.getElementById("arena");
+    const hitCountEl = document.getElementById("hitCount");
+    const totalCountEl = document.getElementById("totalCount");
+    const toast = document.getElementById("toast");
+    const confetti = document.getElementById("confetti");
+    const statusLine = document.getElementById("statusLine");
+    const resetBtn = document.getElementById("resetBtn");
+    const doneBtn = document.getElementById("doneBtn");
+
+    let totalVertices = 0;
+    let hitVertices = 0;
+
+    function setToast(msg){ toast.textContent = msg || ""; }
+
+    function buildCard(shape, idx){
+      const card = document.createElement("div");
+      card.className = "shapeCard";
+      card.dataset.idx = String(idx);
+
+      const top = document.createElement("div");
+      top.className = "shapeTop";
+      top.innerHTML = `<div class="shapeName">${shape.name}</div>
+                       <div class="need">${shape.vertices.length} vertices</div>`;
+      card.appendChild(top);
+
+      const wrap = document.createElement("div");
+      wrap.className = "svgWrap";
+
+      const w=180, h=170;
+      const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      svg.setAttribute("viewBox","0 0 180 170");
+      svg.setAttribute("width", w);
+      svg.setAttribute("height", h);
+
+      const poly = document.createElementNS("http://www.w3.org/2000/svg","polygon");
+      poly.setAttribute("points", shape.vertices.map(v=>v.join(",")).join(" "));
+      poly.setAttribute("fill", shape.fill);
+      poly.setAttribute("opacity","0.92");
+      poly.setAttribute("stroke","rgba(0,0,0,.25)");
+      poly.setAttribute("stroke-width","4");
+      poly.setAttribute("stroke-linejoin","round");
+      svg.appendChild(poly);
+
+      shape.vertices.forEach((v, i) => {
+        const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+        c.setAttribute("cx", v[0]);
+        c.setAttribute("cy", v[1]);
+        c.setAttribute("r", "10");
+        c.setAttribute("fill", "#fff");
+        c.setAttribute("stroke", "rgba(0,0,0,.25)");
+        c.setAttribute("stroke-width", "4");
+        c.classList.add("vDot");
+        c.dataset.hit = "0";
+        c.addEventListener("click", () => {
+          if (c.dataset.hit === "1") return;
+          c.dataset.hit = "1";
+          c.classList.add("hit");
+          hitVertices += 1;
+          hitCountEl.textContent = String(hitVertices);
+          setToast("Nice! ⭐");
+          playSfx("chime.mp3.mp3", 880);
+
+          // if card complete
+          const allDots = card.querySelectorAll(".vDot");
+          const done = Array.from(allDots).every(d => d.dataset.hit === "1");
+          if (done){
+            setToast(`${shape.name} complete! 🎉`);
+            playSfx("cheer.mp3", 660);
+            flashConfetti();
+            updateStatus();
+          }
+          if (hitVertices === totalVertices){
+            setToast("ALL DONE! Amazing job! 🏆");
+            playSfx("cheer.mp3", 520);
+            flashConfetti();
+            updateStatus();
+          }
+        });
+        svg.appendChild(c);
+      });
+
+      wrap.appendChild(svg);
+      card.appendChild(wrap);
+      return card;
+    }
+
+    function flashConfetti(){
+      confetti.style.display="block";
+      setTimeout(()=>confetti.style.display="none", 650);
+    }
+
+    function updateStatus(){
+      const remaining = totalVertices - hitVertices;
+      statusLine.textContent = remaining <= 0
+        ? "Completed ✅ Ready to save!"
+        : `Keep going… ${remaining} vertices left!`;
+    }
+
+    function render(){
+      arena.innerHTML = "";
+      totalVertices = shapes.reduce((a,s)=>a+s.vertices.length,0);
+      hitVertices = 0;
+      hitCountEl.textContent = "0";
+      totalCountEl.textContent = String(totalVertices);
+      shapes.forEach((s,i)=>arena.appendChild(buildCard(s,i)));
+      setToast("Tap the white dots (corners) on each shape.");
+      updateStatus();
+    }
+
+    function safeSave(payload){
+      try{ if (typeof window.saveActivityResult === "function") window.saveActivityResult(payload); }catch(e){}
+    }
+    function safeDaily(payload){
+      try{ if (typeof window.saveDailySummary === "function") window.saveDailySummary(payload); }catch(e){}
+    }
+
+    function finishAndSave(){
+      const score = hitVertices;
+      const maxScore = totalVertices;
+      const pct = maxScore ? Math.round((score/maxScore)*100) : 0;
+      const passed = pct >= 80;
+
+      const activity = {
+        level: "B",
+        page: "LB_Revision2",
+        type: "Revision",
+        title: "Vertices Tap",
+        score, maxScore, percent:pct,
+        passed,
+        timestamp: new Date().toISOString()
+        
+      };
+      safeSave(activity);
+      safeDaily({ level:"B", page:"LB_Revision2", done:true, percent:pct, date: new Date().toISOString().slice(0,10) });
+
+      setToast(passed ? "Saved! 🎉 Go next!" : "Saved! Try again for more stars ⭐");
+      playSfx(passed ? "cheer.mp3" : "chime.mp3.mp3", passed ? 520 : 740);
+      flashConfetti();
+    }
+
+    resetBtn.addEventListener("click", render);
+    doneBtn.addEventListener("click", finishAndSave);
+
+    render();
+</script>
+<video class="autoplay-intro" preload="auto" muted playsinline autoplay style="display:none" aria-hidden="true">
+  <source src="../../../../assets/video/LB13b.mp4" type="video/mp4">
+</video>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+

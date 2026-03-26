@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level B • Game 3 — Spin & Guess</title>
+<style>
+  :root{
+    --bg1:#fff4b8; --bg2:#c7f7ff; --bg3:#ffd1f3;
+    --ink:#1f2430; --card:#fff;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));padding:18px}
+  .app{width:min(1100px,98vw)}
+  .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .badge{background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 12px 28px rgba(0,0,0,.10);font-weight:1000;display:flex;gap:10px;align-items:center}
+  .btn{border:0;cursor:pointer;font-weight:1000;border-radius:14px;padding:12px 14px;background:#fff;color:var(--ink);box-shadow:0 10px 22px rgba(0,0,0,.12);text-decoration:none;display:inline-flex;gap:8px;align-items:center}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#0b1b10}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7);color:#06121d}
+  .grid{display:grid;grid-template-columns:1fr .9fr;gap:14px}
+  @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
+  .title{font-size:26px;font-weight:1000;margin:6px 0 6px}
+  .subtitle{margin:0 0 12px;opacity:.85}
+  .stage{
+    height:340px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .choices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+  @media (max-width: 680px){ .choices{grid-template-columns:1fr} }
+  .opt{border:0;cursor:pointer;font-weight:1000;font-size:20px;border-radius:18px;padding:14px;background:#fff;box-shadow:0 12px 26px rgba(0,0,0,.12)}
+  .opt:active{transform:translateY(1px)}
+  .pill{background:#f6f7ff;border-radius:999px;padding:10px 12px;font-weight:1000;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);display:inline-block}
+  .msg{margin-top:10px;border-radius:16px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Game 3 • Spin & Guess</span></div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <a class="btn" href="../thursday/LB_Revision3.html">⬅ Back</a>
+      <a class="btn next" href="LB_Quiz3.html">Next ▶</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="title">How many vertices?</div>
+      <p class="subtitle">Your book practice: pentagon=5, hexagon=6, octagon=8 vertices. :contentReference[oaicite:9]{index=9}</p>
+
+      <div class="stage" id="stage"></div>
+
+      <div class="choices">
+        <button class="opt" data-a="5">5</button>
+        <button class="opt" data-a="6">6</button>
+        <button class="opt" data-a="8">8</button>
+      </div>
+
+      <div class="msg" id="msg">Press “Spin!” to start ⭐</div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+        <button class="btn primary" id="spinBtn">🌀 Spin!</button>
+        <button class="btn" id="resetBtn">🔄 Reset</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">Progress</div>
+      <div class="pill" style="font-size:20px">Round: <span id="round">0</span>/8</div>
+      <div class="pill" style="font-size:20px; margin-top:10px">Correct: <span id="correct">0</span></div>
+      <div class="pill" style="font-size:20px; margin-top:10px">Stars: <span id="stars">—</span></div>
+      <div class="msg" style="margin-top:12px">Tip: A hexagon has 6 sides and 6 vertices. :contentReference[oaicite:10]{index=10}</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* --- SFX + Tracker --- */
+(function(){
+  const STORE_KEY="gpeis_progress_v1";
+  let audioCtx=null;
+  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function beep(f,t,g=0.05,type="triangle"){ const c=ctx(),o=c.createOscillator(),ga=c.createGain();
+    o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
+  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
+  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
+  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
+    const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
+    const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
+    const a=acts[activityId];
+    a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
+    a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
+    db[level].updatedAt=new Date().toISOString(); save(db);
+    chime(); if(stars>=3||score>=85) cheer();
+    return a;
+  }};
+  window.__SFX__={chime,cheer};
+})();
+
+const stage=document.getElementById("stage");
+const msg=document.getElementById("msg");
+const roundEl=document.getElementById("round");
+const correctEl=document.getElementById("correct");
+const starsEl=document.getElementById("stars");
+
+const deck=[
+  {name:"Pentagon", v:5, color:"#9b5de5", svg:`<path d="M60 18 L 98 44 L 84 92 L 36 92 L 22 44 Z"/>`},
+  {name:"Hexagon", v:6, color:"#00bbf9", svg:`<path d="M60 18 L 95 38 L 95 82 L 60 102 L 25 82 L 25 38 Z"/>`},
+  {name:"Octagon", v:8, color:"#f15bb5", svg:`<path d="M44 18 L 76 18 L 98 40 L 98 80 L 76 102 L 44 102 L 22 80 L 22 40 Z"/>`},
+];
+
+let current=null, round=0, correct=0, waiting=true;
+
+function showShape(item){
+  stage.innerHTML = `
+    <div style="text-align:center">
+      <div style="font-size:22px;font-weight:1000;margin-bottom:8px">${item.name}</div>
+      <div style="width:220px;height:220px;border-radius:28px;display:flex;align-items:center;justify-content:center;
+                  background:linear-gradient(180deg, ${item.color}, #ffffff);
+                  box-shadow:0 18px 38px rgba(0,0,0,.14); margin:0 auto;">
+        <svg viewBox="0 0 120 120" width="160" height="160" fill="white" opacity="0.95">${item.svg}</svg>
+      </div>
+      <div style="margin-top:10px;opacity:.85">Choose the number of vertices</div>
+    </div>`;
+}
+
+function spin(){
+  if(round>=8){
+    finish();
+    return;
+  }
+  waiting=false;
+  current = deck[Math.floor(Math.random()*deck.length)];
+  round++;
+  roundEl.textContent = round;
+  showShape(current);
+  msg.textContent="Pick the correct number!";
+  window.__SFX__.chime();
+}
+
+async function finish(){
+  const scorePct = Math.round((correct/8)*100);
+  const stars = scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
+  starsEl.textContent = "⭐".repeat(Math.max(1,stars));
+  msg.textContent = `🎉 Finished! Correct ${correct}/8 (≈${scorePct}%).`;
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LB_Game3",
+      level: "B",
+      activityType: "game",
+      score: scorePct,
+      stars,
+      skills: { reading: 1, writing: 0, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "B", activityId: "LB_Game3", score: scorePct, stars });
+  }
+  window.__SFX__.cheer();
+}
+
+document.getElementById("spinBtn").addEventListener("click", spin);
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  round=0; correct=0; current=null; waiting=true;
+  roundEl.textContent="0"; correctEl.textContent="0"; starsEl.textContent="—";
+  stage.innerHTML=`<div style="text-align:center;font-weight:1000;font-size:22px;opacity:.8">Press Spin! 🌀</div>`;
+  msg.textContent="Press “Spin!” to start ⭐";
+  window.__SFX__.chime();
+});
+
+document.querySelectorAll(".opt").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    if(!current || waiting) return;
+    const a = parseInt(btn.dataset.a,10);
+    if(a===current.v){
+      correct++; correctEl.textContent=correct;
+      msg.textContent="✅ Correct! Great job!";
+      window.__SFX__.cheer();
+    }else{
+      msg.textContent=`❌ Not quite. ${current.name} has ${current.v} vertices.`;
+      window.__SFX__.chime();
+    }
+    waiting=true;
+    setTimeout(()=>{ waiting=false; spin(); }, 650);
+  });
+});
+
+// init stage
+stage.innerHTML=`<div style="text-align:center;font-weight:1000;font-size:22px;opacity:.8">Press Spin! 🌀</div>`;
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+

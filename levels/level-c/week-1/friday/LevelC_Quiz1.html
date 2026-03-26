@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C - Quiz 1 (Sides & Vertices Quick Quiz)</title>
+<style>
+  :root{--ink:#14324a; font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 20% 20%, #ffffffcc, transparent 60%),
+      radial-gradient(900px 500px at 80% 30%, #ffffffcc, transparent 60%),
+      linear-gradient(135deg,#d0f4ff,#ffe5f1);
+    display:flex; justify-content:center; padding:18px;
+  }
+  .app{width:min(1100px,96vw);}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; border-radius:18px;
+    background:linear-gradient(180deg,#ffffffdd,#ffffffaa);
+    box-shadow:0 14px 35px rgba(0,0,0,.12);
+    backdrop-filter: blur(10px);
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:999px;
+    background:linear-gradient(135deg,#00bbf9,#00f5a0);
+    color:#063b2a; font-weight:1000;
+  }
+  .btn{
+    border:0; cursor:pointer; font-weight:1000;
+    padding:10px 14px; border-radius:14px;
+    background:#fff; color:var(--ink);
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:transform .08s ease;
+    text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .btn:active{transform:translateY(1px) scale(.99)}
+  .btn.primary{background:linear-gradient(135deg,#ff4d6d,#ffd166); color:#4a1020}
+  .grid{display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:14px}
+  @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
+  .card{
+    background:linear-gradient(180deg,#ffffffdd,#ffffffb8);
+    border:2px solid #ffffff;
+    border-radius:22px;
+    box-shadow:0 18px 45px rgba(0,0,0,.12);
+    padding:14px;
+  }
+  h1{margin:0; font-size:18px}
+  h2{margin:0 0 10px; font-size:20px}
+  .stage{
+    background:linear-gradient(180deg,#f6fbff,#ffffff);
+    border:2px dashed rgba(20,50,74,.25);
+    border-radius:18px;
+    padding:12px;
+  }
+  .q{font-size:20px; font-weight:1000; margin:6px 0 10px}
+  .choices{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+  @media (max-width:650px){ .choices{grid-template-columns:repeat(2,1fr);} }
+  .choice{
+    border:0; cursor:pointer; border-radius:18px; padding:14px 10px;
+    background:#fff;
+    box-shadow:0 10px 18px rgba(0,0,0,.10);
+    font-weight:1000; font-size:18px;
+    min-height:56px;
+  }
+  .choice.good{outline:4px solid rgba(0,245,160,.55)}
+  .choice.bad{outline:4px solid rgba(255,77,109,.45)}
+  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px}
+  .kpi{background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,.06)}
+  .kpi .big{font-size:20px; font-weight:1000}
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 10px; border-radius:999px; font-weight:1000;
+    background:#0b1b2a; color:#fff; font-size:12px;
+  }
+  svg{max-width:100%; height:auto}
+  .toast{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    background:#0b1b2a; color:#fff; padding:12px 14px; border-radius:16px;
+    box-shadow:0 18px 35px rgba(0,0,0,.25);
+    display:none; max-width:min(92vw,720px);
+    font-weight:900;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div style="display:flex; gap:10px; align-items:center">
+      <div class="badge">🏷️ <b>Level C</b> <span style="opacity:.9">• Quiz 1</span></div>
+      <div>
+        <h1>Sides & Vertices Quick Quiz</h1>
+        <div style="font-weight:900; opacity:.85; font-size:13px">Choose the correct number of sides (or vertices) ✅</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
+      <a class="btn" href="LevelC_Game1.html">⬅ Back</a>
+      <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
+      <button class="btn primary" id="startBtn" type="button">▶ Start</button>
+      <a class="btn primary" href="../../week-2/monday/LevelC8.html">Next ➜</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+        <h2>🧠 Question</h2>
+        <span class="pill" id="statusPill">0/8</span>
+      </div>
+      <div class="stage">
+        <div class="q" id="question">Press Start!</div>
+        <div id="visual" style="display:flex; justify-content:center; margin:8px 0 10px"></div>
+        <div class="choices" id="choices"></div>
+        <div style="margin-top:10px; font-weight:900; opacity:.85" id="hint"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>⭐ Score</h2>
+      <div class="stage">
+        <div class="kpis">
+          <div class="kpi"><div class="big" id="score">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Score</div></div>
+          <div class="kpi"><div class="big" id="stars">⭐ 0</div><div style="font-weight:900; opacity:.85; font-size:12px">Stars</div></div>
+          <div class="kpi"><div class="big" id="wrong">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Wrong</div></div>
+        </div>
+        <div style="margin-top:10px; font-weight:900; opacity:.85">
+          Tip: For polygons, <b>sides = vertices</b> (corners).
+        </div>
+      </div>
+
+      <div class="stage" style="margin-top:12px">
+        <div style="font-weight:1000; margin-bottom:8px">Cheer sounds</div>
+        <div style="font-weight:900; opacity:.85">
+          Correct answers play chimes + voice 🎉
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== Tracker ====== */
+const TRACK_LEVEL="C";
+const PAGE_ID="LevelC_Quiz1";
+function getProgressStore(){ try{return JSON.parse(localStorage.getItem("gpeis_progress_v1")||"{}");}catch(e){return{};} }
+function saveProgress(entry){
+  const s=getProgressStore();
+  const arr=Array.isArray(s.entries)?s.entries:[];
+  arr.push(entry); s.entries=arr; s.last=entry;
+  localStorage.setItem("gpeis_progress_v1", JSON.stringify(s));
+}
+
+/* ====== Sound + Voice ====== */
+let SOUND_ON=true;
+document.getElementById("soundBtn").addEventListener("click", ()=>{
+  SOUND_ON=!SOUND_ON;
+  document.getElementById("soundBtn").textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+});
+function beep(freq=440, ms=120, type="sine", gain=0.06){
+  if(!SOUND_ON) return;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioCtx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+}
+function chimeSuccess(){ beep(523,110,"sine",0.07); setTimeout(()=>beep(659,110,"sine",0.07),120); setTimeout(()=>beep(784,160,"sine",0.07),240); }
+function buzzWrong(){ beep(180,140,"square",0.05); setTimeout(()=>beep(140,160,"square",0.05),160); }
+function speak(text){
+  if(!SOUND_ON) return;
+  if(!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate=1.02; u.pitch=1.12; u.volume=1;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+const toast=document.getElementById("toast");
+function toastShow(msg){
+  toast.textContent=msg; toast.style.display="block";
+  clearTimeout(toast._t); toast._t=setTimeout(()=>toast.style.display="none", 1600);
+}
+
+/* ====== Quiz ====== */
+const TOTAL=8;
+let idx=0, score=0, stars=0, wrong=0, locked=false;
+
+const shapes = [
+  {name:"Triangle", sides:3, color:"#ff4d6d", svg: polySVG(3,"#ff4d6d")},
+  {name:"Square", sides:4, color:"#00bbf9", svg: polySVG(4,"#00bbf9")},
+  {name:"Pentagon", sides:5, color:"#00f5a0", svg: polySVG(5,"#00f5a0")},
+  {name:"Hexagon", sides:6, color:"#ffd166", svg: polySVG(6,"#ffd166")},
+  {name:"Octagon", sides:8, color:"#9b5de5", svg: polySVG(8,"#9b5de5")}
+];
+
+function polySVG(n, fill){
+  const cx=120, cy=95, r=70;
+  const pts=[];
+  for(let i=0;i<n;i++){
+    const a = (-Math.PI/2) + i*(2*Math.PI/n);
+    pts.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
+  }
+  const d = pts.map(p=>p.join(",")).join(" ");
+  // vertex dots
+  const dots = pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="#14324a" opacity=".25"/>`).join("");
+  return `
+    <svg viewBox="0 0 240 190" aria-label="${n}-gon">
+      <defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="10" stdDeviation="8" flood-opacity=".15"/>
+      </filter></defs>
+      <g filter="url(#sh)">
+        <polygon points="${d}" fill="${fill}" opacity=".9"/>
+        ${dots}
+      </g>
+    </svg>
+  `;
+}
+
+const questionEl=document.getElementById("question");
+const visualEl=document.getElementById("visual");
+const choicesEl=document.getElementById("choices");
+const hintEl=document.getElementById("hint");
+const statusPill=document.getElementById("statusPill");
+const scoreEl=document.getElementById("score");
+const starsEl=document.getElementById("stars");
+const wrongEl=document.getElementById("wrong");
+
+function updateUI(){
+  statusPill.textContent = `${idx}/${TOTAL}`;
+  scoreEl.textContent=score;
+  starsEl.textContent=`⭐ ${stars}`;
+  wrongEl.textContent=wrong;
+}
+
+function makeChoices(correct){
+  const set = new Set([correct]);
+  while(set.size<4){
+    set.add(Math.max(0, correct + (Math.floor(Math.random()*9)-4)));
+  }
+  const opts=[...set].sort(()=>Math.random()-0.5);
+  choicesEl.innerHTML="";
+  opts.forEach(v=>{
+    const b=document.createElement("button");
+    b.className="choice";
+    b.textContent=v;
+    b.addEventListener("click", ()=>pick(v,b,correct));
+    choicesEl.appendChild(b);
+  });
+}
+
+function nextQ(){
+  locked=false;
+  if(idx>=TOTAL){ finish(); return; }
+  const s = shapes[Math.floor(Math.random()*shapes.length)];
+  const askVertices = Math.random() < 0.45;
+  questionEl.textContent = askVertices ? `How many vertices does a ${s.name} have?` : `How many sides does a ${s.name} have?`;
+  hintEl.textContent = "Hint: Count the corners (dots)!";
+  visualEl.innerHTML = s.svg;
+  makeChoices(s.sides);
+}
+
+function pick(val, btn, correct){
+  if(locked) return;
+  locked=true;
+  [...choicesEl.querySelectorAll("button")].forEach(b=>b.disabled=true);
+
+  if(val===correct){
+    btn.classList.add("good");
+    score += 10; stars += 1;
+    chimeSuccess(); speak("Great job!");
+    toastShow("✅ Correct!");
+  }else{
+    btn.classList.add("bad");
+    wrong++; score = Math.max(0, score-2);
+    buzzWrong(); speak("Try the next one!");
+    toastShow("❌ Oops!");
+    const cbtn=[...choicesEl.querySelectorAll("button")].find(b=>Number(b.textContent)===correct);
+    if(cbtn) cbtn.classList.add("good");
+  }
+  idx++;
+  updateUI();
+  setTimeout(nextQ, 900);
+}
+
+function finish(){
+  questionEl.textContent="🎉 Quiz Complete!";
+  visualEl.innerHTML="";
+  choicesEl.innerHTML="";
+  hintEl.textContent=`You scored ${score} points and earned ${stars} stars!`;
+  chimeSuccess(); setTimeout(chimeSuccess, 240);
+  speak("Fantastic! Quiz complete!");
+  toastShow("Saved to Progress Report ✅");
+  saveProgress({
+    level:TRACK_LEVEL,
+    page:PAGE_ID,
+    type:"quiz",
+    score, stars, wrong,
+    ts:new Date().toISOString()
+  });
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    window.GPTrack.finish({
+      pageId: PAGE_ID,
+      level: TRACK_LEVEL,
+      activityType: "quiz",
+      score,
+      stars,
+      skills: { reading: 1, writing: 0, speaking: 0, listening: 1 },
+      extra: { wrong, total: TOTAL }
+    }).catch(() => {});
+  }
+}
+
+function resetAll(){
+  idx=0; score=0; stars=0; wrong=0;
+  questionEl.textContent="Press Start!";
+  visualEl.innerHTML="";
+  choicesEl.innerHTML="";
+  hintEl.textContent="";
+  updateUI();
+}
+
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  if(idx===0) speak("Let’s begin!");
+  nextQ();
+});
+
+resetAll();
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+
+
+

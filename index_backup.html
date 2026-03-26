@@ -1,0 +1,2021 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>GP EIS Online – Smart Studio Home</title>
+
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffcc66">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#eef5ff;
+      --bg-soft:#f9fbff;
+      --card:#ffffff;
+      --ink:#1f2a44;
+      --muted:#6b7280;
+      --line:rgba(0,0,0,.08);
+
+      --green1:#33e392;
+      --green2:#10b36a;
+      --pink1:#ffd4e4;
+      --pink2:#ff86ad;
+      --orange1:#ffe0b1;
+      --orange2:#ffa63a;
+      --blue1:#dcecff;
+      --blue2:#7bb6ff;
+      --purple1:#ead9ff;
+      --purple2:#b78cff;
+      --red1:#ffd0d0;
+      --red2:#ff8f8f;
+      --gold1:#fff1b8;
+      --gold2:#ffd765;
+
+      --sidebarGrad:linear-gradient(180deg,#ff96b5 0%, #f56c95 35%, #d94d74 100%);
+      --heroGrad:
+        radial-gradient(500px 220px at 12% 18%, rgba(255,255,255,.78), rgba(255,255,255,0) 65%),
+        radial-gradient(480px 240px at 92% 26%, rgba(255,255,255,.38), rgba(255,255,255,0) 65%),
+        linear-gradient(135deg,#84daf5 0%, #a8df9a 48%, #ffd67e 100%);
+
+      --shadow:0 16px 36px rgba(0,0,0,.10);
+      --pill:0 10px 20px rgba(0,0,0,.10);
+
+      font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(900px 450px at 5% -10%, #ffffff 0%, rgba(255,255,255,0) 55%),
+        radial-gradient(850px 420px at 95% 0%, #fff5da 0%, rgba(255,245,218,0) 55%),
+        linear-gradient(180deg,#edf5ff 0%, #f8fbff 45%, #fff8ee 100%);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%}
+    button,input,select{font:inherit}
+    .hidden{display:none !important;}
+    .muted{color:var(--muted);}
+    .danger{color:#9d1b1b}
+    .ok{color:#0d6a3d}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(0,0,0,.05);
+      box-shadow:0 8px 20px rgba(0,0,0,.05);
+    }
+    .topbar-inner{
+      max-width:1360px;
+      margin:0 auto;
+      padding:12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+    .brand-logo{
+      width:60px;
+      height:60px;
+      object-fit:contain;
+      border-radius:18px;
+      background:linear-gradient(180deg,#fff,#f2f6ff);
+      padding:6px;
+      box-shadow:var(--pill);
+    }
+    .brand-copy{
+      display:flex;
+      flex-direction:column;
+      line-height:1.02;
+    }
+    .brand-copy b{
+      font-size:1.38rem;
+      letter-spacing:.02em;
+    }
+    .brand-copy span{
+      font-size:.92rem;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius:999px;
+      padding:11px 16px;
+      font-weight:900;
+      box-shadow:var(--pill);
+      transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(1px)}
+    .btn:disabled{opacity:.65;cursor:not-allowed;transform:none}
+    .btn-primary{background:linear-gradient(180deg,var(--green1),var(--green2));color:#073521;}
+    .btn-soft{background:linear-gradient(180deg,#ffffff,#eef3ff);color:var(--ink);}
+    .btn-pink{background:linear-gradient(180deg,#ffb7cf,#ff7ca6);color:#5f1830;}
+    .btn-orange{background:linear-gradient(180deg,#ffd292,#ff9f26);color:#6a3700;}
+    .btn-blue{background:linear-gradient(180deg,#d5e8ff,#85b9ff);color:#143e75;}
+    .btn-purple{background:linear-gradient(180deg,#e4d2ff,#b78cff);color:#50257a;}
+    .btn-red{background:linear-gradient(180deg,#ffc9c9,#ff8f8f);color:#6e2020;}
+    .btn-gold{background:linear-gradient(180deg,var(--gold1),var(--gold2));color:#694900;}
+
+    .app-shell{
+      max-width:1360px;
+      margin:18px auto 0;
+      padding:0 16px 34px;
+      display:grid;
+      grid-template-columns:300px 1fr;
+      gap:18px;
+    }
+    @media (max-width:1080px){
+      .app-shell{grid-template-columns:1fr}
+    }
+
+    .sidebar{
+      background:var(--sidebarGrad);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:18px 16px;
+      color:#fff;
+      position:relative;
+      overflow:hidden;
+      min-height:760px;
+    }
+    .sidebar::before{
+      content:"";
+      position:absolute;
+      inset:-20px auto auto -30px;
+      width:240px;
+      height:200px;
+      background:radial-gradient(closest-side, rgba(255,255,255,.30), rgba(255,255,255,0));
+      transform:rotate(-12deg);
+      pointer-events:none;
+    }
+    .sidebar::after{
+      content:"";
+      position:absolute;
+      right:-30px;
+      bottom:-20px;
+      width:220px;
+      height:220px;
+      background:radial-gradient(closest-side, rgba(255,255,255,.18), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+
+    .side-brand,.profile-box,.side-nav,.mini-launcher,.side-progress{
+      position:relative;
+      z-index:1;
+    }
+    .side-brand{margin-bottom:16px}
+    .side-brand h2{
+      margin:0;
+      font-size:1.8rem;
+      line-height:1;
+      text-shadow:0 10px 16px rgba(0,0,0,.18);
+    }
+    .side-brand p{
+      margin:6px 0 0;
+      color:#ffeef4;
+      font-weight:800;
+      line-height:1.2;
+    }
+
+    .profile-box{
+      background:rgba(255,255,255,.15);
+      border:1px solid rgba(255,255,255,.24);
+      border-radius:24px;
+      padding:14px;
+      box-shadow:0 12px 22px rgba(0,0,0,.14);
+      margin-bottom:14px;
+      backdrop-filter:blur(6px);
+    }
+    .profile-top{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .profile-avatar{
+      width:64px;
+      height:64px;
+      border-radius:18px;
+      object-fit:contain;
+      background:rgba(255,255,255,.92);
+      padding:4px;
+      box-shadow:var(--pill);
+    }
+    .profile-copy b{
+      display:block;
+      font-size:1.05rem;
+      color:#fff;
+    }
+    .profile-copy span{
+      color:#fff3f7;
+      font-weight:800;
+      font-size:.92rem;
+    }
+
+    .side-badge-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+    .side-badge{
+      display:inline-flex;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.92);
+      color:#8f1d45;
+      font-weight:900;
+      box-shadow:var(--pill);
+      font-size:.88rem;
+    }
+
+    .side-progress{
+      margin-bottom:14px;
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius:24px;
+      padding:14px;
+      box-shadow:0 12px 22px rgba(0,0,0,.12);
+    }
+    .side-progress h3{
+      margin:0 0 8px;
+      font-size:1.05rem;
+      color:#fff;
+    }
+    .stat-line{
+      margin-bottom:10px;
+    }
+    .stat-line:last-child{margin-bottom:0}
+    .stat-line .meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:5px;
+      color:#fff4f8;
+      font-weight:900;
+      font-size:.92rem;
+    }
+    .bar{
+      height:12px;
+      border-radius:999px;
+      overflow:hidden;
+      background:rgba(255,255,255,.28);
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.12);
+    }
+    .fill{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#fff1a8,#7effd2);
+      width:0%;
+      transition:width .35s ease;
+    }
+
+    .side-nav{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .side-link{
+      width:100%;
+      text-align:left;
+      border:0;
+      border-radius:18px;
+      padding:12px 14px;
+      font-weight:900;
+      cursor:pointer;
+      color:#6d1634;
+      background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,240,246,.95));
+      box-shadow:var(--pill);
+    }
+    .side-link.active{
+      background:linear-gradient(180deg,#fffedc,#fff6bb);
+      color:#7d4800;
+    }
+
+    .mini-launcher{
+      margin-top:16px;
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius:24px;
+      padding:14px;
+      box-shadow:0 12px 22px rgba(0,0,0,.12);
+    }
+    .mini-launcher h3{
+      margin:0 0 8px;
+      font-size:1.1rem;
+      color:#fff;
+    }
+    .mini-launcher p{
+      margin:0 0 12px;
+      color:#fff4f7;
+      font-weight:800;
+      line-height:1.2;
+    }
+    .stack{
+      display:grid;
+      gap:10px;
+    }
+
+    .main-area{
+      display:grid;
+      gap:18px;
+      min-width:0;
+    }
+
+    .hero{
+      background:var(--heroGrad);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero-inner{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:18px;
+      align-items:center;
+      padding:24px;
+      min-height:300px;
+    }
+    @media (max-width:980px){
+      .hero-inner{grid-template-columns:1fr}
+    }
+
+    .hero-copy h1{
+      margin:0 0 10px;
+      font-size:clamp(2rem,4vw,3.35rem);
+      line-height:.95;
+      color:#fff;
+      text-shadow:0 12px 22px rgba(0,0,0,.18);
+    }
+    .hero-copy p{
+      margin:0 0 16px;
+      font-size:1.03rem;
+      font-weight:800;
+      color:#17324f;
+      max-width:760px;
+      background:rgba(255,255,255,.70);
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:18px;
+      box-shadow:var(--pill);
+    }
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .hero-badges{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .hero-pill{
+      background:rgba(255,255,255,.86);
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:var(--pill);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      color:#234;
+    }
+
+    .hero-stats{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+    @media (max-width:580px){
+      .hero-stats{grid-template-columns:1fr}
+    }
+
+    .stat-card{
+      background:rgba(255,255,255,.86);
+      border-radius:24px;
+      border:1px solid rgba(0,0,0,.05);
+      box-shadow:var(--pill);
+      padding:16px;
+      min-height:110px;
+    }
+    .stat-card h3{
+      margin:0 0 4px;
+      font-size:1.1rem;
+      color:#143655;
+    }
+    .stat-card p{
+      margin:0;
+      color:#58667a;
+      font-weight:800;
+      line-height:1.2;
+    }
+
+    .tabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+    }
+    .tab{
+      border:0;
+      cursor:pointer;
+      border-radius:999px;
+      padding:12px 18px;
+      font-weight:900;
+      background:linear-gradient(180deg,#ffffff,#edf3ff);
+      box-shadow:var(--pill);
+      color:var(--ink);
+    }
+    .tab[aria-selected="true"]{
+      background:linear-gradient(180deg,var(--green1),var(--green2));
+      color:#083622;
+    }
+
+    .panel{
+      display:none;
+      animation:fadeIn .18s ease;
+    }
+    .panel.active{display:block}
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(4px)}
+      to{opacity:1;transform:none}
+    }
+
+    .section-card{
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      border:1px solid rgba(0,0,0,.05);
+    }
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .section-head h2{
+      margin:0;
+      font-size:1.8rem;
+      color:#203151;
+    }
+    .section-head p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .badge{
+      display:inline-flex;
+      padding:8px 12px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#f4f8ff,#ebf1ff);
+      border:1px solid rgba(0,0,0,.06);
+      box-shadow:var(--pill);
+      font-weight:900;
+      color:#24425e;
+    }
+
+    .dashboard-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:18px;
+    }
+    @media (max-width:980px){
+      .dashboard-grid{grid-template-columns:1fr}
+    }
+
+    .welcome-box{
+      border-radius:26px;
+      padding:20px;
+      min-height:280px;
+      background:
+        radial-gradient(320px 180px at 14% 16%, rgba(255,255,255,.72), rgba(255,255,255,0) 70%),
+        linear-gradient(135deg,#ffe7b8 0%, #ffd3e2 44%, #d9ebff 100%);
+      box-shadow:var(--pill);
+    }
+    .welcome-box h3{
+      margin:0 0 10px;
+      font-size:1.95rem;
+      color:#6c4100;
+    }
+    .welcome-box p{
+      margin:0 0 12px;
+      color:#5f6576;
+      font-weight:800;
+      line-height:1.3;
+    }
+
+    .info-stack{
+      display:grid;
+      gap:12px;
+    }
+    .info-tile{
+      border-radius:22px;
+      background:linear-gradient(180deg,#ffffff,#f7faff);
+      border:1px solid rgba(0,0,0,.05);
+      box-shadow:var(--pill);
+      padding:15px;
+    }
+    .info-tile h4{
+      margin:0 0 5px;
+      font-size:1.06rem;
+      color:#203151;
+    }
+    .info-tile p{
+      margin:0;
+      color:#667085;
+      font-weight:800;
+      line-height:1.22;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    @media (max-width:1080px){
+      .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:560px){
+      .summary-grid{grid-template-columns:1fr}
+    }
+    .summary-card{
+      border-radius:22px;
+      padding:16px;
+      background:linear-gradient(180deg,#ffffff,#f7faff);
+      border:1px solid rgba(0,0,0,.05);
+      box-shadow:var(--pill);
+    }
+    .summary-card .k{
+      color:var(--muted);
+      font-weight:900;
+      font-size:.94rem;
+      margin-bottom:4px;
+    }
+    .summary-card .v{
+      font-size:1.8rem;
+      font-weight:900;
+      line-height:1;
+      color:#203151;
+      margin-bottom:6px;
+    }
+    .summary-card .s{
+      color:#68768b;
+      font-weight:800;
+      line-height:1.2;
+    }
+
+    .level-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+    @media (max-width:1100px){
+      .level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:680px){
+      .level-grid{grid-template-columns:1fr}
+    }
+
+    .level-card{
+      position:relative;
+      border-radius:26px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(0,0,0,.05);
+      min-height:330px;
+      display:flex;
+      flex-direction:column;
+    }
+    .level-card.a{background:linear-gradient(180deg,var(--pink1),var(--pink2))}
+    .level-card.b{background:linear-gradient(180deg,var(--orange1),var(--orange2))}
+    .level-card.c{background:linear-gradient(180deg,var(--blue1),var(--blue2))}
+    .level-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(400px 180px at 20% 12%, rgba(255,255,255,.68), rgba(255,255,255,0) 60%),
+        linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+    .level-top{
+      position:relative;
+      z-index:1;
+      padding:16px 16px 8px;
+    }
+    .level-tag{
+      display:inline-flex;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.92);
+      box-shadow:var(--pill);
+      font-weight:900;
+      margin-bottom:8px;
+    }
+    .level-top h3{
+      margin:0 0 6px;
+      font-size:1.58rem;
+    }
+    .level-top p{
+      margin:0;
+      color:#5f6576;
+      font-weight:800;
+      line-height:1.2;
+    }
+    .level-illus{
+      position:relative;
+      z-index:1;
+      flex:1;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding:4px 10px 0;
+      min-height:140px;
+    }
+    .level-illus img{
+      width:min(88%,280px);
+      max-height:170px;
+      object-fit:contain;
+      filter:drop-shadow(0 18px 20px rgba(0,0,0,.18));
+    }
+    .level-foot{
+      position:relative;
+      z-index:1;
+      padding:0 14px 14px;
+      display:grid;
+      gap:10px;
+    }
+    .level-status{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:rgba(255,255,255,.86);
+      border-radius:18px;
+      padding:10px 12px;
+      box-shadow:var(--pill);
+      font-weight:900;
+      color:#3a4a62;
+    }
+    .level-actions{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+    .level-actions button{
+      border:0;
+      cursor:pointer;
+      border-radius:16px;
+      padding:12px;
+      font-weight:900;
+      background:rgba(255,255,255,.90);
+      box-shadow:var(--pill);
+      color:#253247;
+    }
+
+    .role-grid, .portal-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+    }
+    @media (max-width:1140px){
+      .role-grid,.portal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:620px){
+      .role-grid,.portal-grid{grid-template-columns:1fr}
+    }
+
+    .role-card,.portal-card{
+      border-radius:24px;
+      padding:18px;
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+      border:1px solid rgba(0,0,0,.05);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:245px;
+    }
+    .role-icon{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      font-size:1.8rem;
+      background:linear-gradient(180deg,#fff,#edf4ff);
+      box-shadow:var(--pill);
+    }
+    .role-card h3,.portal-card h3{
+      margin:0;
+      font-size:1.35rem;
+      color:#203151;
+    }
+    .role-card p,.portal-card p{
+      margin:0;
+      color:#667085;
+      font-weight:800;
+      line-height:1.25;
+      flex:1;
+    }
+
+    .quick-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+    @media (max-width:1000px){
+      .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:620px){
+      .quick-grid{grid-template-columns:1fr}
+    }
+
+    .quick-card{
+      border-radius:22px;
+      padding:16px;
+      background:linear-gradient(180deg,#ffffff,#f7faff);
+      border:1px solid rgba(0,0,0,.05);
+      box-shadow:var(--pill);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:225px;
+      position:relative;
+    }
+    .quick-chip{
+      display:inline-flex;
+      align-self:flex-start;
+      padding:6px 10px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#def7ea,#c3f1d7);
+      color:#0c5a35;
+      font-size:.9rem;
+      font-weight:900;
+      box-shadow:var(--pill);
+    }
+    .quick-card h4{
+      margin:0;
+      font-size:1.15rem;
+      color:#203151;
+    }
+    .quick-card p{
+      margin:0;
+      color:#667085;
+      font-weight:800;
+      line-height:1.25;
+      flex:1;
+    }
+    .lock-pill{
+      display:inline-flex;
+      align-self:flex-start;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.85rem;
+      font-weight:900;
+      box-shadow:var(--pill);
+      background:linear-gradient(180deg,#f3f6ff,#eaf0ff);
+      color:#42536d;
+    }
+    .lock-pill.open{
+      background:linear-gradient(180deg,#dbf9e7,#bcf0d1);
+      color:#0c5a35;
+    }
+    .lock-pill.locked{
+      background:linear-gradient(180deg,#ffe2e2,#ffc9c9);
+      color:#7a1f1f;
+    }
+
+    .auth-grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:16px;
+    }
+    @media (max-width:980px){
+      .auth-grid{grid-template-columns:1fr}
+    }
+
+    .auth-box{
+      border-radius:24px;
+      padding:18px;
+      background:linear-gradient(180deg,#ffffff,#f7fbff);
+      border:1px solid rgba(0,0,0,.05);
+      box-shadow:var(--pill);
+    }
+    .auth-box h3{
+      margin:0 0 8px;
+      font-size:1.35rem;
+      color:#203151;
+    }
+    .auth-box p{
+      margin:0 0 14px;
+      color:#667085;
+      font-weight:800;
+      line-height:1.25;
+    }
+
+    .form-grid{
+      display:grid;
+      gap:12px;
+    }
+    .field{
+      display:grid;
+      gap:6px;
+    }
+    .field label{
+      font-weight:900;
+      color:#304361;
+    }
+    .field input,
+    .field select{
+      width:100%;
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;
+      border-radius:16px;
+      padding:12px 14px;
+      outline:none;
+      box-shadow:0 6px 12px rgba(0,0,0,.04) inset;
+    }
+
+    .auth-status{
+      min-height:24px;
+      font-weight:900;
+      margin-top:4px;
+    }
+
+    .teacher-demo{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+    @media (max-width:540px){
+      .teacher-demo{grid-template-columns:1fr}
+    }
+
+    .teacher-pill{
+      border-radius:18px;
+      padding:12px;
+      background:linear-gradient(180deg,#fff,#eef5ff);
+      box-shadow:var(--pill);
+      border:1px solid rgba(0,0,0,.05);
+    }
+    .teacher-pill b{
+      display:block;
+      color:#203151;
+      margin-bottom:4px;
+    }
+    .teacher-pill span{
+      color:#667085;
+      font-weight:800;
+      font-size:.95rem;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    footer{
+      text-align:center;
+      color:#7a8599;
+      font-weight:800;
+      padding:6px 0 0;
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(0,0,0,.58);
+      z-index:9999;
+    }
+    .modal.show{display:flex}
+    .modal-card{
+      width:min(680px,96vw);
+      background:linear-gradient(180deg,#ffffff,#f7f9ff);
+      border-radius:26px;
+      box-shadow:0 24px 50px rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.25);
+      padding:18px;
+    }
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .modal-head h3{
+      margin:0;
+      font-size:1.34rem;
+    }
+    .modal-head p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:var(--pill);
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip .n{
+      width:24px;
+      height:24px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg,var(--green1),var(--green2));
+      color:#083622;
+    }
+
+    @media (max-width:680px){
+      .topbar-inner{align-items:flex-start}
+      .top-actions{justify-content:flex-start}
+      .hero-actions,.hero-badges,.tabs,.row{justify-content:flex-start}
+    }
+  </style>
+
+  <script>
+    let deferredPrompt = null;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById("installBtn");
+      if (btn) btn.classList.remove("hidden");
+    });
+
+    async function installPWA(){
+      if (!deferredPrompt){
+        alert("Install is not ready yet. Please refresh in Chrome or Edge.");
+        return;
+      }
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      const btn = document.getElementById("installBtn");
+      if (btn) btn.classList.add("hidden");
+    }
+
+    window.addEventListener("load", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js").catch(err => {
+          console.warn("Service Worker registration failed:", err);
+        });
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img id="logoImg" class="brand-logo" src="GP Logo.png" alt="GP EIS Logo">
+        <div class="brand-copy">
+          <b>GP EIS Online</b>
+          <span>Smart Studio Home • Kids Learning App</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn btn-soft" id="goHomeTop">Home</button>
+        <button class="btn btn-gold" id="demoUnlockBtn">Unlock Demo Progress</button>
+        <button class="btn btn-soft" id="logoutBtn">Logout</button>
+        <button class="btn btn-primary hidden" id="installBtn" onclick="installPWA()">⬇ Install App</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="side-brand">
+        <h2>GP EIS</h2>
+        <p>Play, learn, trace, solve and grow every day.</p>
+      </div>
+
+      <div class="profile-box">
+        <div class="profile-top">
+          <img id="sidebarAvatar" class="profile-avatar" src="ProfDog.png" alt="Level Avatar">
+          <div class="profile-copy">
+            <b id="sidebarLevelTitle">Level A Selected</b>
+            <span id="sidebarLevelSub">Starter Learning Path</span>
+          </div>
+        </div>
+
+        <div class="side-badge-row">
+          <span class="side-badge" id="sidebarMonth">Month 1</span>
+          <span class="side-badge" id="sidebarRoleBadge">Role: Student</span>
+          <span class="side-badge" id="sidebarWeekBadge">Open Weeks: 1</span>
+        </div>
+      </div>
+
+      <div class="side-progress">
+        <h3>Progress Snapshot</h3>
+
+        <div class="stat-line">
+          <div class="meta"><span>Lessons</span><span id="lessonsMeta">0%</span></div>
+          <div class="bar"><div class="fill" id="lessonsFill"></div></div>
+        </div>
+
+        <div class="stat-line">
+          <div class="meta"><span>Quizzes</span><span id="quizzesMeta">0%</span></div>
+          <div class="bar"><div class="fill" id="quizzesFill"></div></div>
+        </div>
+
+        <div class="stat-line">
+          <div class="meta"><span>Tracing</span><span id="tracingMeta">0%</span></div>
+          <div class="bar"><div class="fill" id="tracingFill"></div></div>
+        </div>
+      </div>
+
+      <div class="side-nav">
+        <button class="side-link active" data-panel="panel-home">🏠 App Home</button>
+        <button class="side-link" data-panel="panel-levels">🎓 Level Selection</button>
+        <button class="side-link" data-panel="panel-login">🔐 Login Entrance</button>
+        <button class="side-link" data-panel="panel-links">⚡ Quick Links</button>
+        <button class="side-link" data-panel="panel-portals">👨‍👩‍👧‍👦 Portals</button>
+      </div>
+
+      <div class="mini-launcher">
+        <h3>Quick Start</h3>
+        <p>Jump into the selected level, continue the last lesson, or open the first mapped lesson.</p>
+        <div class="stack">
+          <button class="btn btn-primary" id="sidebarStartBtn">Start Learning</button>
+          <button class="btn btn-soft" id="sidebarContinueBtn">Continue Last Lesson</button>
+          <button class="btn btn-pink" id="sidebarFirstLessonBtn">Open First Lesson</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <h1>Welcome to GP EIS Online</h1>
+            <p>Your upgraded studio-style landing page for students, parents, teachers and admins, with level memory, week locks, progress widgets and local login gate.</p>
+
+            <div class="hero-actions">
+              <button class="btn btn-primary" id="heroStartBtn">Start Learning</button>
+              <button class="btn btn-soft" id="heroContinueBtn">Continue Learning</button>
+              <button class="btn btn-pink" id="heroLoginBtn">Login Entrance</button>
+            </div>
+
+            <div class="hero-badges">
+              <span class="hero-pill">🎯 Landing Page</span>
+              <span class="hero-pill">🔐 Local Login Gate</span>
+              <span class="hero-pill">📊 Progress Summary</span>
+              <span class="hero-pill">👨‍👩‍👧 Role Navigation</span>
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-card">
+              <h3>Student Entrance</h3>
+              <p>Student ID and PIN login now save a local session for lesson access.</p>
+            </div>
+            <div class="stat-card">
+              <h3>Teacher Demo Setup</h3>
+              <p>Teachers can use demo student IDs to test the app structure quickly.</p>
+            </div>
+            <div class="stat-card">
+              <h3>Week Locks</h3>
+              <p>Week cards can show open and locked states based on saved progress.</p>
+            </div>
+            <div class="stat-card">
+              <h3>Progress Memory</h3>
+              <p>Selected role, level, session and lesson memory stay in localStorage.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Main Navigation">
+        <button class="tab" role="tab" aria-selected="true" data-panel="panel-home">HOME</button>
+        <button class="tab" role="tab" aria-selected="false" data-panel="panel-levels">LEVELS</button>
+        <button class="tab" role="tab" aria-selected="false" data-panel="panel-login">LOGIN</button>
+        <button class="tab" role="tab" aria-selected="false" data-panel="panel-links">QUICK LINKS</button>
+        <button class="tab" role="tab" aria-selected="false" data-panel="panel-portals">PORTALS</button>
+      </div>
+
+      <section class="panel active" id="panel-home">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2>App Landing Page</h2>
+              <p>Main dashboard for learning, login, levels, quick links and portals.</p>
+            </div>
+            <div class="badge" id="homeSelectedBadge">Level A • Student</div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="welcome-box">
+              <h3>Learn, Play and Grow with GP EIS</h3>
+              <p>This upgraded home page helps you standardise your kids learning app. Students can choose levels, login with Student ID and PIN, open lessons and continue learning, while parents, teachers and admins can enter through their own clear navigation paths.</p>
+
+              <div class="row">
+                <button class="btn btn-primary" onclick="showPanel('panel-levels')">Choose Level</button>
+                <button class="btn btn-orange" onclick="showPanel('panel-links')">Open Quick Links</button>
+                <button class="btn btn-purple" onclick="showPanel('panel-login')">Open Login</button>
+              </div>
+            </div>
+
+            <div class="info-stack">
+              <div class="info-tile">
+                <h4>1. App Landing Page</h4>
+                <p>Bright and standardised welcome area with clearer structure and smoother navigation.</p>
+              </div>
+              <div class="info-tile">
+                <h4>2. Level Selection</h4>
+                <p>Level A, B and C are shown in bigger visual cards with first lesson access.</p>
+              </div>
+              <div class="info-tile">
+                <h4>3. Login Entrance</h4>
+                <p>Student ID / PIN login plus role entrance cards for parent, teacher and admin.</p>
+              </div>
+              <div class="info-tile">
+                <h4>4 + 5. Quick Links and Portals</h4>
+                <p>Quick lesson launcher, locked weeks and role-based dashboard shortcuts now work together.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div class="k">Selected Level</div>
+              <div class="v" id="summaryLevel">A</div>
+              <div class="s">Current learning path stored for this device.</div>
+            </div>
+            <div class="summary-card">
+              <div class="k">Selected Role</div>
+              <div class="v" id="summaryRole">Student</div>
+              <div class="s">Used for entrance and routing.</div>
+            </div>
+            <div class="summary-card">
+              <div class="k">Open Weeks</div>
+              <div class="v" id="summaryOpenWeeks">1</div>
+              <div class="s">Current unlocked weeks for the selected level.</div>
+            </div>
+            <div class="summary-card">
+              <div class="k">Last Lesson</div>
+              <div class="v" id="summaryLastLesson" style="font-size:1.1rem;line-height:1.1;">None</div>
+              <div class="s">Recent learning page saved for continue learning.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-levels">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2>Level Selection</h2>
+              <p>Choose the correct learning path for the child.</p>
+            </div>
+            <div class="badge" id="selectedLevelBadge">Selected Level: A</div>
+          </div>
+
+          <div class="level-grid">
+            <article class="level-card a">
+              <div class="level-top">
+                <div class="level-tag">Level A</div>
+                <h3>Circle • Triangle • Square</h3>
+                <p>Starter level for younger learners with simpler early shape activities.</p>
+              </div>
+              <div class="level-illus">
+                <img id="lvlAImg" src="ProfDog.png" alt="Professor Dog">
+              </div>
+              <div class="level-foot">
+                <div class="level-status">
+                  <span>Open Weeks</span>
+                  <span id="levelAWeeks">1</span>
+                </div>
+                <div class="level-actions">
+                  <button onclick="selectLevel('A')">Select A</button>
+                  <button onclick="openFirstMappedLesson('A')">Open First Lesson</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="level-card b">
+              <div class="level-top">
+                <div class="level-tag">Level B</div>
+                <h3>Polygon World</h3>
+                <p>Intermediate level for pentagon, hexagon and polygon tracing and recognition.</p>
+              </div>
+              <div class="level-illus">
+                <img id="lvlBImg" src="Prof Bear B.png" alt="Professor Bear">
+              </div>
+              <div class="level-foot">
+                <div class="level-status">
+                  <span>Open Weeks</span>
+                  <span id="levelBWeeks">1</span>
+                </div>
+                <div class="level-actions">
+                  <button onclick="selectLevel('B')">Select B</button>
+                  <button onclick="openFirstMappedLesson('B')">Open First Lesson</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="level-card c">
+              <div class="level-top">
+                <div class="level-tag">Level C</div>
+                <h3>Tangram Challenge</h3>
+                <p>Advanced level for tangram building, puzzle play and problem solving.</p>
+              </div>
+              <div class="level-illus">
+                <img id="lvlCImg" src="Prof Tangram C.png" alt="Professor Tangram">
+              </div>
+              <div class="level-foot">
+                <div class="level-status">
+                  <span>Open Weeks</span>
+                  <span id="levelCWeeks">1</span>
+                </div>
+                <div class="level-actions">
+                  <button onclick="selectLevel('C')">Select C</button>
+                  <button onclick="openFirstMappedLesson('C')">Open First Lesson</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-login">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2>Login Entrance</h2>
+              <p>Student ID / PIN gate plus role-based entrance cards.</p>
+            </div>
+            <div class="badge" id="roleBadgeTop">Current Role: Student</div>
+          </div>
+
+          <div class="auth-grid">
+            <div class="auth-box">
+              <h3>Student Login Entrance</h3>
+              <p>Use Student ID, PIN and level to open the lesson system locally. This is a demo local gate for now and can later be replaced by Firebase login.</p>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="studentIdInput">Student ID</label>
+                  <input id="studentIdInput" type="text" placeholder="Example: GP-A-001" />
+                </div>
+
+                <div class="field">
+                  <label for="studentPinInput">PIN</label>
+                  <input id="studentPinInput" type="password" inputmode="numeric" placeholder="Example: 1234" />
+                </div>
+
+                <div class="field">
+                  <label for="studentLevelInput">Level</label>
+                  <select id="studentLevelInput">
+                    <option value="A">Level A</option>
+                    <option value="B">Level B</option>
+                    <option value="C">Level C</option>
+                  </select>
+                </div>
+
+                <div class="row">
+                  <button class="btn btn-primary" id="studentLoginBtn">Login as Student</button>
+                  <button class="btn btn-soft" id="fillDemoStudentBtn">Use Demo Student</button>
+                </div>
+
+                <div class="auth-status" id="studentLoginStatus"></div>
+              </div>
+            </div>
+
+            <div class="auth-box">
+              <h3>Teacher Demo Student IDs</h3>
+              <p>You can use these demo student IDs and PINs for testing your local login flow in VS Code or Netlify.</p>
+
+              <div class="teacher-demo">
+                <div class="teacher-pill"><b>Level A</b><span>ID: GP-A-001 • PIN: 1234</span></div>
+                <div class="teacher-pill"><b>Level B</b><span>ID: GP-B-001 • PIN: 1234</span></div>
+                <div class="teacher-pill"><b>Level C</b><span>ID: GP-C-001 • PIN: 1234</span></div>
+                <div class="teacher-pill"><b>Teacher Test</b><span>Role cards below open teacher route</span></div>
+              </div>
+
+              <div style="height:12px"></div>
+
+              <div class="role-grid">
+                <article class="role-card">
+                  <div class="role-icon">🧒</div>
+                  <h3>Student</h3>
+                  <p>Enter through the student login gate using Student ID and PIN.</p>
+                  <button class="btn btn-primary" onclick="setRoleOnly('student')">Select Student Role</button>
+                </article>
+
+                <article class="role-card">
+                  <div class="role-icon">👩‍👦</div>
+                  <h3>Parent</h3>
+                  <p>Open parent route for reports, child progress and dashboard access.</p>
+                  <button class="btn btn-pink" onclick="goToLogin('parent')">Open Parent Entrance</button>
+                </article>
+
+                <article class="role-card">
+                  <div class="role-icon">👩‍🏫</div>
+                  <h3>Teacher</h3>
+                  <p>Open teacher route for student management, IDs and class reports.</p>
+                  <button class="btn btn-orange" onclick="goToLogin('teacher')">Open Teacher Entrance</button>
+                </article>
+
+                <article class="role-card">
+                  <div class="role-icon">🛡️</div>
+                  <h3>Admin</h3>
+                  <p>Open admin route for approvals, system settings and overview pages.</p>
+                  <button class="btn btn-purple" onclick="goToLogin('admin')">Open Admin Entrance</button>
+                </article>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-links">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2>Quick Links to Levels</h2>
+              <p>Fast lesson launcher with locked and unlocked weeks for the selected level.</p>
+            </div>
+            <div class="badge" id="quickLevelText">Quick Links for Level A</div>
+          </div>
+
+          <div class="quick-grid" id="quickGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-portals">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h2>Parent / Teacher / Admin Navigation</h2>
+              <p>Quick navigation to reporting and management pages.</p>
+            </div>
+          </div>
+
+          <div class="portal-grid">
+            <article class="portal-card">
+              <div class="role-icon">📈</div>
+              <h3>Progress Report</h3>
+              <p>Main learning report page for activity results, quiz scores, tracing progress and summaries.</p>
+              <button class="btn btn-blue" onclick="goPortal('report')">Open Progress Report</button>
+            </article>
+
+            <article class="portal-card">
+              <div class="role-icon">🪪</div>
+              <h3>Teacher Student IDs</h3>
+              <p>Open teacher student management and class entry flow through your main report system.</p>
+              <button class="btn btn-orange" onclick="goPortal('teacher-ids')">Open Teacher IDs</button>
+            </article>
+
+            <article class="portal-card">
+              <div class="role-icon">👨‍👩‍👧‍👦</div>
+              <h3>Parent Dashboard</h3>
+              <p>Parents can view child progress, weekly reports, learning records and dashboard summaries.</p>
+              <button class="btn btn-pink" onclick="goPortal('parent-dashboard')">Open Parent Dashboard</button>
+            </article>
+
+            <article class="portal-card">
+              <div class="role-icon">⚙️</div>
+              <h3>Admin Control</h3>
+              <p>Admins can open control and review pages for broader platform operation and approval flow.</p>
+              <button class="btn btn-purple" onclick="goPortal('admin-dashboard')">Open Admin Control</button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        GP EIS Online • Smart Studio Shell • Landing • Levels • Login • Quick Links • Portals • Local Auth Gate
+      </footer>
+    </main>
+  </div>
+
+  <div class="modal" id="lessonModal" role="dialog" aria-modal="true" aria-labelledby="lessonModalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3 id="lessonModalTitle">Choose a Lesson</h3>
+          <p id="lessonModalSub">Level A</p>
+        </div>
+        <button class="btn btn-soft" id="closeLessonModal">Close</button>
+      </div>
+
+      <div class="chips" id="lessonChips"></div>
+
+      <div class="row" style="margin-top:14px;justify-content:flex-end;">
+        <button class="btn btn-primary" id="openFirstLessonBtn">Open First Lesson</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/activity-standardizer.js"></script>
+
+  <script>
+    const ASSET = (name) => encodeURI(name || "");
+
+    (function fixImages(){
+      ["logoImg","lvlAImg","lvlBImg","lvlCImg","sidebarAvatar"].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el && el.getAttribute("src")) el.src = ASSET(el.getAttribute("src"));
+      });
+    })();
+
+    const APP_CONFIG = {
+      A: {
+        label: "Level A",
+        subtitle: "Starter Learning Path",
+        avatar: ASSET("ProfDog.png"),
+        first: ["LA2.html","LA3.html"],
+        weeks: {
+          1: ["LA2.html","LA3.html","LA4.html","LA5.html","LA_Revision1.html","LA_Quiz1.html","LA_Game1.html"],
+          2: ["LA8.html","LA9.html","LA10.html","LA11.html","LA_Revision2.html","LA_Quiz2.html","LA_Game2.html"],
+          3: ["LA14.html","LA15.html","LA16.html","LA17.html","LA_Revision3.html","LA_Quiz3.html","LA_Game3.html"],
+          4: ["LA20.html","LA21.html","LA22.html","LA23.html","LA_Revision4.html","LA_FinalQuiz.html"]
+        }
+      },
+      B: {
+        label: "Level B",
+        subtitle: "Intermediate Learning Path",
+        avatar: ASSET("Prof Bear B.png"),
+        first: ["LB2.html","LB3.html"],
+        weeks: {
+          1: ["LB2.html","LB3.html","LB4.html","LB5.html","LB_Revision1.html","LB_Quiz1.html","LB_Game1.html"],
+          2: ["LB8.html","LB9.html","LB10.html","LB11.html","LB_Revision2.html","LB_Quiz2.html","LB_Game2.html"],
+          3: ["LB14.html","LB15.html","LB16.html","LB17.html","LB_Revision3.html","LB_Quiz3.html","LB_Game3.html"],
+          4: ["LB20.html","LB21.html","LB22.html","LB23.html","LB_Revision4.html","LB_FinalQuiz.html"]
+        }
+      },
+      C: {
+        label: "Level C",
+        subtitle: "Advanced Learning Path",
+        avatar: ASSET("Prof Tangram C.png"),
+        first: ["LevelC2.html","LevelC3.html"],
+        weeks: {
+          1: ["LevelC2.html","LevelC3.html","LevelC4.html","LevelC5.html","LevelC_Revision1.html","LevelC_Quiz1.html","LevelC_Game1.html"],
+          2: ["LevelC8.html","LevelC9.html","LevelC10.html","LevelC11.html","LevelC_Revision2.html","LevelC_Quiz2.html","LevelC_Game2.html"],
+          3: ["LevelC14.html","LevelC15.html","LevelC16.html","LevelC17.html","LevelC_Revision3.html","LevelC_Quiz3.html","LevelC_Game3.html"],
+          4: ["LevelC20.html","LevelC21.html","LevelC22.html","LevelC23.html","LevelC_Revision4.html","LevelC_FinalQuiz.html"]
+        }
+      }
+    };
+
+    const DEFAULT_PROGRESS = {
+      A: { openWeeks:1, lessons:18, quizzes:10, tracing:14 },
+      B: { openWeeks:1, lessons:10, quizzes:6, tracing:8 },
+      C: { openWeeks:1, lessons:5, quizzes:2, tracing:3 }
+    };
+
+    const DEMO_STUDENTS = {
+      "GP-A-001": { pin:"1234", level:"A", name:"Student A1" },
+      "GP-B-001": { pin:"1234", level:"B", name:"Student B1" },
+      "GP-C-001": { pin:"1234", level:"C", name:"Student C1" }
+    };
+
+    let selectedLevel = localStorage.getItem("gpeis_selected_level") || "A";
+    let selectedRole = localStorage.getItem("GP_EIS_SELECTED_ROLE") || "student";
+    let modalFiles = [];
+
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const panels = Array.from(document.querySelectorAll(".panel"));
+    const sideLinks = Array.from(document.querySelectorAll(".side-link"));
+
+    const selectedLevelBadge = document.getElementById("selectedLevelBadge");
+    const quickLevelText = document.getElementById("quickLevelText");
+    const quickGrid = document.getElementById("quickGrid");
+
+    const sidebarAvatar = document.getElementById("sidebarAvatar");
+    const sidebarLevelTitle = document.getElementById("sidebarLevelTitle");
+    const sidebarLevelSub = document.getElementById("sidebarLevelSub");
+    const sidebarMonth = document.getElementById("sidebarMonth");
+    const sidebarRoleBadge = document.getElementById("sidebarRoleBadge");
+    const sidebarWeekBadge = document.getElementById("sidebarWeekBadge");
+
+    const homeSelectedBadge = document.getElementById("homeSelectedBadge");
+    const summaryLevel = document.getElementById("summaryLevel");
+    const summaryRole = document.getElementById("summaryRole");
+    const summaryOpenWeeks = document.getElementById("summaryOpenWeeks");
+    const summaryLastLesson = document.getElementById("summaryLastLesson");
+
+    const roleBadgeTop = document.getElementById("roleBadgeTop");
+
+    const lessonsMeta = document.getElementById("lessonsMeta");
+    const quizzesMeta = document.getElementById("quizzesMeta");
+    const tracingMeta = document.getElementById("tracingMeta");
+    const lessonsFill = document.getElementById("lessonsFill");
+    const quizzesFill = document.getElementById("quizzesFill");
+    const tracingFill = document.getElementById("tracingFill");
+
+    const studentIdInput = document.getElementById("studentIdInput");
+    const studentPinInput = document.getElementById("studentPinInput");
+    const studentLevelInput = document.getElementById("studentLevelInput");
+    const studentLoginBtn = document.getElementById("studentLoginBtn");
+    const studentLoginStatus = document.getElementById("studentLoginStatus");
+    const fillDemoStudentBtn = document.getElementById("fillDemoStudentBtn");
+
+    const lessonModal = document.getElementById("lessonModal");
+    const lessonChips = document.getElementById("lessonChips");
+    const lessonModalTitle = document.getElementById("lessonModalTitle");
+    const lessonModalSub = document.getElementById("lessonModalSub");
+    const openFirstLessonBtn = document.getElementById("openFirstLessonBtn");
+
+    function structuredCloneSafe(obj){
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function getSavedProgress(){
+      try{
+        const raw = localStorage.getItem("GP_EIS_PROGRESS_MAP");
+        if (!raw) return structuredCloneSafe(DEFAULT_PROGRESS);
+        const parsed = JSON.parse(raw);
+        return {
+          A: {...DEFAULT_PROGRESS.A, ...(parsed.A || {})},
+          B: {...DEFAULT_PROGRESS.B, ...(parsed.B || {})},
+          C: {...DEFAULT_PROGRESS.C, ...(parsed.C || {})}
+        };
+      }catch(e){
+        return structuredCloneSafe(DEFAULT_PROGRESS);
+      }
+    }
+
+    function setSavedProgress(map){
+      localStorage.setItem("GP_EIS_PROGRESS_MAP", JSON.stringify(map));
+    }
+
+    function capitalize(word){
+      return String(word || "").charAt(0).toUpperCase() + String(word || "").slice(1);
+    }
+
+    function getRoleLabel(){
+      return capitalize(selectedRole);
+    }
+
+    function getOpenWeeks(level){
+      const map = getSavedProgress();
+      return Math.max(1, Math.min(4, Number(map[level]?.openWeeks || 1)));
+    }
+
+    function getSession(){
+      try{
+        const raw = localStorage.getItem("GP_EIS_STUDENT_SESSION");
+        return raw ? JSON.parse(raw) : null;
+      }catch(e){
+        return null;
+      }
+    }
+
+    function setSession(session){
+      localStorage.setItem("GP_EIS_STUDENT_SESSION", JSON.stringify(session));
+      localStorage.setItem("GP_EIS_AUTH_GATE", "1");
+    }
+
+    function clearSession(){
+      localStorage.removeItem("GP_EIS_STUDENT_SESSION");
+      localStorage.removeItem("GP_EIS_AUTH_GATE");
+    }
+
+    function showPanel(id){
+      panels.forEach(p => p.classList.remove("active"));
+      const panel = document.getElementById(id);
+      if (panel) panel.classList.add("active");
+
+      tabs.forEach(tab => {
+        tab.setAttribute("aria-selected", tab.dataset.panel === id ? "true" : "false");
+      });
+
+      sideLinks.forEach(link => {
+        link.classList.toggle("active", link.dataset.panel === id);
+      });
+    }
+
+    tabs.forEach(tab => tab.addEventListener("click", () => showPanel(tab.dataset.panel)));
+    sideLinks.forEach(link => link.addEventListener("click", () => showPanel(link.dataset.panel)));
+
+    function syncProgressUI(){
+      const map = getSavedProgress();
+      const current = map[selectedLevel] || DEFAULT_PROGRESS[selectedLevel];
+      const openWeeks = getOpenWeeks(selectedLevel);
+
+      lessonsMeta.textContent = `${current.lessons}%`;
+      quizzesMeta.textContent = `${current.quizzes}%`;
+      tracingMeta.textContent = `${current.tracing}%`;
+
+      lessonsFill.style.width = `${current.lessons}%`;
+      quizzesFill.style.width = `${current.quizzes}%`;
+      tracingFill.style.width = `${current.tracing}%`;
+
+      document.getElementById("levelAWeeks").textContent = getOpenWeeks("A");
+      document.getElementById("levelBWeeks").textContent = getOpenWeeks("B");
+      document.getElementById("levelCWeeks").textContent = getOpenWeeks("C");
+
+      summaryOpenWeeks.textContent = openWeeks;
+      sidebarWeekBadge.textContent = `Open Weeks: ${openWeeks}`;
+    }
+
+    function shorten(text, len){
+      const t = String(text || "");
+      return t.length > len ? t.slice(0, len - 1) + "…" : t;
+    }
+
+    function syncLevelUI(){
+      const conf = APP_CONFIG[selectedLevel] || APP_CONFIG.A;
+      const lastFile = localStorage.getItem("GP_EIS_LAST_FILE") || "None";
+
+      localStorage.setItem("gpeis_selected_level", selectedLevel);
+      localStorage.setItem("GP_EIS_SELECTED_ROLE", selectedRole);
+
+      selectedLevelBadge.textContent = "Selected Level: " + selectedLevel;
+      quickLevelText.textContent = "Quick Links for " + conf.label;
+      sidebarAvatar.src = conf.avatar;
+      sidebarLevelTitle.textContent = conf.label + " Selected";
+      sidebarLevelSub.textContent = conf.subtitle;
+      sidebarMonth.textContent = "Month 1";
+      sidebarRoleBadge.textContent = "Role: " + getRoleLabel();
+
+      homeSelectedBadge.textContent = conf.label + " • " + getRoleLabel();
+      summaryLevel.textContent = selectedLevel;
+      summaryRole.textContent = getRoleLabel();
+      summaryLastLesson.textContent = shorten(lastFile, 18);
+      roleBadgeTop.textContent = "Current Role: " + getRoleLabel();
+
+      studentLevelInput.value = selectedLevel;
+
+      syncProgressUI();
+      renderQuickLinks();
+      syncLoginBoxFromSession();
+    }
+
+    function syncLoginBoxFromSession(){
+      const session = getSession();
+      if (session && session.studentId) {
+        studentLoginStatus.innerHTML = `<span class="ok">Logged in as ${session.studentId} • ${session.level}</span>`;
+      } else {
+        studentLoginStatus.innerHTML = `<span class="muted">No active student session yet.</span>`;
+      }
+    }
+
+    function setRoleOnly(role){
+      selectedRole = role;
+      localStorage.setItem("GP_EIS_SELECTED_ROLE", role);
+      syncLevelUI();
+    }
+
+    function selectLevel(level){
+      selectedLevel = level;
+      syncLevelUI();
+      showPanel("panel-links");
+    }
+
+    function hasAppAccess(){
+      try{
+        return !!localStorage.getItem("GP_EIS_AUTH_GATE");
+      }catch(e){
+        return false;
+      }
+    }
+
+    function rememberLastFile(file){
+      try{
+        localStorage.setItem("GP_EIS_LAST_FILE", file);
+      }catch(e){}
+    }
+
+    function gotoFile(file){
+      if (!file){
+        alert("No lesson file is mapped for this button yet.");
+        return;
+      }
+
+      rememberLastFile(file);
+
+      if (!hasAppAccess()){
+        showPanel("panel-login");
+        studentLoginStatus.innerHTML = `<span class="danger">Please login first to open ${file}</span>`;
+        return;
+      }
+
+      window.location.assign(file);
+    }
+
+    function prettyLabel(filename){
+      const base = String(filename || "").replace(/^.*[\\/]/,"").replace(/\.html$/i,"");
+      if (/Revision/i.test(base)) return "Revision";
+      if (/Final/i.test(base)) return "Final Quiz";
+      if (/Quiz/i.test(base)) return "Quiz";
+      if (/Game/i.test(base)) return "Game";
+      return "Lesson";
+    }
+
+    function showLessonChooser(title, subtitle, files){
+      modalFiles = Array.isArray(files) ? files.slice() : [];
+      lessonModalTitle.textContent = title || "Choose a Lesson";
+      lessonModalSub.textContent = subtitle || "";
+      lessonChips.innerHTML = "";
+
+      if (!modalFiles.length){
+        lessonChips.innerHTML = '<div class="muted" style="font-weight:900;">No mapped lesson files yet.</div>';
+      } else {
+        modalFiles.forEach((file, idx) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          chip.setAttribute("role","button");
+          chip.setAttribute("tabindex","0");
+          chip.innerHTML = '<span class="n">' + (idx + 1) + '</span><span>' + prettyLabel(file) + ' • ' + file + '</span>';
+          chip.addEventListener("click", () => gotoFile(file));
+          chip.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              gotoFile(file);
+            }
+          });
+          lessonChips.appendChild(chip);
+        });
+      }
+
+      lessonModal.classList.add("show");
+    }
+
+    function hideLessonModal(){
+      lessonModal.classList.remove("show");
+    }
+
+    document.getElementById("closeLessonModal").addEventListener("click", hideLessonModal);
+    lessonModal.addEventListener("click", (e) => {
+      if (e.target === lessonModal) hideLessonModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && lessonModal.classList.contains("show")) hideLessonModal();
+    });
+
+    openFirstLessonBtn.addEventListener("click", () => {
+      if (modalFiles.length) gotoFile(modalFiles[0]);
+    });
+
+    function weekFiles(level, week){
+      return (APP_CONFIG[level]?.weeks?.[week] || []).filter(Boolean);
+    }
+
+    function isWeekUnlocked(level, week){
+      return week <= getOpenWeeks(level);
+    }
+
+    function renderQuickLinks(){
+      quickGrid.innerHTML = "";
+      const conf = APP_CONFIG[selectedLevel] || APP_CONFIG.A;
+
+      for(let week = 1; week <= 4; week++){
+        const unlocked = isWeekUnlocked(selectedLevel, week);
+        const files = weekFiles(selectedLevel, week);
+
+        const card = document.createElement("article");
+        card.className = "quick-card";
+
+        const chip = document.createElement("div");
+        chip.className = "quick-chip";
+        chip.textContent = conf.label;
+
+        const lock = document.createElement("div");
+        lock.className = "lock-pill " + (unlocked ? "open" : "locked");
+        lock.textContent = unlocked ? `Week ${week} Open` : `Week ${week} Locked`;
+
+        const title = document.createElement("h4");
+        title.textContent = `Month 1 • Week ${week}`;
+
+        const desc = document.createElement("p");
+        desc.textContent = unlocked
+          ? `Open the learning pages, revision, quiz and games for Week ${week}.`
+          : `This week is still locked. Complete earlier progress or use demo unlock to open it.`;
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const openBtn = document.createElement("button");
+        openBtn.className = "btn " + (unlocked ? "btn-primary" : "btn-red");
+        openBtn.textContent = unlocked ? "Open Week" : "Locked";
+        openBtn.disabled = !unlocked;
+        openBtn.addEventListener("click", () => {
+          if (!unlocked) {
+            alert(`Week ${week} is locked for ${conf.label}.`);
+            return;
+          }
+          if (files.length === 1) gotoFile(files[0]);
+          else showLessonChooser(`${conf.label} • Week ${week}`, "Choose a lesson from this unlocked week", files);
+        });
+
+        const chooseBtn = document.createElement("button");
+        chooseBtn.className = "btn btn-soft";
+        chooseBtn.textContent = "See Lessons";
+        chooseBtn.addEventListener("click", () => {
+          if (!unlocked) {
+            alert(`Week ${week} is locked right now.`);
+            return;
+          }
+          showLessonChooser(`${conf.label} • Week ${week}`, "Choose a lesson from this unlocked week", files);
+        });
+
+        card.appendChild(chip);
+        card.appendChild(lock);
+        card.appendChild(title);
+        card.appendChild(desc);
+        row.appendChild(openBtn);
+        row.appendChild(chooseBtn);
+        card.appendChild(row);
+
+        quickGrid.appendChild(card);
+      }
+    }
+
+    function openFirstMappedLesson(level){
+      selectedLevel = level;
+      syncLevelUI();
+
+      const files = APP_CONFIG[level]?.first || [];
+      if (files.length === 1) gotoFile(files[0]);
+      else showLessonChooser(APP_CONFIG[level].label + " • First Lesson", "Choose a starting lesson", files);
+    }
+
+    function goToLogin(role){
+      selectedRole = role;
+      localStorage.setItem("GP_EIS_SELECTED_ROLE", role);
+      syncLevelUI();
+
+      window.location.assign(
+        "ProgressReport.html?role=" + encodeURIComponent(role) +
+        "&level=" + encodeURIComponent(selectedLevel)
+      );
+    }
+
+    function goPortal(portal){
+      const base = {
+        "report": "ProgressReport.html?portal=report",
+        "teacher-ids": "ProgressReport.html?portal=teacher-ids",
+        "parent-dashboard": "ProgressReport.html?portal=parent-dashboard",
+        "admin-dashboard": "ProgressReport.html?portal=admin-dashboard"
+      }[portal] || "ProgressReport.html?portal=report";
+
+      window.location.assign(
+        base +
+        "&level=" + encodeURIComponent(selectedLevel) +
+        "&role=" + encodeURIComponent(selectedRole)
+      );
+    }
+
+    function continueLearning(){
+      const lastFile = localStorage.getItem("GP_EIS_LAST_FILE");
+      if (!lastFile){
+        alert("No recent lesson found yet. Please start from a level first.");
+        showPanel("panel-levels");
+        return;
+      }
+      gotoFile(lastFile);
+    }
+
+    function unlockDemoProgress(){
+      const map = getSavedProgress();
+      map.A = { openWeeks:4, lessons:92, quizzes:88, tracing:94 };
+      map.B = { openWeeks:3, lessons:68, quizzes:60, tracing:72 };
+      map.C = { openWeeks:2, lessons:34, quizzes:28, tracing:31 };
+      setSavedProgress(map);
+      syncLevelUI();
+      alert("Demo progress unlocked.");
+    }
+
+    function fillDemoStudent(){
+      studentIdInput.value = "GP-A-001";
+      studentPinInput.value = "1234";
+      studentLevelInput.value = "A";
+    }
+
+    function handleStudentLogin(){
+      const studentId = (studentIdInput.value || "").trim().toUpperCase();
+      const pin = (studentPinInput.value || "").trim();
+      const level = (studentLevelInput.value || "A").trim().toUpperCase();
+
+      if (!studentId || !pin) {
+        studentLoginStatus.innerHTML = `<span class="danger">Please enter Student ID and PIN.</span>`;
+        return;
+      }
+
+      const demo = DEMO_STUDENTS[studentId];
+      if (!demo) {
+        studentLoginStatus.innerHTML = `<span class="danger">Student ID not found in local demo records.</span>`;
+        return;
+      }
+
+      if (demo.pin !== pin) {
+        studentLoginStatus.innerHTML = `<span class="danger">Incorrect PIN.</span>`;
+        return;
+      }
+
+      if (demo.level !== level) {
+        studentLoginStatus.innerHTML = `<span class="danger">Selected level does not match this Student ID.</span>`;
+        return;
+      }
+
+      selectedLevel = level;
+      selectedRole = "student";
+
+      setSession({
+        studentId,
+        pinMasked: "****",
+        level,
+        name: demo.name,
+        loginAt: new Date().toISOString()
+      });
+
+      localStorage.setItem("GP_EIS_SELECTED_ROLE", "student");
+      localStorage.setItem("gpeis_selected_level", level);
+
+      studentLoginStatus.innerHTML = `<span class="ok">Login successful for ${studentId}.</span>`;
+      syncLevelUI();
+      showPanel("panel-links");
+    }
+
+    function logoutUser(){
+      clearSession();
+      studentLoginStatus.innerHTML = `<span class="muted">Logged out. Student lesson gate is now closed.</span>`;
+    }
+
+    document.getElementById("goHomeTop").addEventListener("click", () => showPanel("panel-home"));
+    document.getElementById("demoUnlockBtn").addEventListener("click", unlockDemoProgress);
+    document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+
+    document.getElementById("heroStartBtn").addEventListener("click", () => showPanel("panel-levels"));
+    document.getElementById("heroContinueBtn").addEventListener("click", continueLearning);
+    document.getElementById("heroLoginBtn").addEventListener("click", () => showPanel("panel-login"));
+
+    document.getElementById("sidebarStartBtn").addEventListener("click", () => showPanel("panel-levels"));
+    document.getElementById("sidebarContinueBtn").addEventListener("click", continueLearning);
+    document.getElementById("sidebarFirstLessonBtn").addEventListener("click", () => openFirstMappedLesson(selectedLevel));
+
+    fillDemoStudentBtn.addEventListener("click", fillDemoStudent);
+    studentLoginBtn.addEventListener("click", handleStudentLogin);
+
+    studentPinInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleStudentLogin();
+    });
+
+    syncLevelUI();
+    showPanel("panel-home");
+  </script>
+</body>
+</html>

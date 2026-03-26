@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA24 - Circle Numbers</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<style>
+  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--ink:#2d2d2d;--bubble:#dff1ff;--bad:#d62828;--good:#2f9f5f;--shadow:0 20px 40px rgba(0,0,0,.12);}
+  body{display:flex;align-items:center;justify-content:center;background:#e7f7e7;padding:16px;color:var(--ink);}    
+  .card{width:min(980px,96vw);border-radius:18px;padding:14px 14px 18px;}    
+  .poster-area{position:relative;width:min(900px,100%);margin:0 auto;border-radius:16px;overflow:hidden;}
+  .poster-img{width:100%;height:auto;display:block;}
+  .bubble{position:absolute;left:12%;top:18%;padding:10px 14px;border-radius:16px;font-weight:800;font-size:1.2rem;max-width:320px;line-height:1.2;box-shadow:0 8px 18px rgba(0,0,0,.12);background:var(--bubble);}
+  .bubble::after{content:"";position:absolute;left:12px;bottom:-10px;border-width:10px 8px 0 8px;border-style:solid;border-color:var(--bubble) transparent transparent transparent;}
+  .pick{position:absolute;border:3px solid transparent;border-radius:999px;cursor:pointer;}
+  .pick.correct{border-color:#2f9f5f;}
+  .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;}
+  .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+</style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+</head>
+<body>
+  <div class="card">
+    <div class="poster-area">
+      <img class="poster-img" src="../../../../assets/images/shapes/A24.png" alt="Circle numbers poster">
+      <div class="bubble">Count and circle the correct<br>number of cookies.</div>
+      <div class="pick" data-row="1" data-val="1" style="left:44%; top:30%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="1" data-val="2" style="left:58%; top:30%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="1" data-val="3" style="left:72%; top:30%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="2" data-val="1" style="left:44%; top:50%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="2" data-val="2" style="left:58%; top:50%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="2" data-val="3" style="left:72%; top:50%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="3" data-val="1" style="left:44%; top:70%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="3" data-val="2" style="left:58%; top:70%; width:10%; height:8%;"></div>
+      <div class="pick" data-row="3" data-val="3" style="left:72%; top:70%; width:10%; height:8%;"></div>
+    </div>
+    <div class="controls">
+      <button class="btn prev" id="prevBtn">← Previous page</button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+        <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone" style="width:32px;height:32px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));">
+      </button>
+      <button class="btn next" id="nextBtn">Next page →</button>
+    </div>
+    <div id="conversationStatus" style="margin-top:10px;text-align:center;font-weight:800;color:#d62828;min-height:1.5em;"></div>
+  </div>
+  <script>
+    const micIconBtn = document.getElementById('micIconBtn');
+    const bubble = document.querySelector('.bubble');
+    const conversationStatus = document.getElementById('conversationStatus');
+    function speak(text){
+      if(!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.0; u.pitch = 1.05; u.volume = 1.0;
+      if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
+      window.speechSynthesis.speak(u);
+    }
+    let micPhase = 'reveal';
+    let micBusy = false;
+    function setConversationStatus(text){
+      if (conversationStatus) conversationStatus.textContent = text || '';
+    }
+    if (bubble) bubble.classList.remove('show');
+    async function runMicFlow(){
+      if (!bubble || micBusy) return;
+      await window.GPTracing?.prepareMicSupport?.().catch(() => {});
+      const expected = 'Count and circle the correct number of cookies.';
+      if (micPhase === 'reveal') {
+        bubble.classList.add('show');
+        setConversationStatus(expected);
+        speak(expected);
+        micPhase = 'repeat';
+        return;
+      }
+      micBusy = true;
+      setConversationStatus('Repeat after me.');
+      speak('Repeat after me.');
+      window.setTimeout(() => {
+        window.GPTracing?.listenForRepeat?.(expected, (pct) => {
+          micBusy = false;
+          if (pct >= 50) {
+            setConversationStatus('Excellent!');
+            speak('Excellent!');
+            return;
+          }
+          setConversationStatus('Sorry, try again!');
+          speak('Sorry, try again!');
+        });
+      }, 450);
+    }
+    if (micIconBtn) {
+      micIconBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        runMicFlow();
+      });
+    }
+    const correct = {1:'1',2:'2',3:'3'};
+    document.querySelectorAll('.pick').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.dataset.row;
+        const val = btn.dataset.val;
+        if (val === correct[row]) {
+          btn.classList.add('correct');
+          speak(row==='1' ? 'Amazing job, keep it up!' : row==='2' ? 'Nice try!' : 'Wow, you are so smart!');
+        } else {
+          speak("Sorry, that's not correct, try again!");
+        }
+      });
+    });
+    document.getElementById('prevBtn').addEventListener('click', () => { window.location.href = '../tuesday/LA23.html'; });
+    document.getElementById('nextBtn').addEventListener('click', () => { window.location.href = 'LA25.html'; });
+</script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA24",
+    defaultLevel: "A",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

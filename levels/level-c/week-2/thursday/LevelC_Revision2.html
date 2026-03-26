@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Level C • Revision 2 • Tangram Pieces Lab</title>
+  <style>
+    :root{
+      --bg1:#bde0fe; --bg2:#ffc8dd; --ink:#102a43;
+      --card:#ffffffcc; --shadow:0 18px 50px rgba(0,0,0,.16);
+      --r:22px; --good:#20c997; --bad:#ff4d6d; --warn:#ffb703;
+      font-family:"Baloo 2","Comic Sans MS","Trebuchet MS","Segoe UI",system-ui,-apple-system,Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; color:var(--ink);
+      background:
+        radial-gradient(900px 650px at 15% 0%, #fff 0%, transparent 55%),
+        radial-gradient(900px 650px at 92% 10%, #ffffffb3 0%, transparent 60%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex; justify-content:center; padding:16px;
+    }
+    .app{width:min(1100px,100%); display:flex; flex-direction:column; gap:14px}
+    header{
+      background:var(--card); border:3px solid #fff; border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    .badge{
+      padding:10px 12px; border-radius:999px; font-weight:1100; color:#fff;
+      border:2px solid #fff;
+      background:linear-gradient(135deg,#8338ec,#3a86ff);
+      display:flex; gap:10px; align-items:center;
+      text-shadow:0 2px 0 rgba(0,0,0,.16);
+    }
+    .btnRow{display:flex; gap:10px; flex-wrap:wrap}
+    a.btn, button.btn{
+      appearance:none; border:none; cursor:pointer; text-decoration:none;
+      padding:10px 12px; border-radius:14px; font-weight:1100;
+      background:#fff; color:#102a43; border:2px solid #fff;
+      box-shadow:0 10px 20px rgba(0,0,0,.12);
+      display:inline-flex; gap:8px; align-items:center;
+      transition:transform .12s ease;
+    }
+    a.btn:hover,button.btn:hover{transform:translateY(-2px)}
+    .btn.primary{background:linear-gradient(135deg,#3a86ff,#00d4ff); color:#fff}
+    .btn.warn{background:linear-gradient(135deg,#ffb703,#ffd166); color:#3a2500}
+    main{display:grid; grid-template-columns: 1.05fr .95fr; gap:14px}
+    @media (max-width:920px){ main{grid-template-columns:1fr} }
+    .panel{
+      background:var(--card); border:3px solid #fff; border-radius:var(--r);
+      box-shadow:var(--shadow); padding:14px; position:relative; overflow:hidden;
+    }
+    h2{margin:0 0 10px; font-size:22px}
+    p{margin:0 0 10px; font-weight:900; opacity:.9}
+    .stage{
+      background:
+        radial-gradient(900px 420px at 40% 0%, #fff, transparent 55%),
+        repeating-linear-gradient(0deg,#ffffffc0 0,#ffffffc0 14px,#f1f7ff 14px,#f1f7ff 28px);
+      border:2px dashed #fff; border-radius:18px; padding:14px;
+    }
+    .hud{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      margin-bottom:10px;
+      background:#ffffffd9; border:2px solid #fff; border-radius:18px; padding:10px 12px;
+    }
+    .chip{background:#fff; border:2px solid #eef2ff; padding:6px 10px; border-radius:999px; font-weight:1100}
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+    .big{font-size:20px; font-weight:1100}
+    .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    @media (max-width:640px){ .cards{grid-template-columns:repeat(2,1fr)} }
+    .card{
+      background:#fff; border:2px solid #eef2ff; border-radius:18px;
+      box-shadow:0 10px 18px rgba(0,0,0,.10);
+      padding:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+      min-height:150px;
+    }
+    .card input{
+      width:90px; padding:10px; border-radius:14px; border:2px solid #e8edff;
+      font:inherit; font-weight:1100; text-align:center;
+    }
+    .card input:focus{border-color:#3a86ff; box-shadow:0 0 0 4px rgba(58,134,255,.18); outline:none}
+    .tag{font-weight:1100; font-size:13px; background:#f6f7ff; border:2px solid #eef2ff; padding:5px 9px; border-radius:999px}
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      background:#111827; color:#fff; padding:12px 14px; border-radius:14px;
+      box-shadow:0 18px 50px rgba(0,0,0,.25);
+      font-weight:1100; display:none; z-index:50;
+      max-width:min(900px, calc(100% - 24px));
+    }
+    .toast.show{display:block; animation:pop .18s ease-out}
+    @keyframes pop{from{transform:translateX(-50%) translateY(10px); opacity:0}to{transform:translateX(-50%) translateY(0); opacity:1}}
+    .confetti{position:absolute; inset:-30px; pointer-events:none; opacity:0}
+    .confetti.on{opacity:1; animation:fall 900ms ease-out}
+    @keyframes fall{0%{transform:translateY(-18px); opacity:0} 20%{opacity:1} 100%{transform:translateY(62px); opacity:0}}
+    .miniCard{background:#fff; border:2px solid #eef2ff; border-radius:18px; padding:10px 12px; box-shadow:0 10px 18px rgba(0,0,0,.10)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="badge">🏅 Level C</div>
+        <div>
+          <
+          
+           style="font-weight:1100">Revision 2 • Tangram Pieces Lab</div>
+          <div style="font-weight:900;opacity:.85">Count & type how many pieces (then check ✅)</div>
+        </div>
+      </div>
+      <div class="btnRow">
+        <a class="btn" href="../wednesday/LevelC13.html">⬅️ Back</a>
+        <button class="btn warn" id="btnSound">🔊 Sound: ON</button>
+        <button class="btn" id="btnCheck">✅ Check</button>
+        <button class="btn" id="btnReset">🔁 Reset</button>
+        <a class="btn primary" href="../friday/LevelC_Game2.html">Next ➜</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <svg class="confetti" id="confetti" viewBox="0 0 600 160" preserveAspectRatio="none" aria-hidden="true">
+          <g opacity=".9">
+            <circle cx="40" cy="30" r="8" fill="#ffd166"/>
+            <circle cx="90" cy="60" r="7" fill="#06d6a0"/>
+            <circle cx="140" cy="35" r="9" fill="#ff4d6d"/>
+            <circle cx="190" cy="70" r="6" fill="#3a86ff"/>
+            <circle cx="240" cy="25" r="9" fill="#8338ec"/>
+            <circle cx="290" cy="60" r="7" fill="#ffb703"/>
+            <circle cx="340" cy="30" r="8" fill="#00d4ff"/>
+            <circle cx="390" cy="60" r="7" fill="#06d6a0"/>
+            <circle cx="440" cy="35" r="9" fill="#ff4d6d"/>
+            <circle cx="490" cy="70" r="6" fill="#3a86ff"/>
+            <circle cx="540" cy="25" r="9" fill="#ffd166"/>
+          </g>
+        </svg>
+
+        <div class="hud">
+          <div class="big">🧩 Tangram Set = 7 pieces</div>
+          <div class="row">
+            <div class="chip">⭐ Stars: <b id="stars">0</b></div>
+            <div class="chip">✅ Correct Boxes: <b id="ok">0</b>/3</div>
+            <div class="chip">⏱️ <b id="time">0</b>s</div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div style="font-weight:1000;margin-bottom:10px">
+            Fill in the numbers:
+          </div>
+
+          <div class="cards">
+            <div class="card">
+              <div class="tag">Triangles</div>
+              <div style="font-weight:1100">How many triangles?</div>
+              <div aria-hidden="true">
+                <!-- 5 triangles icon -->
+                <svg width="160" height="90" viewBox="0 0 160 90">
+                  <g stroke="#ff4d6d" stroke-width="3" fill="#ffd166">
+                    <polygon points="18,78 35,45 52,78"/>
+                    <polygon points="56,78 73,45 90,78"/>
+                    <polygon points="94,78 111,45 128,78"/>
+                    <polygon points="38,44 55,11 72,44"/>
+                    <polygon points="78,44 95,11 112,44"/>
+                  </g>
+                </svg>
+              </div>
+              <input id="tri" inputmode="numeric" maxlength="2" placeholder="?" aria-label="Number of triangles">
+            </div>
+
+            <div class="card">
+              <div class="tag">Square</div>
+              <div style="font-weight:1100">How many squares?</div>
+              <svg width="120" height="90" viewBox="0 0 120 90" aria-hidden="true">
+                <rect x="28" y="18" width="64" height="64" rx="12" fill="#00d4ff" stroke="#3a86ff" stroke-width="5"/>
+              </svg>
+              <input id="sq" inputmode="numeric" maxlength="2" placeholder="?" aria-label="Number of squares">
+            </div>
+
+            <div class="card">
+              <div class="tag">Parallelogram</div>
+              <div style="font-weight:1100">How many parallelograms?</div>
+              <svg width="140" height="90" viewBox="0 0 140 90" aria-hidden="true">
+                <polygon points="40,18 120,18 100,74 20,74" fill="#8338ec" stroke="#ff4d6d" stroke-width="5"/>
+              </svg>
+              <input id="para" inputmode="numeric" maxlength="2" placeholder="?" aria-label="Number of parallelograms">
+            </div>
+          </div>
+
+          <div style="margin-top:12px;font-weight:900;opacity:.9">
+            Tip: A classic tangram has <b>5 triangles</b>, <b>1 square</b>, and <b>1 parallelogram</b>.
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>🎯 Rule Reminder</h2>
+        <p>You must use <b>all seven pieces</b> when you build a tangram picture!</p>
+
+        <div class="miniCard" style="margin-bottom:10px">
+          <div style="font-weight:1100">Mini Match (tap)</div>
+          <div style="margin-top:6px;font-weight:900;opacity:.9">Which one is NOT in a tangram set?</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+            <button class="btn" data-m="circle">Circle</button>
+            <button class="btn" data-m="square">Square</button>
+            <button class="btn" data-m="triangle">Triangle</button>
+          </div>
+        </div>
+
+        <div class="miniCard">
+          <div style="font-weight:1100">Best Stars</div>
+          <div style="font-size:28px;font-weight:1100" id="best">0</div>
+        </div>
+      </aside>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+<script>
+/* ===============================
+   Level C Revision 2
+   Tracker payload: level:"C"
+   Back link: LevelCHPage.html
+   Next link: LevelC_Revision3.html
+================================*/
+const TRACKER_KEY="GP_EIS_PROGRESS";
+const PAGE_ID="LevelC_Revision2";
+const trackerPayload={level:"C", page:PAGE_ID};
+
+const $=(s)=>document.querySelector(s);
+const toastEl=$("#toast");
+const confettiEl=$("#confetti");
+const starsEl=$("#stars");
+const okEl=$("#ok");
+const timeEl=$("#time");
+const bestEl=$("#best");
+
+const tri=$("#tri"), sq=$("#sq"), para=$("#para");
+
+const btnSound=$("#btnSound");
+const btnCheck=$("#btnCheck");
+const btnReset=$("#btnReset");
+
+let soundOn=true;
+let t0=Date.now();
+let timer=null;
+let stars=0;
+
+function toast(msg){
+  toastEl.textContent=msg;
+  toastEl.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>toastEl.classList.remove("show"), 1400);
+}
+function confetti(){
+  confettiEl.classList.remove("on");
+  void confettiEl.offsetWidth;
+  confettiEl.classList.add("on");
+}
+function cheer(){
+  if(!soundOn) return;
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const t=ctx.currentTime;
+  [988,1319,1760].forEach((f,i)=>{
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type="sine"; o.frequency.setValueAtTime(f,t+i*0.09);
+    g.gain.setValueAtTime(0.0001,t+i*0.09);
+    g.gain.exponentialRampToValueAtTime(0.35,t+i*0.09+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.09+0.22);
+    o.connect(g).connect(ctx.destination);
+    o.start(t+i*0.09); o.stop(t+i*0.09+0.25);
+  });
+  setTimeout(()=>ctx.close(), 450);
+}
+function boop(){
+  if(!soundOn) return;
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const t=ctx.currentTime;
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type="square"; o.frequency.setValueAtTime(220,t);
+  o.frequency.exponentialRampToValueAtTime(160,t+0.16);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.22,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.20);
+  o.connect(g).connect(ctx.destination);
+  o.start(t); o.stop(t+0.22);
+  setTimeout(()=>ctx.close(), 350);
+}
+
+function save(extra={}){
+  const now=Date.now();
+  const elapsed=Math.floor((now-t0)/1000);
+  let data={};
+  try{ data=JSON.parse(localStorage.getItem(TRACKER_KEY)||"{}"); }catch(e){}
+  if(!data.C) data.C={};
+  data.C[PAGE_ID]={...trackerPayload, stars, tri:tri.value, sq:sq.value, para:para.value, timeSec:elapsed, ts:now, ...extra};
+  localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
+
+  const bestKey="GP_EIS_BEST_"+PAGE_ID;
+  const prev=Number(localStorage.getItem(bestKey)||"0");
+  if(stars>prev) localStorage.setItem(bestKey, String(stars));
+  bestEl.textContent=String(Math.max(stars, prev));
+}
+function loadBest(){
+  const bestKey="GP_EIS_BEST_"+PAGE_ID;
+  bestEl.textContent=localStorage.getItem(bestKey)||"0";
+}
+function tick(){ timeEl.textContent=String(Math.floor((Date.now()-t0)/1000)); }
+
+function check(){
+  const aTri=5, aSq=1, aPara=1;
+  let ok=0;
+  if(Number(tri.value)===aTri) ok++;
+  if(Number(sq.value)===aSq) ok++;
+  if(Number(para.value)===aPara) ok++;
+  okEl.textContent=String(ok);
+
+  if(ok===3){
+    stars+=5;
+    starsEl.textContent=String(stars);
+    confetti();
+    cheer();
+    toast("🎉 Perfect! You know the tangram pieces!");
+    save({perfect:true});
+  }else{
+    boop();
+    toast("Try again! Hint: total pieces = 7.");
+    save({checked:true});
+  }
+}
+
+function resetAll(){
+  tri.value=""; sq.value=""; para.value="";
+  okEl.textContent="0";
+  stars=0; starsEl.textContent="0";
+  t0=Date.now();
+  toast("Reset done ✅");
+  save({reset:true});
+}
+
+btnSound.addEventListener("click", ()=>{
+  soundOn=!soundOn;
+  btnSound.textContent = soundOn ? "🔊 Sound: ON" : "🔈 Sound: OFF";
+  save({soundOn});
+});
+btnCheck.addEventListener("click", check);
+btnReset.addEventListener("click", resetAll);
+
+// mini match
+document.querySelectorAll('button[data-m]').forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const v=btn.dataset.m;
+    const correct = v==="circle";
+    if(correct){
+      stars+=2; starsEl.textContent=String(stars);
+      confetti(); cheer();
+      toast("✅ Correct! A circle is NOT a tangram piece. +2⭐");
+      save({mini:true, correct:true});
+    }else{
+      boop(); toast("Not yet — that IS in a tangram set!");
+      save({mini:true, correct:false});
+    }
+  });
+});
+
+loadBest();
+timer=setInterval(()=>{ tick(); save(); }, 1000);
+tick();
+save({init:true});
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
+
+
+

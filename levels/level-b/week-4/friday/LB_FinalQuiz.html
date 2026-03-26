@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Level B • Final Quiz</title>
+<style>
+  :root{--bg1:#fff4b8;--bg2:#c7f7ff;--bg3:#ffd1f3;--ink:#1f2430;--card:#fff;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));padding:18px}
+  .app{width:min(1050px,98vw)}
+  .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .badge{background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 12px 28px rgba(0,0,0,.10);font-weight:1000;display:flex;gap:10px;align-items:center}
+  .btn{border:0;cursor:pointer;font-weight:1000;border-radius:14px;padding:12px 14px;background:#fff;color:var(--ink);box-shadow:0 10px 22px rgba(0,0,0,.12);text-decoration:none;display:inline-flex;gap:8px;align-items:center}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#0b1b10}
+  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
+  .title{font-size:28px;font-weight:1000;margin:6px 0 6px}
+  .subtitle{margin:0 0 12px;opacity:.85}
+  .q{border-radius:18px;padding:12px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);margin-top:10px}
+  .opt{border:0;cursor:pointer;font-weight:1000;font-size:18px;border-radius:16px;padding:12px 14px;background:#fff;box-shadow:0 10px 22px rgba(0,0,0,.12);margin:6px 6px 0 0}
+  .opt:active{transform:translateY(1px)}
+  .msg{margin-top:12px;border-radius:16px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
+  .pill{display:inline-block;background:#f6f7ff;border-radius:999px;padding:10px 12px;font-weight:1000;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);margin-right:10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Final Quiz</span></div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <a class="btn" href="../thursday/LB_Revision4.html">⬅ Back</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">Final Quiz ⭐</div>
+    <p class="subtitle">
+      Based on your book practice: pentagon=5, hexagon=6, octagon=8 vertices. :contentReference[oaicite:13]{index=13}
+      Also: a hexagon has six sides and six vertices. :contentReference[oaicite:14]{index=14}
+    </p>
+
+    <div>
+      <span class="pill">Question: <span id="qnum">0</span>/12</span>
+      <span class="pill">Correct: <span id="ok">0</span></span>
+      <span class="pill">Stars: <span id="stars">—</span></span>
+    </div>
+
+    <div class="q">
+      <div id="qtext" style="font-size:20px;font-weight:1000"></div>
+      <div id="opts"></div>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
+      <button class="btn primary" id="nextBtn">📈 Progress Report</button>
+      <button class="btn" id="finishBtn">🏁 Finish</button>
+    </div>
+
+    <div class="msg" id="msg">Press Next to begin 🎯</div>
+  </div>
+</div>
+
+<script>
+/* --- SFX + Tracker --- */
+(function(){
+  const STORE_KEY="gpeis_progress_v1";
+  let audioCtx=null;
+  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function beep(f,t,g=0.05,type="triangle"){ const c=ctx(),o=c.createOscillator(),ga=c.createGain();
+    o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
+  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
+  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
+  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
+    const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
+    const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
+    const a=acts[activityId];
+    a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
+    a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
+    db[level].updatedAt=new Date().toISOString(); save(db);
+    chime(); if(stars>=3||score>=85) cheer();
+    return a;
+  }};
+  window.__SFX__={chime,cheer};
+})();
+
+const qnum=document.getElementById("qnum");
+const ok=document.getElementById("ok");
+const stars=document.getElementById("stars");
+const qtext=document.getElementById("qtext");
+const opts=document.getElementById("opts");
+const msg=document.getElementById("msg");
+
+const Q=[
+  {q:"How many vertices does a pentagon have?", a:"5", o:["5","6","8"]},
+  {q:"How many vertices does a hexagon have?", a:"6", o:["5","6","8"]},
+  {q:"How many vertices does an octagon have?", a:"8", o:["5","6","8"]},
+  {q:"A hexagon has how many sides?", a:"6", o:["5","6","8"]},
+  {q:"Which shape has 8 vertices?", a:"Octagon", o:["Pentagon","Hexagon","Octagon"]},
+  {q:"Which shape has 5 vertices?", a:"Pentagon", o:["Pentagon","Hexagon","Octagon"]},
+  {q:"Which shape has 6 sides and 6 vertices?", a:"Hexagon", o:["Pentagon","Hexagon","Octagon"]},
+  {q:"Pick the polygon name: 8 sides", a:"Octagon", o:["Octagon","Hexagon","Pentagon"]},
+  {q:"Pick the polygon name: 5 sides", a:"Pentagon", o:["Hexagon","Pentagon","Octagon"]},
+  {q:"Pick the polygon name: 6 sides", a:"Hexagon", o:["Octagon","Hexagon","Pentagon"]},
+  {q:"If a shape has 6 vertices, it is a…", a:"Hexagon", o:["Hexagon","Pentagon","Octagon"]},
+  {q:"If a shape has 8 vertices, it is a…", a:"Octagon", o:["Hexagon","Pentagon","Octagon"]},
+];
+
+let i=-1, correct=0, locked=true;
+
+function render(){
+  const item=Q[i];
+  qnum.textContent = i+1;
+  qtext.textContent = item.q;
+  opts.innerHTML="";
+  item.o.forEach(v=>{
+    const b=document.createElement("button");
+    b.className="opt";
+    b.textContent=v;
+    b.onclick=()=>pick(v);
+    opts.appendChild(b);
+  });
+}
+
+function next(){
+  if(i >= Q.length - 1){
+    window.location.assign("../../../../ProgressReport.htmlportal=report&level=B&role=student");
+    return;
+  }
+  i++;
+  if(i>=Q.length){ finish(); return; }
+  locked=false;
+  render();
+  msg.textContent="Choose the best answer!";
+  window.__SFX__.chime();
+}
+
+function pick(v){
+  if(locked) return;
+  locked=true;
+  const item=Q[i];
+  if(v===item.a){
+    correct++; ok.textContent=correct;
+    msg.textContent="✅ Correct!";
+    window.__SFX__.cheer();
+  }else{
+    msg.textContent=`❌ Not quite. Correct answer is ${item.a}.`;
+    window.__SFX__.chime();
+  }
+  setTimeout(()=>{ locked=false; next(); }, 650);
+}
+
+async function finish(){
+  const scorePct=Math.round((correct/Q.length)*100);
+  const st=scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
+  stars.textContent="⭐".repeat(Math.max(1,st));
+  msg.textContent=`🎉 Final Quiz Done! Correct ${correct}/${Q.length} (≈${scorePct}%).`;
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LB_FinalQuiz",
+      level: "B",
+      activityType: "quiz",
+      score: scorePct,
+      stars: st,
+      skills: { reading: 2, writing: 0, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "B", activityId: "LB_FinalQuiz", score: scorePct, stars: st });
+  }
+  window.__SFX__.cheer();
+  locked=true;
+}
+
+document.getElementById("nextBtn").onclick=next;
+document.getElementById("finishBtn").onclick=finish;
+</script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+
