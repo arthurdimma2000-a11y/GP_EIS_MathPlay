@@ -12,10 +12,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
+  collection,
   doc,
   getDoc,
+  getDocs,
+  query,
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const FIREBASE_CONFIG = {
@@ -71,6 +75,19 @@ function parentProfileRef(uid) {
 
 function studentAccountRef(studentId) {
   return doc(db, "studentAccounts", canonicalStudentId(studentId));
+}
+
+function teacherStudentCredentialRef(teacherUid, studentId) {
+  const uid = String(teacherUid || "").trim();
+  const canonicalId = canonicalStudentId(studentId);
+  return doc(db, "teacherStudentCredentials", `${uid}__${canonicalId}`);
+}
+
+function teacherStudentCredentialsQuery(teacherUid) {
+  return query(
+    collection(db, "teacherStudentCredentials"),
+    where("teacherUid", "==", String(teacherUid || "").trim())
+  );
 }
 
 async function sha256(value) {
@@ -297,10 +314,46 @@ async function saveStudents(students, teacherContext = {}) {
         createdAt: student.createdAt || new Date().toISOString(),
         updatedAt: serverTimestamp()
       };
+      const teacherReadablePayload = {
+        teacherUid,
+        teacherEmail,
+        teacherName: String(student.teacherName || teacherName || "").trim(),
+        classId: normalizeClassId(student.classId),
+        studentId,
+        pin: normalizePin(student.pin),
+        level: String(student.level || "").trim().toUpperCase(),
+        displayName: String(student.displayName || student.name || "").trim(),
+        createdAt: student.createdAt || new Date().toISOString(),
+        updatedAt: serverTimestamp()
+      };
       await setDoc(studentAccountRef(canonicalId), payload, { merge: true });
+      await setDoc(teacherStudentCredentialRef(teacherUid, canonicalId), teacherReadablePayload, { merge: true });
     })
   );
   return { ok: true, count: list.length };
+}
+
+async function listTeacherStudents() {
+  if (!auth.currentUser) return [];
+  const teacherUid = String(auth.currentUser.uid || "").trim();
+  if (!teacherUid) return [];
+  const snap = await getDocs(teacherStudentCredentialsQuery(teacherUid));
+  return snap.docs
+    .map((entry) => entry.data() || {})
+    .map((student) => ({
+      teacherUid,
+      teacherEmail: normalizeEmail(student.teacherEmail),
+      teacherName: String(student.teacherName || "").trim(),
+      classId: normalizeClassId(student.classId),
+      studentId: normalizeStudentId(student.studentId),
+      pin: normalizePin(student.pin),
+      level: String(student.level || "").trim().toUpperCase(),
+      displayName: String(student.displayName || student.name || "").trim(),
+      name: String(student.displayName || student.name || "").trim(),
+      createdAt: student.createdAt || null,
+      updatedAt: student.updatedAt || null
+    }))
+    .filter((student) => student.studentId);
 }
 
 async function getStudentAccount(studentId) {
@@ -382,6 +435,7 @@ const api = {
   verifyParentLogin,
   sendParentPasswordReset,
   saveStudents,
+  listTeacherStudents,
   getStudentAccount,
   verifyStudentLogin,
   getCurrentAuthState,

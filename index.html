@@ -3270,6 +3270,34 @@
       ]).catch(() => null);
     }
 
+    let teacherStudentCloudHydrationPromise = null;
+    async function hydrateTeacherStudentsFromCloud(force = false){
+      const teacher = getTeacherSession();
+      if (!teacher || !teacher.email) return [];
+      const authSync = await getAuthSyncFast(1200);
+      if (!authSync || typeof authSync.listTeacherStudents !== "function") return [];
+      if (teacherStudentCloudHydrationPromise && !force) return await teacherStudentCloudHydrationPromise;
+
+      teacherStudentCloudHydrationPromise = (async () => {
+        const cloudStudents = await withTimeout(authSync.listTeacherStudents(), 2500);
+        const normalizedCloudStudents = dedupeStudents(Array.isArray(cloudStudents) ? cloudStudents : []);
+        if (!normalizedCloudStudents.length) return [];
+        const mergedStudents = dedupeStudents(getAllKnownStudents().concat(normalizedCloudStudents));
+        latestGeneratedStudents = mergedStudents.slice();
+        if (!sameJsonShape(getLocalStudents(), mergedStudents)) {
+          setLocalStudents(mergedStudents);
+        }
+        renderStudentTable(mergedStudents);
+        return normalizedCloudStudents;
+      })();
+
+      try {
+        return await teacherStudentCloudHydrationPromise;
+      } finally {
+        teacherStudentCloudHydrationPromise = null;
+      }
+    }
+
     function buildCloudHint(authSync){
       if (authSync) return "";
       if (typeof navigator !== "undefined" && navigator.onLine === false) {
@@ -3737,6 +3765,7 @@
           });
           clearSession();
           clearParentSession();
+          await hydrateTeacherStudentsFromCloud(true).catch(() => []);
         } else if (state.role === "parent") {
           const parent = normalizeParentRecord(state.profile || {});
           if (!parent || !parent.email) return;
@@ -4037,6 +4066,9 @@
         syncLoginBoxFromSession();
         syncSessionBanner();
       renderStudentTable();
+      if (teacherSession && teacherSession.email) {
+        hydrateTeacherStudentsFromCloud().catch(() => []);
+      }
 
         signupTopBtn.textContent = hasActiveLogin ? "Login" : "Signup";
         signupTopBtn.classList.toggle("hidden", hasActiveLogin);
@@ -4986,6 +5018,7 @@
         });
         clearSession();
         clearParentSession();
+        await hydrateTeacherStudentsFromCloud(true).catch(() => []);
         syncLevelUI();
         showAuthSubpanel("teacher-auth");
 
@@ -5045,6 +5078,7 @@
         });
         clearSession();
         clearParentSession();
+        await hydrateTeacherStudentsFromCloud(true).catch(() => []);
 
         teacherLoginStatus.innerHTML = `<span class="ok">Teacher login successful.${useCloud ? "" : " Cloud sync is offline; local teacher login was used."}</span>`;
         syncLevelUI();

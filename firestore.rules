@@ -47,6 +47,17 @@ service cloud.firestore {
         || (isStudent() && resource.data.studentId == request.auth.token.studentId);
     }
 
+    match /teacherStudentCredentials/{docId} {
+      allow create: if isTeacher()
+        && request.resource.data.teacherUid == request.auth.uid;
+
+      allow update: if isTeacher()
+        && resource.data.teacherUid == request.auth.uid
+        && request.resource.data.teacherUid == request.auth.uid;
+
+      allow read: if isTeacher() && resource.data.teacherUid == request.auth.uid;
+    }
+
     match /results/{resultId} {
       allow create, update: if (isStudent()
           && request.resource.data.studentId == request.auth.token.studentId
@@ -72,4 +83,3 @@ service cloud.firestore {
     }
   }
 }
-
