@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -10,12 +11,21 @@
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
 </style>
+
+<script>
+  document.documentElement.classList.add('gp-intro-video-pending');
+  setTimeout(function(){
+    document.documentElement.classList.remove('gp-intro-video-pending');
+  }, 60000);
+</script>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>LA9 - Triangle Trace</title>
 <link rel="stylesheet" href="../../../../shared/css/base.css" />
 <link rel="stylesheet" href="../../../../shared/css/layout.css" />
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
 <style>
   :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
 
@@ -28,6 +38,9 @@
     padding:4px;
     overflow-y:auto;
   }
+
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
+
   .card{
     width:min(96vw,1220px);
     max-height:none;
@@ -70,8 +83,8 @@
   }
 
   .home-btn{
-      width:54px;
-      height:54px;
+    width:54px;
+    height:54px;
     z-index:30;
   }
   .home-btn img{
@@ -81,7 +94,6 @@
     filter:drop-shadow(0 6px 10px rgba(0,0,0,.2));
   }
 
-  /* SVG + canvas perfectly overlay the image (no distortion) */
   .dot-layer,
   .draw-layer{
     position:absolute;
@@ -91,6 +103,7 @@
   }
   .dot-layer{pointer-events:none; z-index:1;}
   .draw-layer{z-index:2; touch-action:none; display:block; pointer-events:auto; cursor:crosshair;}
+
   .poster-note{
     position:absolute;
     right:7%;
@@ -141,11 +154,90 @@
   .line{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
   .line.show{opacity:1;transform:translateY(0);}
   .red{color:#d62828;}
+
+  /* reliable intro overlay */
+  #gpIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
+    padding:16px;
+    flex-direction:column;
+    gap:14px;
+  }
+  #gpIntroVideoOverlay.active{display:flex;}
+
+  #gpIntroVideo{
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
+    display:block;
+    border-radius:14px;
+    background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
+  }
+
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
 </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
 
 <body>
+  <div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/A9.png">
+      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463113/LA9avideo_nbpcfo.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+    <div class="gp-intro-controls">
+      <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+      <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+      <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
+    </div>
+  </div>
+
   <div class="card">
     <div class="poster-area" id="posterArea">
       <div class="poster-wrap" id="posterWrap">
@@ -155,7 +247,6 @@
 
         <img class="poster-img" id="posterImg" src="../../../../assets/images/shapes/A9.png" alt="Triangle tracing poster">
 
-        <!-- IMPORTANT: preserveAspectRatio MUST NOT be 'none' or it distorts the triangle positions -->
         <svg class="dot-layer" id="dotLayer" preserveAspectRatio="xMidYMid meet"></svg>
         <canvas class="draw-layer" id="drawLayer"></canvas>
         <div class="poster-note" id="posterNote">Are you hungry?</div>
@@ -189,6 +280,7 @@
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
 <script src="../../../../shared/js/vertex-entry.js"></script>
+
 <script>
   window.__GP_REQUIRE_INTRO_AUDIO__ = true;
   const posterWrap = document.getElementById('posterWrap');
@@ -208,19 +300,9 @@
   const nextBtn        = document.getElementById('nextBtn');
   const clearBtn       = document.getElementById('clearBtn');
 
-  /* =========================================================
-     1) TRIANGLE COORDINATES (PIXELS in ORIGINAL IMAGE SPACE)
-     ---------------------------------------------------------
-     Put coordinates in the ORIGINAL image pixel space.
-     We set SVG viewBox to naturalWidth/naturalHeight so they align perfectly.
-     ========================================================= */
-
-  // Default poster reference: replaced by posterImg.naturalWidth/Height after load
   let baseW = 1000;
   let baseH = 1400;
 
-  // Normalized coordinates calibrated to LA9a reference image.
-  // Order: [apex, leftBase, rightBase] and each value is 0..1 of image width/height.
   const SHAPES_NORM = [
     { id:'t1', pts:[ {x:0.294,y:0.286}, {x:0.106,y:0.566}, {x:0.482,y:0.566} ] },
     { id:'t2', pts:[ {x:0.706,y:0.286}, {x:0.518,y:0.566}, {x:0.894,y:0.566} ] },
@@ -349,9 +431,6 @@
     if (!vertexEntry) applyCombinedProgress(total);
   }
 
-  /* =========================================================
-     2) DRAW THE DASHED TRIANGLES (SVG) IN NATURAL IMAGE SPACE
-     ========================================================= */
   function redrawDots(){
     dotLayer.innerHTML = '';
     dotLayer.setAttribute('viewBox', `0 0 ${baseW} ${baseH}`);
@@ -383,9 +462,6 @@
     });
   }
 
-  /* =========================================================
-     3) HIGH-DPI CANVAS + SMOOTH TRACING
-     ========================================================= */
   function resizeCanvasToImage(){
     const rect = posterImg.getBoundingClientRect();
     const cssW = Math.max(1, Math.round(rect.width));
@@ -396,11 +472,10 @@
     drawLayer.style.width  = cssW + 'px';
     drawLayer.style.height = cssH + 'px';
 
-    // Real pixel buffer for crisp lines
     drawLayer.width  = Math.round(cssW * dpr);
     drawLayer.height = Math.round(cssH * dpr);
 
-    ctx.setTransform(dpr,0,0,dpr,0,0); // draw in CSS pixel coordinates
+    ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,cssW,cssH);
 
     redrawDots();
@@ -408,7 +483,6 @@
   }
 
   function imgToCanvas(pt){
-    // pt is in base image pixels; convert to current CSS pixels on canvas
     const rect = posterImg.getBoundingClientRect();
     const scaleX = rect.width / baseW;
     const scaleY = rect.height / baseH;
@@ -422,7 +496,7 @@
     shapePercents.clear();
     if (vertexEntry) vertexEntry.reset();
 
-    const spacing = 12; // smaller spacing = smoother scoring
+    const spacing = 12;
     SHAPES_PX.forEach(shape => {
       const ptsCanvas = shape.pts.map(imgToCanvas);
       const s = [];
@@ -445,10 +519,8 @@
   }
 
   function updateVisited(currPos, prevPos){
-    // Score against a swept segment (prev -> curr), not a single point.
-    // This makes tracing feel smooth and the percentage reflect full strokes.
     const rect = posterImg.getBoundingClientRect();
-    const strokeRadius = Math.max(10, 5 * 0.7); // based on lineWidth=5
+    const strokeRadius = Math.max(10, 5 * 0.7);
     const threshold = Math.max(16, rect.width * 0.018, strokeRadius + 6);
     const thr2 = threshold * threshold;
 
@@ -483,7 +555,7 @@
 
       if(hit){
         let pct = Math.round((v.filter(Boolean).length / s.length) * 100);
-        if (pct >= 98) pct = 100; // snap near-complete to full completion
+        if (pct >= 98) pct = 100;
         shapePercents.set(shape.id, pct);
         if(pct >= 100) completed.add(shape.id);
       } else {
@@ -494,10 +566,6 @@
     updateTotal();
   }
 
-  /* =========================================================
-     4) POINTER DRAWING (single system, no duplicate mouse/touch)
-        Smooth stroke using midpoint method
-     ========================================================= */
   let drawing = false;
   let last = null;
   let lastMid = null;
@@ -533,7 +601,6 @@
     const p = getPosFromPointer(e);
     const mid = { x:(prev.x+p.x)/2, y:(prev.y+p.y)/2 };
 
-    // smoother than drawing directly to p
     ctx.quadraticCurveTo(prev.x, prev.y, mid.x, mid.y);
     ctx.stroke();
 
@@ -580,9 +647,6 @@
     speak('Are you hungry?');
   });
 
-  /* =========================================================
-     5) BOOTSTRAP: use natural image size for PERFECT overlay
-     ========================================================= */
   function initAfterImageLoad(){
     baseW = posterImg.naturalWidth  || 1000;
     baseH = posterImg.naturalHeight || 1400;
@@ -604,12 +668,12 @@
       useScrollSize: true,
       isActive: () =>
         document.body.classList.contains('intro-active') ||
-        document.documentElement.classList.contains('lesson-intro-video-pending')
+        document.documentElement.classList.contains('lesson-intro-video-pending') ||
+        document.documentElement.classList.contains('gp-intro-video-pending')
     });
   }
 
   window.addEventListener('resize', () => {
-    // keep overlay and canvas aligned on any resize
     resizeCanvasToImage();
     fitCardToViewport();
   });
@@ -617,7 +681,6 @@
     window.visualViewport.addEventListener('resize', fitCardToViewport);
   }
   fitCardToViewport();
-
 </script>
 
 <script src="../../../../activity-standardizer.js"></script>
@@ -652,8 +715,8 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -742,9 +805,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -752,15 +815,109 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
 </script>
+
+<script>
+  (function(){
+    const html = document.documentElement;
+    const overlay = document.getElementById("gpIntroVideoOverlay");
+    const video = document.getElementById("gpIntroVideo");
+    const help = document.getElementById("gpIntroHelp");
+    const playBtn = document.getElementById("gpIntroPlayBtn");
+    const soundBtn = document.getElementById("gpIntroSoundBtn");
+    const skipBtn = document.getElementById("gpIntroSkipBtn");
+
+    if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+      html.classList.remove("gp-intro-video-pending");
+      return;
+    }
+
+    let revealed = false;
+    let hardTimeout = setTimeout(revealLesson, 60000);
+
+    function revealLesson(){
+      if (revealed) return;
+      revealed = true;
+      clearTimeout(hardTimeout);
+      try { video.pause(); } catch(_){}
+      overlay.classList.remove("active");
+      overlay.style.display = "none";
+      html.classList.remove("gp-intro-video-pending");
+    }
+
+    function showPlayFallback(msg){
+      help.textContent = msg || 'Tap "Play Intro" to start the video.';
+      playBtn.style.display = "inline-flex";
+    }
+
+    async function tryAutoplayMuted(){
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
+      }
+    }
+
+    async function playWithSound(){
+      try{
+        video.muted = false;
+        video.defaultMuted = false;
+        video.volume = 1;
+        await video.play();
+        help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+        playBtn.style.display = "inline-flex";
+      }
+    }
+
+    playBtn.addEventListener("click", async () => {
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = "Unable to start the intro video.";
+      }
+    });
+
+    soundBtn.addEventListener("click", playWithSound);
+    skipBtn.addEventListener("click", revealLesson);
+
+    video.addEventListener("playing", () => {
+      help.textContent = video.muted
+        ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+        : 'Sound is on. Tap "Skip Intro" to continue.';
+    });
+
+    video.addEventListener("ended", revealLesson, { once:true });
+
+    video.addEventListener("error", () => {
+      help.textContent = "Intro video failed to load. Opening page now.";
+      setTimeout(revealLesson, 800);
+    }, { once:true });
+
+    video.addEventListener("loadedmetadata", () => {
+      tryAutoplayMuted();
+    }, { once:true });
+
+    setTimeout(() => {
+      if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+    }, 1200);
+  })();
+</script>
+
 </body>
 </html>
-
-
-
-

@@ -1,7 +1,5 @@
 <!doctype html>
-
 <html lang="en">
-
 <head>
 
 <style id="gpLessonPrehide">
@@ -14,344 +12,255 @@
   }
 </style>
 
+<script>
+  document.documentElement.classList.add('gp-intro-video-pending');
+  setTimeout(function(){
+    document.documentElement.classList.remove('gp-intro-video-pending');
+  }, 60000);
+</script>
+
 <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Shape Sides ??Level C3</title>
-  <link rel="stylesheet" href="../../../../shared/css/base.css" />
-  <link rel="stylesheet" href="../../../../shared/css/layout.css" />
-  <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
-  <style>
-    :root{
-
-      --ink:#2d2d2d;
-
-      --bg:#f6f4ff;
-
-      --shadow:0 12px 26px rgba(0,0,0,.12);
-
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-
-    }
-
-    body{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:var(--bg);
-
-      padding:16px;
-
-      color:var(--ink);
-
-    }
-
-    .page{
-
-      width:min(980px,96vw);
-
-      display:flex;
-
-      flex-direction:column;
-
-      align-items:center;
-
-      gap:14px;
-
-    }
-
-    .poster-wrap{
-
-      position:relative;
-
-      width:100%;
-
-      background:#fff;
-
-      border-radius:18px;
-
-      box-shadow:var(--shadow);
-
-      overflow:hidden;
-
-    }
-
-    .poster-img{
-
-      width:100%;
-
-      height:auto;
-
-      display:block;
-
-    }
-
-    .draw-instruction{
-
-      position:absolute;
-
-      top:12%;
-
-      left:54%;
-
-      transform:translateX(-50%);
-
-      font-size:clamp(1.1rem,2vw,1.8rem);
-
-      font-weight:800;
-
-      color:#1c66d1;
-
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-
-      z-index:2;
-
-      text-align:center;
-
-      white-space:nowrap;
-
-      opacity:0;
-
-      transition:opacity .2s ease;
-
-    }
-
-    .draw-instruction.show{
-
-      opacity:1;
-
-    }
-
-    .draw-layer{
-
-      position:absolute;
-
-      border-radius:10px;
-
-      touch-action:none;
-
-      cursor:crosshair;
-
-      z-index:3;
-
-    }
-
-    .convo-line{
-
-      position:absolute;
-
-      display:none;
-
-      z-index:4;
-
-    }
-
-    .convo-line.show{display:flex;}
-
-    .line1{left:8%; top:14%;}
-
-    .line2{right:8%; top:14%;}
-
-    .bubble{
-
-      padding:10px 14px;
-
-      border-radius:16px;
-
-      font-size:1rem;
-
-      font-weight:700;
-
-      line-height:1.2;
-
-      box-shadow:0 6px 14px rgba(0,0,0,.12);
-
-      max-width:240px;
-
-    }
-
-    .bubble.baker{background:#fde3c4;}
-
-    .bubble.kid{background:#d8ebff;}
-
-    .bubble-stack{
-
-      display:flex;
-
-      flex-direction:column;
-
-      gap:6px;
-
-      align-items:flex-start;
-
-    }
-
-    .repeat-result{
-
-      font-size:.92rem;
-
-      font-weight:800;
-
-      color:#2f9f5f;
-
-      min-height:1.2em;
-
-    }
-
-    .star-row{
-
-      display:flex;
-
-      gap:4px;
-
-      color:#ffd24a;
-
-      font-weight:900;
-
-      text-shadow:0 2px 0 #8a5a00;
-
-      min-height:1.1em;
-
-    }
-
-    .tri-1{left:55.8%;top:31.6%;width:38.4%;height:18.4%;}
-
-    .tri-2{left:55.8%;top:52.6%;width:38.4%;height:18.4%;}
-
-    .tri-3{left:55.8%;top:73.6%;width:38.4%;height:18.4%;}
-
-    .controls{
-
-      display:flex;
-
-      justify-content:center;
-
-      gap:12px;
-
-      width:100%;
-
-      flex-wrap:wrap;
-
-    }
-
-    .mic-icon-btn img{
-      width:36px;
-      height:36px;
-      filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
-    }
-    .conversation-status{
-
-      min-height:1.2em;
-
-      font-size:.95rem;
-
-      font-weight:800;
-
-      color:#6c4bbf;
-
-      text-align:center;
-
-    }
-
-    .trace-progress{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      margin-top:8px;
-    }
-
-    .trace-progress__text{
-      font-size:1rem;
-      font-weight:800;
-      color:#1a5596;
-    }
-
-    .trace-progress__bar{
-      width:min(520px,92%);
-      height:14px;
-      border-radius:999px;
-      overflow:hidden;
-      background:#e7efff;
-      box-shadow:inset 0 1px 3px rgba(0,0,0,.14);
-    }
-
-    .trace-progress__fill{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,#45c5ff,#7dffb3);
-      transition:width .18s ease;
-    }
-
-    .trace-progress__message{
-      min-height:1.2em;
-      font-size:.95rem;
-      font-weight:800;
-      color:#2e9b2e;
-      text-align:center;
-    }
-
-    .btn{
-      border:none;
-
-      border-radius:999px;
-
-      padding:10px 20px;
-
-      font-weight:700;
-
-      font-size:1rem;
-
-      background:linear-gradient(180deg,#fff4b3,#ffd56a);
-
-      color:#7a4a00;
-
-      cursor:pointer;
-
-      box-shadow:0 6px 0 rgba(0,0,0,.18);
-
-      transition:transform .1s ease, box-shadow .1s ease;
-
-    }
-
-    .btn:active{
-
-      transform:translateY(2px);
-
-      box-shadow:0 3px 0 rgba(0,0,0,.18);
-
-    }
-
-  </style>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Shape Sides – Level C3</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<style>
+  :root{
+    --ink:#2d2d2d;
+    --bg:#f6f4ff;
+    --shadow:0 12px 26px rgba(0,0,0,.12);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg);
+    padding:16px;
+    color:var(--ink);
+  }
+
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
+
+  .page{
+    width:min(980px,96vw);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+
+  .poster-wrap{
+    position:relative;
+    width:100%;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+
+  .poster-img{
+    width:100%;
+    height:auto;
+    display:block;
+  }
+
+  .draw-instruction{
+    position:absolute;
+    top:12%;
+    left:54%;
+    transform:translateX(-50%);
+    font-size:clamp(1.1rem,2vw,1.8rem);
+    font-weight:800;
+    color:#1c66d1;
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+    z-index:2;
+    text-align:center;
+    white-space:nowrap;
+    opacity:0;
+    transition:opacity .2s ease;
+  }
+
+  .draw-instruction.show{
+    opacity:1;
+  }
+
+  .draw-layer{
+    position:absolute;
+    border-radius:10px;
+    touch-action:none;
+    cursor:crosshair;
+    z-index:3;
+  }
+
+  .tri-1{left:55.8%;top:31.6%;width:38.4%;height:18.4%;}
+  .tri-2{left:55.8%;top:52.6%;width:38.4%;height:18.4%;}
+  .tri-3{left:55.8%;top:73.6%;width:38.4%;height:18.4%;}
+
+  .controls{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    width:100%;
+    flex-wrap:wrap;
+  }
+
+  .trace-progress{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    margin-top:8px;
+  }
+
+  .trace-progress__text{
+    font-size:1rem;
+    font-weight:800;
+    color:#1a5596;
+  }
+
+  .trace-progress__bar{
+    width:min(520px,92%);
+    height:14px;
+    border-radius:999px;
+    overflow:hidden;
+    background:#e7efff;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.14);
+  }
+
+  .trace-progress__fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#45c5ff,#7dffb3);
+    transition:width .18s ease;
+  }
+
+  .trace-progress__message{
+    min-height:1.2em;
+    font-size:.95rem;
+    font-weight:800;
+    color:#2e9b2e;
+    text-align:center;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:10px 20px;
+    font-weight:700;
+    font-size:1rem;
+    background:linear-gradient(180deg,#fff4b3,#ffd56a);
+    color:#7a4a00;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.18);
+    transition:transform .1s ease, box-shadow .1s ease;
+  }
+
+  .btn:active{
+    transform:translateY(2px);
+    box-shadow:0 3px 0 rgba(0,0,0,.18);
+  }
+
+  #gpIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
+    padding:16px;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  #gpIntroVideoOverlay.active{display:flex;}
+
+  #gpIntroVideo{
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
+    display:block;
+    border-radius:14px;
+    background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
+  }
+
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
+</style>
 </head>
 
 <body>
 
+  <div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/LevelC3.png">
+      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463153/LC3cvideoOld_tnsblg.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+    <div class="gp-intro-controls">
+      <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+      <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+      <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
+    </div>
+  </div>
+
   <div class="page">
-
     <div class="poster-wrap" id="posterWrap">
-
       <img class="poster-img" src="../../../../assets/images/shapes/LevelC3.png" alt="Shape Sides poster">
       <div class="draw-instruction show">Draw Triangles by drawing lines to connect the red dots.</div>
 
       <canvas class="draw-layer tri-1" id="tri1"></canvas>
-
       <canvas class="draw-layer tri-2" id="tri2"></canvas>
-
       <canvas class="draw-layer tri-3" id="tri3"></canvas>
-
-
     </div>
 
     <div class="controls">
-
       <button class="btn" id="prevBtn" type="button">← Previous page</button>
-
       <button class="btn" id="resetBtn" type="button">Reset</button>
-
-
       <button class="btn" id="nextBtn" type="button">Next Page →</button>
-
     </div>
 
     <div class="trace-progress">
@@ -359,75 +268,42 @@
       <div class="trace-progress__bar"><div class="trace-progress__fill" id="traceProgressFill"></div></div>
       <div class="trace-progress__message" id="traceProgressMessage">Connect the dots to make the triangles.</div>
     </div>
+
     <div id="vertexEntryMount"></div>
   </div>
-
-
 
   <script src="../../../../shared/js/vertex-entry.js"></script>
   <script>
     const boards = [
-
       { id: "tri1", dots: [
-
         { x: 0.5, y: 0.11 },
         { x: 0.18, y: 0.84 },
         { x: 0.82, y: 0.84 }
       ]},
-
       { id: "tri2", dots: [
-
         { x: 0.22, y: 0.18 },
         { x: 0.22, y: 0.84 },
         { x: 0.82, y: 0.68 }
       ]},
-
       { id: "tri3", dots: [
-
         { x: 0.5, y: 0.16 },
         { x: 0.24, y: 0.82 },
         { x: 0.74, y: 0.82 }
       ]}
-
     ];
-
-
 
     const completionLines = [
-
       "Amazing Job!",
-
-      "Thumps up!",
-
+      "Thumbs up!",
       "Wow! you are super smart!"
-
     ];
 
-
-
     let completedCount = 0;
-
-    const drawInstruction = document.querySelector(".draw-instruction");
-
-    const micIconBtn = document.getElementById("micIconBtn");
-
-    const conversationStatus = document.getElementById("conversationStatus");
     const traceProgressPercentEl = document.getElementById("traceProgressPercent");
     const traceProgressFillEl = document.getElementById("traceProgressFill");
     const traceProgressMessageEl = document.getElementById("traceProgressMessage");
-    const convoLines = [document.getElementById("line1"), document.getElementById("line2")];
-
-    const repeatEls = [document.getElementById("repeat1"), document.getElementById("repeat2")];
-
-    const starEls = [document.getElementById("stars1"), document.getElementById("stars2")];
-
-    const expectedLines = ["What is this?", "This is a Tangram puzzle."];
-
-    const attempts = [0, 0];
     const TRACE_EDGES_PER_BOARD = 3;
     const TOTAL_TRACE_EDGES = boards.length * TRACE_EDGES_PER_BOARD;
-    let convoIndex = -1;
-    let awaitingRepeat = false;
     let combinedProgress = 0;
 
     function progressMessageFor(score){
@@ -502,378 +378,108 @@
       return score;
     }
 
-
     function speakLine(text, onend){
-
-      if (!("speechSynthesis" in window)) return;
+      if (!("speechSynthesis" in window)) {
+        if (onend) onend();
+        return;
+      }
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-
       u.rate = 0.96;
       u.pitch = 1.08;
       if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
       u.onend = () => { if (onend) onend(); };
-
       u.onerror = () => { if (onend) onend(); };
-
       window.speechSynthesis.speak(u);
-
     }
-
-
 
     function speakSequence(lines, index = 0){
-
       const line = lines[index];
-
       if (!line) return;
-
       speakLine(line, () => {
-
         setTimeout(() => speakSequence(lines, index + 1), 220);
-
       });
-
     }
-
-
-
-    function normalizeSpeech(text){
-
-      return (text || "")
-
-        .toLowerCase()
-
-        .replace(/[^\w\s]|_/g, "")
-
-        .replace(/\s+/g, " ")
-
-        .trim();
-
-    }
-
-
-
-    function scoreRepeat(expected, heard){
-
-      const expWords = normalizeSpeech(expected).split(" ").filter(Boolean);
-
-      const heardWords = normalizeSpeech(heard).split(" ").filter(Boolean);
-
-      if (!expWords.length) return 0;
-
-      const pool = [...heardWords];
-
-      let matched = 0;
-
-      expWords.forEach((w) => {
-
-        const idx = pool.indexOf(w);
-
-        if (idx !== -1) {
-
-          matched += 1;
-
-          pool.splice(idx, 1);
-
-        }
-
-      });
-
-      return Math.round((matched / expWords.length) * 100);
-
-    }
-
-
-
-    function starsForAttempt(attempt){
-
-      if (attempt === 1) return 3;
-
-      if (attempt === 2) return 2;
-
-      if (attempt === 3) return 1;
-
-      return 0;
-
-    }
-
-
-
-    function setStars(idx, count){
-
-      if (!starEls[idx]) return;
-
-      starEls[idx].innerHTML = "*".repeat(count);
-
-    }
-
-
-
-    function hideAllConvoLines(){
-
-      convoLines.forEach((el) => {
-
-        if (!el) return;
-
-        el.classList.remove("show");
-
-      });
-
-    }
-
-
-
-    function revealCurrentLine(){
-
-      if (convoIndex < 0 || convoIndex >= convoLines.length) return;
-
-      const line = convoLines[convoIndex];
-
-      if (!line) return;
-
-      line.classList.add("show");
-
-      speakLine(expectedLines[convoIndex]);
-
-      awaitingRepeat = true;
-
-    }
-
-
-
-    function listenForRepeat(expected, onDone){
-
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-      if (!SR) {
-
-        onDone(100, expected);
-
-        return;
-
-      }
-
-      const rec = new SR();
-
-      rec.lang = "en-US";
-
-      rec.interimResults = false;
-
-      rec.maxAlternatives = 1;
-
-      let finished = false;
-
-      rec.onresult = (e) => {
-
-        if (finished) return;
-
-        finished = true;
-
-        const heard = e.results?.[0]?.[0]?.transcript || "";
-
-        onDone(scoreRepeat(expected, heard), heard);
-
-      };
-
-      rec.onerror = () => {
-
-        if (finished) return;
-
-        finished = true;
-
-        onDone(0, "");
-
-      };
-
-      rec.onend = () => {
-
-        if (finished) return;
-
-        finished = true;
-
-        onDone(0, "");
-
-      };
-
-      rec.start();
-
-    }
-
-
-
-    function advanceConversation(){
-
-      convoIndex += 1;
-
-      if (convoIndex >= expectedLines.length) {
-
-        awaitingRepeat = false;
-
-        conversationStatus.textContent = "Great job!";
-
-        return;
-
-      }
-
-      revealCurrentLine();
-
-    }
-
-
 
     function setupBoard(board, onComplete){
-
       const canvas = document.getElementById(board.id);
-
       const ctx = canvas.getContext("2d");
-
       const state = {
-
         canvas,
-
         ctx,
-
         dots: board.dots,
-
         lines: [],
-
         drawing: false,
-
         startIdx: null,
-
         previewPos: null,
-
         completed: false
-
       };
 
-
-
       function resize(){
-
         const rect = canvas.getBoundingClientRect();
-
         canvas.width = rect.width;
-
         canvas.height = rect.height;
-
         draw();
       }
 
-
-
       function drawDot(x, y){
-
         ctx.save();
-
         ctx.beginPath();
-
         ctx.arc(x, y, 11, 0, Math.PI * 2);
         ctx.fillStyle = "#e33";
-
         ctx.fill();
 
         ctx.beginPath();
-
         ctx.arc(x, y, 6, 0, Math.PI * 2);
         ctx.fillStyle = "#fff";
-
         ctx.fill();
-
         ctx.restore();
-
       }
 
-
-
       function draw(){
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         ctx.lineWidth = 4;
-
         ctx.lineCap = "round";
-
         ctx.strokeStyle = "#2b2b2b";
 
         state.lines.forEach(line => {
-
           ctx.beginPath();
-
           ctx.moveTo(line.x1, line.y1);
-
           ctx.lineTo(line.x2, line.y2);
-
           ctx.stroke();
-
         });
-
-
 
         if (state.drawing && state.previewPos && state.startIdx !== null) {
-
           const start = getDotPx(state.startIdx);
-
           ctx.strokeStyle = "#6a6a6a";
-
           ctx.beginPath();
-
           ctx.moveTo(start.x, start.y);
-
           ctx.lineTo(state.previewPos.x, state.previewPos.y);
-
           ctx.stroke();
-
         }
-
-
 
         state.dots.forEach(dot => {
-
           const x = dot.x * canvas.width;
-
           const y = dot.y * canvas.height;
-
           drawDot(x, y);
-
         });
-
       }
-
-
 
       function getDotPx(index){
-
         const dot = state.dots[index];
-
         return { x: dot.x * canvas.width, y: dot.y * canvas.height };
-
       }
-
-
 
       function hitTest(pos){
-
         const threshold = 34;
-
         for (let i = 0; i < state.dots.length; i += 1) {
-
           const d = getDotPx(i);
-
           const dx = pos.x - d.x;
-
           const dy = pos.y - d.y;
-
           if (dx * dx + dy * dy <= threshold * threshold) return i;
-
         }
-
         return null;
-
       }
-
-
 
       function edgeKey(a, b){
         return a < b ? `${a}-${b}` : `${b}-${a}`;
@@ -884,68 +490,52 @@
         return Math.abs(a - b) === 1 || ((a === 0 && b === last) || (b === 0 && a === last));
       }
 
-
       function hasEdge(a, b){
-
         return state.lines.some(line => line.key === edgeKey(a, b));
-
       }
-
-
 
       function pointerPos(e){
-
         const rect = canvas.getBoundingClientRect();
-
         return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-
       }
 
-
-
       canvas.addEventListener("pointerdown", (e) => {
-
         if (state.completed) return;
-
         const pos = pointerPos(e);
-
         const idx = hitTest(pos);
-
         if (idx === null) return;
-
         state.drawing = true;
-
         state.startIdx = idx;
-
         state.previewPos = getDotPx(idx);
-
         canvas.setPointerCapture(e.pointerId);
-
         draw();
-
       });
-
-
 
       canvas.addEventListener("pointermove", (e) => {
-
         if (!state.drawing) return;
-
-        state.previewPos = (() => { const p = pointerPos(e); const idx = hitTest(p); return idx === null ? p : getDotPx(idx); })();
-
+        state.previewPos = (() => {
+          const p = pointerPos(e);
+          const idx = hitTest(p);
+          return idx === null ? p : getDotPx(idx);
+        })();
         draw();
-
       });
 
-
-
       function endPointer(e){
-
         if (!state.drawing) return;
-
         const pos = pointerPos(e);
+        const endIdx = (() => {
+          const direct = hitTest(pos);
+          if (direct !== null) return direct;
+          for (let j = 0; j < state.dots.length; j += 1) {
+            const d = getDotPx(j);
+            const dx = pos.x - d.x;
+            const dy = pos.y - d.y;
+            if (dx * dx + dy * dy <= 42 * 42) return j;
+          }
+          return null;
+        })();
 
-        const endIdx = (() => { const direct = hitTest(pos); if (direct !== null) return direct; for (let j = 0; j < state.dots.length; j += 1) { const d = getDotPx(j); const dx = pos.x - d.x; const dy = pos.y - d.y; if (dx * dx + dy * dy <= 42 * 42) return j; } return null; })();
         let addedLine = false;
         if (endIdx !== null && endIdx !== state.startIdx) {
           if (isAllowedEdge(state.startIdx, endIdx) && !hasEdge(state.startIdx, endIdx)) {
@@ -954,32 +544,23 @@
             addedLine = true;
             state.lines.push({
               key: edgeKey(state.startIdx, endIdx),
-
               x1: start.x,
-
               y1: start.y,
-
               x2: end.x,
-
               y2: end.y
-
             });
-
           }
-
         }
 
         state.drawing = false;
-
         state.startIdx = null;
-
         state.previewPos = null;
         draw();
+
         if (addedLine) {
           playTraceTick();
           saveTraceProgress();
         }
-
 
         if (!state.completed && state.lines.length >= state.dots.length) {
           state.completed = true;
@@ -987,34 +568,19 @@
         }
       }
 
-
       canvas.addEventListener("pointerup", endPointer);
-
       canvas.addEventListener("pointercancel", endPointer);
 
-
-
       state.reset = () => {
-
         state.lines = [];
-
         state.completed = false;
-
         draw();
-
       };
 
-
-
       resize();
-
       window.addEventListener("resize", resize);
-
       return state;
-
     }
-
-
 
     const boardStates = boards.map((board) => setupBoard(board, () => {
       if (completedCount >= completionLines.length) return;
@@ -1033,231 +599,260 @@
 
     updateTraceProgressUI(0);
 
-
     document.getElementById("resetBtn").addEventListener("click", () => {
-
       completedCount = 0;
-
       boardStates.forEach(state => state.reset());
       if (vertexEntry) vertexEntry.reset();
-      attempts[0] = 0;
-      attempts[1] = 0;
-      repeatEls.forEach((el) => { if (el) el.textContent = ""; });
       saveTraceProgress();
-      starEls.forEach((el) => { if (el) el.textContent = ""; });
-
-      hideAllConvoLines();
-
-      convoIndex = -1;
-
-      awaitingRepeat = false;
-
-      conversationStatus.textContent = "";
       updateTraceProgressUI(0);
     });
 
-
-
-    // Mic click is handled by activity-standardizer unified protocol.
-
-
     window.addEventListener("load", () => {
-
       speakSequence([
-
-        "?�Practice drawing shapes with 0 sides and 3 sides.",
-
-        "Circles and Ovals",
-
-        "Draw Triangles by drawing lines to connect the red dots."
-
+        "Practice drawing shapes with 0 sides and 3 sides.",
+        "Circles and Ovals.",
+        "Draw triangles by drawing lines to connect the red dots."
       ]);
-
     });
 
-
-
     const prevBtn = document.getElementById("prevBtn");
-
     const nextBtn = document.getElementById("nextBtn");
 
     if (prevBtn) {
-
       prevBtn.addEventListener("click", () => {
-
-      window.location.href = "LevelC2.html";
+        window.location.href = "LevelC2.html";
       });
-
     }
 
     if (nextBtn) {
-
       nextBtn.addEventListener("click", () => {
-
         window.location.href = "../tuesday/LevelC4.html";
       });
-
     }
-
   </script>
 
-<script src="../../../../activity-standardizer.js"></script>
-<script src="../../../../shared/js/storage.js"></script>
-<script src="../../../../shared/js/progress.js"></script>
-<script src="../../../../shared/js/tracing.js"></script>
-<script type="module">
-  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-  window.GPProgress.installTracker({
-    saveActivityResult,
-    markLoginPing,
-    defaultPageId: "LevelC3",
-    defaultLevel: "C",
-    defaultActivityType: "lesson",
-    defaultScore: 100,
-    defaultStars: 1,
-    defaultSkills: {
-      reading: 1,
-      writing: 0,
-      speaking: 1,
-      listening: 1
-    }
-  });
+  <script src="../../../../activity-standardizer.js"></script>
+  <script src="../../../../shared/js/storage.js"></script>
+  <script src="../../../../shared/js/progress.js"></script>
+  <script src="../../../../shared/js/tracing.js"></script>
+  <script type="module">
+    import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+    window.GPProgress.installTracker({
+      saveActivityResult,
+      markLoginPing,
+      defaultPageId: "LevelC3",
+      defaultLevel: "C",
+      defaultActivityType: "lesson",
+      defaultScore: 100,
+      defaultStars: 1,
+      defaultSkills: {
+        reading: 1,
+        writing: 0,
+        speaking: 1,
+        listening: 1
+      }
+    });
 
-
-
-  function getStudentSession(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-    }catch(e){
-      return null;
-    }
-  }
-
-  function inferProgressMeta(payload){
-    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-    const level = (payload && payload.level)
-      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-    const month = payload && payload.month != null ? Number(payload.month) : 1;
-    return {
-      pageId,
-      file,
-      level,
-      week: Number.isFinite(week) && week > 0 ? week : 1,
-      month: Number.isFinite(month) && month > 0 ? month : 1
-    };
-  }
-
-  function getActivityStore(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-    }catch(e){
-      return {};
-    }
-  }
-
-  function setActivityStore(store){
-    try{
-      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-    }catch(e){}
-  }
-
-  function saveLocalActivityFallback(payload){
-    const session = getStudentSession() || {};
-    const meta = inferProgressMeta(payload || {});
-    const score = payload && typeof payload.score === "number" ? payload.score : 0;
-    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-    const tracing = payload && typeof payload.tracing === "number"
-      ? payload.tracing
-      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-    const entry = {
-      pageId: meta.pageId,
-      file: meta.file,
-      level: meta.level,
-      type,
-      activityType: (payload && payload.activityType) || type,
-      score,
-      stars,
-      skills: payload && payload.skills ? payload.skills : {},
-      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-      tracing,
-      week: meta.week,
-      month: meta.month,
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-      savedAt: new Date().toISOString(),
-      ts: Date.now()
-    };
-    const store = getActivityStore();
-    store[meta.pageId] = {
-      ...(store[meta.pageId] || {}),
-      ...entry
-    };
-    setActivityStore(store);
-    try{
-      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-    }catch(e){}
-    return store[meta.pageId];
-  }
-
-  async function finishAndSave(payload){
-    const session = getStudentSession() || {};
-    const fullPayload = {
-      ...(payload || {}),
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-    };
-  
-    saveLocalActivityFallback(fullPayload);
-  
-    if (typeof window.finishActivity === "function") {
+    function getStudentSession(){
       try{
-        await window.finishActivity(fullPayload);
-      }catch(err){
-        console.warn("finishActivity failed, local fallback already saved:", err);
+        return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+      }catch(e){
+        return null;
       }
     }
-  
-    return fullPayload;
-  }
 
-  window.finishAndSave = finishAndSave;
+    function inferProgressMeta(payload){
+      const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+      const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+      const level = (payload && payload.level)
+        || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+      const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+      const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+      const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+      const month = payload && payload.month != null ? Number(payload.month) : 1;
+      return {
+        pageId,
+        file,
+        level,
+        week: Number.isFinite(week) && week > 0 ? week : 1,
+        month: Number.isFinite(month) && month > 0 ? month : 1
+      };
+    }
 
-</script>
+    function getActivityStore(){
+      try{
+        return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+      }catch(e){
+        return {};
+      }
+    }
+
+    function setActivityStore(store){
+      try{
+        localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+      }catch(e){}
+    }
+
+    function saveLocalActivityFallback(payload){
+      const session = getStudentSession() || {};
+      const meta = inferProgressMeta(payload || {});
+      const score = payload && typeof payload.score === "number" ? payload.score : 0;
+      const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+      const tracing = payload && typeof payload.tracing === "number"
+        ? payload.tracing
+        : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+      const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+      const entry = {
+        pageId: meta.pageId,
+        file: meta.file,
+        level: meta.level,
+        type,
+        activityType: (payload && payload.activityType) || type,
+        score,
+        stars,
+        skills: payload && payload.skills ? payload.skills : {},
+        completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+        tracing,
+        week: meta.week,
+        month: meta.month,
+        classId: (payload && payload.classId) || session.classId || null,
+        studentId: (payload && payload.studentId) || session.studentId || null,
+        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+        savedAt: new Date().toISOString(),
+        ts: Date.now()
+      };
+      const store = getActivityStore();
+      store[meta.pageId] = {
+        ...(store[meta.pageId] || {}),
+        ...entry
+      };
+      setActivityStore(store);
+      try{
+        localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+      }catch(e){}
+      return store[meta.pageId];
+    }
+
+    async function finishAndSave(payload){
+      const session = getStudentSession() || {};
+      const fullPayload = {
+        ...(payload || {}),
+        classId: (payload && payload.classId) || session.classId || null,
+        studentId: (payload && payload.studentId) || session.studentId || null,
+        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+      };
+
+      saveLocalActivityFallback(fullPayload);
+
+      if (typeof window.finishActivity === "function") {
+        try{
+          await window.finishActivity(fullPayload);
+        }catch(err){
+          console.warn("finishActivity failed, local fallback already saved:", err);
+        }
+      }
+
+      return fullPayload;
+    }
+
+    window.finishAndSave = finishAndSave;
+  </script>
+
+  <script>
+    (function(){
+      const html = document.documentElement;
+      const overlay = document.getElementById("gpIntroVideoOverlay");
+      const video = document.getElementById("gpIntroVideo");
+      const help = document.getElementById("gpIntroHelp");
+      const playBtn = document.getElementById("gpIntroPlayBtn");
+      const soundBtn = document.getElementById("gpIntroSoundBtn");
+      const skipBtn = document.getElementById("gpIntroSkipBtn");
+
+      if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+        html.classList.remove("gp-intro-video-pending");
+        return;
+      }
+
+      let revealed = false;
+      let hardTimeout = setTimeout(revealLesson, 60000);
+
+      function revealLesson(){
+        if (revealed) return;
+        revealed = true;
+        clearTimeout(hardTimeout);
+        try { video.pause(); } catch(e){}
+        overlay.classList.remove("active");
+        overlay.style.display = "none";
+        html.classList.remove("gp-intro-video-pending");
+      }
+
+      function showPlayFallback(msg){
+        help.textContent = msg || 'Tap "Play Intro" to start the video.';
+        playBtn.style.display = "inline-flex";
+      }
+
+      async function tryAutoplayMuted(){
+        try{
+          video.muted = true;
+          video.defaultMuted = true;
+          await video.play();
+          help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+          playBtn.style.display = "none";
+        }catch(err){
+          showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
+        }
+      }
+
+      async function playWithSound(){
+        try{
+          video.muted = false;
+          video.defaultMuted = false;
+          video.volume = 1;
+          await video.play();
+          help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+          playBtn.style.display = "none";
+        }catch(err){
+          help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+          playBtn.style.display = "inline-flex";
+        }
+      }
+
+      playBtn.addEventListener("click", async () => {
+        try{
+          video.muted = true;
+          video.defaultMuted = true;
+          await video.play();
+          help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+          playBtn.style.display = "none";
+        }catch(err){
+          help.textContent = "Unable to start the intro video.";
+        }
+      });
+
+      soundBtn.addEventListener("click", playWithSound);
+      skipBtn.addEventListener("click", revealLesson);
+
+      video.addEventListener("playing", () => {
+        help.textContent = video.muted
+          ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+          : 'Sound is on. Tap "Skip Intro" to continue.';
+      });
+
+      video.addEventListener("ended", revealLesson, { once:true });
+
+      video.addEventListener("error", () => {
+        help.textContent = "Intro video failed to load. Opening page now.";
+        setTimeout(revealLesson, 800);
+      }, { once:true });
+
+      video.addEventListener("loadedmetadata", () => {
+        tryAutoplayMuted();
+      }, { once:true });
+
+      setTimeout(() => {
+        if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+      }, 1200);
+    })();
+  </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

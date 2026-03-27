@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,29 +10,119 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
+<script>
+  document.documentElement.classList.add('gp-intro-video-pending');
+  setTimeout(function(){
+    document.documentElement.classList.remove('gp-intro-video-pending');
+  }, 60000);
+</script>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>LA24 - Circle Numbers</title>
 <link rel="stylesheet" href="../../../../shared/css/base.css" />
 <link rel="stylesheet" href="../../../../shared/css/layout.css" />
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
 <style>
   :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--ink:#2d2d2d;--bubble:#dff1ff;--bad:#d62828;--good:#2f9f5f;--shadow:0 20px 40px rgba(0,0,0,.12);}
-  body{display:flex;align-items:center;justify-content:center;background:#e7f7e7;padding:16px;color:var(--ink);}    
-  .card{width:min(980px,96vw);border-radius:18px;padding:14px 14px 18px;}    
+  body{display:flex;align-items:center;justify-content:center;background:#e7f7e7;padding:16px;color:var(--ink);}
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
+  .card{width:min(980px,96vw);border-radius:18px;padding:14px 14px 18px;}
   .poster-area{position:relative;width:min(900px,100%);margin:0 auto;border-radius:16px;overflow:hidden;}
   .poster-img{width:100%;height:auto;display:block;}
-  .bubble{position:absolute;left:12%;top:18%;padding:10px 14px;border-radius:16px;font-weight:800;font-size:1.2rem;max-width:320px;line-height:1.2;box-shadow:0 8px 18px rgba(0,0,0,.12);background:var(--bubble);}
+  .bubble{position:absolute;left:12%;top:18%;padding:10px 14px;border-radius:16px;font-weight:800;font-size:1.2rem;max-width:320px;line-height:1.2;box-shadow:0 8px 18px rgba(0,0,0,.12);background:var(--bubble);opacity:0;}
+  .bubble.show{opacity:1;}
   .bubble::after{content:"";position:absolute;left:12px;bottom:-10px;border-width:10px 8px 0 8px;border-style:solid;border-color:var(--bubble) transparent transparent transparent;}
   .pick{position:absolute;border:3px solid transparent;border-radius:999px;cursor:pointer;}
   .pick.correct{border-color:#2f9f5f;}
   .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;}
   .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+
+  #gpIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
+    padding:16px;
+    flex-direction:column;
+    gap:14px;
+  }
+  #gpIntroVideoOverlay.active{display:flex;}
+
+  #gpIntroVideo{
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
+    display:block;
+    border-radius:14px;
+    background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
+  }
+
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
 </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
 <body>
+
+<div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+  <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/A24.png">
+    <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463125/LA24avideo_nrornq.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+  <div class="gp-intro-controls">
+    <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+    <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+    <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
+  </div>
+</div>
+
   <div class="card">
     <div class="poster-area">
       <img class="poster-img" src="../../../../assets/images/shapes/A24.png" alt="Circle numbers poster">
@@ -143,8 +234,8 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -233,9 +324,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -243,18 +334,109 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+
+</script>
+
+<script>
+  (function(){
+    const html = document.documentElement;
+    const overlay = document.getElementById("gpIntroVideoOverlay");
+    const video = document.getElementById("gpIntroVideo");
+    const help = document.getElementById("gpIntroHelp");
+    const playBtn = document.getElementById("gpIntroPlayBtn");
+    const soundBtn = document.getElementById("gpIntroSoundBtn");
+    const skipBtn = document.getElementById("gpIntroSkipBtn");
+
+    if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+      html.classList.remove("gp-intro-video-pending");
+      return;
+    }
+
+    let revealed = false;
+    let hardTimeout = setTimeout(revealLesson, 60000);
+
+    function revealLesson(){
+      if (revealed) return;
+      revealed = true;
+      clearTimeout(hardTimeout);
+      try { video.pause(); } catch(e){}
+      overlay.classList.remove("active");
+      overlay.style.display = "none";
+      html.classList.remove("gp-intro-video-pending");
+    }
+
+    function showPlayFallback(msg){
+      help.textContent = msg || 'Tap "Play Intro" to start the video.';
+      playBtn.style.display = "inline-flex";
+    }
+
+    async function tryAutoplayMuted(){
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
+      }
+    }
+
+    async function playWithSound(){
+      try{
+        video.muted = false;
+        video.defaultMuted = false;
+        video.volume = 1;
+        await video.play();
+        help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+        playBtn.style.display = "inline-flex";
+      }
+    }
+
+    playBtn.addEventListener("click", async () => {
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = "Unable to start the intro video.";
+      }
+    });
+
+    soundBtn.addEventListener("click", playWithSound);
+    skipBtn.addEventListener("click", revealLesson);
+
+    video.addEventListener("playing", () => {
+      help.textContent = video.muted
+        ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+        : 'Sound is on. Tap "Skip Intro" to continue.';
+    });
+
+    video.addEventListener("ended", revealLesson, { once:true });
+
+    video.addEventListener("error", () => {
+      help.textContent = "Intro video failed to load. Opening page now.";
+      setTimeout(revealLesson, 800);
+    }, { once:true });
+
+    video.addEventListener("loadedmetadata", () => {
+      tryAutoplayMuted();
+    }, { once:true });
+
+    setTimeout(() => {
+      if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+    }, 1200);
+  })();
 </script>
 </body>
-</html>
-
-
-
-
-
-
-
+</html>

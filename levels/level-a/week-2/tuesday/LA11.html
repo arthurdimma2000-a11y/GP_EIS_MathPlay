@@ -25,6 +25,13 @@
   }
 </style>
 
+<script>
+  document.documentElement.classList.add('gp-intro-video-pending');
+  setTimeout(function(){
+    document.documentElement.classList.remove('gp-intro-video-pending');
+  }, 60000);
+</script>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>LA11 – Triangle Fish</title>
@@ -61,9 +68,7 @@
     color:var(--ink);
   }
 
-  body.intro-active .card{
-    visibility:hidden;
-  }
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
 
   .card{
     position:relative;
@@ -189,7 +194,6 @@
     50%{filter:brightness(1.12);}
   }
 
-  /* Fish bubble positions */
   .fish1-bubble{
     left:35%;
     top:27%;
@@ -369,21 +373,70 @@
     }
   }
 
-  .intro-video-wrap{
+  #gpIntroVideoOverlay{
     position:fixed;
     inset:0;
-    z-index:99999;
-    display:flex;
+    display:none;
     align-items:center;
     justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
+    padding:16px;
+    flex-direction:column;
+    gap:14px;
+  }
+  #gpIntroVideoOverlay.active{display:flex;}
+
+  #gpIntroVideo{
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
+    display:block;
+    border-radius:14px;
     background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
   }
 
-  .intro-video{
-    width:100vw;
-    height:100vh;
-    object-fit:contain;
-    background:#000;
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
   }
 
   @media (max-width:780px){
@@ -469,29 +522,20 @@
     }
   }
 </style>
-
-<style id="gpUnifiedIntroPrehide">
-  #introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-  }
-</style>
 </head>
 
-<body class="intro-active">
-  <div class="intro-video-wrap" id="introVideoWrap" aria-label="Intro video">
-    <video
-      class="intro-video"
-      id="introVideo"
-      preload="auto"
-      playsinline
-      autoplay
-      poster="../../../../assets/images/shapes/A11.png"
-    >
-      <source src="../../../../assets/video/LA11avideo.mp4" type="video/mp4">
+<body>
+  <div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/A11.png">
+      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463122/LA11avideo_vsg61e.mp4" type="video/mp4">
+      Your browser does not support the video tag.
     </video>
+    <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+    <div class="gp-intro-controls">
+      <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+      <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+      <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
+    </div>
   </div>
 
   <div class="card">
@@ -556,7 +600,8 @@
   <script src="../../../../shared/js/progress.js"></script>
   <script src="../../../../shared/js/tracing.js"></script>
 
-  <script>    window.__GP_REQUIRE_INTRO_AUDIO__ = true;
+  <script>
+    window.__GP_REQUIRE_INTRO_AUDIO__ = true;
 
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
@@ -680,7 +725,7 @@
       showLine(index);
       currentLineIndex = index;
       const bubble = lines[index].querySelector(".bubble");
-      if (bubble) speakLine(bubble.textContent || "");
+      if (bubble) speakLine((bubble.textContent || "").trim());
     }
 
     function clearConversation(){
@@ -714,7 +759,7 @@
       if (micStepIndex >= expectedLines.length) {
         micDone = true;
 
-        const totalStars = starsAwarded.reduce((a,b) => a + b, 0);
+        const totalStars = starsAwarded[0] + starsAwarded[1] + starsAwarded[2];
         const maxStars = expectedLines.length * 3;
         const score = Math.round((totalStars / maxStars) * 100);
 
@@ -1120,51 +1165,98 @@
 
   <script>
     (function(){
-      const overlay = document.getElementById("introVideoWrap");
-      const video = document.getElementById("introVideo");
-      const prehide = document.getElementById("gpUnifiedIntroPrehide");
+      const html = document.documentElement;
+      const overlay = document.getElementById("gpIntroVideoOverlay");
+      const video = document.getElementById("gpIntroVideo");
+      const help = document.getElementById("gpIntroHelp");
+      const playBtn = document.getElementById("gpIntroPlayBtn");
+      const soundBtn = document.getElementById("gpIntroSoundBtn");
+      const skipBtn = document.getElementById("gpIntroSkipBtn");
 
-      if (!overlay || !video) {
-        document.body.classList.remove("intro-active");
-        document.documentElement.classList.remove("lesson-intro-video-pending");
-        if (prehide) prehide.remove();
+      if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+        html.classList.remove("gp-intro-video-pending");
         return;
       }
 
-      let finished = false;
+      let revealed = false;
+      let hardTimeout = setTimeout(revealLesson, 60000);
 
       function revealLesson(){
-        if (finished) return;
-        finished = true;
+        if (revealed) return;
+        revealed = true;
+        clearTimeout(hardTimeout);
         try { video.pause(); } catch(e){}
+        overlay.classList.remove("active");
         overlay.style.display = "none";
-        document.body.classList.remove("intro-active");
-        document.documentElement.classList.remove("lesson-intro-video-pending");
-        if (prehide) prehide.remove();
+        html.classList.remove("gp-intro-video-pending");
       }
 
-      function startIntro(){
-        document.documentElement.classList.add("lesson-intro-video-pending");
-        document.body.classList.add("intro-active");
-        if (prehide) prehide.remove();
-        overlay.style.display = "flex";
+      function showPlayFallback(msg){
+        help.textContent = msg || 'Tap "Play Intro" to start the video.';
+        playBtn.style.display = "inline-flex";
+      }
 
-        const playPromise = video.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => {
-            setTimeout(revealLesson, 5000);
-          });
+      async function tryAutoplayMuted(){
+        try{
+          video.muted = true;
+          video.defaultMuted = true;
+          await video.play();
+          help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+          playBtn.style.display = "none";
+        }catch(err){
+          showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
         }
       }
 
-      video.controls = false;
-      video.muted = false;
-      video.currentTime = 0;
+      async function playWithSound(){
+        try{
+          video.muted = false;
+          video.defaultMuted = false;
+          video.volume = 1;
+          await video.play();
+          help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+          playBtn.style.display = "none";
+        }catch(err){
+          help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+          playBtn.style.display = "inline-flex";
+        }
+      }
+
+      playBtn.addEventListener("click", async () => {
+        try{
+          video.muted = true;
+          video.defaultMuted = true;
+          await video.play();
+          help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+          playBtn.style.display = "none";
+        }catch(err){
+          help.textContent = "Unable to start the intro video.";
+        }
+      });
+
+      soundBtn.addEventListener("click", playWithSound);
+      skipBtn.addEventListener("click", revealLesson);
+
+      video.addEventListener("playing", () => {
+        help.textContent = video.muted
+          ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+          : 'Sound is on. Tap "Skip Intro" to continue.';
+      });
 
       video.addEventListener("ended", revealLesson, { once:true });
-      video.addEventListener("error", () => setTimeout(revealLesson, 1200), { once:true });
 
-      window.addEventListener("load", startIntro, { once:true });
+      video.addEventListener("error", () => {
+        help.textContent = "Intro video failed to load. Opening page now.";
+        setTimeout(revealLesson, 800);
+      }, { once:true });
+
+      video.addEventListener("loadedmetadata", () => {
+        tryAutoplayMuted();
+      }, { once:true });
+
+      setTimeout(() => {
+        if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+      }, 1200);
     })();
   </script>
 </body>

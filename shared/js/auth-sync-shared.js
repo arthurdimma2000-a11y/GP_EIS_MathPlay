@@ -348,6 +348,7 @@ async function listTeacherStudents() {
       studentId: normalizeStudentId(student.studentId),
       pin: normalizePin(student.pin),
       level: String(student.level || "").trim().toUpperCase(),
+      cloudSynced: true,
       displayName: String(student.displayName || student.name || "").trim(),
       name: String(student.displayName || student.name || "").trim(),
       createdAt: student.createdAt || null,

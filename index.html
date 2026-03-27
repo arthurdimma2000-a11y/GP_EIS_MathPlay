@@ -1636,6 +1636,49 @@
       top:0;
       z-index:1;
     }
+    .sync-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:.83rem;
+      font-weight:900;
+      white-space:nowrap;
+      border:1px solid transparent;
+    }
+    .sync-pill.cloud{
+      background:linear-gradient(180deg,#e8fff3,#c8f3dc);
+      color:#0d6a3d;
+      border-color:#9fe0bc;
+    }
+    .sync-pill.local{
+      background:linear-gradient(180deg,#fff4df,#ffe0a8);
+      color:#8a5300;
+      border-color:#f0c36d;
+    }
+    .sync-cell{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .retry-sync-btn{
+      border:none;
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:.78rem;
+      font-weight:900;
+      cursor:pointer;
+      color:#7b4b00;
+      background:linear-gradient(180deg,#fff9e8,#ffe6b8);
+      border:1px solid #efcc7b;
+      box-shadow:0 3px 8px rgba(0,0,0,.08);
+    }
+    .retry-sync-btn:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+    }
 
     .session-banner{
       display:flex;
@@ -2403,7 +2446,7 @@
 
               <div class="manager-card">
                 <h4>Teacher Student List</h4>
-                <p>Students created by teachers are saved locally in this browser for demo/offline use.</p>
+                <p>Students created by teachers appear here immediately. Status shows whether each student is cloud synced or still local only.</p>
                 <div class="table-wrap">
                   <table>
                     <thead>
@@ -2413,11 +2456,12 @@
                         <th>Student ID</th>
                         <th>PIN</th>
                         <th>Level</th>
+                        <th>Sync</th>
                         <th>Teacher</th>
                       </tr>
                     </thead>
                     <tbody id="studentTableBody">
-                      <tr><td colspan="6" class="muted">No student IDs generated yet.</td></tr>
+                      <tr><td colspan="7" class="muted">No student IDs generated yet.</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -2973,6 +3017,22 @@
     const tabs = Array.from(document.querySelectorAll(".tab"));
     const panels = Array.from(document.querySelectorAll(".panel"));
     const sideLinks = Array.from(document.querySelectorAll(".side-link"));
+    const FAST_PREFETCH_FILES = new Set();
+    const renderCache = {
+      monthRoadmapKey: "",
+      quickLinksKey: "",
+      studentTableKey: "",
+      teacherHydrationKey: "",
+      teacherHydrationAt: 0
+    };
+    let syncLevelUIRaf = 0;
+    let loginPanelReady = false;
+    let authMiniTabs = [];
+    let authSubpanels = [];
+    let progressSnapshotKey = "";
+    let progressSnapshotValue = null;
+    let reconcileAuthAt = 0;
+    const animalPlanCache = {};
 
     const selectedLevelBadge = document.getElementById("selectedLevelBadge");
     const quickLevelText = document.getElementById("quickLevelText");
@@ -3056,7 +3116,11 @@
     (function fixImages(){
       document.querySelectorAll("img[src]").forEach(el => {
         const src = el.getAttribute("src");
+        const isPriorityImage = /^(logoImg|sidebarAvatar|lvlAImg|lvlBImg|lvlCImg)$/i.test(el.id || "");
         if (src) el.src = ASSET(src);
+        if (!el.hasAttribute("decoding")) el.setAttribute("decoding", "async");
+        if (!el.hasAttribute("loading")) el.setAttribute("loading", isPriorityImage ? "eager" : "lazy");
+        if (isPriorityImage && !el.hasAttribute("fetchpriority")) el.setAttribute("fetchpriority", "high");
       });
     })();
 
@@ -3093,6 +3157,7 @@
         osc.stop(t + duration + 0.02);
       }
 
+      function prime(){ return ctx(); }
       function click(){ beep(720, 0, 0.06, "triangle", 0.035); }
       function soft(){
         beep(540, 0, 0.08, "sine", 0.03);
@@ -3127,11 +3192,18 @@
         setTimeout(() => el.remove(), ms);
       }
 
-      return { click, soft, success, cheer, warning, toast };
+      return { prime, click, soft, success, cheer, warning, toast };
     })();
 
     function safePlay(kind){
       try{ if (FX[kind]) FX[kind](); }catch(e){}
+    }
+
+    function warmNavigationTargets(){
+      ["A", "B", "C"].forEach((level) => {
+        const files = APP_CONFIG[level]?.first || [];
+        files.slice(0, 2).forEach(prefetchAppFile);
+      });
     }
 
     function structuredCloneSafe(obj){
@@ -3270,17 +3342,51 @@
       ]).catch(() => null);
     }
 
+    function scheduleSyncLevelUI(){
+      if (syncLevelUIRaf) return;
+      syncLevelUIRaf = window.requestAnimationFrame(() => {
+        syncLevelUIRaf = 0;
+        syncLevelUI();
+      });
+    }
+
+    function warmAuthSync(){
+      getAuthSyncFast(250).catch(() => null);
+    }
+
+    function prefetchAppFile(target){
+      const cleaned = String(target || "").trim().replace(/\\/g, "/").replace(/^\/+/, "");
+      if (!cleaned || /^https?:\/\//i.test(cleaned) || FAST_PREFETCH_FILES.has(cleaned)) return;
+      FAST_PREFETCH_FILES.add(cleaned);
+      try {
+        const link = document.createElement("link");
+        link.rel = "prefetch";
+        link.as = "document";
+        link.href = resolveAppUrl(cleaned);
+        document.head.appendChild(link);
+      } catch (_) {}
+    }
+
     let teacherStudentCloudHydrationPromise = null;
     async function hydrateTeacherStudentsFromCloud(force = false){
       const teacher = getTeacherSession();
       if (!teacher || !teacher.email) return [];
+      const teacherHydrationKey = `${normalizeEmail(teacher.email)}|${teacher.id || ""}`;
+      const now = Date.now();
       const authSync = await getAuthSyncFast(1200);
       if (!authSync || typeof authSync.listTeacherStudents !== "function") return [];
+      if (!force &&
+          renderCache.teacherHydrationKey === teacherHydrationKey &&
+          (now - renderCache.teacherHydrationAt) < 15000) {
+        return [];
+      }
       if (teacherStudentCloudHydrationPromise && !force) return await teacherStudentCloudHydrationPromise;
 
       teacherStudentCloudHydrationPromise = (async () => {
         const cloudStudents = await withTimeout(authSync.listTeacherStudents(), 2500);
         const normalizedCloudStudents = dedupeStudents(Array.isArray(cloudStudents) ? cloudStudents : []);
+        renderCache.teacherHydrationKey = teacherHydrationKey;
+        renderCache.teacherHydrationAt = Date.now();
         if (!normalizedCloudStudents.length) return [];
         const mergedStudents = dedupeStudents(getAllKnownStudents().concat(normalizedCloudStudents));
         latestGeneratedStudents = mergedStudents.slice();
@@ -3367,6 +3473,7 @@
             studentId: String(student.studentId || "").trim().toUpperCase(),
             pin: String(student.pin || "").trim(),
             level: String(student.level || inferLevelFromStudentId(student.studentId) || "").trim().toUpperCase(),
+            cloudSynced: !!student.cloudSynced,
             teacherEmail: normalizeEmail(student.teacherEmail),
             teacherName: String(student.teacherName || "").trim(),
             displayName: String(student.displayName || student.name || "").trim(),
@@ -3628,7 +3735,9 @@
       }
     }
 
-    function reconcileAuthRecords(){
+    function reconcileAuthRecords(force = false){
+      const now = Date.now();
+      if (!force && (now - reconcileAuthAt) < 1200) return;
       const teachers = getTeachers();
       const parents = getParents();
       const students = getLocalStudents();
@@ -3675,6 +3784,7 @@
       if (!sameJsonShape(parents, nextParents)) setParents(nextParents);
       if (!sameJsonShape(getLocalStudents(), students)) setLocalStudents(students);
       rememberCurrentOrigin();
+      reconcileAuthAt = now;
     }
 
     function getTeacherSession(){
@@ -3713,7 +3823,7 @@
       storageRemoveItem(STORAGE_KEYS.parentSession);
     }
 
-    reconcileAuthRecords();
+    reconcileAuthRecords(true);
     latestGeneratedStudents = getAllKnownStudents().slice();
 
     function capitalize(word){
@@ -3933,7 +4043,25 @@
       return getSavedProgress()[level] || DEFAULT_PROGRESS[level];
     }
 
+    function getProgressSnapshot(){
+      const snapshotKey = [
+        storageGetItem(STORAGE_KEYS.progress) || "",
+        localStorage.getItem(STORAGE_KEYS.activities) || ""
+      ].join("||");
+      if (progressSnapshotKey === snapshotKey && progressSnapshotValue) {
+        return progressSnapshotValue;
+      }
+      progressSnapshotKey = snapshotKey;
+      progressSnapshotValue = {
+        A: getMergedProgressForLevel("A"),
+        B: getMergedProgressForLevel("B"),
+        C: getMergedProgressForLevel("C")
+      };
+      return progressSnapshotValue;
+    }
+
     function showPanel(id){
+      if (id === "panel-login") ensureLoginPanelReady();
       panels.forEach(p => p.classList.remove("active"));
       const panel = document.getElementById(id);
       if (panel) panel.classList.add("active");
@@ -3952,9 +4080,24 @@
     tabs.forEach(tab => tab.addEventListener("click", () => showPanel(tab.dataset.panel)));
     sideLinks.forEach(link => link.addEventListener("click", () => showPanel(link.dataset.panel)));
 
+    function ensureLoginPanelReady(){
+      if (loginPanelReady) return;
+      authSubpanels = Array.from(document.querySelectorAll(".auth-subpanel"));
+      authMiniTabs = Array.from(document.querySelectorAll(".auth-mini-tab"));
+      authMiniTabs.forEach(btn => {
+        btn.addEventListener("click", () => showAuthSubpanel(btn.dataset.authPanel));
+      });
+      document.querySelectorAll("button:not([type])").forEach((btn) => {
+        btn.setAttribute("type", "button");
+      });
+      installFieldToggles();
+      loginPanelReady = true;
+    }
+
     function showAuthSubpanel(id){
-      document.querySelectorAll(".auth-subpanel").forEach(el => el.classList.remove("active"));
-      document.querySelectorAll(".auth-mini-tab").forEach(el => el.classList.remove("active"));
+      ensureLoginPanelReady();
+      authSubpanels.forEach(el => el.classList.remove("active"));
+      authMiniTabs.forEach(el => el.classList.remove("active"));
       const sub = document.getElementById(id);
       if (sub) sub.classList.add("active");
       const btn = document.querySelector(`.auth-mini-tab[data-auth-panel="${id}"]`);
@@ -3963,16 +4106,9 @@
       safePlay("click");
     }
 
-    document.querySelectorAll(".auth-mini-tab").forEach(btn => {
-      btn.addEventListener("click", () => showAuthSubpanel(btn.dataset.authPanel));
-    });
-    document.querySelectorAll("button:not([type])").forEach((btn) => {
-      btn.setAttribute("type", "button");
-    });
-    installFieldToggles();
-
     function syncProgressUI(){
-      const current = getMergedProgressForLevel(selectedLevel);
+      const progress = getProgressSnapshot();
+      const current = progress[selectedLevel] || DEFAULT_PROGRESS[selectedLevel];
       const openWeeks = Math.max(1, Math.min(4, Number(current.openWeeks || 1)));
 
       lessonsMeta.textContent = `${current.lessons}%`;
@@ -3983,9 +4119,9 @@
       quizzesFill.style.width = `${current.quizzes}%`;
       tracingFill.style.width = `${current.tracing}%`;
 
-      document.getElementById("levelAWeeks").textContent = getMergedProgressForLevel("A").openWeeks;
-      document.getElementById("levelBWeeks").textContent = getMergedProgressForLevel("B").openWeeks;
-      document.getElementById("levelCWeeks").textContent = getMergedProgressForLevel("C").openWeeks;
+      document.getElementById("levelAWeeks").textContent = progress.A.openWeeks;
+      document.getElementById("levelBWeeks").textContent = progress.B.openWeeks;
+      document.getElementById("levelCWeeks").textContent = progress.C.openWeeks;
 
       summaryOpenWeeks.textContent = openWeeks;
       sidebarWeekBadge.textContent = `Open Weeks: ${openWeeks}`;
@@ -4061,13 +4197,35 @@
       roleBadgeTop.textContent = "Current Role: " + getRoleLabel();
 
       syncProgressUI();
-      renderMonthRoadmap();
-      renderQuickLinks();
+      const monthRoadmapKey = [
+        selectedMonth,
+        hasAppAccess() ? "open" : "locked"
+      ].join("|");
+      if (renderCache.monthRoadmapKey !== monthRoadmapKey) {
+        renderCache.monthRoadmapKey = monthRoadmapKey;
+        renderMonthRoadmap();
+      }
+
+      const progress = getProgressSnapshot();
+      const quickLinksKey = [
+        selectedLevel,
+        selectedMonth,
+        getActiveStudentLevel() || "",
+        hasStudentLessonAccess() ? "open" : "locked",
+        (progress[selectedLevel] || DEFAULT_PROGRESS[selectedLevel]).openWeeks
+      ].join("|");
+      if (renderCache.quickLinksKey !== quickLinksKey) {
+        renderCache.quickLinksKey = quickLinksKey;
+        renderQuickLinks();
+      }
+
         syncLoginBoxFromSession();
         syncSessionBanner();
       renderStudentTable();
       if (teacherSession && teacherSession.email) {
-        hydrateTeacherStudentsFromCloud().catch(() => []);
+        window.setTimeout(() => {
+          hydrateTeacherStudentsFromCloud().catch(() => []);
+        }, 0);
       }
 
         signupTopBtn.textContent = hasActiveLogin ? "Login" : "Signup";
@@ -4112,7 +4270,7 @@
       if (studentLevelInput && studentLevelInput.dataset.userSelected !== "1") {
         studentLevelInput.value = level;
       }
-      syncLevelUI();
+      scheduleSyncLevelUI();
       showPanel("panel-links");
       safePlay("soft");
       FX.toast(`${APP_CONFIG[level].label} selected.`, "📚");
@@ -4178,6 +4336,7 @@
       }
 
       safePlay("soft");
+      prefetchAppFile(targetFile);
       window.location.assign(targetUrl);
     }
 
@@ -4292,6 +4451,13 @@
       safePlay("soft");
       if (month !== 1) FX.toast(`Month ${month} weeks are ready for future lesson planning.`, "📅");
     }, true);
+    monthRoadmapGrid?.addEventListener("keydown", (e) => {
+      const card = e.target.closest(".month-card.month-clickable[data-month]");
+      if (!card) return;
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      card.click();
+    });
 
     quickGrid.addEventListener("click", (e) => {
       const btn = e.target.closest(".day-lesson-btn[data-file]");
@@ -4421,6 +4587,7 @@
     }
 
     function buildAnimalPlanForLevel(level){
+      if (animalPlanCache[level]) return animalPlanCache[level];
       const seed = String(level || "A").charCodeAt(0);
       const pool = ROADMAP_ANIMALS.slice();
 
@@ -4440,210 +4607,125 @@
           idx += 1;
         });
       }
+      animalPlanCache[level] = plan;
       return plan;
     }
 
     function renderMonthRoadmap(){
       if (!monthRoadmapGrid) return;
-      monthRoadmapGrid.innerHTML = "";
-
+      const canOpenMonths = hasAppAccess();
+      let html = "";
       for (let month = 1; month <= 12; month += 1) {
-        const monthCard = document.createElement("article");
-        monthCard.className = "month-card " + (month === selectedMonth ? "active-month" : "future-month");
-        monthCard.classList.add("month-clickable");
-        monthCard.dataset.month = String(month);
-
-        const monthHead = document.createElement("div");
-        monthHead.className = "month-head month-simple";
-        monthHead.innerHTML = `<h4 class="month-title">Month ${month}</h4>`;
-
-        const monthBody = document.createElement("div");
-        monthBody.className = "month-body month-body-simple";
-
-        const figure = document.createElement("div");
-        figure.className = "month-figure";
-        figure.innerHTML = `<img src="${getMonthHumanImage(month)}" alt="Month ${month} character">`;
-
-        monthBody.appendChild(figure);
-        monthCard.appendChild(monthHead);
-        monthCard.appendChild(monthBody);
-        monthCard.tabIndex = 0;
-        monthCard.setAttribute("role", "button");
-        monthCard.setAttribute("aria-label", hasAppAccess() ? `Open Month ${month} weeks` : `Login required before opening Month ${month}`);
-        monthCard.addEventListener("click", () => {
-          if (!hasAppAccess()) {
-            showPanel("panel-login");
-            studentLoginStatus.innerHTML = `<span class="danger">Please login first before opening Months and Weeks.</span>`;
-            FX.toast("Login first to open Months and Weeks.", "🔐");
-            safePlay("warning");
-            return;
-          }
-          selectedMonth = month;
-          renderMonthRoadmap();
-          renderQuickLinks();
-          showPanel("panel-links");
-          if (month !== 1) {
-            FX.toast(`Month ${month} weeks are ready for future lesson planning.`, "📅");
-          }
-        });
-        monthCard.addEventListener("keydown", (ev) => {
-          if (ev.key !== "Enter" && ev.key !== " ") return;
-          ev.preventDefault();
-          monthCard.click();
-        });
-        monthRoadmapGrid.appendChild(monthCard);
+        html += `
+          <article
+            class="month-card ${month === selectedMonth ? "active-month" : "future-month"} month-clickable"
+            data-month="${month}"
+            tabindex="0"
+            role="button"
+            aria-label="${canOpenMonths ? `Open Month ${month} weeks` : `Login required before opening Month ${month}`}"
+          >
+            <div class="month-head month-simple">
+              <h4 class="month-title">Month ${month}</h4>
+            </div>
+            <div class="month-body month-body-simple">
+              <div class="month-figure">
+                <img src="${getMonthHumanImage(month)}" alt="Month ${month} character" loading="lazy" decoding="async">
+              </div>
+            </div>
+          </article>
+        `;
       }
+      monthRoadmapGrid.innerHTML = html;
     }
 
     function renderQuickLinks(){
-      quickGrid.innerHTML = "";
       const conf = APP_CONFIG[selectedLevel] || APP_CONFIG.A;
       const animalPlan = buildAnimalPlanForLevel(selectedLevel);
       const monthHasLessons = selectedMonth === 1;
       const accessUnlocked = hasStudentLessonAccess();
       const sessionLevel = getActiveStudentLevel() || selectedLevel;
+      const firstWeekFiles = monthHasLessons ? weekFiles(sessionLevel, 1) : [];
+      const progress = getProgressSnapshot();
+      let html = "";
+
+      firstWeekFiles.slice(0, 3).forEach(prefetchAppFile);
 
         for(let week = 1; week <= 4; week++){
-          const unlocked = accessUnlocked && monthHasLessons && isWeekUnlocked(sessionLevel, week);
+          const unlocked = accessUnlocked && monthHasLessons && week <= (progress[sessionLevel]?.openWeeks || 1);
         const files = monthHasLessons ? weekFiles(sessionLevel, week) : [];
         const grouped = groupFilesByDay(files);
         const weekStyle = WEEK_STYLE_MAP[week] || "red";
-
-        const weekCard = document.createElement("article");
-        weekCard.className = "week-card";
-
-        const weekTop = document.createElement("div");
-        weekTop.className = "week-top";
-
-        const left = document.createElement("div");
-        left.innerHTML = `
-          <div class="quick-chip">${conf.label}</div>
-          <h4 class="week-title">Month ${selectedMonth} • Week ${week}</h4>
-        `;
-
-        const right = document.createElement("div");
-        right.className = "lock-pill " + (unlocked ? "open" : "locked");
-        right.textContent = !accessUnlocked
-          ? "Login Required"
-          : monthHasLessons
-          ? (unlocked ? `Week ${week} Open` : `Week ${week} Locked`)
-          : `Planned Week ${week}`;
-
-        weekTop.appendChild(left);
-        weekTop.appendChild(right);
-        weekCard.appendChild(weekTop);
-
-        const daysGrid = document.createElement("div");
-        daysGrid.className = "week-format-grid";
-
-        const weekLabel = document.createElement("div");
-        weekLabel.className = `week-label-tv ${weekStyle}`;
-        weekLabel.innerHTML = `<div><strong>Week</strong><span>${week}</span></div>`;
-        daysGrid.appendChild(weekLabel);
-
+        let daysHtml = `<div class="week-label-tv ${weekStyle}"><div><strong>Week</strong><span>${week}</span></div></div>`;
         DAY_ORDER.forEach(day => {
-          const dayCard = document.createElement("div");
-          dayCard.className = `day-tv ${weekStyle}`;
-
-          const dayHead = document.createElement("div");
-          dayHead.className = "day-tv-head";
-          dayHead.innerHTML = `
-            <div>
-              <div class="day-tv-week">Week ${week}</div>
-              <h5 class="day-tv-title">${DAY_LABELS[day].slice(0,3).toUpperCase()}</h5>
-            </div>
-          `;
-
-          const dots = document.createElement("div");
-          dots.className = "tv-dots";
           const dotCount = week === 4 ? 6 : 3;
-          for (let i = 0; i < dotCount; i += 1) {
-            const dot = document.createElement("span");
-            dots.appendChild(dot);
-          }
-          dayHead.appendChild(dots);
-          dayCard.appendChild(dayHead);
-
-          const body = document.createElement("div");
-          body.className = "day-tv-body";
-
+          const dotsHtml = new Array(dotCount).fill("<span></span>").join("");
           const animalPath = animalPlan[week]?.[day];
-          const animalVisual = document.createElement("div");
-          animalVisual.className = "animal-visual" + (animalPath ? "" : " pending");
-          animalVisual.innerHTML = animalPath
-            ? `<img src="${animalPath}" alt="" loading="lazy">`
-            : `Animal image pending`;
-          body.appendChild(animalVisual);
-
-          const lessonStack = document.createElement("div");
-          lessonStack.className = "day-lesson-list";
+          let lessonStackHtml = "";
 
           if (!accessUnlocked) {
-            const empty = document.createElement("div");
-            empty.className = "empty-day";
-            empty.textContent = "Login to reveal lessons.";
-            lessonStack.appendChild(empty);
+            lessonStackHtml = `<div class="empty-day">Login to reveal lessons.</div>`;
           } else if (!monthHasLessons) {
-            const empty = document.createElement("div");
-            empty.className = "empty-day";
-            empty.textContent = `${DAY_LABELS[day]} plan coming soon.`;
-            lessonStack.appendChild(empty);
+            lessonStackHtml = `<div class="empty-day">${DAY_LABELS[day]} plan coming soon.</div>`;
           } else if (!grouped[day].length){
-            const empty = document.createElement("div");
-            empty.className = "empty-day";
-            empty.textContent = "No lesson listed for this day.";
-            lessonStack.appendChild(empty);
+            lessonStackHtml = `<div class="empty-day">No lesson listed for this day.</div>`;
           } else {
-            grouped[day].forEach(file => {
-              const btn = document.createElement("button");
-              btn.className = "day-lesson-btn";
-              btn.type = "button";
-              btn.disabled = !unlocked;
-              btn.dataset.file = file;
-              btn.textContent = getLessonDisplayName(file);
-              lessonStack.appendChild(btn);
-            });
+            lessonStackHtml = grouped[day].map((file) => `
+              <button class="day-lesson-btn" type="button" ${unlocked ? "" : "disabled"} data-file="${file}">
+                ${getLessonDisplayName(file)}
+              </button>
+            `).join("");
           }
 
-          body.appendChild(lessonStack);
-          dayCard.appendChild(body);
-          daysGrid.appendChild(dayCard);
+          daysHtml += `
+          <div class="day-tv ${weekStyle}">
+            <div class="day-tv-head">
+              <div>
+                <div class="day-tv-week">Week ${week}</div>
+                <h5 class="day-tv-title">${DAY_LABELS[day].slice(0,3).toUpperCase()}</h5>
+              </div>
+              <div class="tv-dots">${dotsHtml}</div>
+            </div>
+            <div class="day-tv-body">
+              <div class="animal-visual${animalPath ? "" : " pending"}">
+                ${animalPath ? `<img src="${animalPath}" alt="" loading="lazy" decoding="async">` : `Animal image pending`}
+              </div>
+              <div class="day-lesson-list">${lessonStackHtml}</div>
+            </div>
+          </div>`;
         });
-
-        weekCard.appendChild(daysGrid);
-
-        const row = document.createElement("div");
-        row.className = "row";
-
-        const openWeekBtn = document.createElement("button");
-        openWeekBtn.className = "btn " + (unlocked ? "btn-primary" : "btn-soft");
-        openWeekBtn.dataset.week = String(week);
-        openWeekBtn.dataset.action = "open-week-lessons";
-        openWeekBtn.textContent = !accessUnlocked ? "Login Required" : monthHasLessons ? (unlocked ? "Open Week Lessons" : "Week Locked") : "Week Plan";
-        openWeekBtn.disabled = !accessUnlocked || !monthHasLessons || !unlocked;
-        openWeekBtn.addEventListener("click", () => {
-          if (!unlocked) return;
-          showLessonChooser(`${conf.label} • Week ${week}`, "Choose a lesson", files);
-        });
-
-        const openFirstBtn = document.createElement("button");
-        openFirstBtn.className = "btn btn-soft";
-        openFirstBtn.dataset.week = String(week);
-        openFirstBtn.dataset.action = "open-week-first";
-        if (files[0]) openFirstBtn.dataset.file = files[0];
-        openFirstBtn.textContent = !accessUnlocked ? "Login Required" : monthHasLessons ? "Open First Lesson in Week" : "Coming Soon";
-        openFirstBtn.disabled = !accessUnlocked || !monthHasLessons || !unlocked || !files.length;
-        openFirstBtn.addEventListener("click", () => {
-          if (!unlocked || !files.length) return;
-          gotoFile(files[0]);
-        });
-
-        row.appendChild(openWeekBtn);
-        row.appendChild(openFirstBtn);
-        weekCard.appendChild(row);
-
-        quickGrid.appendChild(weekCard);
+        html += `
+        <article class="week-card">
+          <div class="week-top">
+            <div>
+              <div class="quick-chip">${conf.label}</div>
+              <h4 class="week-title">Month ${selectedMonth} • Week ${week}</h4>
+            </div>
+            <div class="lock-pill ${unlocked ? "open" : "locked"}">
+              ${!accessUnlocked
+                ? "Login Required"
+                : monthHasLessons
+                ? (unlocked ? `Week ${week} Open` : `Week ${week} Locked`)
+                : `Planned Week ${week}`}
+            </div>
+          </div>
+          <div class="week-format-grid">${daysHtml}</div>
+          <div class="row">
+            <button class="btn ${unlocked ? "btn-primary" : "btn-soft"}" data-week="${week}" data-action="open-week-lessons" ${!accessUnlocked || !monthHasLessons || !unlocked ? "disabled" : ""}>
+              ${!accessUnlocked ? "Login Required" : monthHasLessons ? (unlocked ? "Open Week Lessons" : "Week Locked") : "Week Plan"}
+            </button>
+            <button class="btn btn-soft" data-week="${week}" data-action="open-week-first" ${files[0] ? `data-file="${files[0]}"` : ""} ${!accessUnlocked || !monthHasLessons || !unlocked || !files.length ? "disabled" : ""}>
+              ${!accessUnlocked ? "Login Required" : monthHasLessons ? "Open First Lesson in Week" : "Coming Soon"}
+            </button>
+          </div>
+        </article>`;
       }
+      quickGrid.innerHTML = html;
+      quickGrid.querySelectorAll(".day-lesson-btn[data-file], button[data-action='open-week-first'][data-file]").forEach((btn) => {
+        const file = btn.dataset.file;
+        if (!file) return;
+        btn.addEventListener("pointerenter", () => prefetchAppFile(file), { passive:true, once:true });
+        btn.addEventListener("focus", () => prefetchAppFile(file), { passive:true, once:true });
+      });
     }
 
     function openFirstMappedLesson(level){
@@ -5018,9 +5100,11 @@
         });
         clearSession();
         clearParentSession();
-        await hydrateTeacherStudentsFromCloud(true).catch(() => []);
         syncLevelUI();
         showAuthSubpanel("teacher-auth");
+        window.setTimeout(() => {
+          hydrateTeacherStudentsFromCloud(true).then(() => scheduleSyncLevelUI()).catch(() => []);
+        }, 0);
 
         teacherSignupStatus.innerHTML = teacherRecord.mode === "existing"
           ? `<span class="ok">Teacher account updated and logged in successfully.${useCloud ? "" : " Cloud sync is offline; this device will use local login for now."}</span>`
@@ -5078,11 +5162,13 @@
         });
         clearSession();
         clearParentSession();
-        await hydrateTeacherStudentsFromCloud(true).catch(() => []);
 
         teacherLoginStatus.innerHTML = `<span class="ok">Teacher login successful.${useCloud ? "" : " Cloud sync is offline; local teacher login was used."}</span>`;
         syncLevelUI();
         showAuthSubpanel("teacher-auth");
+        window.setTimeout(() => {
+          hydrateTeacherStudentsFromCloud(true).then(() => scheduleSyncLevelUI()).catch(() => []);
+        }, 0);
         safePlay("success");
         FX.toast(`Welcome Teacher ${teacher.name}!`, "🎓");
         speakAnnouncement(`Hello Teacher ${teacher.name || teacher.email || ""}.`);
@@ -5345,6 +5431,81 @@
       return String(next).padStart(3, "0");
     }
 
+    async function syncStudentsToCloud(studentsToSync){
+      const teacher = getTeacherSession();
+      if (!teacher || !teacher.email) {
+        return { ok: false, reason: "Teacher session is required." };
+      }
+
+      const authSync = await getAuthSync().catch(() => null);
+      if (!authSync || typeof authSync.saveStudents !== "function") {
+        return { ok: false, reason: "Cloud sync is not available right now." };
+      }
+
+      const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
+      const liveTeacherPassword =
+        (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
+        (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
+      const teacherPassword =
+        (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
+        liveTeacherPassword;
+
+      try {
+        await authSync.saveStudents(studentsToSync, {
+          email: teacher.email,
+          password: teacherPassword,
+          name: teacher.name
+        });
+        return { ok: true };
+      } catch (error) {
+        return {
+          ok: false,
+          reason: (error && error.message) ? error.message : "Cloud sync failed."
+        };
+      }
+    }
+
+    function markStudentsCloudSynced(studentIds){
+      const syncedStudentIds = new Set((Array.isArray(studentIds) ? studentIds : []).map((studentId) => canonicalStudentId(studentId)));
+      const syncedStudents = dedupeStudents(
+        getAllKnownStudents().map((student) => (
+          syncedStudentIds.has(canonicalStudentId(student.studentId))
+            ? { ...student, cloudSynced: true }
+            : student
+        ))
+      );
+      latestGeneratedStudents = syncedStudents.slice();
+      setRecentGeneratedStudents(syncedStudents);
+      setLocalStudents(syncedStudents);
+      renderStudentTable(syncedStudents);
+      return syncedStudents;
+    }
+
+    async function retryStudentCloudSync(studentId){
+      const canonicalId = canonicalStudentId(studentId);
+      const targetStudent = getAllKnownStudents().find((student) => canonicalStudentId(student.studentId) === canonicalId);
+      if (!targetStudent) {
+        teacherGeneratorStatus.innerHTML = `<span class="danger">Could not find that generated student record to retry.</span>`;
+        safePlay("warning");
+        return;
+      }
+
+      teacherGeneratorStatus.innerHTML = `<span class="muted">Retrying cloud sync for ${targetStudent.studentId}...</span>`;
+      const result = await syncStudentsToCloud([targetStudent]);
+      if (!result.ok) {
+        teacherGeneratorStatus.innerHTML = `<span class="danger">${targetStudent.studentId} is still local only. ${result.reason || "Cloud sync failed."}</span>`;
+        safePlay("warning");
+        FX.toast(`${targetStudent.studentId} sync failed.`, "⚠️", 3200);
+        renderStudentTable(getAllKnownStudents());
+        return;
+      }
+
+      markStudentsCloudSynced([targetStudent.studentId]);
+      teacherGeneratorStatus.innerHTML = `<span class="ok">${targetStudent.studentId} is now cloud synced and can be used on other devices.</span>`;
+      safePlay("success");
+      FX.toast(`${targetStudent.studentId} synced to cloud.`, "🪪", 3200);
+    }
+
     async function handleGenerateStudents(){
       const teacher = getTeacherSession();
       if (!teacher || !teacher.email) {
@@ -5375,41 +5536,12 @@
           studentId,
           pin: randomPin(),
           level,
+          cloudSynced: false,
           teacherEmail: teacher.email,
           teacherName: teacher.name,
           displayName: `${level} Student ${serial}`,
           createdAt: new Date().toISOString()
         });
-      }
-
-      teacherGeneratorStatus.innerHTML = `<span class="muted">Saving generated Student IDs to cloud...</span>`;
-
-      const authSync = await getAuthSync().catch(() => null);
-      const rememberedTeacher = teacher && teacher.email
-        ? getRememberedCredential("teacher", teacher.email)
-        : null;
-
-      const liveTeacherPassword =
-        (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
-        (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
-
-      const teacherPassword =
-        (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
-        liveTeacherPassword;
-
-      let cloudSaved = false;
-
-      if (authSync && typeof authSync.saveStudents === "function") {
-        try {
-          await authSync.saveStudents(newStudents, {
-            email: teacher.email,
-            password: teacherPassword,
-            name: teacher.name
-          });
-          cloudSaved = true;
-        } catch (_) {
-          cloudSaved = false;
-        }
       }
 
       const combinedStudents = dedupeStudents(getAllKnownStudents().concat(newStudents));
@@ -5426,17 +5558,26 @@
         studentLevelInput.dataset.userSelected = "1";
       }
 
-      if (!cloudSaved) {
-        teacherGeneratorStatus.innerHTML = `<span class="danger">${newStudents.length} Student ID(s) were generated on this device only. Cloud sync failed, so they will not work on other devices yet. Please check internet, login again as Teacher, and generate again.</span>`;
-        safePlay("warning");
-        FX.toast("Cloud sync failed. IDs are local only.", "⚠️", 4200);
-        return;
-      }
+      teacherGeneratorStatus.innerHTML = `<span class="muted">${newStudents.length} Student ID(s) generated. They are now visible in the Teacher Student List. Syncing them to cloud...</span>`;
 
-      teacherGeneratorStatus.innerHTML = `<span class="ok">${newStudents.length} Student ID(s) created and saved to cloud successfully. Students can now login on other devices.</span>`;
-      safePlay("success");
-      setTimeout(() => safePlay("cheer"), 100);
-      FX.toast(`${newStudents.length} Student ID(s) saved for cross-device use.`, "🪪", 3200);
+      window.setTimeout(async () => {
+        const syncResult = await syncStudentsToCloud(newStudents);
+        const cloudSaved = !!syncResult.ok;
+
+        if (!cloudSaved) {
+          teacherGeneratorStatus.innerHTML = `<span class="danger">${newStudents.length} Student ID(s) were generated on this device only. Cloud sync failed, so they will not work on other devices yet. Please check internet, login again as Teacher, and use Retry sync.</span>`;
+          safePlay("warning");
+          FX.toast("Cloud sync failed. IDs are local only.", "⚠️", 4200);
+          renderStudentTable(getAllKnownStudents());
+          return;
+        }
+
+        markStudentsCloudSynced(newStudents.map((student) => student.studentId));
+        teacherGeneratorStatus.innerHTML = `<span class="ok">${newStudents.length} Student ID(s) created and saved to cloud successfully. Students can now login on other devices.</span>`;
+        safePlay("success");
+        setTimeout(() => safePlay("cheer"), 100);
+        FX.toast(`${newStudents.length} Student ID(s) saved for cross-device use.`, "🪪", 3200);
+      }, 0);
     }
 
     function renderStudentTable(studentList){
@@ -5468,8 +5609,20 @@
         students = providedStudents.filter((s) => String(s && s.teacherName || "").trim().toLowerCase() === teacherName);
       }
 
+      const studentTableKey = JSON.stringify(students.map((s) => ({
+        classId: s.classId || "",
+        studentId: s.studentId || "",
+        pin: s.pin || "",
+        level: s.level || "",
+        teacherName: s.teacherName || "",
+        teacherEmail: s.teacherEmail || "",
+        cloudSynced: !!s.cloudSynced
+      })));
+      if (renderCache.studentTableKey === studentTableKey) return;
+      renderCache.studentTableKey = studentTableKey;
+
       if (!students.length) {
-        studentTableBody.innerHTML = `<tr><td colspan="6" class="muted">No student IDs generated yet.</td></tr>`;
+        studentTableBody.innerHTML = `<tr><td colspan="7" class="muted">No student IDs generated yet.</td></tr>`;
         return;
       }
 
@@ -5480,6 +5633,12 @@
           <td>${s.studentId || ""}</td>
           <td>${s.pin || ""}</td>
           <td>${s.level || ""}</td>
+          <td>
+            <div class="sync-cell">
+              <span class="sync-pill ${s.cloudSynced ? "cloud" : "local"}">${s.cloudSynced ? "Cloud synced" : "Local only"}</span>
+              ${s.cloudSynced ? "" : `<button class="retry-sync-btn" type="button" data-retry-student-id="${s.studentId}">Retry sync</button>`}
+            </div>
+          </td>
           <td>${s.teacherName || s.teacherEmail || ""}</td>
         </tr>
       `).join("");
@@ -5585,6 +5744,18 @@
     parentResetPasswordBtn.addEventListener("click", handleParentResetPassword);
     document.getElementById("generateStudentsBtn").addEventListener("click", handleGenerateStudents);
     document.getElementById("copyStudentsBtn").addEventListener("click", copyGeneratedStudents);
+    studentTableBody.addEventListener("click", async (event) => {
+      const retryBtn = event.target.closest("[data-retry-student-id]");
+      if (!retryBtn) return;
+      const studentId = String(retryBtn.dataset.retryStudentId || "").trim();
+      if (!studentId) return;
+      retryBtn.disabled = true;
+      try {
+        await retryStudentCloudSync(studentId);
+      } finally {
+        retryBtn.disabled = false;
+      }
+    });
     document.getElementById("openParentPortalBtn").addEventListener("click", openParentPortal);
 
     studentPinInput.addEventListener("keydown", (e) => {
@@ -5604,14 +5775,53 @@
       }, { passive:true });
     });
 
-    window.addEventListener("storage", syncLevelUI);
-    window.addEventListener("focus", syncLevelUI);
-    window.addEventListener("pageshow", syncLevelUI);
+    window.addEventListener("storage", scheduleSyncLevelUI);
+    window.addEventListener("focus", scheduleSyncLevelUI);
+    window.addEventListener("pageshow", scheduleSyncLevelUI);
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) syncLevelUI();
+      if (!document.hidden) scheduleSyncLevelUI();
     });
 
-    getAuthSync().then(() => hydrateCloudSession()).then(() => syncLevelUI()).catch(() => null);
+    [
+      teacherLoginEmail,
+      teacherLoginPassword,
+      teacherSignupEmail,
+      teacherSignupPassword,
+      parentLoginEmail,
+      parentLoginPassword,
+      parentSignupEmail,
+      parentSignupPassword,
+      studentIdInput,
+      studentPinInput,
+      studentClassIdInput,
+      document.getElementById("teacherLoginBtn"),
+      document.getElementById("teacherSignupBtn"),
+      document.getElementById("parentLoginBtn"),
+      document.getElementById("parentSignupBtn"),
+      document.getElementById("generateStudentsBtn")
+    ].filter(Boolean).forEach((el) => {
+      el.addEventListener("pointerenter", warmAuthSync, { passive:true });
+      el.addEventListener("focus", warmAuthSync, { passive:true });
+    });
+
+    const primeFastUX = () => {
+      warmAuthSync();
+      try { FX.prime(); } catch (_) {}
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(() => warmNavigationTargets(), { timeout: 1200 });
+      } else {
+        window.setTimeout(() => warmNavigationTargets(), 200);
+      }
+    };
+    window.addEventListener("pointerdown", primeFastUX, { passive:true, once:true });
+    window.addEventListener("keydown", primeFastUX, { passive:true, once:true });
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => warmNavigationTargets(), { timeout: 1800 });
+    } else {
+      window.setTimeout(() => warmNavigationTargets(), 600);
+    }
+
+    getAuthSync().then(() => hydrateCloudSession()).then(() => scheduleSyncLevelUI()).catch(() => null);
     hydrateRememberedAuthEmails();
     syncLevelUI();
     showPanel("panel-home");

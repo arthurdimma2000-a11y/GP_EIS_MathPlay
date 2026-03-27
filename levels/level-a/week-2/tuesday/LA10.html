@@ -25,6 +25,13 @@
     }
   </style>
 
+  <script>
+    document.documentElement.classList.add('gp-intro-video-pending');
+    setTimeout(function(){
+      document.documentElement.classList.remove('gp-intro-video-pending');
+    }, 60000);
+  </script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Level A - Fish Food</title>
@@ -73,6 +80,8 @@
       justify-content:center;
       padding:12px;
     }
+
+    html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
 
     .card{
       width:min(960px,100%);
@@ -189,7 +198,6 @@
       align-items:flex-end;
     }
 
-    /* Boy first line */
     .boy-bubble{
       right:6%;
       top:20%;
@@ -197,7 +205,6 @@
       align-items:flex-end;
     }
 
-    /* Chef second line */
     .chef-bubble{
       left:6%;
       top:58%;
@@ -468,9 +475,88 @@
         left:8px;
       }
     }
+
+    #gpIntroVideoOverlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.92);
+      z-index:99999;
+      padding:16px;
+      flex-direction:column;
+      gap:14px;
+    }
+    #gpIntroVideoOverlay.active{display:flex;}
+
+    #gpIntroVideo{
+      width:min(92vw,980px);
+      max-height:82vh;
+      height:auto;
+      display:block;
+      border-radius:14px;
+      background:#000;
+      box-shadow:0 18px 48px rgba(0,0,0,.45);
+    }
+
+    .gp-intro-help{
+      color:#fff;
+      font-weight:800;
+      font-size:1rem;
+      text-align:center;
+      text-shadow:0 2px 8px rgba(0,0,0,.45);
+      max-width:min(92vw,760px);
+    }
+
+    .gp-intro-controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      justify-content:center;
+    }
+
+    .gp-intro-btn{
+      border:none;
+      border-radius:999px;
+      padding:12px 22px;
+      font-size:1rem;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 6px 0 rgba(0,0,0,.22);
+    }
+
+    .gp-intro-btn.play{
+      background:linear-gradient(180deg,#dff7ff,#8fdcff);
+      color:#114a67;
+      display:none;
+    }
+
+    .gp-intro-btn.sound{
+      background:linear-gradient(180deg,#fffad7,#ffd86a);
+      color:#8b5a00;
+    }
+
+    .gp-intro-btn.skip{
+      background:linear-gradient(180deg,#ffffff,#e9eef7);
+      color:#304060;
+    }
   </style>
 </head>
 <body>
+  <div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/A10.png">
+      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463112/LA10avideo_tberbl.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+    <div class="gp-intro-controls">
+      <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+      <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+      <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
+    </div>
+  </div>
+
   <div class="card">
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
       <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
@@ -527,7 +613,8 @@
   <script src="../../../../shared/js/progress.js"></script>
   <script src="../../../../shared/js/tracing.js"></script>
 
-  <script>    const prevBtn = document.getElementById("prevBtn");
+  <script>
+    const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
     const clearBtn = document.getElementById("clearBtn");
     const girlBtn = document.getElementById("girlBtn");
@@ -1020,6 +1107,103 @@
         ...overrides
       });
     }
+  </script>
+
+  <script>
+    (function(){
+      const html = document.documentElement;
+      const overlay = document.getElementById("gpIntroVideoOverlay");
+      const video = document.getElementById("gpIntroVideo");
+      const help = document.getElementById("gpIntroHelp");
+      const playBtn = document.getElementById("gpIntroPlayBtn");
+      const soundBtn = document.getElementById("gpIntroSoundBtn");
+      const skipBtn = document.getElementById("gpIntroSkipBtn");
+
+      if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+        html.classList.remove("gp-intro-video-pending");
+        return;
+      }
+
+      let revealed = false;
+      let hardTimeout = setTimeout(revealLesson, 60000);
+
+      function revealLesson(){
+        if (revealed) return;
+        revealed = true;
+        clearTimeout(hardTimeout);
+        try { video.pause(); } catch(_){}
+        overlay.classList.remove("active");
+        overlay.style.display = "none";
+        html.classList.remove("gp-intro-video-pending");
+      }
+
+      function showPlayFallback(msg){
+        help.textContent = msg || 'Tap "Play Intro" to start the video.';
+        playBtn.style.display = "inline-flex";
+      }
+
+      async function tryAutoplayMuted(){
+        try{
+          video.muted = true;
+          video.defaultMuted = true;
+          await video.play();
+          help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+          playBtn.style.display = "none";
+        }catch(err){
+          showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
+        }
+      }
+
+      async function playWithSound(){
+        try{
+          video.muted = false;
+          video.defaultMuted = false;
+          video.volume = 1;
+          await video.play();
+          help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+          playBtn.style.display = "none";
+        }catch(err){
+          help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+          playBtn.style.display = "inline-flex";
+        }
+      }
+
+      playBtn.addEventListener("click", async () => {
+        try{
+          video.muted = true;
+          video.defaultMuted = true;
+          await video.play();
+          help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+          playBtn.style.display = "none";
+        }catch(err){
+          help.textContent = "Unable to start the intro video.";
+        }
+      });
+
+      soundBtn.addEventListener("click", playWithSound);
+      skipBtn.addEventListener("click", revealLesson);
+
+      video.addEventListener("playing", () => {
+        help.textContent = video.muted
+          ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+          : 'Sound is on. Tap "Skip Intro" to continue.';
+      });
+
+      video.addEventListener("ended", revealLesson, { once:true });
+
+      video.addEventListener("error", () => {
+        help.textContent = "Intro video failed to load. Opening page now.";
+        setTimeout(revealLesson, 800);
+      }, { once:true });
+
+      video.addEventListener("loadedmetadata", () => {
+        tryAutoplayMuted();
+      }, { once:true });
+
+      setTimeout(() => {
+        if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+      }, 1200);
+    })();
   </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,7 +10,15 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
+<script>
+  document.documentElement.classList.add('gp-intro-video-pending');
+  setTimeout(function(){
+    document.documentElement.classList.remove('gp-intro-video-pending');
+  }, 60000);
+</script>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>LA21 - Trace Shapes</title>
@@ -17,7 +26,8 @@
   :root{--sky:#bfe9fb;--panel:#ffffff;--ink:#3b3b3b;--red:#d62828;--shadow:0 20px 40px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
   *{box-sizing:border-box;}
   body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--sky);padding:18px;}
-  .card{width:min(980px,96vw);background:var(--panel);border-radius:18px;padding:18px 18px 28px;box-shadow:var(--shadow);}  
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
+  .card{width:min(980px,96vw);background:var(--panel);border-radius:18px;padding:18px 18px 28px;box-shadow:var(--shadow);}
   .poster-area{position:relative;width:min(900px,100%);margin:0 auto;touch-action:none;}
   .poster-img{width:100%;height:auto;display:block;pointer-events:none;}
   .trace-layer{position:absolute;inset:0;pointer-events:auto;z-index:5;}
@@ -25,60 +35,146 @@
   #circleTrace{left:8%;top:20%;width:38%;height:23%;}
   #triTrace{left:8%;top:45%;width:38%;height:23%;}
   #squareTrace{left:8%;top:70%;width:38%;height:23%;}
-  .answer{position:absolute;left:52%;width:40%;min-height:18%;font-size:1.6rem;font-weight:800;color:var(--ink);}  
+  .answer{position:absolute;left:52%;width:40%;min-height:18%;font-size:1.6rem;font-weight:800;color:var(--ink);}
   #circleAnswer{top:20%;}
   #triAnswer{top:45%;}
   #squareAnswer{top:70%;}
-  .red{color:var(--red);}  
+  .red{color:var(--red);}
   .tap-row{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;}
   .tap-girl{width:82px;height:82px;border-radius:22px;box-shadow:0 6px 14px rgba(0,0,0,.2);border:4px solid #ffe3f7;cursor:pointer;}
   .tap-label{font-weight:700;color:#d62828;}
   .sentence{position:absolute;top:6%;left:44%;width:46%;min-height:2.4em;font-weight:800;font-size:1.85rem;text-align:center;z-index:7;}
   .line{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
-  .line.show{opacity:1;transform:translateY(0);}  
+  .line.show{opacity:1;transform:translateY(0);}
   .controls{margin-top:12px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
   .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
   .guide-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#d62828;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:8;pointer-events:none;}
+
+  #gpIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
+    padding:16px;
+    flex-direction:column;
+    gap:14px;
+  }
+  #gpIntroVideoOverlay.active{display:flex;}
+
+  #gpIntroVideo{
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
+    display:block;
+    border-radius:14px;
+    background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
+  }
+
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
 </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
 <body>
-  <div class="card">
-    <div class="poster-area" id="posterArea">
-      <img class="poster-img" src="../../../../assets/images/shapes/A21.png" alt="Shapes poster">
-      <div class="trace-layer">
-        <canvas class="trace-canvas" id="circleTrace"></canvas>
-        <canvas class="trace-canvas" id="triTrace"></canvas>
-        <canvas class="trace-canvas" id="squareTrace"></canvas>
-        <div class="guide-dot" style="left:26%;top:20%;"></div>
-        <div class="guide-dot" style="left:44%;top:31%;"></div>
-        <div class="guide-dot" style="left:26%;top:43%;"></div>
-        <div class="guide-dot" style="left:8%;top:31%;"></div>
-        <div class="guide-dot" style="left:27%;top:46%;"></div>
-        <div class="guide-dot" style="left:9%;top:67%;"></div>
-        <div class="guide-dot" style="left:45%;top:67%;"></div>
-        <div class="guide-dot" style="left:10%;top:72%;"></div>
-        <div class="guide-dot" style="left:44%;top:72%;"></div>
-        <div class="guide-dot" style="left:44%;top:91%;"></div>
-        <div class="guide-dot" style="left:10%;top:91%;"></div>
-      </div>
-      <div class="answer" id="circleAnswer"></div>
-      <div class="answer" id="triAnswer"></div>
-      <div class="answer" id="squareAnswer"></div>
+
+<div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+  <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/A21.png">
+    <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463122/LA21avideo_v6ogzb.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+  <div class="gp-intro-controls">
+    <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+    <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+    <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="poster-area" id="posterArea">
+    <img class="poster-img" src="../../../../assets/images/shapes/A21.png" alt="Shapes poster">
+    <div class="trace-layer">
+      <canvas class="trace-canvas" id="circleTrace"></canvas>
+      <canvas class="trace-canvas" id="triTrace"></canvas>
+      <canvas class="trace-canvas" id="squareTrace"></canvas>
+      <div class="guide-dot" style="left:26%;top:20%;"></div>
+      <div class="guide-dot" style="left:44%;top:31%;"></div>
+      <div class="guide-dot" style="left:26%;top:43%;"></div>
+      <div class="guide-dot" style="left:8%;top:31%;"></div>
+      <div class="guide-dot" style="left:27%;top:46%;"></div>
+      <div class="guide-dot" style="left:9%;top:67%;"></div>
+      <div class="guide-dot" style="left:45%;top:67%;"></div>
+      <div class="guide-dot" style="left:10%;top:72%;"></div>
+      <div class="guide-dot" style="left:44%;top:72%;"></div>
+      <div class="guide-dot" style="left:44%;top:91%;"></div>
+      <div class="guide-dot" style="left:10%;top:91%;"></div>
     </div>
-    <div class="tap-row" id="tapRow">
-      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn" class="tap-girl">
-      <div class="tap-label">Tap the girl</div>
-    </div>
+    <div class="answer" id="circleAnswer"></div>
+    <div class="answer" id="triAnswer"></div>
+    <div class="answer" id="squareAnswer"></div>
     <div class="sentence" id="girlSentence"></div>
-    <div id="vertexEntryMount"></div>
-    <div class="controls">
-      <button class="btn prev" id="prevBtn">← Previous page</button>
-      <button class="btn next" id="nextBtn">Next page →</button>
-    </div>
   </div>
 
+  <div class="tap-row" id="tapRow">
+    <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn">
+    <div class="tap-label">Tap the girl</div>
+  </div>
+
+  <div id="vertexEntryMount"></div>
+
+  <div class="controls">
+    <button class="btn prev" id="prevBtn">← Previous page</button>
+    <button class="btn next" id="nextBtn">Next page →</button>
+  </div>
+</div>
+
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
 <script src="../../../../shared/js/vertex-entry.js"></script>
+
 <script>
   const girlBtn = document.getElementById('girlBtn');
   const tapRow = document.getElementById('tapRow');
@@ -91,24 +187,16 @@
   const controls = document.querySelector('.controls');
   const posterArea = document.getElementById('posterArea');
   if (tapRow && controls) controls.insertBefore(tapRow, controls.firstChild || null);
-  if (girlSentenceEl && posterArea) posterArea.appendChild(girlSentenceEl);
 
   function speak(text){
     if(!('speechSynthesis' in window)) return;
+    try{ window.speechSynthesis.cancel(); }catch(e){}
     const u = new SpeechSynthesisUtterance(text);
     u.rate = 1.0; u.pitch = 1.05; u.volume = 1.0;
+    if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+      window.GPTracing.applyPreferredVoice(u);
+    }
     window.speechSynthesis.speak(u);
-  }
-  function typeLine(el, html){
-    el.innerHTML = '';
-    let i = 0;
-    el.classList.add('show');
-    const step = () => {
-      el.innerHTML = html.slice(0, i);
-      i += 1;
-      if(i <= html.length){ setTimeout(step, 18); }
-    };
-    step();
   }
 
   const shapePercents = { circle: 0, triangle: 0, square: 0 };
@@ -163,14 +251,18 @@
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
     let drawing=false; let visited=[]; let samples=[]; let done=false; let lastPoint=null;
+
     function resize(){
       const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width; canvas.height = rect.height;
+      canvas.width = rect.width;
+      canvas.height = rect.height;
       samples = buildSamples(kind, canvas);
       visited = new Array(samples.length).fill(false);
       ctx.clearRect(0,0,canvas.width,canvas.height);
       updateTraceScore(kind, 0);
+      done = false;
     }
+
     function buildSamples(kind, canvas){
       const s=[];
       if(kind==='circle'){
@@ -199,6 +291,7 @@
       }
       return s;
     }
+
     function updateVisited(curr, prev){
       const thr=14; const thr2=thr*thr; let changed=false;
       const a = prev || curr;
@@ -225,12 +318,48 @@
         if(pct>=90 && !done){ done=true; onDone(); }
       }
     }
-    function getPos(e){ const rect=canvas.getBoundingClientRect(); return {x:e.clientX-rect.left, y:e.clientY-rect.top}; }
-    canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); drawing=true; const point=getPos(e); lastPoint=point; ctx.beginPath(); ctx.moveTo(point.x,point.y); updateVisited(point, point); });
-    canvas.addEventListener('pointermove', e=>{ if(!drawing) return; e.preventDefault(); const point=getPos(e); const prev = lastPoint || point; ctx.lineTo(point.x,point.y); ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#ff4d4d'; ctx.stroke(); updateVisited(point, prev); lastPoint=point; });
-    const endDraw=e=>{ if(!drawing) return; e && e.preventDefault(); drawing=false; lastPoint=null; };
-    canvas.addEventListener('pointerup', endDraw); canvas.addEventListener('pointerleave', endDraw); canvas.addEventListener('pointercancel', endDraw);
-    resize(); window.addEventListener('resize', resize);
+
+    function getPos(e){
+      const rect=canvas.getBoundingClientRect();
+      if (e.touches && e.touches[0]) {
+        return {x:e.touches[0].clientX-rect.left, y:e.touches[0].clientY-rect.top};
+      }
+      return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+    }
+
+    canvas.addEventListener('pointerdown', e=>{
+      e.preventDefault();
+      drawing=true;
+      const point=getPos(e);
+      lastPoint=point;
+      ctx.beginPath();
+      ctx.moveTo(point.x,point.y);
+      updateVisited(point, point);
+    });
+    canvas.addEventListener('pointermove', e=>{
+      if(!drawing) return;
+      e.preventDefault();
+      const point=getPos(e);
+      const prev = lastPoint || point;
+      ctx.lineTo(point.x,point.y);
+      ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#ff4d4d'; ctx.stroke();
+      updateVisited(point, prev);
+      lastPoint=point;
+    });
+    const endDraw=e=>{
+      if(!drawing) return;
+      e && e.preventDefault();
+      drawing=false;
+      lastPoint=null;
+    };
+    canvas.addEventListener('pointerup', endDraw);
+    canvas.addEventListener('pointerleave', endDraw);
+    canvas.addEventListener('pointercancel', endDraw);
+    canvas.addEventListener('touchstart', e=>{ e.preventDefault(); }, { passive:false });
+    canvas.addEventListener('touchmove', e=>{ e.preventDefault(); }, { passive:false });
+
+    resize();
+    window.addEventListener('resize', resize);
   }
 
   setupTrace('circleTrace','circle', () => {
@@ -240,6 +369,7 @@
     if(window.startTypingSound) window.startTypingSound(900);
     speak('A circle has 0 vertices.');
   });
+
   setupTrace('triTrace','triangle', () => {
     const html='A <span class="red">triangle</span> has 3 <span class="red">vertices</span>.';
     triAnswer.innerHTML = `<div class="line">${html}</div>`;
@@ -247,6 +377,7 @@
     if(window.startTypingSound) window.startTypingSound(900);
     speak('A triangle has 3 vertices.');
   });
+
   setupTrace('squareTrace','square', () => {
     const html='A <span class="red">square</span> has 4 <span class="red">vertices</span>.';
     squareAnswer.innerHTML = `<div class="line">${html}</div>`;
@@ -258,10 +389,9 @@
   prevBtn.addEventListener('click', () => { window.location.href = 'LA20.html'; });
   nextBtn.addEventListener('click', () => { window.location.href = '../tuesday/LA22.html'; });
 </script>
-<script src="../../../../shared/js/storage.js"></script>
-<script src="../../../../shared/js/progress.js"></script>
-<script src="../../../../shared/js/tracing.js"></script>
+
 <script src="../../../../activity-standardizer.js"></script>
+
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
   window.GPProgress.installTracker({
@@ -278,8 +408,8 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -368,9 +498,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -378,19 +508,108 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+</script>
+
+<script>
+  (function(){
+    const html = document.documentElement;
+    const overlay = document.getElementById("gpIntroVideoOverlay");
+    const video = document.getElementById("gpIntroVideo");
+    const help = document.getElementById("gpIntroHelp");
+    const playBtn = document.getElementById("gpIntroPlayBtn");
+    const soundBtn = document.getElementById("gpIntroSoundBtn");
+    const skipBtn = document.getElementById("gpIntroSkipBtn");
+
+    if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+      html.classList.remove("gp-intro-video-pending");
+      return;
+    }
+
+    let revealed = false;
+    let hardTimeout = setTimeout(revealLesson, 60000);
+
+    function revealLesson(){
+      if (revealed) return;
+      revealed = true;
+      clearTimeout(hardTimeout);
+      try { video.pause(); } catch(e){}
+      overlay.classList.remove("active");
+      overlay.style.display = "none";
+      html.classList.remove("gp-intro-video-pending");
+    }
+
+    function showPlayFallback(msg){
+      help.textContent = msg || 'Tap "Play Intro" to start the video.';
+      playBtn.style.display = "inline-flex";
+    }
+
+    async function tryAutoplayMuted(){
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
+      }
+    }
+
+    async function playWithSound(){
+      try{
+        video.muted = false;
+        video.defaultMuted = false;
+        video.volume = 1;
+        await video.play();
+        help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+        playBtn.style.display = "inline-flex";
+      }
+    }
+
+    playBtn.addEventListener("click", async () => {
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = "Unable to start the intro video.";
+      }
+    });
+
+    soundBtn.addEventListener("click", playWithSound);
+    skipBtn.addEventListener("click", revealLesson);
+
+    video.addEventListener("playing", () => {
+      help.textContent = video.muted
+        ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+        : 'Sound is on. Tap "Skip Intro" to continue.';
+    });
+
+    video.addEventListener("ended", revealLesson, { once:true });
+
+    video.addEventListener("error", () => {
+      help.textContent = "Intro video failed to load. Opening page now.";
+      setTimeout(revealLesson, 800);
+    }, { once:true });
+
+    video.addEventListener("loadedmetadata", () => {
+      tryAutoplayMuted();
+    }, { once:true });
+
+    setTimeout(() => {
+      if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+    }, 1200);
+  })();
 </script>
 </body>
-</html>
-
-
-
-
-
-
-
-
+</html>

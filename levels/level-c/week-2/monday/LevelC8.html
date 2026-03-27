@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,51 +10,300 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
+<script>
+  document.documentElement.classList.add('gp-intro-video-pending');
+  setTimeout(function(){
+    document.documentElement.classList.remove('gp-intro-video-pending');
+  }, 60000);
+</script>
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Level C8 - Quadrangles and Pentagons</title>
 <link rel="stylesheet" href="../../../../shared/css/base.css" />
 <link rel="stylesheet" href="../../../../shared/css/layout.css" />
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
 <style>
-  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--shadow:0 20px 40px rgba(0,0,0,.08);}
-  body{display:flex;align-items:center;justify-content:center;background:#bfe9fb;padding:6px;}
-  .card{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:12px 12px 18px;position:relative;}
-  .poster-area{position:relative;width:100%;max-width:1120px;margin:0 auto;touch-action:none;}
-  .poster-img{width:100%;height:auto;display:block;position:relative;z-index:0;pointer-events:none;}
-  .dot-layer{position:absolute;inset:0;pointer-events:none;z-index:1;}
-  .draw-layer{position:absolute;inset:0;pointer-events:auto;z-index:2;touch-action:none;display:block;cursor:crosshair;}
-  .status-line{text-align:center;min-height:1.4em;font-weight:700;color:#1f7a3a;margin-top:8px;}
-  .controls{margin-top:10px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
-  .mic-icon-btn{border:none;border-radius:999px;padding:8px 14px;cursor:pointer;background:linear-gradient(180deg,#ff8a5b,#ff6b3d);box-shadow:0 4px 0 rgba(0,0,0,.2);}
-  .mic-icon-btn img{width:26px;height:26px;display:block;}
-  .convo-line{display:none;position:absolute;z-index:4;}
-  .convo-line.show{display:flex;}
+  :root{
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+    --shadow:0 20px 40px rgba(0,0,0,.08);
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#bfe9fb;
+    padding:6px;
+  }
+
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
+
+  .card{
+    width:min(1280px,99vw);
+    min-height:calc(100vh - 12px);
+    border-radius:18px;
+    padding:12px 12px 18px;
+    position:relative;
+  }
+
+  .poster-area{
+    position:relative;
+    width:100%;
+    max-width:1120px;
+    margin:0 auto;
+    touch-action:none;
+  }
+
+  .poster-img{
+    width:100%;
+    height:auto;
+    display:block;
+    position:relative;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  .dot-layer{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+  }
+
+  .draw-layer{
+    position:absolute;
+    inset:0;
+    pointer-events:auto;
+    z-index:2;
+    touch-action:none;
+    display:block;
+    cursor:crosshair;
+  }
+
+  .status-line{
+    text-align:center;
+    min-height:1.4em;
+    font-weight:700;
+    color:#1f7a3a;
+    margin-top:8px;
+  }
+
+  .controls{
+    margin-top:10px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .mic-icon-btn{
+    border:none;
+    border-radius:999px;
+    padding:8px 14px;
+    cursor:pointer;
+    background:linear-gradient(180deg,#ff8a5b,#ff6b3d);
+    box-shadow:0 4px 0 rgba(0,0,0,.2);
+  }
+
+  .mic-icon-btn img{
+    width:26px;
+    height:26px;
+    display:block;
+  }
+
+  .convo-line{
+    display:none;
+    position:absolute;
+    z-index:4;
+  }
+
+  .convo-line.show{
+    display:flex;
+  }
+
   .line1{left:17%;top:17%;}
   .line2{right:14%;top:20%;}
-  .bubble-stack{display:flex;flex-direction:column;gap:8px;}
-  .bubble{background:#fff6ea;border:3px solid #1d5fd6;border-radius:20px;padding:12px 18px;font-size:clamp(13px,1.8vw,18px);line-height:1.22;max-width:260px;box-shadow:0 8px 18px rgba(0,0,0,.12);}
-  .repeat-result,.star-row,.conversation-status{min-height:1.2em;text-align:center;font-weight:700;}
-  .girl-spot{position:absolute;left:6.5%;top:24%;z-index:4;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
-  .girl-spot img{width:86px;height:auto;display:block;}
-  .girl-hint{font-size:.78rem;font-weight:800;color:#d62828;}
-  .reveal-note{position:absolute;left:50%;top:9%;transform:translateX(-50%);z-index:4;font-size:clamp(11px,1.3vw,14px);font-weight:800;color:#1d5fd6;text-align:center;opacity:0;transition:opacity .2s ease;}
-  .reveal-note.show{opacity:1;}
-  button{border:none;border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer;background:linear-gradient(180deg,#fffad7,#ffd86a);color:#8b5a00;box-shadow:0 4px 0 rgba(0,0,0,.2);}
-  button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2);}
+
+  .bubble-stack{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .bubble{
+    background:#fff6ea;
+    border:3px solid #1d5fd6;
+    border-radius:20px;
+    padding:12px 18px;
+    font-size:clamp(13px,1.8vw,18px);
+    line-height:1.22;
+    max-width:260px;
+    box-shadow:0 8px 18px rgba(0,0,0,.12);
+  }
+
+  .repeat-result,.star-row,.conversation-status{
+    min-height:1.2em;
+    text-align:center;
+    font-weight:700;
+  }
+
+  .girl-spot{
+    position:absolute;
+    left:6.5%;
+    top:24%;
+    z-index:4;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    cursor:pointer;
+  }
+
+  .girl-spot img{
+    width:86px;
+    height:auto;
+    display:block;
+  }
+
+  .girl-hint{
+    font-size:.78rem;
+    font-weight:800;
+    color:#d62828;
+  }
+
+  .reveal-note{
+    position:absolute;
+    left:50%;
+    top:9%;
+    transform:translateX(-50%);
+    z-index:4;
+    font-size:clamp(11px,1.3vw,14px);
+    font-weight:800;
+    color:#1d5fd6;
+    text-align:center;
+    opacity:0;
+    transition:opacity .2s ease;
+  }
+
+  .reveal-note.show{
+    opacity:1;
+  }
+
+  button{
+    border:none;
+    border-radius:999px;
+    padding:8px 16px;
+    font-weight:700;
+    cursor:pointer;
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+    box-shadow:0 4px 0 rgba(0,0,0,.2);
+  }
+
+  button:active{
+    transform:translateY(2px);
+    box-shadow:0 1px 0 rgba(0,0,0,.2);
+  }
+
+  #gpIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
+    padding:16px;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  #gpIntroVideoOverlay.active{display:flex;}
+
+  #gpIntroVideo{
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
+    display:block;
+    border-radius:14px;
+    background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
+  }
+
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
 </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
+
 <body>
+
+  <div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/LevelC8.png">
+      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463158/LC8cvideo_cacuol.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+    <div class="gp-intro-controls">
+      <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+      <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+      <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
+    </div>
+  </div>
+
   <div class="card">
     <div class="poster-area" id="posterArea">
       <img class="poster-img" src="../../../../assets/images/shapes/LevelC8.png" alt="Understanding Shapes poster">
+
       <div class="girl-spot" aria-label="Tap the girl">
         <img src="EyeglassGirl.png" alt="Tap the girl" id="tapGirl">
         <div class="girl-hint">Tap the girl</div>
       </div>
+
       <div class="reveal-note" id="revealNote">Let’s learn about brownies and muffins.</div>
+
       <div class="row convo-line line1">
         <div class="bubble-stack">
           <div class="bubble baker big">Let’s eat brownies together.</div>
@@ -61,6 +311,7 @@
           <div class="star-row" data-line="0"></div>
         </div>
       </div>
+
       <div class="row right convo-line line2">
         <div class="bubble-stack">
           <div class="bubble kid">Let’s eat muffins together.</div>
@@ -68,20 +319,28 @@
           <div class="star-row" data-line="1"></div>
         </div>
       </div>
-        <svg class="dot-layer" id="dotLayer" viewBox="0 0 1000 1400" preserveAspectRatio="xMidYMid meet"></svg>
+
+      <svg class="dot-layer" id="dotLayer" viewBox="0 0 1000 1400" preserveAspectRatio="xMidYMid meet"></svg>
       <canvas class="draw-layer" id="drawLayer"></canvas>
     </div>
+
     <div class="status-line" id="statusLine"></div>
+
     <div class="controls">
       <button id="prevBtn"><- Previous page</button>
-      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone"></button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+        <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
+      </button>
       <button id="clearBtn">Clear [X]</button>
       <button id="nextBtn">Next page -></button>
     </div>
+
     <div class="conversation-status" id="conversationStatus"></div>
   </div>
 
 <script>
+  window.__GP_REQUIRE_INTRO_AUDIO__ = true;
+
   const posterArea = document.getElementById('posterArea');
   const posterImg = posterArea.querySelector('.poster-img');
   const dotLayer = document.getElementById('dotLayer');
@@ -96,19 +355,27 @@
   const micIconBtn = document.getElementById('micIconBtn');
   const conversationStatus = document.getElementById('conversationStatus');
   const lines = Array.from(document.querySelectorAll('.convo-line'));
-  const expectedLines = ["Let’s eat brownies together.", "Let’s eat muffins together."];
+  const expectedLines = ["Let's eat brownies together.", "Let's eat muffins together."];
+  const repeatResults = Array.from(document.querySelectorAll('.repeat-result'));
+  const starRows = Array.from(document.querySelectorAll('.star-row'));
+  const introLines = [
+    "Let’s eat brownies together.",
+    "Let’s eat muffins together."
+  ];
 
-    const introLines = [
-      "Let’s eat brownies together.",
-      "Let’s eat muffins together."
-    ];
+  let currentLineIndex = -1;
+  let micBusy = false;
+  const attempts = [0,0];
+  const maxAttempts = 3;
 
   function speak(text){
     if(!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.rate = 1.0;
     u.pitch = 1.05;
     u.volume = 1.0;
+    if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
     window.speechSynthesis.speak(u);
   }
 
@@ -123,6 +390,111 @@
     next();
   }
 
+  function setConversationStatus(text){
+    if (conversationStatus) conversationStatus.textContent = text || '';
+  }
+
+  function setStars(index, count){
+    const row = starRows[index];
+    if (!row) return;
+    row.innerHTML = new Array(count).fill("★").join("");
+  }
+
+  function showAndSpeakLine(index){
+    if (index < 0 || index >= lines.length) return;
+    lines[index].classList.add('show');
+    currentLineIndex = index;
+    const bubble = lines[index].querySelector('.bubble');
+    if (bubble) speak(bubble.textContent || '');
+  }
+
+  function clearConversationOnly(){
+    lines.forEach(line => line.classList.remove('show'));
+    repeatResults.forEach(el => { if (el) el.textContent = ''; });
+    starRows.forEach(el => { if (el) el.textContent = ''; });
+    attempts[0] = 0;
+    attempts[1] = 0;
+    currentLineIndex = -1;
+    micBusy = false;
+    setConversationStatus('');
+  }
+
+  function normalizeSpeech(text){
+    return (text || '')
+      .toLowerCase()
+      .replace(/[^\w\s]|_/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function listenForRepeat(expectedText){
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setConversationStatus('Speech recognition is not available here.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const said = event.results[0][0].transcript;
+      const expected = normalizeSpeech(expectedText);
+      const actual = normalizeSpeech(said);
+      attempts[currentLineIndex] += 1;
+
+      if (actual === expected) {
+        const stars = attempts[currentLineIndex] === 1 ? 3 : (attempts[currentLineIndex] <= 3 ? 2 : 1);
+        setStars(currentLineIndex, stars);
+        if (repeatResults[currentLineIndex]) repeatResults[currentLineIndex].textContent = said;
+        setConversationStatus('Great job!');
+        speak('Great job!');
+      } else {
+        if (attempts[currentLineIndex] >= maxAttempts) {
+          setConversationStatus('Nice try!');
+          speak('Nice try!');
+        } else {
+          setConversationStatus('Sorry, try again!');
+          speak('Sorry, try again!');
+        }
+      }
+      micBusy = false;
+    };
+
+    recognition.onerror = () => {
+      micBusy = false;
+      setConversationStatus('Sorry, try again!');
+    };
+
+    recognition.start();
+  }
+
+  async function runMicFlow(){
+    if (micBusy) return;
+    if (window.GPTracing?.prepareMicSupport) {
+      try { await window.GPTracing.prepareMicSupport(); } catch (_) {}
+    }
+
+    if (currentLineIndex === -1) {
+      showAndSpeakLine(0);
+      return;
+    }
+
+    if (currentLineIndex < lines.length - 1 && !lines[currentLineIndex + 1].classList.contains('show')) {
+      showAndSpeakLine(currentLineIndex + 1);
+      return;
+    }
+
+    micBusy = true;
+    setConversationStatus('Repeat after me.');
+    speak('Repeat after me.');
+    setTimeout(() => {
+      listenForRepeat(expectedLines[currentLineIndex] || '');
+    }, 500);
+  }
+
   if (tapGirl && revealNote) {
     tapGirl.addEventListener('click', () => {
       revealNote.classList.add('show');
@@ -130,17 +502,16 @@
     });
   }
 
-  // Poster-aligned guide dots for three quadrangles and three pentagons.
-    const quadrangles = [
-      { id:'q1', row:0, points:[[0.14,0.24],[0.34,0.24],[0.38,0.38],[0.18,0.38]] },
-      { id:'q2', row:1, points:[[0.14,0.48],[0.34,0.48],[0.38,0.62],[0.18,0.62]] },
-      { id:'q3', row:2, points:[[0.14,0.72],[0.34,0.72],[0.38,0.86],[0.18,0.86]] }
-    ];
-    const pentagons = [
-      { id:'p1', row:0, points:[[0.66,0.24],[0.80,0.24],[0.86,0.33],[0.73,0.42],[0.60,0.33]] },
-      { id:'p2', row:1, points:[[0.66,0.48],[0.80,0.48],[0.86,0.57],[0.73,0.66],[0.60,0.57]] },
-      { id:'p3', row:2, points:[[0.66,0.72],[0.80,0.72],[0.86,0.81],[0.73,0.90],[0.60,0.81]] }
-    ];
+  const quadrangles = [
+    { id:'q1', row:0, points:[[0.14,0.24],[0.34,0.24],[0.38,0.38],[0.18,0.38]] },
+    { id:'q2', row:1, points:[[0.14,0.48],[0.34,0.48],[0.38,0.62],[0.18,0.62]] },
+    { id:'q3', row:2, points:[[0.14,0.72],[0.34,0.72],[0.38,0.86],[0.18,0.86]] }
+  ];
+  const pentagons = [
+    { id:'p1', row:0, points:[[0.66,0.24],[0.80,0.24],[0.86,0.33],[0.73,0.42],[0.60,0.33]] },
+    { id:'p2', row:1, points:[[0.66,0.48],[0.80,0.48],[0.86,0.57],[0.73,0.66],[0.60,0.57]] },
+    { id:'p3', row:2, points:[[0.66,0.72],[0.80,0.72],[0.86,0.81],[0.73,0.90],[0.60,0.81]] }
+  ];
 
   const shapes = [...quadrangles, ...pentagons];
   const samples = new Map();
@@ -201,7 +572,7 @@
     completed.clear();
     shapes.forEach(shape => {
       const pts = shape.points.map(p => toCanvasPoint(p));
-        const spacing = 10;
+      const spacing = 10;
       const s = [];
       for(let i=0;i<pts.length;i++){
         const a = pts[i];
@@ -220,8 +591,8 @@
   }
 
   function updateVisited(pos){
-      const threshold = 34;
-      const thr2 = threshold * threshold;
+    const threshold = 34;
+    const thr2 = threshold * threshold;
     shapes.forEach(shape => {
       if(completed.has(shape.id)) return;
       const s = samples.get(shape.id) || [];
@@ -231,11 +602,14 @@
         if(v[i]) continue;
         const dx = pos.x - s[i].x;
         const dy = pos.y - s[i].y;
-        if(dx*dx + dy*dy <= thr2){ v[i]=true; changed=true; }
+        if(dx*dx + dy*dy <= thr2){
+          v[i] = true;
+          changed = true;
+        }
       }
       if(changed){
         const pct = Math.round((v.filter(Boolean).length / s.length) * 100);
-        if(pct >= 90){ completed.add(shape.id); }
+        if(pct >= 90) completed.add(shape.id);
       }
     });
 
@@ -248,18 +622,19 @@
         statusLine.textContent = msg;
         speak(msg);
       }
-      if (typeof window.finishAndSave === 'function') {
-        const score = Math.round((completed.size / shapes.length) * 100);
-        window.finishAndSave({
-          pageId:'LevelC8',
-          level:'C',
-          activityType:'tracing',
-          score,
-          tracing:score,
-          stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
-          skills:{ reading:1, writing:1, speaking:0, listening:1 }
-        });
-      }
+    }
+
+    if (typeof window.finishAndSave === 'function') {
+      const score = Math.round((completed.size / shapes.length) * 100);
+      window.finishAndSave({
+        pageId:'LevelC8',
+        level:'C',
+        activityType:'tracing',
+        score,
+        tracing:score,
+        stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
+        skills:{ reading:1, writing:1, speaking:0, listening:1 }
+      });
     }
   }
 
@@ -271,6 +646,7 @@
     }
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
+
   function startDraw(e){
     e.preventDefault();
     drawing = true;
@@ -279,6 +655,7 @@
     ctx.moveTo(pos.x,pos.y);
     updateVisited(pos);
   }
+
   function moveDraw(e){
     if(!drawing) return;
     e.preventDefault();
@@ -290,13 +667,18 @@
     ctx.stroke();
     updateVisited(pos);
     const now = performance.now();
-    if(now - lastTraceSound > 120){ lastTraceSound = now; playTraceTick(); }
+    if(now - lastTraceSound > 120){
+      lastTraceSound = now;
+      playTraceTick();
+    }
   }
+
   function endDraw(e){
     if(!drawing) return;
     e && e.preventDefault();
     drawing = false;
   }
+
   drawLayer.addEventListener('pointerdown', startDraw);
   drawLayer.addEventListener('pointermove', moveDraw);
   drawLayer.addEventListener('pointerup', endDraw);
@@ -309,25 +691,34 @@
   drawLayer.addEventListener('touchmove', moveDraw, { passive:false });
   drawLayer.addEventListener('touchend', endDraw);
 
-    clearBtn.addEventListener('click', () => {
-      ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
-      rowCompleted.fill(false);
-      statusLine.textContent = '';
-      buildSamples();
-      if (typeof window.finishAndSave === 'function') {
-        window.finishAndSave({
-          pageId:'LevelC8',
-          level:'C',
-          activityType:'tracing',
-          score:0,
-          tracing:0,
-          stars:0,
-          skills:{ reading:1, writing:1, speaking:0, listening:1 }
-        });
-      }
-    });
+  clearBtn.addEventListener('click', () => {
+    ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
+    rowCompleted.fill(false);
+    statusLine.textContent = '';
+    buildSamples();
+    clearConversationOnly();
+    if (typeof window.finishAndSave === 'function') {
+      window.finishAndSave({
+        pageId:'LevelC8',
+        level:'C',
+        activityType:'tracing',
+        score:0,
+        tracing:0,
+        stars:0,
+        skills:{ reading:1, writing:1, speaking:0, listening:1 }
+      });
+    }
+  });
+
   if (prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../../week-1/friday/LevelC_Quiz1.html'; });
   if (nextBtn) nextBtn.addEventListener('click', () => { window.location.href = 'LevelC9.html'; });
+  if (micIconBtn) {
+    micIconBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      runMicFlow();
+    });
+  }
 
   function resize(){
     const imgRect = posterImg.getBoundingClientRect();
@@ -359,10 +750,12 @@
 
   setTimeout(speakIntro, 150);
 </script>
+
 <script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
+
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
   window.GPProgress.installTracker({
@@ -379,8 +772,8 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -429,7 +822,7 @@
     const tracing = payload && typeof payload.tracing === "number"
       ? payload.tracing
       : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const type = (payload && (payload.type || payload.activityType)) || "lesson";
     const entry = {
       pageId: meta.pageId,
       file: meta.file,
@@ -469,9 +862,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -479,21 +872,109 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
 </script>
+
+<script>
+  (function(){
+    const html = document.documentElement;
+    const overlay = document.getElementById("gpIntroVideoOverlay");
+    const video = document.getElementById("gpIntroVideo");
+    const help = document.getElementById("gpIntroHelp");
+    const playBtn = document.getElementById("gpIntroPlayBtn");
+    const soundBtn = document.getElementById("gpIntroSoundBtn");
+    const skipBtn = document.getElementById("gpIntroSkipBtn");
+
+    if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+      html.classList.remove("gp-intro-video-pending");
+      return;
+    }
+
+    let revealed = false;
+    let hardTimeout = setTimeout(revealLesson, 60000);
+
+    function revealLesson(){
+      if (revealed) return;
+      revealed = true;
+      clearTimeout(hardTimeout);
+      try { video.pause(); } catch(e){}
+      overlay.classList.remove("active");
+      overlay.style.display = "none";
+      html.classList.remove("gp-intro-video-pending");
+    }
+
+    function showPlayFallback(msg){
+      help.textContent = msg || 'Tap "Play Intro" to start the video.';
+      playBtn.style.display = "inline-flex";
+    }
+
+    async function tryAutoplayMuted(){
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
+      }
+    }
+
+    async function playWithSound(){
+      try{
+        video.muted = false;
+        video.defaultMuted = false;
+        video.volume = 1;
+        await video.play();
+        help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+        playBtn.style.display = "inline-flex";
+      }
+    }
+
+    playBtn.addEventListener("click", async () => {
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = "Unable to start the intro video.";
+      }
+    });
+
+    soundBtn.addEventListener("click", playWithSound);
+    skipBtn.addEventListener("click", revealLesson);
+
+    video.addEventListener("playing", () => {
+      help.textContent = video.muted
+        ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+        : 'Sound is on. Tap "Skip Intro" to continue.';
+    });
+
+    video.addEventListener("ended", revealLesson, { once:true });
+
+    video.addEventListener("error", () => {
+      help.textContent = "Intro video failed to load. Opening page now.";
+      setTimeout(revealLesson, 800);
+    }, { once:true });
+
+    video.addEventListener("loadedmetadata", () => {
+      tryAutoplayMuted();
+    }, { once:true });
+
+    setTimeout(() => {
+      if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+    }, 1200);
+  })();
+</script>
+
 </body>
-</html>
-
-
-
-
-
-
-
-
-
-
+</html>
