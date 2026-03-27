@@ -467,6 +467,15 @@ async function verifyStudentLogin(studentId, pin, classId = "") {
       return payload.student;
     }
 
+    if (response.status === 404) {
+      studentLoginError(
+        "student-login-endpoint-missing",
+        "Student cloud login service is not deployed on this site yet.",
+        { endpoint, status: response.status }
+      );
+      return null;
+    }
+
     if (response.status === 400 || response.status === 401) {
       studentLoginError(
         "student-login-invalid-credentials",
