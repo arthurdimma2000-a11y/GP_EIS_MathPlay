@@ -187,8 +187,8 @@
     try{
       global.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(String(text));
-      u.rate = 0.94;
-      u.pitch = 1.1;
+      u.rate = 0.86;
+      u.pitch = 1.22;
       u.volume = 1;
       if (global.GPTracing?.applyPreferredVoice) {
         global.GPTracing.applyPreferredVoice(u);

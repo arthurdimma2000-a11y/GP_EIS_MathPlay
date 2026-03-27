@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,510 +10,525 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
+<script>
+  document.documentElement.classList.add('gp-intro-video-pending');
+  setTimeout(function () {
+    document.documentElement.classList.remove('gp-intro-video-pending');
+  }, 60000);
+</script>
+
 <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Level C18 - Tangram Insects</title>
-  <link rel="stylesheet" href="../../../../shared/css/base.css" />
-  <link rel="stylesheet" href="../../../../shared/css/layout.css" />
-  <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
-  <style>
-    :root{
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-      --ink:#2d2d2d;
-      --bubble-left:#dff1ff;
-      --bubble-right:#ffe7d8;
-      --shadow:0 20px 40px rgba(0,0,0,.12);
-    }
-    body{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#e7f7e7;
-      padding:6px;
-      color:var(--ink);
-    }
-    .card{
-      width:min(1280px,99vw);min-height:calc(100vh - 12px);
-      border-radius:18px;
-      padding:14px 14px 18px;
-    }
-    .poster-area{
-      position:relative;
-      width:100%;max-width:1120px;
-      margin:0 auto;
-      border-radius:16px;
-      overflow:hidden;
-      touch-action:none;
-    }
-    .poster-img{width:100%;height:auto;display:block;}
-    .bubble{
-      display:none;
-      position:absolute;
-      padding:10px 14px;
-      border-radius:16px;
-      font-weight:700;
-      font-size:1.05rem;
-      max-width:280px;
-      line-height:1.2;
-      box-shadow:0 8px 18px rgba(0,0,0,.12);
-      opacity:0;
-      transform:translateY(6px);
-      transition:opacity .25s ease, transform .25s ease;
-    }
-    .bubble.show{display:block;opacity:1;transform:translateY(0);}
-    .bubble.left{left:10%; top:25%; background:var(--bubble-left);}
-    .bubble.right{right:8%; top:27%; background:var(--bubble-right);}
-    .bubble.left::after{
-      content:"";
-      position:absolute;
-      left:12px;
-      bottom:-10px;
-      border-width:10px 8px 0 8px;
-      border-style:solid;
-      border-color:var(--bubble-left) transparent transparent transparent;
-    }
-    .bubble.right::after{
-      content:"";
-      position:absolute;
-      right:14px;
-      bottom:-10px;
-      border-width:10px 8px 0 8px;
-      border-style:solid;
-      border-color:var(--bubble-right) transparent transparent transparent;
-    }
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C9 - Quadrangles and Pentagons</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<style>
+  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--shadow:0 20px 40px rgba(0,0,0,.08);}
+  body{display:flex;align-items:center;justify-content:center;background:#bfe9fb;padding:6px;}
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
 
-    .girl-spot{
-      position:absolute;
-      left:16px;
-      top:12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      z-index:4;
-    }
-    .girl-spot img{
-      width:64px;
-      height:64px;
-      border-radius:16px;
-      object-fit:cover;
-      box-shadow:0 6px 14px rgba(0,0,0,.25);
-      border:4px solid #ffe3f7;
-      background:#ffd6f2;
-      cursor:pointer;
-    }
-    .girl-hint{font-weight:800;color:#d62828;font-size:.9rem;}
+  .card{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:12px 12px 18px;position:relative;}
+  .poster-area{position:relative;width:100%;max-width:1120px;margin:0 auto;touch-action:none;}
+  .poster-img{width:100%;height:auto;display:block;position:relative;z-index:0;pointer-events:none;}
+  .dot-layer{position:absolute;inset:0;pointer-events:none;z-index:1;}
+  .draw-layer{position:absolute;inset:0;pointer-events:auto;z-index:2;touch-action:none;display:block;cursor:crosshair;}
+  .progress-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px;}
+  .progress-bar{width:min(560px,92%);height:14px;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3cc4ff,#7dffb3);transition:width .15s ease-out;}
+  .progress-text{font-weight:800;color:#184a86;}
+  .progress-message{min-height:1.2em;font-weight:800;color:#2e9b2e;}
+  .status-line{text-align:center;min-height:1.4em;font-weight:700;color:#1f7a3a;margin-top:8px;}
+  .controls{margin-top:10px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+  button{border:none;border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer;background:linear-gradient(180deg,#fffad7,#ffd86a);color:#8b5a00;box-shadow:0 4px 0 rgba(0,0,0,.2);}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2);}
 
-    .reveal-top{
-      position:absolute;
-      top:18%;
-      left:18%;
-      right:18%;
-      text-align:center;
-      font-size:2rem;
-      font-weight:800;
-      color:#2d2d2d;
-      opacity:0;
-      transform:translateY(-6px);
-      transition:opacity .25s ease, transform .25s ease;
-      z-index:3;
-    }
-    .reveal-sub{
-      position:absolute;
-      top:26%;
-      left:18%;
-      right:18%;
-      text-align:center;
-      font-size:1.6rem;
-      font-weight:800;
-      color:#2d2d2d;
-      opacity:0;
-      transform:translateY(-6px);
-      transition:opacity .25s ease, transform .25s ease;
-      z-index:3;
-    }
-    .reveal-top.show,
-    .reveal-sub.show{opacity:1;transform:translateY(0);}
+  #gpIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
+    padding:16px;
+    flex-direction:column;
+    gap:14px;
+  }
+  #gpIntroVideoOverlay.active{display:flex;}
 
-    .dot-layer{position:absolute;inset:0;pointer-events:none;z-index:2;}
-    .draw-layer{position:absolute;inset:0;z-index:3;pointer-events:auto;touch-action:none;cursor:crosshair;background:transparent;}
+  #gpIntroVideo{
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
+    display:block;
+    border-radius:14px;
+    background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
+  }
 
-    .controls{
-      margin-top:12px;
-      display:flex;
-      justify-content:center;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .btn{
-      border:none;
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:.9rem;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 4px 0 rgba(0,0,0,.15);
-      background:#ff8a5b;
-      color:#fff;
-    }
-    .mic-icon-btn img{
-      width:32px;
-      height:32px;
-      filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
-    }
-    .record-icon{width:16px;height:16px;display:inline-block;vertical-align:middle;}
-    .recording{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;}
-    .recording audio{height:28px;}
-    .recording-status,.conversation-status{font-size:.9rem;font-weight:700;color:#555;}
-  </style>
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
+</style>
 <style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
 <body>
-  <div class="card">
-    <div class="poster-area" id="posterArea">
-      <img class="poster-img" src="../../../../assets/images/shapes/C18.png" alt="Tangram insects poster">
 
-      <div class="bubble left" id="bubbleLeft" hidden>What are they?</div>
-      <div class="bubble right" id="bubbleRight" hidden>I made insects using Tangram Pieces.</div>
-
-      <div class="girl-spot" aria-label="Tap the girl">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
-        <div class="girl-hint">Tap the girl</div>
-      </div>
-
-      <div class="reveal-top" id="lineOne"></div>
-      <div class="reveal-sub" id="lineTwo"></div>
-
-      <svg class="dot-layer" id="dotLayer" viewBox="0 0 1000 1400" preserveAspectRatio="none"></svg>
-      <canvas class="draw-layer" id="drawLayer"></canvas>
+  <div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
+    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/LevelC10.png">
+      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463160/LC10cvideo_zt7oum.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
+    <div class="gp-intro-controls">
+      <button class="gp-intro-btn play" id="gpIntroPlayBtn" type="button">Play Intro</button>
+      <button class="gp-intro-btn sound" id="gpIntroSoundBtn" type="button">Turn On Sound</button>
+      <button class="gp-intro-btn skip" id="gpIntroSkipBtn" type="button">Skip Intro</button>
     </div>
-
-    <div class="controls">
-      <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
-      <button class="btn" id="resetBtn">Reset</button>
-      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
-        <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
-      </button>
-      <button class="btn" id="recordBtn">
-        <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z"
-                fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-          <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-          <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-          <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-        </svg> Practice Record
-      </button>
-      <button class="btn next" id="nextBtn">Next page &#8594;</button>
-      <div class="recording">
-        <audio id="recordingPlayback" controls></audio>
-      </div>
-    </div>
-    <div class="recording-status" id="recordingStatus"></div>
-    <div class="conversation-status" id="conversationStatus"></div>
   </div>
 
-  <script>
-    const posterArea = document.getElementById('posterArea');
-    const posterImg = posterArea.querySelector('.poster-img');
-    const dotLayer = document.getElementById('dotLayer');
-    const drawLayer = document.getElementById('drawLayer');
-    const ctx = drawLayer.getContext('2d');
-    const bubbleLeft = document.getElementById('bubbleLeft');
-    const bubbleRight = document.getElementById('bubbleRight');
-    const girlBtn = document.getElementById('girlBtn');
-    const lineOne = document.getElementById('lineOne');
-    const lineTwo = document.getElementById('lineTwo');
-    const resetBtn = document.getElementById('resetBtn');
-    const micIconBtn = document.getElementById('micIconBtn');
-    const recordBtn = document.getElementById('recordBtn');
-    const recordingPlayback = document.getElementById('recordingPlayback');
-    const recordingStatus = document.getElementById('recordingStatus');
-    const conversationStatus = document.getElementById('conversationStatus');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
+  <div class="card">
+    <div class="poster-area" id="posterArea">
+      <img class="poster-img" src="../../../../assets/images/shapes/levelC9.png" alt="Quadrangles and pentagons">
+      <svg class="dot-layer" id="dotLayer" viewBox="0 0 1000 1400" preserveAspectRatio="xMidYMid meet"></svg>
+      <canvas class="draw-layer" id="drawLayer"></canvas>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-message" id="progressMessage">Trace the quadrangles and pentagons.</div>
+    </div>
+    <div id="vertexEntryMount"></div>
+    <div class="status-line" id="statusLine"></div>
+    <div class="controls">
+      <button id="prevBtn"><- Previous page</button>
+      <button id="clearBtn">Clear [X]</button>
+      <button id="nextBtn">Next page -></button>
+    </div>
+  </div>
 
-    let recorder = null;
-    let recordedChunks = [];
-    let isRecording = false;
+<script src="../../../../shared/js/vertex-entry.js"></script>
+<script>
+  window.__GP_REQUIRE_INTRO_AUDIO__ = true;
 
-    // Keep bubbles hidden until mic protocol reveals them.
-    bubbleLeft.classList.remove('show');
-    bubbleRight.classList.remove('show');
+  const posterArea = document.getElementById('posterArea');
+  const posterImg = posterArea.querySelector('.poster-img');
+  const dotLayer = document.getElementById('dotLayer');
+  const drawLayer = document.getElementById('drawLayer');
+  const statusLine = document.getElementById('statusLine');
+  const progressPercentEl = document.getElementById('progressPercent');
+  const progressFillEl = document.getElementById('progressFill');
+  const progressMessageEl = document.getElementById('progressMessage');
+  const ctx = drawLayer.getContext('2d');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const clearBtn = document.getElementById('clearBtn');
 
-    const pairs = [
-      { left:{x:0.378,y:0.332}, right:{x:0.676,y:0.332} },
-      { left:{x:0.377,y:0.490}, right:{x:0.661,y:0.494} },
-      { left:{x:0.374,y:0.645}, right:{x:0.666,y:0.645} },
-      { left:{x:0.376,y:0.805}, right:{x:0.748,y:0.805} }
-    ];
+  const introLines = [
+    "⑴Practice drawing shapes with 4 vertices and 5 vertices.",
+    "Draw Quadrangles and Pentagons by drawing lines to connect the red and blue dots."
+  ];
 
-    const lines = [];
-    const matchedPairIndexes = new Set();
-    let matchCompleted = false;
-    let drawing = null;
+  function speak(text){
+    if(!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.96;
+    u.pitch = 1.08;
+    u.volume = 1.0;
+    if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
+    window.speechSynthesis.speak(u);
+  }
 
-    function resize(){
-      const imgRect = posterImg.getBoundingClientRect();
-      const areaRect = posterArea.getBoundingClientRect();
-      const width = imgRect.width || areaRect.width;
-      const height = imgRect.height || areaRect.height;
-      if(!width || !height){
-        requestAnimationFrame(resize);
-        return;
-      }
-      drawLayer.width = width;
-      drawLayer.height = height;
-      drawLayer.style.width = width + 'px';
-      drawLayer.style.height = height + 'px';
-      drawDots();
-      redrawLines();
-    }
-
-    function drawDots(){
-      dotLayer.innerHTML = '';
-      const vbW = posterImg.naturalWidth || drawLayer.width || 1000;
-      const vbH = posterImg.naturalHeight || drawLayer.height || 1400;
-      dotLayer.setAttribute('viewBox', `0 0 ${vbW} ${vbH}`);
-      pairs.forEach(p => {
-        const c1 = document.createElementNS('http://www.w3.org/2000/svg','circle');
-        c1.setAttribute('cx', p.left.x * vbW);
-        c1.setAttribute('cy', p.left.y * vbH);
-          c1.setAttribute('r', 9);
-        c1.setAttribute('fill', '#111');
-        dotLayer.appendChild(c1);
-        const c2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
-        c2.setAttribute('cx', p.right.x * vbW);
-        c2.setAttribute('cy', p.right.y * vbH);
-          c2.setAttribute('r', 9);
-        c2.setAttribute('fill', '#111');
-        dotLayer.appendChild(c2);
-      });
-    }
-
-    function toCanvasPoint(pt){
-      return { x: pt.x * drawLayer.width, y: pt.y * drawLayer.height };
-    }
-
-    function getNearDot(pos){
-        const threshold = 46;
-      for(let i=0;i<pairs.length;i++){
-        const l = toCanvasPoint(pairs[i].left);
-        const r = toCanvasPoint(pairs[i].right);
-        if(Math.hypot(pos.x-l.x,pos.y-l.y) < threshold) return { side:'left', index:i, pt:l };
-        if(Math.hypot(pos.x-r.x,pos.y-r.y) < threshold) return { side:'right', index:i, pt:r };
-      }
-      return null;
-    }
-
-    function redrawLines(){
-      ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
-        ctx.lineWidth = 5;
-      ctx.strokeStyle = '#2d2d2d';
-      lines.forEach(line => {
-        ctx.beginPath();
-        ctx.moveTo(line.a.x, line.a.y);
-        ctx.lineTo(line.b.x, line.b.y);
-        ctx.stroke();
-      });
-      if(drawing){
-        ctx.beginPath();
-        ctx.moveTo(drawing.a.x, drawing.a.y);
-        ctx.lineTo(drawing.b.x, drawing.b.y);
-        ctx.stroke();
-      }
-    }
-
-    function speak(text){
-      if(!('speechSynthesis' in window)) return;
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.0;
-      u.pitch = 1.05;
-      u.volume = 1.0;
-      window.speechSynthesis.speak(u);
-    }
-
-    async function reportMatchComplete(){
-      if (matchCompleted) return;
-      matchCompleted = true;
-      try {
-        const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
-        chime.preload = "auto";
-        chime.play().catch(() => {});
-      } catch (_) {}
-      speak("Amazing job!");
-      if (typeof finishActivity === "function") {
-        window.finishAndSave({
-          pageId: "LevelC18",
-          level: "C",
-          activityType: "matching",
-          score: 100,
-          stars: 3,
-          skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
-        });
-      }
-    }
-
-    function getEventPos(e){
-      const rect = drawLayer.getBoundingClientRect();
-      if(e.touches && e.touches[0]){
-        return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
-      }
-      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    }
-
-    function startDraw(e){
-      e.preventDefault();
-      const pos = getEventPos(e);
-      const dot = getNearDot(pos);
-      if(!dot) return;
-      drawLayer.setPointerCapture?.(e.pointerId);
-      drawing = { start: dot, a: dot.pt, b: dot.pt };
-      redrawLines();
-    }
-    function moveDraw(e){
-      if(!drawing) return;
-      e.preventDefault();
-      drawing.b = getEventPos(e);
-      redrawLines();
-    }
-    function endDraw(e){
-      if(!drawing) return;
-      e.preventDefault();
-      const pos = getEventPos(e);
-      const dot = getNearDot(pos);
-      if(dot && dot.side !== drawing.start.side && dot.index === drawing.start.index && !matchedPairIndexes.has(dot.index)){
-        lines.push({ a: drawing.a, b: dot.pt });
-        matchedPairIndexes.add(dot.index);
-        if (typeof finishActivity === "function") {
-          const score = Math.round((matchedPairIndexes.size / pairs.length) * 100);
-          window.finishAndSave({
-            pageId: "LevelC18",
-            level: "C",
-            activityType: "matching",
-            score,
-            stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
-            skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
-          });
-        }
-          window.GPTracing?.playTraceTick?.({ force:true });
-          speak('Correct!');
-        if (matchedPairIndexes.size === pairs.length) {
-          reportMatchComplete();
-        }
-      } else {
-        speak('Oh no! try again.');
-      }
-      drawing = null;
-      redrawLines();
-    }
-
-    const bindTarget = (el) => {
-      el.addEventListener('pointerdown', startDraw);
-      el.addEventListener('pointermove', moveDraw);
-      el.addEventListener('pointerup', endDraw);
-      el.addEventListener('pointerleave', endDraw);
-      el.addEventListener('pointercancel', endDraw);
-      el.addEventListener('mousedown', startDraw);
-      el.addEventListener('mousemove', moveDraw);
-      el.addEventListener('mouseup', endDraw);
-      el.addEventListener('touchstart', startDraw, { passive:false });
-      el.addEventListener('touchmove', moveDraw, { passive:false });
-      el.addEventListener('touchend', endDraw, { passive:false });
+  function speakIntro(){
+    let i = 0;
+    const next = () => {
+      if(i >= introLines.length) return;
+      speak(introLines[i]);
+      i += 1;
+      setTimeout(next, 1200);
     };
-    bindTarget(drawLayer);
-    bindTarget(posterArea);
+    next();
+  }
 
-    resetBtn.addEventListener('click', () => {
-      lines.length = 0;
-      matchedPairIndexes.clear();
-      matchCompleted = false;
-      drawing = null;
-      redrawLines();
+  const quadrangles = [
+    { id:'q1', row:0, points:[[0.14,0.24],[0.34,0.24],[0.38,0.38],[0.18,0.38]] },
+    { id:'q2', row:1, points:[[0.14,0.48],[0.34,0.48],[0.38,0.62],[0.18,0.62]] },
+    { id:'q3', row:2, points:[[0.14,0.72],[0.34,0.72],[0.38,0.86],[0.18,0.86]] }
+  ];
+  const pentagons = [
+    { id:'p1', row:0, points:[[0.66,0.24],[0.80,0.24],[0.87,0.33],[0.73,0.43],[0.59,0.33]] },
+    { id:'p2', row:1, points:[[0.66,0.48],[0.80,0.48],[0.87,0.57],[0.73,0.67],[0.59,0.57]] },
+    { id:'p3', row:2, points:[[0.66,0.72],[0.80,0.72],[0.87,0.81],[0.73,0.91],[0.59,0.81]] }
+  ];
+
+  const shapes = [...quadrangles, ...pentagons];
+  const samples = new Map();
+  const visited = new Map();
+  const completed = new Set();
+  const shapePercents = new Map();
+  const rowCompleted = [false,false,false];
+  const rowMessages = ["Amazing Job!","Thumps up!","Wow! you are super smart!"];
+  const progressMilestones = new Set();
+  let progressSaveTimer = null;
+  let traceFinished = false;
+  let lastTraceSound = 0;
+  let combinedProgress = 0;
+
+  function playTraceTick(){
+    if (window.GPTracing?.playTraceTick) {
+      window.GPTracing.playTraceTick({ throttleMs: 100 });
+      return;
+    }
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtx) return;
+      const a = new AudioCtx();
+      const osc = a.createOscillator();
+      const gain = a.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.value = 0.06;
+      osc.connect(gain);
+      gain.connect(a.destination);
+      osc.start();
+      osc.stop(a.currentTime + 0.05);
+      osc.onended = () => a.close();
+    }catch(e){}
+  }
+
+  function playChime(){
+    try{ new Audio('../../../../assets/audio/chimes/chime.mp3.mp3').play().catch(()=>{}); }catch(_e){}
+  }
+
+  function playCelebration(){
+    playChime();
+    window.GPTracing?.playTraceCelebration?.();
+  }
+
+  function computeOverallProgress(){
+    const values = shapes.map((shape) => shapePercents.get(shape.id) || 0);
+    return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
+  }
+
+  function progressMessageFor(score){
+    if (score >= 100) return 'Fantastic! All the shapes are complete.';
+    if (score >= 75) return 'Amazing job! Finish the last sides.';
+    if (score >= 40) return 'Great tracing. Keep joining the dots.';
+    return 'Trace the quadrangles and pentagons.';
+  }
+
+  function updateProgressUI(score){
+    progressPercentEl.textContent = `${score}%`;
+    progressFillEl.style.width = `${score}%`;
+    progressMessageEl.textContent = progressMessageFor(score);
+  }
+
+  function applyCombinedProgress(score){
+    combinedProgress = Math.max(0, Math.min(100, Math.round(score)));
+    updateProgressUI(combinedProgress);
+  }
+
+  function persistTraceProgress(score){
+    if (typeof window.finishAndSave !== 'function') return;
+    window.finishAndSave({
+      pageId: 'LevelC9',
+      level: 'C',
+      activityType: 'tracing',
+      score,
+      tracing: score,
+      stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
+      skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
+    }).catch(() => {});
+  }
+
+  function schedulePersist(score){
+    if (progressSaveTimer) window.clearTimeout(progressSaveTimer);
+    progressSaveTimer = window.setTimeout(() => persistTraceProgress(score), 160);
+  }
+
+  const vertexEntry = window.GPVertexEntry?.create({
+    mount: "#vertexEntryMount",
+    title: "Write the number of vertices",
+    prompt: "Write 4 for each quadrangle and 5 for each pentagon.",
+    showProgress: false,
+    items: [
+      { id: "q1Vertices", label: "Quadrangle 1", answer: 4, hint: "Write 4", successSpeech: "Correct. A quadrangle has 4 vertices." },
+      { id: "q2Vertices", label: "Quadrangle 2", answer: 4, hint: "Write 4", successSpeech: "Correct. A quadrangle has 4 vertices." },
+      { id: "q3Vertices", label: "Quadrangle 3", answer: 4, hint: "Write 4", successSpeech: "Correct. A quadrangle has 4 vertices." },
+      { id: "p1Vertices", label: "Pentagon 1", answer: 5, hint: "Write 5", successSpeech: "Correct. A pentagon has 5 vertices." },
+      { id: "p2Vertices", label: "Pentagon 2", answer: 5, hint: "Write 5", successSpeech: "Correct. A pentagon has 5 vertices." },
+      { id: "p3Vertices", label: "Pentagon 3", answer: 5, hint: "Write 5", successSpeech: "Correct. A pentagon has 5 vertices." }
+    ],
+    onProgress(state){
+      applyCombinedProgress(state.totalProgress);
+      schedulePersist(state.totalProgress);
+      maybeCelebrateProgress(state.totalProgress);
+    }
+  }) || null;
+
+  function queueTraceSave(score){
+    if (vertexEntry) {
+      vertexEntry.setBaseProgress(score);
+      return;
+    }
+    applyCombinedProgress(score);
+    schedulePersist(score);
+  }
+
+  function maybeCelebrateProgress(score){
+    [
+      [35, 'Nice tracing. Keep going!'],
+      [70, 'Great work. You are almost done!']
+    ].forEach(([mark, message]) => {
+      if (score >= mark && !progressMilestones.has(mark)) {
+        progressMilestones.add(mark);
+        playChime();
+        speak(message);
+      }
     });
 
-    girlBtn.addEventListener('click', () => {
-      typeLine(lineOne, "Making animals with a Tangram puzzle.", () => {});
-      speak("Making animals with a Tangram puzzle.");
-      setTimeout(() => {
-        typeLine(lineTwo, "Connect the Tangram puzzle animal to the correct sentence.", () => {});
-        speak("Connect the Tangram puzzle animal to the correct sentence.");
-      }, 400);
-    });
+    if (score >= 100 && !traceFinished) {
+      traceFinished = true;
+      playCelebration();
+      speak('Excellent! You completed all the quadrangles and pentagons.');
+    }
+  }
 
-    function typeLine(el, text, done){
-      el.textContent = '';
-      let i = 0;
-      el.classList.add('show');
-      const step = () => {
-        el.textContent = text.slice(0, i);
-        i += 1;
-        if(i <= text.length){
-          setTimeout(step, 28);
-        } else if (done) {
-          done();
+  function redrawDots(){
+    dotLayer.innerHTML = '';
+    shapes.forEach(shape => {
+      const color = shape.id.startsWith('q') ? '#d62c2c' : '#1d76c9';
+      const pts = shape.points.map(p => `${p[0]*1000},${p[1]*1400}`).join(' ');
+      const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+      poly.setAttribute('points', pts + ' ' + pts.split(' ')[0]);
+      poly.setAttribute('fill','none');
+      poly.setAttribute('stroke','rgba(200,200,200,0.7)');
+      poly.setAttribute('stroke-width','3');
+      poly.setAttribute('stroke-dasharray','10 8');
+      dotLayer.appendChild(poly);
+      shape.points.forEach(p => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', p[0]*1000);
+        c.setAttribute('cy', p[1]*1400);
+        c.setAttribute('r', 10);
+        c.setAttribute('fill', color);
+        dotLayer.appendChild(c);
+      });
+    });
+  }
+
+  function toCanvasPoint(pt){
+    return { x: pt[0] * drawLayer.width, y: pt[1] * drawLayer.height };
+  }
+
+  function buildSamples(){
+    samples.clear();
+    visited.clear();
+    completed.clear();
+    shapePercents.clear();
+    if (vertexEntry) vertexEntry.reset();
+    shapes.forEach(shape => {
+      const pts = shape.points.map(p => toCanvasPoint(p));
+      const spacing = 10;
+      const s = [];
+      for(let i=0;i<pts.length;i++){
+        const a = pts[i];
+        const b = pts[(i+1)%pts.length];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.hypot(dx,dy);
+        const steps = Math.max(1, Math.ceil(dist/spacing));
+        for(let k=0;k<=steps;k++){
+          s.push({ x: a.x + (dx*k/steps), y: a.y + (dy*k/steps) });
         }
-      };
-      step();
+      }
+      samples.set(shape.id, s);
+      visited.set(shape.id, new Array(s.length).fill(false));
+      shapePercents.set(shape.id, 0);
+    });
+    updateProgressUI(0);
+  }
+
+  function updateVisited(pos){
+    const threshold = 34;
+    const thr2 = threshold * threshold;
+    let changedAny = false;
+    shapes.forEach(shape => {
+      if(completed.has(shape.id)) return;
+      const s = samples.get(shape.id) || [];
+      const v = visited.get(shape.id) || [];
+      let changed = false;
+      for(let i=0;i<s.length;i++){
+        if(v[i]) continue;
+        const dx = pos.x - s[i].x;
+        const dy = pos.y - s[i].y;
+        if(dx*dx + dy*dy <= thr2){ v[i]=true; changed=true; }
+      }
+      if(changed){
+        let pct = Math.round((v.filter(Boolean).length / s.length) * 100);
+        if (pct >= 96) pct = 100;
+        shapePercents.set(shape.id, pct);
+        if(pct >= 100){ completed.add(shape.id); }
+        changedAny = true;
+      }
+    });
+
+    if (changedAny) {
+      const overall = computeOverallProgress();
+      queueTraceSave(overall);
+      maybeCelebrateProgress(overall);
     }
 
-    function showBubble(el, text){
-        el.textContent = text;
-        el.hidden = false;
-        el.classList.add('show');
-        speak(text);
+    for(let row=0; row<3; row++){
+      const qId = `q${row+1}`;
+      const pId = `p${row+1}`;
+      if(!rowCompleted[row] && completed.has(qId) && completed.has(pId)){
+        rowCompleted[row] = true;
+        const msg = rowMessages[row];
+        statusLine.textContent = msg;
+        playCelebration();
+        speak(msg);
+        queueTraceSave(computeOverallProgress());
       }
-
-    function toggleRecord(){
-      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-        recordingStatus.textContent = "Recording not supported in this browser.";
-        return;
-      }
-      if(isRecording){
-        recorder && recorder.stop();
-        return;
-      }
-      navigator.mediaDevices.getUserMedia({ audio:true })
-        .then(stream => {
-          recorder = new MediaRecorder(stream);
-          recordedChunks = [];
-          recorder.ondataavailable = e => {
-            if(e.data && e.data.size > 0) recordedChunks.push(e.data);
-          };
-          recorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
-            recordingPlayback.src = URL.createObjectURL(blob);
-            recordingStatus.textContent = "Recording ready.";
-            stream.getTracks().forEach(t => t.stop());
-            isRecording = false;
-            recordBtn.textContent = "Practice Record";
-          };
-          recorder.start();
-          isRecording = true;
-          recordingStatus.textContent = "Recording...";
-          recordBtn.textContent = "Stop Recording";
-        })
-        .catch(() => {
-          recordingStatus.textContent = "Microphone permission denied.";
-        });
     }
+  }
 
-    // Mic click is handled by activity-standardizer unified protocol.
-
-    recordBtn.addEventListener('click', toggleRecord);
-
-    if(prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../tuesday/LevelC17.html'; });
-    if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = 'LevelC19.html'; });
-
-    resize();
-    if(!posterImg.complete){
-      posterImg.addEventListener('load', resize, { once:true });
+  let drawing = false;
+  function getEventPos(e){
+    const rect = drawLayer.getBoundingClientRect();
+    if (e.touches && e.touches[0]) {
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
     }
-    window.addEventListener('load', resize);
-    window.addEventListener('resize', resize);
-  </script>
-    <script src="../../../../activity-standardizer.js"></script>
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function startDraw(e){
+    e.preventDefault();
+    drawing = true;
+    const pos = getEventPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x,pos.y);
+    updateVisited(pos);
+  }
+
+  function moveDraw(e){
+    if(!drawing) return;
+    e.preventDefault();
+    const pos = getEventPos(e);
+    ctx.lineTo(pos.x,pos.y);
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#ff4d4d';
+    ctx.stroke();
+    updateVisited(pos);
+    const now = performance.now();
+    if(now - lastTraceSound > 120){ lastTraceSound = now; playTraceTick(); }
+  }
+
+  function endDraw(e){
+    if(!drawing) return;
+    e && e.preventDefault();
+    drawing = false;
+  }
+
+  drawLayer.addEventListener('pointerdown', startDraw);
+  drawLayer.addEventListener('pointermove', moveDraw);
+  drawLayer.addEventListener('pointerup', endDraw);
+  drawLayer.addEventListener('pointerleave', endDraw);
+  drawLayer.addEventListener('pointercancel', endDraw);
+  drawLayer.addEventListener('mousedown', startDraw);
+  drawLayer.addEventListener('mousemove', moveDraw);
+  drawLayer.addEventListener('mouseup', endDraw);
+  drawLayer.addEventListener('touchstart', startDraw, { passive:false });
+  drawLayer.addEventListener('touchmove', moveDraw, { passive:false });
+  drawLayer.addEventListener('touchend', endDraw);
+
+  clearBtn.addEventListener('click', () => {
+    ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
+    rowCompleted.fill(false);
+    statusLine.textContent = '';
+    progressMilestones.clear();
+    traceFinished = false;
+    buildSamples();
+    queueTraceSave(0);
+  });
+
+  if (prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../tuesday/LevelC17.html'; });
+  if (nextBtn) prevBtn ? nextBtn.addEventListener('click', () => { window.location.href = 'LevelC19.html'; }) : null;
+
+  function resize(){
+    const imgRect = posterImg.getBoundingClientRect();
+    const areaRect = posterArea.getBoundingClientRect();
+    const width = imgRect.width || areaRect.width;
+    const height = imgRect.height || areaRect.height;
+    if(!width || !height){
+      requestAnimationFrame(resize);
+      return;
+    }
+    drawLayer.width = width;
+    drawLayer.height = height;
+    drawLayer.style.width = width + 'px';
+    drawLayer.style.height = height + 'px';
+    ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
+    redrawDots();
+    buildSamples();
+  }
+
+  resize();
+  if (posterImg && !posterImg.complete) {
+    posterImg.addEventListener('load', resize, { once:true });
+  }
+  window.addEventListener('resize', resize);
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(resize);
+    ro.observe(posterArea);
+  }
+
+  setTimeout(speakIntro, 150);
+</script>
+<script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
@@ -521,7 +537,7 @@
   window.GPProgress.installTracker({
     saveActivityResult,
     markLoginPing,
-    defaultPageId: "LevelC18",
+    defaultPageId: "LevelC9",
     defaultLevel: "C",
     defaultActivityType: "lesson",
     defaultScore: 100,
@@ -532,8 +548,8 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -622,9 +638,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -632,25 +648,108 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+</script>
+
+<script>
+  (function(){
+    const html = document.documentElement;
+    const overlay = document.getElementById("gpIntroVideoOverlay");
+    const video = document.getElementById("gpIntroVideo");
+    const help = document.getElementById("gpIntroHelp");
+    const playBtn = document.getElementById("gpIntroPlayBtn");
+    const soundBtn = document.getElementById("gpIntroSoundBtn");
+    const skipBtn = document.getElementById("gpIntroSkipBtn");
+
+    if (!overlay || !video || !help || !playBtn || !soundBtn || !skipBtn) {
+      html.classList.remove("gp-intro-video-pending");
+      return;
+    }
+
+    let revealed = false;
+    let hardTimeout = setTimeout(revealLesson, 60000);
+
+    function revealLesson(){
+      if (revealed) return;
+      revealed = true;
+      clearTimeout(hardTimeout);
+      try { video.pause(); } catch(e){}
+      overlay.classList.remove("active");
+      overlay.style.display = "none";
+      html.classList.remove("gp-intro-video-pending");
+    }
+
+    function showPlayFallback(msg){
+      help.textContent = msg || 'Tap "Play Intro" to start the video.';
+      playBtn.style.display = "inline-flex";
+    }
+
+    async function tryAutoplayMuted(){
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        showPlayFallback('Autoplay was blocked. Tap "Play Intro" to start.');
+      }
+    }
+
+    async function playWithSound(){
+      try{
+        video.muted = false;
+        video.defaultMuted = false;
+        video.volume = 1;
+        await video.play();
+        help.textContent = 'Sound is on. Tap "Skip Intro" to continue.';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = 'Tap "Play Intro" first, then tap "Turn On Sound".';
+        playBtn.style.display = "inline-flex";
+      }
+    }
+
+    playBtn.addEventListener("click", async () => {
+      try{
+        video.muted = true;
+        video.defaultMuted = true;
+        await video.play();
+        help.textContent = 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".';
+        playBtn.style.display = "none";
+      }catch(err){
+        help.textContent = "Unable to start the intro video.";
+      }
+    });
+
+    soundBtn.addEventListener("click", playWithSound);
+    skipBtn.addEventListener("click", revealLesson);
+
+    video.addEventListener("playing", () => {
+      help.textContent = video.muted
+        ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+        : 'Sound is on. Tap "Skip Intro" to continue.';
+    });
+
+    video.addEventListener("ended", revealLesson, { once:true });
+
+    video.addEventListener("error", () => {
+      help.textContent = "Intro video failed to load. Opening page now.";
+      setTimeout(revealLesson, 800);
+    }, { once:true });
+
+    video.addEventListener("loadedmetadata", () => {
+      tryAutoplayMuted();
+    }, { once:true });
+
+    setTimeout(() => {
+      if (!revealed && video.readyState >= 1) tryAutoplayMuted();
+    }, 1200);
+  })();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-

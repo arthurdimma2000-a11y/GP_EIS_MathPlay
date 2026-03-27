@@ -36,6 +36,7 @@ const app = getApps().length ? getApp() : initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db = getFirestore(app);
 setPersistence(auth, browserLocalPersistence).catch(() => null);
+let lastStudentLoginError = null;
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
@@ -88,6 +89,63 @@ function teacherStudentCredentialsQuery(teacherUid) {
     collection(db, "teacherStudentCredentials"),
     where("teacherUid", "==", String(teacherUid || "").trim())
   );
+}
+
+function readRuntimeStudentLoginEndpoint() {
+  try {
+    const winValue = String(window.GP_STUDENT_LOGIN_ENDPOINT || "").trim();
+    if (winValue) return winValue;
+  } catch (_) {}
+
+  try {
+    const meta = document.querySelector('meta[name="gp-student-login-endpoint"]');
+    const metaValue = String(meta?.content || "").trim();
+    if (metaValue) return metaValue;
+  } catch (_) {}
+
+  try {
+    const localValue = String(window.localStorage?.getItem("GP_EIS_STUDENT_LOGIN_ENDPOINT") || "").trim();
+    if (localValue) return localValue;
+  } catch (_) {}
+
+  try {
+    const sessionValue = String(window.sessionStorage?.getItem("GP_EIS_STUDENT_LOGIN_ENDPOINT") || "").trim();
+    if (sessionValue) return sessionValue;
+  } catch (_) {}
+
+  return "";
+}
+
+function getStudentLoginEndpointCandidates() {
+  const list = [];
+  const runtimeEndpoint = readRuntimeStudentLoginEndpoint();
+  const origin = String(window.location?.origin || "").trim();
+
+  function pushCandidate(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return;
+    try {
+      const resolved = /^https?:\/\//i.test(raw)
+        ? new URL(raw).toString()
+        : new URL(raw, origin || window.location.href).toString();
+      if (!list.includes(resolved)) list.push(resolved);
+    } catch (_) {}
+  }
+
+  pushCandidate(runtimeEndpoint);
+  pushCandidate("/.netlify/functions/student-login");
+  pushCandidate("/api/student-login");
+  return list;
+}
+
+function studentLoginError(code, message, detail = {}) {
+  const error = {
+    code: String(code || "student-login-failed"),
+    message: String(message || "Student cloud login failed."),
+    ...detail
+  };
+  lastStudentLoginError = error;
+  return error;
 }
 
 async function sha256(value) {
@@ -368,22 +426,73 @@ async function getStudentAccount(studentId) {
 }
 
 async function verifyStudentLogin(studentId, pin, classId = "") {
-  const endpoint = new URL("/.netlify/functions/student-login", window.location.origin).toString();
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      studentId: normalizeStudentId(studentId),
-      pin: normalizePin(pin),
-      classId: normalizeClassId(classId)
-    })
-  }).catch(() => null);
+  lastStudentLoginError = null;
+  const body = {
+    studentId: normalizeStudentId(studentId),
+    pin: normalizePin(pin),
+    classId: normalizeClassId(classId)
+  };
+  const endpoints = getStudentLoginEndpointCandidates();
 
-  if (!response || !response.ok) return null;
-  const payload = await response.json().catch(() => null);
-  if (!payload || !payload.ok || !payload.token || !payload.student) return null;
-  await signInWithCustomToken(auth, payload.token);
-  return payload.student;
+  if (!endpoints.length) {
+    studentLoginError(
+      "student-login-endpoint-missing",
+      "Student cloud login endpoint is not configured."
+    );
+    return null;
+  }
+
+  let lastRecoverableError = null;
+
+  for (const endpoint of endpoints) {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).catch((error) => {
+      lastRecoverableError = studentLoginError(
+        "student-login-unreachable",
+        "Student cloud login service could not be reached.",
+        { endpoint, detail: String(error?.message || "") }
+      );
+      return null;
+    });
+
+    if (!response) continue;
+
+    const payload = await response.json().catch(() => null);
+    if (response.ok && payload && payload.ok && payload.token && payload.student) {
+      await signInWithCustomToken(auth, payload.token);
+      lastStudentLoginError = null;
+      return payload.student;
+    }
+
+    if (response.status === 400 || response.status === 401) {
+      studentLoginError(
+        "student-login-invalid-credentials",
+        String(payload?.error || "Student ID, PIN, or Class ID is incorrect."),
+        { endpoint, status: response.status }
+      );
+      return null;
+    }
+
+    lastRecoverableError = studentLoginError(
+      "student-login-service-error",
+      String(payload?.error || "Student cloud login service is unavailable right now."),
+      { endpoint, status: response.status }
+    );
+  }
+
+  if (lastRecoverableError) return null;
+  studentLoginError(
+    "student-login-unreachable",
+    "Student cloud login service could not be reached."
+  );
+  return null;
+}
+
+function getLastStudentLoginError() {
+  return lastStudentLoginError;
 }
 
 async function getCurrentAuthState() {
@@ -439,6 +548,7 @@ const api = {
   listTeacherStudents,
   getStudentAccount,
   verifyStudentLogin,
+  getLastStudentLoginError,
   getCurrentAuthState,
   signOutCurrentUser
 };

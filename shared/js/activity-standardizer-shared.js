@@ -5,11 +5,12 @@
   window.__GP_ACTIVITY_STANDARDIZER_SHARED__ = true;
   let savePromise = null;
   let localSpeechPatchInstalled = false;
+  let speechCancelStamp = 0;
 
   function pickPreferredFemaleVoice(voices) {
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira)/i;
+    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena)/i;
     const targetLang = /^(en[-_](us|ca|au|gb))/i;
     const englishLang = /^en[-_]/i;
 
@@ -52,12 +53,32 @@
                 utterance.lang = "en-US";
               }
             }
-            if (typeof utterance.rate !== "number" || utterance.rate === 1) utterance.rate = 0.94;
-            if (typeof utterance.pitch !== "number" || utterance.pitch === 1) utterance.pitch = 1.08;
+            if (typeof utterance.rate !== "number" || utterance.rate >= 0.98) utterance.rate = 0.86;
+            if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.02) utterance.pitch = 1.22;
+            utterance.volume = 1;
           }
         } catch (_) {}
-        return originalSpeak(utterance);
+        const speakNow = function () {
+          try {
+            return originalSpeak(utterance);
+          } catch (_) {
+            return undefined;
+          }
+        };
+        const delay = Math.max(0, 90 - (Date.now() - speechCancelStamp));
+        if (delay > 0) {
+          window.setTimeout(speakNow, delay);
+          return;
+        }
+        return speakNow();
       };
+      const originalCancel = typeof synth.cancel === "function" ? synth.cancel.bind(synth) : null;
+      if (originalCancel) {
+        synth.cancel = function patchedCancel() {
+          speechCancelStamp = Date.now();
+          return originalCancel();
+        };
+      }
       if ("onvoiceschanged" in synth) {
         const previous = synth.onvoiceschanged;
         synth.onvoiceschanged = function patchedVoicesChanged(event) {
@@ -620,15 +641,19 @@
     }
     try {
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.94;
-      utter.pitch = 1.08;
+      utter.rate = 0.86;
+      utter.pitch = 1.22;
+      utter.volume = 1;
       utter.onend = () => { if (done) done(); };
       utter.onerror = () => { if (done) done(); };
       window.speechSynthesis.cancel();
+      if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+        window.GPTracing.applyPreferredVoice(utter);
+      }
       window.speechSynthesis.speak(utter);
     } catch (_) {
       if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
-        window.GPTracing.speakText(text, { rate: 0.94, pitch: 1.08 });
+        window.GPTracing.speakText(text, { rate: 0.9, pitch: 1.18, volume: 1 });
       }
       if (done) done();
     }

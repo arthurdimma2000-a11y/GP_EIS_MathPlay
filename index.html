@@ -2737,6 +2737,58 @@
           : null;
       }
 
+      function rememberStudentCredential(student){
+        const record = student && typeof student === "object" ? student : {};
+        const studentId = normalizeStudentId(record.studentId);
+        const pin = normalizePin(record.pin);
+        if (!studentId || !pin) return;
+        const current = getCredentialCache();
+        current.student = {
+          studentId,
+          classId: normalizeClassId(record.classId),
+          pin,
+          level: String(record.level || inferLevelFromStudentId(studentId) || "A").trim().toUpperCase(),
+          displayName: String(record.displayName || record.name || studentId).trim(),
+          teacherUid: String(record.teacherUid || "").trim(),
+          teacherEmail: normalizeEmail(record.teacherEmail),
+          teacherName: String(record.teacherName || "").trim(),
+          authUid: String(record.authUid || "").trim(),
+          cloudSynced: !!record.cloudSynced,
+          updatedAt: new Date().toISOString()
+        };
+        setCredentialCache(current);
+      }
+
+      function getRememberedStudentCredential(){
+        const current = getCredentialCache();
+        const record = current && current.student && typeof current.student === "object" ? current.student : null;
+        if (!record) return null;
+        const studentId = normalizeStudentId(record.studentId);
+        const pin = normalizePin(record.pin);
+        if (!studentId || !pin) return null;
+        return {
+          studentId,
+          classId: normalizeClassId(record.classId),
+          pin,
+          level: String(record.level || inferLevelFromStudentId(studentId) || "A").trim().toUpperCase(),
+          displayName: String(record.displayName || record.name || studentId).trim(),
+          teacherUid: String(record.teacherUid || "").trim(),
+          teacherEmail: normalizeEmail(record.teacherEmail),
+          teacherName: String(record.teacherName || "").trim(),
+          authUid: String(record.authUid || "").trim(),
+          cloudSynced: !!record.cloudSynced,
+          updatedAt: record.updatedAt || null
+        };
+      }
+
+      function clearRememberedStudentCredential(){
+        const current = getCredentialCache();
+        if (current && current.student) {
+          delete current.student;
+          setCredentialCache(current);
+        }
+      }
+
     function storageGetItem(key){
       try{
         const localValue = localStorage.getItem(key);
@@ -3854,6 +3906,96 @@
       storageRemoveItem(STORAGE_KEYS.authGate);
     }
 
+    async function restoreRememberedStudentAccess(){
+      if (getSession() || getTeacherSession() || getParentSession()) return false;
+      const remembered = getRememberedStudentCredential();
+      if (!remembered) return false;
+
+      const resolvedLevel = String(
+        remembered.level ||
+        inferLevelFromStudentId(remembered.studentId) ||
+        selectedLevel ||
+        "A"
+      ).toUpperCase();
+
+      selectedRole = "student";
+      selectedLevel = resolvedLevel;
+      storageSetItem(STORAGE_KEYS.role, "student");
+      storageSetItem(STORAGE_KEYS.level, resolvedLevel);
+
+      setSession({
+        classId: remembered.classId || "",
+        studentId: remembered.studentId,
+        pinMasked: "****",
+        level: resolvedLevel,
+        authUid: remembered.authUid || "",
+        teacherUid: remembered.teacherUid || "",
+        teacherEmail: remembered.teacherEmail || "",
+        teacherName: remembered.teacherName || "",
+        displayName: remembered.displayName || remembered.studentId,
+        name: remembered.displayName || remembered.studentId,
+        loginAt: new Date().toISOString(),
+        rememberedAccess: true
+      });
+
+      setLocalStudents(getAllKnownStudents().concat({
+        classId: remembered.classId || "",
+        studentId: remembered.studentId,
+        pin: remembered.pin,
+        level: resolvedLevel,
+        displayName: remembered.displayName || remembered.studentId,
+        teacherUid: remembered.teacherUid || "",
+        teacherEmail: remembered.teacherEmail || "",
+        teacherName: remembered.teacherName || "",
+        authUid: remembered.authUid || "",
+        cloudSynced: !!remembered.cloudSynced,
+        createdAt: remembered.updatedAt || new Date().toISOString()
+      }));
+
+      const authSync = await getAuthSyncFast(1200);
+      if (authSync && typeof authSync.verifyStudentLogin === "function") {
+        window.setTimeout(async () => {
+          try {
+            const refreshed = await withTimeout(authSync.verifyStudentLogin(
+              remembered.studentId,
+              remembered.pin,
+              remembered.classId || ""
+            ), 3500);
+            if (!refreshed) return;
+            const mergedStudent = {
+              ...remembered,
+              ...refreshed,
+              pin: remembered.pin,
+              classId: refreshed.classId || remembered.classId || "",
+              studentId: refreshed.studentId || remembered.studentId,
+              level: String(refreshed.level || resolvedLevel).toUpperCase(),
+              displayName: refreshed.displayName || remembered.displayName || remembered.studentId,
+              cloudSynced: true
+            };
+            rememberStudentCredential(mergedStudent);
+            setLocalStudents(getAllKnownStudents().concat(mergedStudent));
+            setSession({
+              classId: mergedStudent.classId || "",
+              studentId: mergedStudent.studentId,
+              pinMasked: "****",
+              level: mergedStudent.level,
+              authUid: mergedStudent.authUid || "",
+              teacherUid: mergedStudent.teacherUid || "",
+              teacherEmail: mergedStudent.teacherEmail || "",
+              teacherName: mergedStudent.teacherName || "",
+              displayName: mergedStudent.displayName || mergedStudent.studentId,
+              name: mergedStudent.displayName || mergedStudent.studentId,
+              loginAt: new Date().toISOString(),
+              rememberedAccess: true
+            });
+            scheduleSyncLevelUI();
+          } catch (_) {}
+        }, 0);
+      }
+
+      return true;
+    }
+
     async function hydrateCloudSession(){
       const authSync = await getAuthSync().catch(() => null);
       if (!authSync || typeof authSync.getCurrentAuthState !== "function") return;
@@ -3866,6 +4008,7 @@
           setTeachers(getTeachers().filter(t => normalizeEmail(t.email) !== teacher.email).concat(teacher));
           selectedRole = "teacher";
           storageSetItem(STORAGE_KEYS.role, "teacher");
+          clearRememberedStudentCredential();
           setTeacherSession({
             id: teacher.uid || teacher.id,
             name: teacher.name,
@@ -3885,6 +4028,7 @@
           selectedLevel = resolvedLevel;
           storageSetItem(STORAGE_KEYS.role, "parent");
           storageSetItem(STORAGE_KEYS.level, resolvedLevel);
+          clearRememberedStudentCredential();
           setParentSession({
             id: parent.uid || parent.id,
             name: parent.name,
@@ -4895,6 +5039,7 @@
       const canonicalId = canonicalStudentId(studentId);
       const pin = normalizePin(studentPinInput.value);
       const selectedInputLevel = (studentLevelInput.value || "A").trim().toUpperCase();
+      let remoteLoginError = null;
 
       if (!canonicalId || !pin) {
         studentLoginStatus.innerHTML = `<span class="danger">Please enter Student ID and PIN.</span>`;
@@ -4944,6 +5089,9 @@
           if (!remoteStudent && classId) {
             remoteStudent = await withTimeout(authSync.verifyStudentLogin(studentId, pin, ""), 2500);
           }
+          if (typeof authSync.getLastStudentLoginError === "function") {
+            remoteLoginError = authSync.getLastStudentLoginError();
+          }
           if (remoteStudent) {
             matchedStudent = {
               classId: remoteStudent.classId || classId || "",
@@ -4974,9 +5122,17 @@
       }
 
       if (!matchedStudent) {
-        studentLoginStatus.innerHTML = `<span class="danger">Student ID or PIN not found.${buildCloudHint(authSync)}</span>`;
+        if (remoteLoginError && remoteLoginError.code === "student-login-unreachable") {
+          studentLoginStatus.innerHTML = `<span class="danger">Student cloud login service is not reachable right now. This device can only use already-saved student records until cloud access comes back.</span>`;
+          FX.toast("Student cloud login is offline right now.", "☁️");
+        } else if (remoteLoginError && remoteLoginError.code === "student-login-service-error") {
+          studentLoginStatus.innerHTML = `<span class="danger">${remoteLoginError.message || "Student cloud login is temporarily unavailable."}</span>`;
+          FX.toast("Student cloud login is temporarily unavailable.", "⚠️");
+        } else {
+          studentLoginStatus.innerHTML = `<span class="danger">Student ID or PIN not found.${buildCloudHint(authSync)}</span>`;
+          FX.toast("Student ID or PIN not found.", "❌");
+        }
         safePlay("warning");
-        FX.toast("Student ID or PIN not found.", "❌");
         return;
       }
 
@@ -5006,6 +5162,13 @@
         displayName: matchedStudent.displayName || matchedStudent.name || studentId,
         name: matchedStudent.displayName || matchedStudent.name || studentId,
         loginAt: new Date().toISOString()
+      });
+      rememberStudentCredential({
+        ...matchedStudent,
+        pin,
+        level: resolvedLevel,
+        classId: matchedStudent.classId || classId || "demo-class",
+        cloudSynced: !!matchedStudent.cloudSynced || !!matchedStudent.authUid || !!matchedStudent.teacherUid
       });
       setLocalStudents(getAllKnownStudents().concat({
         ...matchedStudent,
@@ -5091,6 +5254,7 @@
         rememberAuthEmail("teacher", email);
         selectedRole = "teacher";
         storageSetItem(STORAGE_KEYS.role, "teacher");
+        clearRememberedStudentCredential();
         setTeacherSession({
           id: teacherRecord.uid || teacherRecord.id,
           name: teacherRecord.name,
@@ -5153,6 +5317,7 @@
         rememberAuthEmail("teacher", email);
         storageSetItem(STORAGE_KEYS.role, "teacher");
         setTeachers(getTeachers().filter(t => normalizeEmail(t.email) !== email).concat(teacher));
+        clearRememberedStudentCredential();
         setTeacherSession({
           id: teacher.uid || teacher.id,
           name: teacher.name,
@@ -5280,6 +5445,7 @@
         rememberAuthEmail("parent", email);
         selectedRole = "parent";
         storageSetItem(STORAGE_KEYS.role, "parent");
+        clearRememberedStudentCredential();
         const resolvedLevel = String(
           inferLevelFromStudentId(parentRecord.childStudentId) || "A"
         ).toUpperCase();
@@ -5354,6 +5520,7 @@
         storageSetItem(STORAGE_KEYS.role, "parent");
         storageSetItem(STORAGE_KEYS.level, resolvedLevel);
         setParents(getParents().filter(p => normalizeEmail(p.email) !== email).concat(parent));
+        clearRememberedStudentCredential();
         setParentSession({
           id: parent.uid || parent.id,
           name: parent.name,
@@ -5682,6 +5849,7 @@
       if (authSync && typeof authSync.signOutCurrentUser === "function") {
         try { await authSync.signOutCurrentUser(); } catch (_) {}
       }
+      clearRememberedStudentCredential();
       clearSession();
       clearTeacherSession();
       clearParentSession();
@@ -5821,7 +5989,11 @@
       window.setTimeout(() => warmNavigationTargets(), 600);
     }
 
-    getAuthSync().then(() => hydrateCloudSession()).then(() => scheduleSyncLevelUI()).catch(() => null);
+    getAuthSync()
+      .then(() => hydrateCloudSession())
+      .then(() => restoreRememberedStudentAccess())
+      .then(() => scheduleSyncLevelUI())
+      .catch(() => restoreRememberedStudentAccess().then(() => scheduleSyncLevelUI()).catch(() => null));
     hydrateRememberedAuthEmails();
     syncLevelUI();
     showPanel("panel-home");

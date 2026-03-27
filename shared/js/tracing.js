@@ -35,6 +35,7 @@
   let micSupportPromise = null;
   let activeRecognition = null;
   let speechPatchInstalled = false;
+  let speechCancelStamp = 0;
   let traceAudioContext = null;
   let lastTraceTickAt = 0;
   let lastTraceCelebrationAt = 0;
@@ -42,7 +43,7 @@
   function pickPreferredFemaleVoice(voices){
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira)/i;
+    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena)/i;
     const targetLang = /^(en[-_](us|ca|au|gb))/i;
     const englishLang = /^en[-_]/i;
 
@@ -69,12 +70,13 @@
       } else if (shouldForceEnglish && !utterance.lang) {
         utterance.lang = "en-US";
       }
-      if (typeof utterance.rate !== "number" || utterance.rate === 1) {
-        utterance.rate = 0.94;
+      if (typeof utterance.rate !== "number" || utterance.rate >= 0.98) {
+        utterance.rate = 0.86;
       }
-      if (typeof utterance.pitch !== "number" || utterance.pitch === 1) {
-        utterance.pitch = 1.08;
+      if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.02) {
+        utterance.pitch = 1.22;
       }
+      utterance.volume = 1;
     } catch (_err) {}
     return utterance;
   }
@@ -86,9 +88,24 @@
       const synth = global.speechSynthesis;
       if (typeof synth.getVoices === "function") synth.getVoices();
       const originalSpeak = synth.speak.bind(synth);
+      const originalCancel = typeof synth.cancel === "function" ? synth.cancel.bind(synth) : null;
       synth.speak = function patchedSpeak(utterance){
-        return originalSpeak(applyPreferredVoice(utterance));
+        const speakNow = function () {
+          return originalSpeak(applyPreferredVoice(utterance));
+        };
+        const delay = Math.max(0, 90 - (Date.now() - speechCancelStamp));
+        if (delay > 0) {
+          global.setTimeout(speakNow, delay);
+          return;
+        }
+        return speakNow();
       };
+      if (originalCancel) {
+        synth.cancel = function patchedCancel() {
+          speechCancelStamp = Date.now();
+          return originalCancel();
+        };
+      }
       if ("onvoiceschanged" in synth) {
         const previous = synth.onvoiceschanged;
         synth.onvoiceschanged = function patchedVoicesChanged(event){
@@ -1322,8 +1339,9 @@
       }
       try { global.speechSynthesis.cancel(); } catch (_err) {}
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.95;
-      utter.pitch = 1.1;
+      utter.rate = 0.86;
+      utter.pitch = 1.22;
+      utter.volume = 1;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       try {
