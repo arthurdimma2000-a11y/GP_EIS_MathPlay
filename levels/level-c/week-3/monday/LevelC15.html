@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -340,8 +341,10 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
+
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -444,13 +447,21 @@
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+
 </script>
 </body>
-</html>
-
-
-
-
-
-
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
