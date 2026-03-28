@@ -11,6 +11,14 @@ function corsHeaders() {
   };
 }
 
+function jsonResponse(statusCode, body) {
+  return {
+    statusCode,
+    headers: corsHeaders(),
+    body: statusCode === 204 ? "" : JSON.stringify(body)
+  };
+}
+
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -63,6 +71,19 @@ function getAdminApp() {
   return initializeApp({ credential: cert(readServiceAccount()) });
 }
 
+function safeParseJson(raw) {
+  if (raw == null || raw === "") return { ok: true, value: {} };
+  try {
+    return { ok: true, value: JSON.parse(raw) };
+  } catch (error) {
+    return {
+      ok: false,
+      error: "Invalid JSON request body.",
+      details: String(error && error.message || "JSON parse failed.")
+    };
+  }
+}
+
 function normalizeStudentRecord(student, teacherContext = {}) {
   const studentId = normalizeStudentId(student && student.studentId);
   const classId = normalizeClassId(student && student.classId);
@@ -83,26 +104,47 @@ function normalizeStudentRecord(student, teacherContext = {}) {
     teacherEmail: normalizeEmail(student && student.teacherEmail || teacherContext.email),
     displayName: String(student && student.displayName || student && student.name || "").trim(),
     status: "active",
-    authUid: `student:${compositeStudentKey(classId, studentId)}`
+    authUid: `student:${compositeStudentKey(classId, studentId)}`,
+    createdAt: student && student.createdAt ? String(student.createdAt) : "",
+    updatedAt: student && student.updatedAt ? String(student.updatedAt) : ""
   };
 }
 
 exports.handler = async function handler(event) {
-  const headers = corsHeaders();
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
+    return jsonResponse(204, "");
   }
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers, body: JSON.stringify({ ok: false, error: "Method not allowed." }) };
+    return jsonResponse(405, {
+      ok: false,
+      success: false,
+      error: "Method not allowed.",
+      details: "Use POST for save-students."
+    });
   }
 
   try {
-    const body = JSON.parse(event.body || "{}");
+    const parsedBody = safeParseJson(event.body);
+    if (!parsedBody.ok) {
+      return jsonResponse(400, {
+        ok: false,
+        success: false,
+        error: parsedBody.error,
+        details: parsedBody.details
+      });
+    }
+
+    const body = parsedBody.value || {};
     const teacherContext = body && typeof body.teacherContext === "object" ? body.teacherContext : {};
     const rawStudents = Array.isArray(body && body.students) ? body.students : [];
 
     if (!rawStudents.length) {
-      return { statusCode: 400, headers, body: JSON.stringify({ ok: false, error: "students array is required." }) };
+      return jsonResponse(400, {
+        ok: false,
+        success: false,
+        error: "students array is required.",
+        details: "Provide at least one generated student record in body.students."
+      });
     }
 
     const students = rawStudents
@@ -110,7 +152,12 @@ exports.handler = async function handler(event) {
       .filter(Boolean);
 
     if (!students.length) {
-      return { statusCode: 400, headers, body: JSON.stringify({ ok: false, error: "No valid student records were provided." }) };
+      return jsonResponse(400, {
+        ok: false,
+        success: false,
+        error: "No valid student records were provided.",
+        details: "Each student must include classId, studentId, pin, and level."
+      });
     }
 
     const app = getAdminApp();
@@ -123,6 +170,8 @@ exports.handler = async function handler(event) {
       const studentDoc = db.collection("studentAccounts").doc(student.compositeKey);
       const teacherKey = student.teacherUid || student.teacherEmail || "teacher";
       const teacherDoc = db.collection("teacherStudentCredentials").doc(`${teacherKey}__${student.compositeKey}`);
+      const createdAt = student.createdAt || now;
+      const updatedAt = student.updatedAt || now;
 
       batch.set(studentDoc, {
         authUid: student.authUid,
@@ -139,9 +188,9 @@ exports.handler = async function handler(event) {
         teacherEmail: student.teacherEmail,
         displayName: student.displayName,
         status: student.status,
-        updatedAt: now,
+        updatedAt,
         updatedAtServer: FieldValue.serverTimestamp(),
-        createdAt: now,
+        createdAt,
         createdAtServer: FieldValue.serverTimestamp()
       }, { merge: true });
 
@@ -159,9 +208,9 @@ exports.handler = async function handler(event) {
         level: student.level,
         displayName: student.displayName,
         status: student.status,
-        updatedAt: now,
+        updatedAt,
         updatedAtServer: FieldValue.serverTimestamp(),
-        createdAt: now,
+        createdAt,
         createdAtServer: FieldValue.serverTimestamp()
       }, { merge: true });
 
@@ -170,24 +219,24 @@ exports.handler = async function handler(event) {
 
     await batch.commit();
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        ok: true,
-        message: "Student records saved successfully.",
-        savedCount: students.length,
-        syncedStudentIds
-      })
-    };
+    return jsonResponse(200, {
+      ok: true,
+      success: true,
+      message: "Student records saved successfully.",
+      savedCount: students.length,
+      syncedStudentIds
+    });
   } catch (error) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        ok: false,
-        error: error && error.message ? error.message : "Student save failed."
-      })
-    };
+    console.error("[save-students] failure", {
+      message: error && error.message ? error.message : "Unknown error",
+      stack: error && error.stack ? error.stack : "",
+      code: error && error.code ? error.code : ""
+    });
+    return jsonResponse(500, {
+      ok: false,
+      success: false,
+      error: "Student save failed.",
+      details: error && error.message ? error.message : "Unknown server error."
+    });
   }
 };

@@ -12,6 +12,14 @@ function corsHeaders() {
   };
 }
 
+function jsonResponse(statusCode, body) {
+  return {
+    statusCode,
+    headers: corsHeaders(),
+    body: statusCode === 204 ? "" : JSON.stringify(body)
+  };
+}
+
 function normalizeStudentId(value) {
   return String(value || "").trim().toUpperCase();
 }
@@ -60,24 +68,56 @@ function getAdminApp() {
   return initializeApp({ credential: cert(readServiceAccount()) });
 }
 
+function safeParseJson(raw) {
+  if (raw == null || raw === "") return { ok: true, value: {} };
+  try {
+    return { ok: true, value: JSON.parse(raw) };
+  } catch (error) {
+    return {
+      ok: false,
+      error: "Invalid JSON request body.",
+      details: String(error && error.message || "JSON parse failed.")
+    };
+  }
+}
+
 exports.handler = async function handler(event) {
-  const headers = corsHeaders();
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
+    return jsonResponse(204, "");
   }
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers, body: JSON.stringify({ ok: false, success: false, error: "Method not allowed." }) };
+    return jsonResponse(405, {
+      ok: false,
+      success: false,
+      error: "Method not allowed.",
+      details: "Use POST for verify-student-login."
+    });
   }
 
   try {
-    const body = JSON.parse(event.body || "{}");
+    const parsedBody = safeParseJson(event.body);
+    if (!parsedBody.ok) {
+      return jsonResponse(400, {
+        ok: false,
+        success: false,
+        error: parsedBody.error,
+        details: parsedBody.details
+      });
+    }
+
+    const body = parsedBody.value || {};
     const classId = normalizeClassId(body.classId);
     const studentId = normalizeStudentId(body.studentId);
     const pin = normalizePin(body.pin);
     const compositeKey = compositeStudentKey(classId, studentId);
 
     if (!classId || !studentId || !pin) {
-      return { statusCode: 400, headers, body: JSON.stringify({ ok: false, success: false, error: "Class ID, Student ID, and PIN are required." }) };
+      return jsonResponse(400, {
+        ok: false,
+        success: false,
+        error: "Class ID, Student ID, and PIN are required.",
+        details: "Provide classId, studentId, and pin in the POST body."
+      });
     }
 
     const app = getAdminApp();
@@ -86,17 +126,32 @@ exports.handler = async function handler(event) {
     const snap = await db.collection("studentAccounts").doc(compositeKey).get();
 
     if (!snap.exists) {
-      return { statusCode: 401, headers, body: JSON.stringify({ ok: false, success: false, error: "Student account not found." }) };
+      return jsonResponse(401, {
+        ok: false,
+        success: false,
+        error: "Student account not found.",
+        details: "No student record matched the provided Class ID and Student ID."
+      });
     }
 
     const data = snap.data() || {};
     const pinMatches = String(data.pinHash || "") === sha256(pin) || String(data.pin || "") === pin;
     if (!pinMatches) {
-      return { statusCode: 401, headers, body: JSON.stringify({ ok: false, success: false, error: "PIN is incorrect." }) };
+      return jsonResponse(401, {
+        ok: false,
+        success: false,
+        error: "PIN is incorrect.",
+        details: "The provided PIN did not match the saved student record."
+      });
     }
 
     if (canonicalClassId(data.classId) !== canonicalClassId(classId)) {
-      return { statusCode: 401, headers, body: JSON.stringify({ ok: false, success: false, error: "Class ID is incorrect." }) };
+      return jsonResponse(401, {
+        ok: false,
+        success: false,
+        error: "Class ID is incorrect.",
+        details: "The student record exists, but not for the provided Class ID."
+      });
     }
 
     const student = {
@@ -124,25 +179,23 @@ exports.handler = async function handler(event) {
       });
     } catch (_) {}
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        ok: true,
-        success: true,
-        student,
-        token
-      })
-    };
+    return jsonResponse(200, {
+      ok: true,
+      success: true,
+      student,
+      token
+    });
   } catch (error) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        ok: false,
-        success: false,
-        error: error && error.message ? error.message : "Student verification failed."
-      })
-    };
+    console.error("[verify-student-login] failure", {
+      message: error && error.message ? error.message : "Unknown error",
+      stack: error && error.stack ? error.stack : "",
+      code: error && error.code ? error.code : ""
+    });
+    return jsonResponse(500, {
+      ok: false,
+      success: false,
+      error: "Student verification failed.",
+      details: error && error.message ? error.message : "Unknown server error."
+    });
   }
 };

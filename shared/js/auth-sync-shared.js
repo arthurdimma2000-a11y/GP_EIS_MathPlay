@@ -171,6 +171,7 @@ function studentLoginError(code, message, detail = {}) {
   const error = {
     code: String(code || "student-login-failed"),
     message: String(message || "Student cloud login failed."),
+    reason: String(message || "Student cloud login failed."),
     ...detail
   };
   lastStudentLoginError = error;
@@ -246,6 +247,13 @@ async function postJsonWithTimeout(endpoint, body, timeoutMs = 7000) {
   } finally {
     if (timer) window.clearTimeout(timer);
   }
+}
+
+function buildFailureMessage(payload, fallback) {
+  const errorText = String(payload?.error || "").trim();
+  const detailText = String(payload?.details || "").trim();
+  const messageText = String(payload?.message || "").trim();
+  return errorText || detailText || messageText || String(fallback || "").trim();
 }
 
 async function sha256(value) {
@@ -504,7 +512,9 @@ async function saveStudents(students, teacherContext = {}) {
       lastFailure = {
         ok: false,
         code: response.status === 404 ? "student-save-endpoint-missing" : "student-save-failed",
-        message: String(payload?.error || payload?.message || "Cloud student save failed."),
+        message: buildFailureMessage(payload, "Cloud student save failed."),
+        reason: buildFailureMessage(payload, "Cloud student save failed."),
+        details: String(payload?.details || payload?.error || payload?.message || "").trim(),
         status: response.status,
         savedCount: 0,
         syncedStudentIds: []
@@ -514,12 +524,22 @@ async function saveStudents(students, teacherContext = {}) {
         ok: false,
         code: "student-save-unreachable",
         message: String(error?.message || "Cloud student save is unreachable right now."),
+        reason: String(error?.message || "Cloud student save is unreachable right now."),
+        details: String(error?.message || ""),
         savedCount: 0,
         syncedStudentIds: []
       };
     }
   }
-  return lastFailure || { ok: false, code: "student-save-failed", message: "Cloud student save failed.", savedCount: 0, syncedStudentIds: [] };
+  return lastFailure || {
+    ok: false,
+    code: "student-save-failed",
+    message: "Cloud student save failed.",
+    reason: "Cloud student save failed.",
+    details: "",
+    savedCount: 0,
+    syncedStudentIds: []
+  };
 }
 
 function queuePendingStudents(students, teacherContext = {}) {
@@ -564,6 +584,8 @@ async function processPendingStudentSync(teacherContext = {}) {
       ok: false,
       code: "student-sync-teacher-auth-required",
       message: "Teacher login is required before pending student sync can run.",
+      reason: "Teacher login is required before pending student sync can run.",
+      details: "",
       queuedCount: queue.length,
       savedCount: 0,
       syncedStudentIds: []
@@ -682,16 +704,24 @@ async function verifyStudentLogin(input, maybePin, maybeClassId = "") {
     if (response.status === 400 || response.status === 401) {
       studentLoginError(
         "student-login-invalid-credentials",
-        String(payload?.error || "Student ID, PIN, or Class ID is incorrect."),
-        { endpoint, status: response.status }
+        buildFailureMessage(payload, "Student ID, PIN, or Class ID is incorrect."),
+        {
+          endpoint,
+          status: response.status,
+          details: String(payload?.details || payload?.error || payload?.message || "").trim()
+        }
       );
       return null;
     }
 
     lastRecoverableError = studentLoginError(
       "student-login-service-error",
-      String(payload?.error || "Student cloud login service is unavailable right now."),
-      { endpoint, status: response.status }
+      buildFailureMessage(payload, "Student cloud login service is unavailable right now."),
+      {
+        endpoint,
+        status: response.status,
+        details: String(payload?.details || payload?.error || payload?.message || "").trim()
+      }
     );
   }
 
