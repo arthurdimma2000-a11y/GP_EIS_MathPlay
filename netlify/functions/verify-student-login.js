@@ -49,18 +49,39 @@ function sha256(value) {
 }
 
 function readServiceAccount() {
+  const projectId = String(process.env.FIREBASE_PROJECT_ID || "").trim();
+  const clientEmail = String(process.env.FIREBASE_CLIENT_EMAIL || "").trim();
+  const privateKeyRaw = String(process.env.FIREBASE_PRIVATE_KEY || "").trim();
+
+  if (projectId && clientEmail && privateKeyRaw) {
+    return {
+      projectId,
+      clientEmail,
+      privateKey: privateKeyRaw.replace(/\\n/g, "\n")
+    };
+  }
+
   const raw = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || "").trim();
   if (!raw) {
-    throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_JSON.");
+    throw new Error(
+      "Firebase Admin credentials are missing. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY, or provide FIREBASE_SERVICE_ACCOUNT_JSON."
+    );
   }
+
   const parsed = JSON.parse(raw);
   if (parsed.private_key && !parsed.privateKey) parsed.privateKey = parsed.private_key;
   if (parsed.client_email && !parsed.clientEmail) parsed.clientEmail = parsed.client_email;
   parsed.privateKey = String(parsed.privateKey || "").replace(/\\n/g, "\n");
   if (!parsed.projectId || !parsed.clientEmail || !parsed.privateKey) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON is incomplete.");
+    throw new Error(
+      "Firebase Admin credentials are incomplete. Provide FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY, or a complete FIREBASE_SERVICE_ACCOUNT_JSON."
+    );
   }
-  return parsed;
+  return {
+    projectId: String(parsed.projectId).trim(),
+    clientEmail: String(parsed.clientEmail).trim(),
+    privateKey: parsed.privateKey
+  };
 }
 
 function getAdminApp() {
