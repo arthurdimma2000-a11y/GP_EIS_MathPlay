@@ -3088,6 +3088,8 @@
     let progressSnapshotValue = null;
     let reconcileAuthAt = 0;
     const animalPlanCache = {};
+    let pendingStudentSyncTimer = 0;
+    let pendingStudentSyncPromise = null;
 
     const selectedLevelBadge = document.getElementById("selectedLevelBadge");
     const quickLevelText = document.getElementById("quickLevelText");
@@ -4022,6 +4024,7 @@
           clearSession();
           clearParentSession();
           await hydrateTeacherStudentsFromCloud(true).catch(() => []);
+          schedulePendingStudentSync("teacher-cloud-session", 120, { quiet:true });
         } else if (state.role === "parent") {
           const parent = normalizeParentRecord(state.profile || {});
           if (!parent || !parent.email) return;
@@ -5274,6 +5277,7 @@
         showAuthSubpanel("teacher-auth");
         window.setTimeout(() => {
           hydrateTeacherStudentsFromCloud(true).then(() => scheduleSyncLevelUI()).catch(() => []);
+          schedulePendingStudentSync("teacher-signup", 120, { quiet:true });
         }, 0);
 
         teacherSignupStatus.innerHTML = teacherRecord.mode === "existing"
@@ -5339,6 +5343,7 @@
         showAuthSubpanel("teacher-auth");
         window.setTimeout(() => {
           hydrateTeacherStudentsFromCloud(true).then(() => scheduleSyncLevelUI()).catch(() => []);
+          schedulePendingStudentSync("teacher-login", 120, { quiet:true });
         }, 0);
         safePlay("success");
         FX.toast(`Welcome Teacher ${teacher.name}!`, "🎓");
@@ -5623,19 +5628,80 @@
         (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
         liveTeacherPassword;
 
-      try {
-        await authSync.saveStudents(studentsToSync, {
+      const result = await authSync.saveStudents(studentsToSync, {
           email: teacher.email,
           password: teacherPassword,
-          name: teacher.name
+          name: teacher.name,
+          uid: teacher.id || ""
         });
-        return { ok: true };
-      } catch (error) {
-        return {
-          ok: false,
-          reason: (error && error.message) ? error.message : "Cloud sync failed."
-        };
+      return {
+        ok: !!result?.ok,
+        reason: result?.message || result?.reason || "",
+        syncedStudentIds: Array.isArray(result?.syncedStudentIds) ? result.syncedStudentIds : [],
+        queuedCount: Number(result?.queuedCount || 0)
+      };
+    }
+
+    async function queueStudentsForCloudSync(studentsToQueue){
+      const teacher = getTeacherSession();
+      const authSync = await getAuthSync().catch(() => null);
+      if (!authSync || typeof authSync.queuePendingStudents !== "function") return null;
+      return authSync.queuePendingStudents(studentsToQueue, {
+        email: teacher?.email || "",
+        name: teacher?.name || "",
+        uid: teacher?.id || ""
+      });
+    }
+
+    async function processPendingStudentSync(source = "background", options = {}){
+      if (pendingStudentSyncPromise) return pendingStudentSyncPromise;
+      const teacher = getTeacherSession();
+      if (!teacher || !teacher.email) return { ok: false, reason: "Teacher session is required." };
+
+      const authSync = await getAuthSync().catch(() => null);
+      if (!authSync || typeof authSync.processPendingStudentSync !== "function") {
+        return { ok: false, reason: "Cloud student sync is not available right now." };
       }
+
+      const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
+      const liveTeacherPassword =
+        (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
+        (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
+      const teacherPassword =
+        (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
+        liveTeacherPassword;
+
+      pendingStudentSyncPromise = authSync.processPendingStudentSync({
+        email: teacher.email,
+        password: teacherPassword,
+        name: teacher.name,
+        uid: teacher.id || ""
+      }).then((result) => {
+        const syncedIds = Array.isArray(result?.syncedStudentIds) ? result.syncedStudentIds : [];
+        if (syncedIds.length) {
+          markStudentsCloudSynced(syncedIds);
+          if (!options.quiet && teacherGeneratorStatus) {
+            teacherGeneratorStatus.innerHTML = `<span class="ok">${syncedIds.length} student record(s) synced to cloud successfully.</span>`;
+          }
+        } else if (!result?.ok && !options.quiet && teacherGeneratorStatus && result?.reason) {
+          teacherGeneratorStatus.innerHTML = `<span class="danger">${result.reason}</span>`;
+        }
+        return result;
+      }).finally(() => {
+        pendingStudentSyncPromise = null;
+      });
+
+      return pendingStudentSyncPromise;
+    }
+
+    function schedulePendingStudentSync(source = "background", delayMs = 320, options = {}){
+      if (pendingStudentSyncTimer) {
+        window.clearTimeout(pendingStudentSyncTimer);
+      }
+      pendingStudentSyncTimer = window.setTimeout(() => {
+        pendingStudentSyncTimer = 0;
+        processPendingStudentSync(source, options).catch(() => null);
+      }, Math.max(0, Number(delayMs) || 0));
     }
 
     function markStudentsCloudSynced(studentIds){
@@ -5664,7 +5730,8 @@
       }
 
       teacherGeneratorStatus.innerHTML = `<span class="muted">Retrying cloud sync for ${targetStudent.studentId}...</span>`;
-      const result = await syncStudentsToCloud([targetStudent]);
+      await queueStudentsForCloudSync([targetStudent]);
+      const result = await processPendingStudentSync("retry", { quiet:false });
       if (!result.ok) {
         teacherGeneratorStatus.innerHTML = `<span class="danger">${targetStudent.studentId} is still local only. ${result.reason || "Cloud sync failed."}</span>`;
         safePlay("warning");
@@ -5673,7 +5740,7 @@
         return;
       }
 
-      markStudentsCloudSynced([targetStudent.studentId]);
+      markStudentsCloudSynced(result.syncedStudentIds && result.syncedStudentIds.length ? result.syncedStudentIds : [targetStudent.studentId]);
       teacherGeneratorStatus.innerHTML = `<span class="ok">${targetStudent.studentId} is now cloud synced and can be used on other devices.</span>`;
       safePlay("success");
       FX.toast(`${targetStudent.studentId} synced to cloud.`, "🪪", 3200);
@@ -5732,9 +5799,10 @@
       }
 
       teacherGeneratorStatus.innerHTML = `<span class="muted">${newStudents.length} Student ID(s) generated. They are now visible in the Teacher Student List. Syncing them to cloud...</span>`;
+      await queueStudentsForCloudSync(newStudents);
 
       window.setTimeout(async () => {
-        const syncResult = await syncStudentsToCloud(newStudents);
+        const syncResult = await processPendingStudentSync("generate", { quiet:false });
         const cloudSaved = !!syncResult.ok;
 
         if (!cloudSaved) {
@@ -5745,7 +5813,7 @@
           return;
         }
 
-        markStudentsCloudSynced(newStudents.map((student) => student.studentId));
+        markStudentsCloudSynced(syncResult.syncedStudentIds && syncResult.syncedStudentIds.length ? syncResult.syncedStudentIds : newStudents.map((student) => student.studentId));
         teacherGeneratorStatus.innerHTML = `<span class="ok">${newStudents.length} Student ID(s) created and saved to cloud successfully. Students can now login on other devices.</span>`;
         safePlay("success");
         setTimeout(() => safePlay("cheer"), 100);
@@ -5950,10 +6018,22 @@
     });
 
     window.addEventListener("storage", scheduleSyncLevelUI);
-    window.addEventListener("focus", scheduleSyncLevelUI);
-    window.addEventListener("pageshow", scheduleSyncLevelUI);
+    window.addEventListener("focus", () => {
+      scheduleSyncLevelUI();
+      schedulePendingStudentSync("focus", 1600, { quiet:true });
+    });
+    window.addEventListener("pageshow", () => {
+      scheduleSyncLevelUI();
+      schedulePendingStudentSync("pageshow", 700, { quiet:true });
+    });
+    window.addEventListener("online", () => {
+      schedulePendingStudentSync("online", 250, { quiet:true });
+    });
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) scheduleSyncLevelUI();
+      if (!document.hidden) {
+        scheduleSyncLevelUI();
+        schedulePendingStudentSync("visible", 1200, { quiet:true });
+      }
     });
 
     [
@@ -6000,6 +6080,7 @@
       .then(() => restoreRememberedStudentAccess())
       .then(() => scheduleSyncLevelUI())
       .catch(() => restoreRememberedStudentAccess().then(() => scheduleSyncLevelUI()).catch(() => null));
+    window.setTimeout(() => schedulePendingStudentSync("startup", 900, { quiet:true }), 0);
     hydrateRememberedAuthEmails();
     syncLevelUI();
     showPanel("panel-home");
