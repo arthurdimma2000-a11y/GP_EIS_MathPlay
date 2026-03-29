@@ -25,7 +25,7 @@ function normalizeStudentId(value) {
 }
 
 function normalizeClassId(value) {
-  return String(value || "").trim();
+  return String(value || "").trim().toUpperCase();
 }
 
 function normalizePin(value) {
@@ -71,12 +71,16 @@ function readServiceAccount() {
   const parsed = JSON.parse(raw);
   if (parsed.private_key && !parsed.privateKey) parsed.privateKey = parsed.private_key;
   if (parsed.client_email && !parsed.clientEmail) parsed.clientEmail = parsed.client_email;
+  if (parsed.project_id && !parsed.projectId) parsed.projectId = parsed.project_id;
+
   parsed.privateKey = String(parsed.privateKey || "").replace(/\\n/g, "\n");
+
   if (!parsed.projectId || !parsed.clientEmail || !parsed.privateKey) {
     throw new Error(
       "Firebase Admin credentials are incomplete. Provide FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY, or a complete FIREBASE_SERVICE_ACCOUNT_JSON."
     );
   }
+
   return {
     projectId: String(parsed.projectId).trim(),
     clientEmail: String(parsed.clientEmail).trim(),
@@ -97,15 +101,96 @@ function safeParseJson(raw) {
     return {
       ok: false,
       error: "Invalid JSON request body.",
-      details: String(error && error.message || "JSON parse failed.")
+      details: String((error && error.message) || "JSON parse failed.")
     };
   }
+}
+
+async function findStudentRecord(db, classId, studentId) {
+  const normalizedClassId = normalizeClassId(classId);
+  const normalizedStudentId = normalizeStudentId(studentId);
+  const canonicalCls = canonicalClassId(classId);
+  const canonicalStu = canonicalStudentId(studentId);
+  const compositeKey = compositeStudentKey(classId, studentId);
+
+  const collection = db.collection("studentAccounts");
+
+  // 1) Primary lookup by current canonical document ID
+  const directSnap = await collection.doc(compositeKey).get();
+  if (directSnap.exists) {
+    return { id: directSnap.id, data: directSnap.data() || {} };
+  }
+
+  // 2) Fallback lookup by compositeKey field
+  try {
+    const byCompositeKey = await collection.where("compositeKey", "==", compositeKey).limit(1).get();
+    if (!byCompositeKey.empty) {
+      const doc = byCompositeKey.docs[0];
+      return { id: doc.id, data: doc.data() || {} };
+    }
+  } catch (_) {}
+
+  // 3) Fallback lookup by canonical fields
+  try {
+    const byCanonical = await collection
+      .where("canonicalClassId", "==", canonicalCls)
+      .where("canonicalStudentId", "==", canonicalStu)
+      .limit(1)
+      .get();
+
+    if (!byCanonical.empty) {
+      const doc = byCanonical.docs[0];
+      return { id: doc.id, data: doc.data() || {} };
+    }
+  } catch (_) {}
+
+  // 4) Fallback lookup by normalized visible values
+  try {
+    const byVisibleValues = await collection
+      .where("classId", "==", normalizedClassId)
+      .where("studentId", "==", normalizedStudentId)
+      .limit(1)
+      .get();
+
+    if (!byVisibleValues.empty) {
+      const doc = byVisibleValues.docs[0];
+      return { id: doc.id, data: doc.data() || {} };
+    }
+  } catch (_) {}
+
+  // 5) Last fallback: loose scan by studentId only, then filter locally
+  try {
+    const byStudentId = await collection.where("studentId", "==", normalizedStudentId).limit(10).get();
+    if (!byStudentId.empty) {
+      const match = byStudentId.docs.find((doc) => {
+        const data = doc.data() || {};
+        return canonicalClassId(data.classId) === canonicalCls;
+      });
+      if (match) {
+        return { id: match.id, data: match.data() || {} };
+      }
+    }
+  } catch (_) {}
+
+  return null;
+}
+
+function pinMatchesRecord(data, pin) {
+  const normalizedInputPin = normalizePin(pin);
+  const storedPin = normalizePin(data.pin);
+  const storedPinHash = String(data.pinHash || "").trim();
+
+  if (storedPinHash && storedPinHash === sha256(normalizedInputPin)) return true;
+  if (storedPin && storedPin === normalizedInputPin) return true;
+
+  return false;
 }
 
 exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
     return jsonResponse(204, "");
   }
+
   if (event.httpMethod !== "POST") {
     return jsonResponse(405, {
       ok: false,
@@ -130,7 +215,6 @@ exports.handler = async function handler(event) {
     const classId = normalizeClassId(body.classId);
     const studentId = normalizeStudentId(body.studentId);
     const pin = normalizePin(body.pin);
-    const compositeKey = compositeStudentKey(classId, studentId);
 
     if (!classId || !studentId || !pin) {
       return jsonResponse(400, {
@@ -144,9 +228,10 @@ exports.handler = async function handler(event) {
     const app = getAdminApp();
     const db = getFirestore(app);
     const adminAuth = getAuth(app);
-    const snap = await db.collection("studentAccounts").doc(compositeKey).get();
 
-    if (!snap.exists) {
+    const found = await findStudentRecord(db, classId, studentId);
+
+    if (!found) {
       return jsonResponse(401, {
         ok: false,
         success: false,
@@ -155,9 +240,9 @@ exports.handler = async function handler(event) {
       });
     }
 
-    const data = snap.data() || {};
-    const pinMatches = String(data.pinHash || "") === sha256(pin) || String(data.pin || "") === pin;
-    if (!pinMatches) {
+    const data = found.data || {};
+
+    if (!pinMatchesRecord(data, pin)) {
       return jsonResponse(401, {
         ok: false,
         success: false,
@@ -176,14 +261,14 @@ exports.handler = async function handler(event) {
     }
 
     const student = {
-      classId: String(data.classId || classId),
-      studentId: String(data.studentId || studentId),
+      classId: String(data.classId || classId).trim().toUpperCase(),
+      studentId: String(data.studentId || studentId).trim().toUpperCase(),
       level: String(data.level || "").trim().toUpperCase(),
       teacherUid: String(data.teacherUid || ""),
       teacherEmail: String(data.teacherEmail || ""),
       teacherName: String(data.teacherName || ""),
-      displayName: String(data.displayName || data.studentId || studentId),
-      authUid: String(data.authUid || `student:${compositeKey}`)
+      displayName: String(data.displayName || data.studentId || studentId).trim(),
+      authUid: String(data.authUid || `student:${compositeStudentKey(classId, studentId)}`)
     };
 
     let token = "";
@@ -212,6 +297,7 @@ exports.handler = async function handler(event) {
       stack: error && error.stack ? error.stack : "",
       code: error && error.code ? error.code : ""
     });
+
     return jsonResponse(500, {
       ok: false,
       success: false,
