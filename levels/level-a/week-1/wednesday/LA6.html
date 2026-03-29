@@ -710,6 +710,11 @@
     const progressFillEl = document.getElementById('progressFill');
     const tracePercents = [0,0,0];
     const traceResets = [];
+    const TRACE_STANDARD_CONFIG = [
+      { canvasId:"trace1", digit:"1" },
+      { canvasId:"trace2", digit:"2" },
+      { canvasId:"trace3", digit:"3" }
+    ];
     let traceCelebrated = false;
     let traceCompletedNotified = false;
     let lastTraceSound = 0;
@@ -1111,9 +1116,9 @@
       if (traceSetupDone) return;
       syncTraceCanvasResolution();
 
-      setupTrace("trace1", window.GPTracing.getDigitTraceGroups("1"), 0);
-      setupTrace("trace2", window.GPTracing.getDigitTraceGroups("2"), 1);
-      setupTrace("trace3", window.GPTracing.getDigitTraceGroups("3"), 2);
+      TRACE_STANDARD_CONFIG.forEach((item, index) => {
+        setupTrace(item.canvasId, window.GPTracing.getDigitTraceGroups(item.digit), index);
+      });
 
       traceSetupDone = true;
       updateTotal();

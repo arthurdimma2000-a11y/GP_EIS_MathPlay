@@ -135,6 +135,9 @@
     position:relative;
     z-index:1;
     overflow:visible;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
   }
 
   .tray-hero img{
@@ -157,12 +160,14 @@
 
   .convo-line{
     display:none;
-    position:absolute;
-    inset:0;
+    position:relative;
+    inset:auto;
     pointer-events:none;
     z-index:3;
-    margin:0;
+    margin:2px 0 0;
     overflow:visible;
+    width:100%;
+    justify-content:center;
   }
 
   .convo-line.show{
@@ -170,7 +175,7 @@
   }
 
   .row.right{
-    justify-content:flex-end;
+    justify-content:center;
   }
 
   .bubble{
@@ -200,21 +205,21 @@
   .bubble.baker{ background:var(--bubble-baker); }
 
   .chef-bubble{
-    left:8%;
-    top:22%;
-    max-width:36%;
-    align-items:flex-start;
+    left:auto;
+    top:auto;
+    max-width:min(720px,88vw);
+    align-items:center;
   }
 
   .kid-bubble{
-    right:8%;
-    top:56%;
-    max-width:36%;
-    align-items:flex-end;
+    right:auto;
+    top:auto;
+    max-width:min(720px,88vw);
+    align-items:center;
   }
 
   .convo-line .bubble-stack{
-    position:absolute;
+    position:static;
     z-index:4;
   }
 

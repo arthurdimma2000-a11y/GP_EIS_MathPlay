@@ -71,10 +71,10 @@
         utterance.lang = "en-US";
       }
       if (typeof utterance.rate !== "number" || utterance.rate >= 0.98) {
-        utterance.rate = 0.86;
+        utterance.rate = 0.8;
       }
       if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.02) {
-        utterance.pitch = 1.22;
+        utterance.pitch = 1.16;
       }
       utterance.volume = 1;
     } catch (_err) {}
@@ -93,7 +93,7 @@
         const speakNow = function () {
           return originalSpeak(applyPreferredVoice(utterance));
         };
-        const delay = Math.max(0, 90 - (Date.now() - speechCancelStamp));
+        const delay = Math.max(0, 160 - (Date.now() - speechCancelStamp));
         if (delay > 0) {
           global.setTimeout(speakNow, delay);
           return;
@@ -242,14 +242,24 @@
   function speakText(text, options){
     if (!text || !("speechSynthesis" in global)) return;
     try {
+      const opts = options || {};
       global.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(String(text));
-      const opts = options || {};
       if (typeof opts.rate === "number") utterance.rate = opts.rate;
       if (typeof opts.pitch === "number") utterance.pitch = opts.pitch;
       if (typeof opts.volume === "number") utterance.volume = opts.volume;
       if (typeof opts.lang === "string" && opts.lang) utterance.lang = opts.lang;
-      global.speechSynthesis.speak(applyPreferredVoice(utterance));
+      if (typeof opts.onEnd === "function") utterance.onend = opts.onEnd;
+      if (typeof opts.onError === "function") utterance.onerror = opts.onError;
+      const speakNow = function(){
+        global.speechSynthesis.speak(applyPreferredVoice(utterance));
+      };
+      const delay = Math.max(0, 160 - (Date.now() - speechCancelStamp));
+      if (delay > 0) {
+        global.setTimeout(speakNow, delay);
+        return;
+      }
+      speakNow();
     } catch (_err) {}
   }
 
@@ -837,7 +847,7 @@
     const onTick = typeof opts.onTick === "function" ? opts.onTick : null;
     const onComplete = typeof opts.onComplete === "function" ? opts.onComplete : null;
     const smoothing = opts.smoothing !== false;
-    const smoothness = typeof opts.smoothness === "number" ? opts.smoothness : 18;
+    const smoothness = typeof opts.smoothness === "number" ? opts.smoothness : 22;
 
     let drawing = false;
     let lastPoint = null;

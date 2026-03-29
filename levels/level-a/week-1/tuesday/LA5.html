@@ -174,10 +174,12 @@
     width:100%;
     margin-top:0;
     text-align:center;
-    font-size:1.5rem;
-    font-weight:700;
+    font-size:clamp(2.4rem,5.6vw,4.4rem);
+    font-weight:900;
     color:var(--ink);
-    min-height:3.2em;
+    line-height:1.14;
+    min-height:3.6em;
+    text-shadow:0 4px 10px rgba(255,255,255,.78);
   }
 
   .circle-red{ color:#d62828; }
@@ -193,16 +195,23 @@
 
   .convo-line{
     display:none;
-    position:absolute;
-    inset:0;
+    position:relative;
+    inset:auto;
+    width:100%;
+    justify-content:center;
     pointer-events:none;
     z-index:3;
-    margin:0;
+    margin:12px 0 0;
     overflow:visible;
   }
 
   .convo-line.show{
     display:flex;
+  }
+
+  .convo-line.row.right,
+  .convo-line.row.right.show{
+    justify-content:center;
   }
 
   .row.right{
@@ -236,22 +245,22 @@
   .bubble.baker{ background:var(--bubble-baker); }
 
   .chef-bubble{
-    left:8%;
-    top:26%;
-    max-width:36%;
-    align-items:flex-start;
+    position:static;
+    max-width:min(780px,96%);
+    align-items:center;
   }
 
   .kid-bubble{
-    right:8%;
-    top:56%;
-    max-width:36%;
-    align-items:flex-end;
+    position:static;
+    max-width:min(780px,96%);
+    align-items:center;
   }
 
   .convo-line .bubble-stack{
-    position:absolute;
+    position:static;
     z-index:4;
+    width:min(780px,96%);
+    align-items:center !important;
   }
 
   .bubble.kid::after{
@@ -601,8 +610,11 @@
       word-break:normal;
     }
 
-    .kid-bubble{ right:4%; top:60%; max-width:46%; }
-    .chef-bubble{ left:4%; top:22%; max-width:46%; }
+    .kid-bubble,
+    .chef-bubble{
+      position:static;
+      max-width:min(94%,720px);
+    }
 
     .question{
       font-size:1.25rem;
@@ -610,8 +622,8 @@
     }
 
     .girl-sentence{
-      font-size:1.08rem;
-      min-height:2.8em;
+      font-size:clamp(1.8rem,7vw,3rem);
+      min-height:3.2em;
     }
 
     .controls{

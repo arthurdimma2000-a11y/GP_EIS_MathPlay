@@ -102,7 +102,7 @@
     height:100%;
   }
   .dot-layer{pointer-events:none; z-index:1;}
-  .draw-layer{z-index:2; touch-action:none; display:block; pointer-events:auto; cursor:crosshair;}
+  .draw-layer{z-index:4; touch-action:none; display:block; pointer-events:auto; cursor:crosshair;}
 
   .poster-note{
     position:absolute;
@@ -327,6 +327,8 @@
   const completed = new Set();
   const shapePercents = new Map();
   let combinedProgress = 0;
+  const TRACE_LINE_WIDTH = 9;
+  const TRACE_SAMPLE_SPACING = 8;
 
   function speak(text){
     if(!('speechSynthesis' in window)) return;
@@ -496,7 +498,7 @@
     shapePercents.clear();
     if (vertexEntry) vertexEntry.reset();
 
-    const spacing = 12;
+    const spacing = TRACE_SAMPLE_SPACING;
     SHAPES_PX.forEach(shape => {
       const ptsCanvas = shape.pts.map(imgToCanvas);
       const s = [];
@@ -520,8 +522,8 @@
 
   function updateVisited(currPos, prevPos){
     const rect = posterImg.getBoundingClientRect();
-    const strokeRadius = Math.max(10, 5 * 0.7);
-    const threshold = Math.max(16, rect.width * 0.018, strokeRadius + 6);
+    const strokeRadius = Math.max(14, TRACE_LINE_WIDTH * 0.95);
+    const threshold = Math.max(22, rect.width * 0.022, strokeRadius + 8);
     const thr2 = threshold * threshold;
 
     const a = prevPos || currPos;
@@ -585,10 +587,11 @@
 
     ctx.beginPath();
     ctx.moveTo(last.x, last.y);
-    ctx.lineWidth = 5;
+    ctx.lineWidth = TRACE_LINE_WIDTH;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#ff4d4d';
+    ctx.globalCompositeOperation = 'source-over';
 
     updateVisited(last, last);
   }

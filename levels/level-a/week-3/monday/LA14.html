@@ -543,12 +543,13 @@
     <div class="dot"></div><div class="dot"></div><div class="dot"></div>
   </div>
 
+  <div class="question" id="girlCaption"></div>
+
   <div class="poster-area">
     <img class="convo-bear" src="../../../../assets/images/shapes/A14.png" alt="Numbers poster">
     <div class="convo-bubble convo-baker bubble-right" id="bakerLine">What do you want?</div>
     <div class="convo-bubble convo-kid bubble-right lower" id="kidLine">I want cookies.</div>
   </div>
-  <div class="question"></div>
 
   <div class="controls">
     <div class="controls-row">
@@ -576,6 +577,8 @@
   const micIconBtn = document.getElementById("micIconBtn");
   const bakerLine = document.getElementById("bakerLine");
   const kidLine = document.getElementById("kidLine");
+  const girlBtn = document.getElementById("girlBtn");
+  const girlCaption = document.getElementById("girlCaption");
   window.__GP_REQUIRE_INTRO_AUDIO__ = true;
 
   prevBtn.addEventListener("click", () => {
@@ -637,6 +640,16 @@
       event.preventDefault();
       event.stopImmediatePropagation();
       runMicFlow();
+    });
+  }
+
+  if (girlBtn && girlCaption) {
+    girlBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      girlCaption.innerHTML = '<div class="headline-line show">I want cookies.</div>';
+      if (window.GPTracing?.speakText) {
+        window.GPTracing.speakText("I want cookies.", { rate: 0.92, pitch: 1.06 });
+      }
     });
   }
 </script>

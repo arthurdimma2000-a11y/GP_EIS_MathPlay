@@ -961,10 +961,11 @@
     const reset = window.GPTracing.createPathTracePad({
       canvasId,
       getPoints: () => points,
-      lineWidth: 8,
-      threshold: 12,
+      lineWidth: 13,
+      threshold: 26,
       posterImg,
       smoothing: true,
+      smoothness: 22,
       simplify: false,
       onProgress: (pct) => {
         tracePercents[index] = pct;

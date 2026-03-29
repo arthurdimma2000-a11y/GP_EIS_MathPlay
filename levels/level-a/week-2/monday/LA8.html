@@ -266,6 +266,9 @@
   .tray-hero{
     width:min(820px,90vw);
     margin:6px auto 0;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
   }
 
   .bubble{
@@ -278,21 +281,41 @@
   .bubble.baker{background:var(--bubble-baker);}
 
   .poster-bubble{
-    position:absolute;
-    max-width:min(420px,70vw);
+    position:static;
+    max-width:min(720px,88vw);
+    width:fit-content;
   }
 
   .kid-bubble{
-    right:7%;
-    top:58%;
+    right:auto;
+    top:auto;
     transform:none;
   }
 
   .chef-bubble{
-    left:7%;
+    left:auto;
     right:auto;
-    top:18%;
+    top:auto;
     transform:none;
+  }
+
+  .tray-hero .convo-line{
+    position:relative;
+    inset:auto;
+    width:100%;
+    margin:2px 0 0;
+    pointer-events:none;
+    overflow:visible;
+  }
+
+  .tray-hero .convo-line.show{
+    display:flex !important;
+    justify-content:center;
+  }
+
+  .tray-hero .bubble-stack{
+    align-items:center !important;
+    text-align:center;
   }
 
   .tap-prompt{
