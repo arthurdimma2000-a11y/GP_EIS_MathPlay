@@ -28,7 +28,7 @@ function normalizeStudentId(value) {
 }
 
 function normalizeClassId(value) {
-  return String(value || "").trim();
+  return String(value || "").trim().toUpperCase();
 }
 
 function normalizePin(value) {
@@ -74,12 +74,16 @@ function readServiceAccount() {
   const parsed = JSON.parse(raw);
   if (parsed.private_key && !parsed.privateKey) parsed.privateKey = parsed.private_key;
   if (parsed.client_email && !parsed.clientEmail) parsed.clientEmail = parsed.client_email;
+  if (parsed.project_id && !parsed.projectId) parsed.projectId = parsed.project_id;
+
   parsed.privateKey = String(parsed.privateKey || "").replace(/\\n/g, "\n");
+
   if (!parsed.projectId || !parsed.clientEmail || !parsed.privateKey) {
     throw new Error(
       "Firebase Admin credentials are incomplete. Provide FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY, or a complete FIREBASE_SERVICE_ACCOUNT_JSON."
     );
   }
+
   return {
     projectId: String(parsed.projectId).trim(),
     clientEmail: String(parsed.clientEmail).trim(),
@@ -100,7 +104,7 @@ function safeParseJson(raw) {
     return {
       ok: false,
       error: "Invalid JSON request body.",
-      details: String(error && error.message || "JSON parse failed.")
+      details: String((error && error.message) || "JSON parse failed.")
     };
   }
 }
@@ -109,23 +113,31 @@ function normalizeStudentRecord(student, teacherContext = {}) {
   const studentId = normalizeStudentId(student && student.studentId);
   const classId = normalizeClassId(student && student.classId);
   const pin = normalizePin(student && student.pin);
-  const level = String(student && student.level || "").trim().toUpperCase();
+  const level = String((student && student.level) || "").trim().toUpperCase();
+
   if (!studentId || !classId || !pin || !level) return null;
+
+  const classIdCanonical = canonicalClassId(classId);
+  const studentIdCanonical = canonicalStudentId(studentId);
+  const compositeKey = compositeStudentKey(classId, studentId);
+
   return {
     classId,
-    classIdCanonical: canonicalClassId(classId),
+    classIdCanonical,
+    canonicalClassId: classIdCanonical,
     studentId,
-    studentIdCanonical: canonicalStudentId(studentId),
-    compositeKey: compositeStudentKey(classId, studentId),
+    studentIdCanonical,
+    canonicalStudentId: studentIdCanonical,
+    compositeKey,
     pin,
     pinHash: sha256(pin),
     level,
-    teacherUid: String(student && student.teacherUid || teacherContext.uid || "").trim(),
-    teacherName: String(student && student.teacherName || teacherContext.name || "").trim(),
-    teacherEmail: normalizeEmail(student && student.teacherEmail || teacherContext.email),
-    displayName: String(student && student.displayName || student && student.name || "").trim(),
+    teacherUid: String((student && student.teacherUid) || teacherContext.uid || "").trim(),
+    teacherName: String((student && student.teacherName) || teacherContext.name || "").trim(),
+    teacherEmail: normalizeEmail((student && student.teacherEmail) || teacherContext.email),
+    displayName: String((student && (student.displayName || student.name)) || "").trim(),
     status: "active",
-    authUid: `student:${compositeStudentKey(classId, studentId)}`,
+    authUid: `student:${compositeKey}`,
     createdAt: student && student.createdAt ? String(student.createdAt) : "",
     updatedAt: student && student.updatedAt ? String(student.updatedAt) : ""
   };
@@ -135,6 +147,7 @@ exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
     return jsonResponse(204, "");
   }
+
   if (event.httpMethod !== "POST") {
     return jsonResponse(405, {
       ok: false,
@@ -191,49 +204,70 @@ exports.handler = async function handler(event) {
       const studentDoc = db.collection("studentAccounts").doc(student.compositeKey);
       const teacherKey = student.teacherUid || student.teacherEmail || "teacher";
       const teacherDoc = db.collection("teacherStudentCredentials").doc(`${teacherKey}__${student.compositeKey}`);
+
       const createdAt = student.createdAt || now;
       const updatedAt = student.updatedAt || now;
 
-      batch.set(studentDoc, {
-        authUid: student.authUid,
-        role: "student",
-        compositeKey: student.compositeKey,
-        classId: student.classId,
-        classIdCanonical: student.classIdCanonical,
-        studentId: student.studentId,
-        studentIdCanonical: student.studentIdCanonical,
-        pinHash: student.pinHash,
-        level: student.level,
-        teacherUid: student.teacherUid,
-        teacherName: student.teacherName,
-        teacherEmail: student.teacherEmail,
-        displayName: student.displayName,
-        status: student.status,
-        updatedAt,
-        updatedAtServer: FieldValue.serverTimestamp(),
-        createdAt,
-        createdAtServer: FieldValue.serverTimestamp()
-      }, { merge: true });
+      batch.set(
+        studentDoc,
+        {
+          authUid: student.authUid,
+          role: "student",
+          compositeKey: student.compositeKey,
 
-      batch.set(teacherDoc, {
-        teacherUid: student.teacherUid,
-        teacherName: student.teacherName,
-        teacherEmail: student.teacherEmail,
-        compositeKey: student.compositeKey,
-        classId: student.classId,
-        classIdCanonical: student.classIdCanonical,
-        studentId: student.studentId,
-        studentIdCanonical: student.studentIdCanonical,
-        pin: student.pin,
-        pinHash: student.pinHash,
-        level: student.level,
-        displayName: student.displayName,
-        status: student.status,
-        updatedAt,
-        updatedAtServer: FieldValue.serverTimestamp(),
-        createdAt,
-        createdAtServer: FieldValue.serverTimestamp()
-      }, { merge: true });
+          classId: student.classId,
+          classIdCanonical: student.classIdCanonical,
+          canonicalClassId: student.canonicalClassId,
+
+          studentId: student.studentId,
+          studentIdCanonical: student.studentIdCanonical,
+          canonicalStudentId: student.canonicalStudentId,
+
+          pinHash: student.pinHash,
+          level: student.level,
+
+          teacherUid: student.teacherUid,
+          teacherName: student.teacherName,
+          teacherEmail: student.teacherEmail,
+          displayName: student.displayName,
+
+          status: student.status,
+          updatedAt,
+          updatedAtServer: FieldValue.serverTimestamp(),
+          createdAt,
+          createdAtServer: FieldValue.serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      batch.set(
+        teacherDoc,
+        {
+          teacherUid: student.teacherUid,
+          teacherName: student.teacherName,
+          teacherEmail: student.teacherEmail,
+          compositeKey: student.compositeKey,
+
+          classId: student.classId,
+          classIdCanonical: student.classIdCanonical,
+          canonicalClassId: student.canonicalClassId,
+
+          studentId: student.studentId,
+          studentIdCanonical: student.studentIdCanonical,
+          canonicalStudentId: student.canonicalStudentId,
+
+          pin: student.pin,
+          pinHash: student.pinHash,
+          level: student.level,
+          displayName: student.displayName,
+          status: student.status,
+          updatedAt,
+          updatedAtServer: FieldValue.serverTimestamp(),
+          createdAt,
+          createdAtServer: FieldValue.serverTimestamp()
+        },
+        { merge: true }
+      );
 
       syncedStudentIds.push(student.studentId);
     });
@@ -253,6 +287,7 @@ exports.handler = async function handler(event) {
       stack: error && error.stack ? error.stack : "",
       code: error && error.code ? error.code : ""
     });
+
     return jsonResponse(500, {
       ok: false,
       success: false,
