@@ -25,35 +25,208 @@
 <link rel="stylesheet" href="../../../../shared/css/base.css" />
 <link rel="stylesheet" href="../../../../shared/css/layout.css" />
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
 <style>
-  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--shadow:0 20px 40px rgba(0,0,0,.08);}
-  body{display:flex;align-items:center;justify-content:center;background:#bfe9fb;padding:6px;}
-  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
-  .card{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:12px 12px 18px;}
-  .poster-area{position:relative;width:100%;max-width:1120px;margin:0 auto;}
-  .poster-img{width:100%;height:auto;display:block;}
-  .tap-row{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:12px;}
-  .tap-girl{width:82px;height:82px;border-radius:22px;box-shadow:0 6px 14px rgba(0,0,0,.2);border:4px solid #ffe3f7;cursor:pointer;}
-  .tap-label{font-weight:700;color:#d62828;}
-  .list{margin-top:8px;display:flex;flex-direction:column;gap:8px;align-items:center;}
-  .list-line{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.35rem;opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
-  .list-line.show{opacity:1;transform:translateY(0);}
+  :root{
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+    --shadow:0 20px 40px rgba(0,0,0,.08);
+    --orange:#f08c2b;
+    --orangeDark:#d96d00;
+    --ink:#22304a;
+    --panel:#ffffff;
+    --soft:#fffdf2;
+    --softBlue:#eaf8ff;
+    --success:#24a148;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#bfe9fb;
+    padding:6px;
+    margin:0;
+  }
+
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){
+    visibility:hidden !important;
+  }
+
+  .card{
+    width:min(1280px,99vw);
+    min-height:calc(100vh - 12px);
+    border-radius:18px;
+    padding:12px 12px 18px;
+    background:linear-gradient(180deg,#fefefe,#f7fbff);
+    box-shadow:var(--shadow);
+  }
+
+  .poster-area{
+    position:relative;
+    width:100%;
+    max-width:1120px;
+    margin:0 auto;
+  }
+
+  .poster-img{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:16px;
+    box-shadow:0 12px 26px rgba(0,0,0,.10);
+  }
+
+  .tap-row{
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .tap-girl{
+    width:82px;
+    height:82px;
+    border-radius:22px;
+    box-shadow:0 6px 14px rgba(0,0,0,.2);
+    border:4px solid #ffe3f7;
+    cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease;
+    background:#fff;
+  }
+
+  .tap-girl:hover,
+  .tap-girl:focus{
+    transform:translateY(-2px) scale(1.02);
+    box-shadow:0 10px 18px rgba(0,0,0,.24);
+  }
+
+  .tap-label{
+    font-weight:800;
+    color:#d62828;
+    font-size:clamp(1rem,2vw,1.25rem);
+  }
+
+  .list-wrap{
+    width:100%;
+    max-width:1120px;
+    margin:12px auto 0;
+    background:rgba(255,255,255,.82);
+    border-radius:18px;
+    padding:14px 14px 16px;
+    box-shadow:0 10px 22px rgba(0,0,0,.06);
+  }
+
+  .helper-text{
+    text-align:center;
+    font-weight:800;
+    color:#355070;
+    font-size:clamp(.95rem,1.8vw,1.12rem);
+    margin-bottom:10px;
+  }
+
+  .list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:stretch;
+  }
+
+  .list-line{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    font-weight:800;
+    font-size:clamp(1.08rem,2vw,1.4rem);
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity .22s ease, transform .22s ease;
+    padding:8px 6px;
+    border-radius:16px;
+    flex-wrap:wrap;
+    min-height:64px;
+  }
+
+  .list-line.show{
+    opacity:1;
+    transform:translateY(0);
+    background:linear-gradient(180deg,#fffef7,#f7fbff);
+  }
+
+  .line-text{
+    color:var(--ink);
+  }
+
   .square-box{
-    width:102px;
-    height:72px;
-    border:4px dashed #f08c2b;
+    width:110px;
+    height:74px;
+    border:4px dashed var(--orange);
     border-radius:16px;
     flex:0 0 auto;
-    background:#fffdf2;
+    background:var(--soft);
     box-shadow:0 10px 22px rgba(240,140,43,.14);
     text-align:center;
-    font-size:2.25rem;
-    font-weight:800;
+    font-size:2.2rem;
+    font-weight:900;
     color:#2d2d2d;
-    caret-color:#f08c2b;
+    caret-color:var(--orange);
+    outline:none;
+    transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease;
   }
-  .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;width:100%;max-width:1120px;margin-left:auto;margin-right:auto;}
-  .btn{border:none;border-radius:999px;padding:10px 14px;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+
+  .square-box:focus{
+    border-color:var(--orangeDark);
+    box-shadow:0 0 0 5px rgba(240,140,43,.16), 0 12px 24px rgba(240,140,43,.18);
+    transform:translateY(-1px);
+    background:#fff;
+  }
+
+  .square-box.filled{
+    border-style:solid;
+    background:#fff;
+  }
+
+  .square-box.done{
+    border-color:var(--success);
+    box-shadow:0 0 0 5px rgba(36,161,72,.13), 0 12px 24px rgba(36,161,72,.18);
+  }
+
+  .controls{
+    margin-top:14px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    width:100%;
+    max-width:1120px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:10px 14px;
+    font-size:.95rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+    background:#ff8a5b;
+    color:#fff;
+    transition:transform .14s ease, filter .14s ease;
+  }
+
+  .btn:hover,
+  .btn:focus{
+    transform:translateY(-1px);
+    filter:brightness(1.03);
+  }
+
   .mic-icon-btn{
     border:none;
     background:transparent;
@@ -63,7 +236,12 @@
     align-items:center;
     justify-content:center;
   }
-  .mic-icon-btn img{width:32px;height:32px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+
+  .mic-icon-btn img{
+    width:32px;
+    height:32px;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
+  }
 
   #gpIntroVideoOverlay{
     position:fixed;
@@ -131,8 +309,27 @@
     background:linear-gradient(180deg,#ffffff,#e9eef7);
     color:#304060;
   }
+
+  @media (max-width:780px){
+    .card{padding:10px 8px 16px}
+    .list-wrap{padding:12px 10px 14px}
+    .list-line{justify-content:center}
+    .square-box{
+      width:96px;
+      height:68px;
+      font-size:2rem;
+    }
+  }
 </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+
+<style id="gpUnifiedIntroPrehide">
+  #introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+</style>
 </head>
 <body>
 
@@ -153,11 +350,16 @@
     <div class="poster-area">
       <img class="poster-img" src="../../../../assets/images/shapes/C13ccc.png" alt="Tangram used poster">
     </div>
+
     <div class="tap-row">
-      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn">
+      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn" tabindex="0">
       <div class="tap-label">Tap the girl</div>
     </div>
-    <div class="list" id="sentenceList"></div>
+
+    <div class="list-wrap">
+      <div class="helper-text">Write the numbers in the boxes.</div>
+      <div class="list" id="sentenceList"></div>
+    </div>
 
     <div class="controls">
       <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
@@ -171,6 +373,8 @@
 <script>
   window.__GP_REQUIRE_INTRO_AUDIO__ = true;
 
+  const STORAGE_KEY = "GP_EIS_LC13_ANSWERS";
+
   const girlBtn = document.getElementById('girlBtn');
   const list = document.getElementById('sentenceList');
   const micIconBtn = document.getElementById('micIconBtn');
@@ -178,8 +382,12 @@
   const nextBtn = document.getElementById('nextBtn');
   const fillChime = new Audio('../../../../assets/audio/chimes/chime.mp3.mp3');
   fillChime.preload = 'auto';
+
   let fillProgressUi = null;
   let fillCelebrated = false;
+  let listBuilt = false;
+  let revealStarted = false;
+  let revealTimers = [];
 
   const lines = [
     'large triangle was used.',
@@ -192,7 +400,7 @@
       window.GPTracing.speakText(text, { rate: 0.94, pitch: 1.08 });
       return;
     }
-    if(!('speechSynthesis' in window)) return;
+    if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.rate = 1.0;
@@ -200,34 +408,128 @@
     window.speechSynthesis.speak(u);
   }
 
-  function ensureList(){
-    if(list.childElementCount > 0) return;
-    list.innerHTML = lines.map((text, i) => (
-      `<div class="list-line" data-line="${i}"><input class="square-box" inputmode="numeric" placeholder="?" aria-label="Write the number for line ${i + 1}"><span></span></div>`
-    )).join('');
+  function stopRevealTimers(){
+    revealTimers.forEach((id) => clearTimeout(id));
+    revealTimers = [];
   }
 
-  function typeLine(index){
-    if(index >= lines.length) return;
-    const lineEl = list.querySelector(`[data-line="${index}"] span:last-child`);
-    const text = lines[index];
+  function saveAnswersLocally(){
+    try{
+      const answers = Array.from(list.querySelectorAll('.square-box')).map((input) => String(input.value || '').trim());
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+    }catch(_err){}
+  }
+
+  function loadAnswersLocally(){
+    try{
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    }catch(_err){
+      return [];
+    }
+  }
+
+  function ensureList(){
+    if (listBuilt) return;
+
+    const savedAnswers = loadAnswersLocally();
+
+    list.innerHTML = lines.map((text, i) => (
+      `<div class="list-line" data-line="${i}">
+        <input
+          class="square-box"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          maxlength="2"
+          placeholder="?"
+          aria-label="Write the number for line ${i + 1}"
+          value="${String(savedAnswers[i] || '').replace(/"/g, '&quot;')}"
+        >
+        <span class="line-text"></span>
+      </div>`
+    )).join('');
+
+    listBuilt = true;
+    syncInputStyles();
+  }
+
+  function syncInputStyles(){
+    const inputs = Array.from(list.querySelectorAll('.square-box'));
+    inputs.forEach((input) => {
+      const value = String(input.value || '').trim();
+      input.classList.toggle('filled', value !== '');
+      input.classList.toggle('done', value !== '');
+    });
+  }
+
+  function showLine(index){
+    const row = list.querySelector(`[data-line="${index}"]`);
+    if (!row) return;
+    row.classList.add('show');
+
+    const textSpan = row.querySelector('.line-text');
+    const targetText = lines[index];
+
+    textSpan.textContent = '';
     let pos = 0;
-    const timer = setInterval(() => {
+
+    function typeNextChar(){
       pos += 1;
-      lineEl.textContent = text.slice(0,pos);
-      lineEl.parentElement.classList.add('show');
-      if(pos >= text.length){
-        clearInterval(timer);
-        speak(text);
-        setTimeout(() => typeLine(index + 1), 320);
+      textSpan.textContent = targetText.slice(0, pos);
+      if (pos < targetText.length) {
+        const t = setTimeout(typeNextChar, 18);
+        revealTimers.push(t);
+      } else {
+        speak(targetText);
       }
-    }, 18);
+    }
+
+    typeNextChar();
+  }
+
+  function revealAllLinesSequence(forceReplay = false){
+    ensureList();
+
+    if (forceReplay) {
+      stopRevealTimers();
+      revealStarted = false;
+      Array.from(list.querySelectorAll('.list-line')).forEach((row) => {
+        row.classList.remove('show');
+        const span = row.querySelector('.line-text');
+        if (span) span.textContent = '';
+      });
+    }
+
+    if (revealStarted) return;
+    revealStarted = true;
+
+    lines.forEach((_, index) => {
+      const t = setTimeout(() => showLine(index), index * 520);
+      revealTimers.push(t);
+    });
+
+    const finalT = setTimeout(() => {
+      updateFillProgress();
+    }, (lines.length * 520) + 150);
+    revealTimers.push(finalT);
   }
 
   girlBtn.addEventListener('click', () => {
-    ensureList();
-    typeLine(0);
+    revealAllLinesSequence(false);
   });
+
+  girlBtn.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      revealAllLinesSequence(false);
+    }
+  });
+
+  if (micIconBtn) {
+    micIconBtn.addEventListener('click', () => {
+      revealAllLinesSequence(true);
+    });
+  }
 
   function playBoxTick(){
     if (window.GPTracing && typeof window.GPTracing.playTraceTick === 'function') {
@@ -248,19 +550,27 @@
 
   function updateFillProgress(shouldPersist = true){
     const inputs = Array.from(list.querySelectorAll('.square-box'));
+    const total = inputs.length;
     const filled = inputs.filter((input) => input.value.trim() !== '').length;
-    const score = inputs.length ? Math.round((filled / inputs.length) * 100) : 0;
+    const score = total ? Math.round((filled / total) * 100) : 0;
+
+    syncInputStyles();
+
     if (fillProgressUi) {
       fillProgressUi.textEl.textContent = score + '%';
       fillProgressUi.fillEl.style.width = score + '%';
     }
+
     if (score >= 100 && !fillCelebrated) {
       fillCelebrated = true;
       playFillCelebration();
       speak('Brilliant work. You filled all the number boxes.');
     }
+
     if (score < 100) fillCelebrated = false;
+
     if (!shouldPersist || typeof window.finishAndSave !== 'function') return;
+
     window.finishAndSave({
       pageId: 'LevelC13',
       level: 'C',
@@ -270,6 +580,13 @@
       stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
       skills: { reading: 1, writing: 1, speaking: 1, listening: 1 }
     });
+  }
+
+  function sanitizeNumericInput(input){
+    let value = String(input.value || '');
+    value = value.replace(/[^\d]/g, '');
+    value = value.slice(0, 2);
+    input.value = value;
   }
 
   list.addEventListener('focusin', (event) => {
@@ -286,6 +603,15 @@
 
   list.addEventListener('input', (event) => {
     if (!(event.target instanceof HTMLInputElement) || !event.target.classList.contains('square-box')) return;
+    sanitizeNumericInput(event.target);
+    saveAnswersLocally();
+    updateFillProgress();
+  });
+
+  list.addEventListener('change', (event) => {
+    if (!(event.target instanceof HTMLInputElement) || !event.target.classList.contains('square-box')) return;
+    sanitizeNumericInput(event.target);
+    saveAnswersLocally();
     updateFillProgress();
   });
 
@@ -303,17 +629,40 @@
     updateFillProgress(false);
   }
 
+  ensureList();
+  revealAllLinesSequence(false);
   initWritingProgressUi();
 
-  if(prevBtn) prevBtn.addEventListener('click', () => { window.location.href = 'LevelC12.html'; });
-  if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = '../thursday/LevelC_Revision2.html'; });
+  window.addEventListener('beforeunload', () => {
+    saveAnswersLocally();
+    updateFillProgress();
+  });
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      saveAnswersLocally();
+      updateFillProgress();
+      window.location.href = 'LevelC12.html';
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      saveAnswersLocally();
+      updateFillProgress();
+      window.location.href = '../thursday/LevelC_Revision2.html';
+    });
+  }
 </script>
+
 <script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
+
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
   window.GPProgress.installTracker({
     saveActivityResult,
     markLoginPing,
@@ -347,6 +696,7 @@
     const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
     const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
     const month = payload && payload.month != null ? Number(payload.month) : 1;
+
     return {
       pageId,
       file,
@@ -379,6 +729,7 @@
       ? payload.tracing
       : (payload && typeof payload.progress === "number" ? payload.progress : 0);
     const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+
     const entry = {
       pageId: meta.pageId,
       file: meta.file,
@@ -398,15 +749,18 @@
       savedAt: new Date().toISOString(),
       ts: Date.now()
     };
+
     const store = getActivityStore();
     store[meta.pageId] = {
       ...(store[meta.pageId] || {}),
       ...entry
     };
     setActivityStore(store);
+
     try{
       localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
     }catch(e){}
+
     return store[meta.pageId];
   }
 
@@ -418,9 +772,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -428,12 +782,11 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
   window.finishAndSave = finishAndSave;
-
 </script>
 
 <script>

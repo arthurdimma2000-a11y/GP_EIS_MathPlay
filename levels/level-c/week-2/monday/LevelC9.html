@@ -131,7 +131,7 @@
   <div class="card">
     <div class="poster-area" id="posterArea">
       <img class="poster-img" src="../../../../assets/images/shapes/levelC9.png" alt="Quadrangles and pentagons">
-      <svg class="dot-layer" id="dotLayer" viewBox="0 0 1000 1400" preserveAspectRatio="xMidYMid meet"></svg>
+      <svg class="dot-layer" id="dotLayer" viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMid meet"></svg>
       <canvas class="draw-layer" id="drawLayer"></canvas>
     </div>
     <div class="progress-wrap">
@@ -193,15 +193,15 @@
   }
 
   const quadrangles = [
-    { id:'q1', row:0, points:[[0.14,0.24],[0.34,0.24],[0.38,0.38],[0.18,0.38]] },
-    { id:'q2', row:1, points:[[0.14,0.48],[0.34,0.48],[0.38,0.62],[0.18,0.62]] },
-    { id:'q3', row:2, points:[[0.14,0.72],[0.34,0.72],[0.38,0.86],[0.18,0.86]] }
-  ];
+      { id:'q1', row:0, points:[[0.1641,0.3709],[0.3320,0.3709],[0.3730,0.4555],[0.1270,0.4555]] },
+      { id:'q2', row:1, points:[[0.1563,0.5558],[0.3574,0.5389],[0.3867,0.6769],[0.1816,0.6945]] },
+      { id:'q3', row:2, points:[[0.1660,0.7732],[0.3809,0.7732],[0.3516,0.9086],[0.1367,0.9054]] }
+    ];
   const pentagons = [
-    { id:'p1', row:0, points:[[0.66,0.24],[0.80,0.24],[0.87,0.33],[0.73,0.43],[0.59,0.33]] },
-    { id:'p2', row:1, points:[[0.66,0.48],[0.80,0.48],[0.87,0.57],[0.73,0.67],[0.59,0.57]] },
-    { id:'p3', row:2, points:[[0.66,0.72],[0.80,0.72],[0.87,0.81],[0.73,0.91],[0.59,0.81]] }
-  ];
+      { id:'p1', row:0, points:[[0.7236,0.3448],[0.8330,0.3930],[0.7988,0.4822],[0.6484,0.4822],[0.6094,0.3930]] },
+      { id:'p2', row:1, points:[[0.7236,0.5629],[0.8496,0.6170],[0.8008,0.7198],[0.6465,0.7198],[0.5977,0.6170]] },
+      { id:'p3', row:2, points:[[0.7236,0.7745],[0.8398,0.8266],[0.8057,0.9321],[0.6416,0.9321],[0.6074,0.8266]] }
+    ];
 
   const shapes = [...quadrangles, ...pentagons];
   const samples = new Map();
@@ -336,27 +336,27 @@
     }
   }
 
-  function redrawDots(){
-    dotLayer.innerHTML = '';
-    shapes.forEach(shape => {
-      const color = shape.id.startsWith('q') ? '#d62c2c' : '#1d76c9';
-      const pts = shape.points.map(p => `${p[0]*1000},${p[1]*1400}`).join(' ');
-      const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
-      poly.setAttribute('points', pts + ' ' + pts.split(' ')[0]);
-      poly.setAttribute('fill','none');
-      poly.setAttribute('stroke','rgba(200,200,200,0.7)');
-      poly.setAttribute('stroke-width','3');
-      poly.setAttribute('stroke-dasharray','10 8');
-      dotLayer.appendChild(poly);
-      shape.points.forEach(p => {
-        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-        c.setAttribute('cx', p[0]*1000);
-        c.setAttribute('cy', p[1]*1400);
-        c.setAttribute('r', 10);
-        c.setAttribute('fill', color);
-        dotLayer.appendChild(c);
+    function redrawDots(){
+      dotLayer.innerHTML = '';
+      shapes.forEach(shape => {
+        const color = shape.id.startsWith('q') ? '#d62c2c' : '#1d76c9';
+        const pts = shape.points.map(p => `${p[0]*1024},${p[1]*1536}`).join(' ');
+        const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+        poly.setAttribute('points', pts + ' ' + pts.split(' ')[0]);
+        poly.setAttribute('fill','none');
+        poly.setAttribute('stroke','rgba(200,200,200,0.7)');
+        poly.setAttribute('stroke-width','3');
+        poly.setAttribute('stroke-dasharray','10 8');
+        dotLayer.appendChild(poly);
+        shape.points.forEach(p => {
+          const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          c.setAttribute('cx', p[0]*1024);
+          c.setAttribute('cy', p[1]*1536);
+          c.setAttribute('r', 10);
+          c.setAttribute('fill', color);
+          dotLayer.appendChild(c);
+        });
       });
-    });
   }
 
   function toCanvasPoint(pt){
