@@ -70,58 +70,26 @@
 
   .bubble{
     position:absolute;
-    left:12%;
+    left:32%;
     top:12%;
-    padding:12px 16px;
-    border-radius:16px;
-    font-weight:800;
-    font-size:1.5rem;
-    max-width:520px;
-    line-height:1.2;
-    box-shadow:0 8px 18px rgba(0,0,0,.12);
-    background:var(--bubble);
+    padding:0;
+    border-radius:0;
+    font-weight:900;
+    font-size:clamp(2rem,3.8vw,3.6rem);
+    max-width:720px;
+    line-height:1.12;
+    box-shadow:none;
+    background:transparent;
     opacity:0;
     transition:opacity .2s ease;
+    color:#1f2933;
   }
 
   .bubble.show{opacity:1;}
 
   .bubble::after{
     content:"";
-    position:absolute;
-    left:16px;
-    bottom:-10px;
-    border-width:10px 8px 0 8px;
-    border-style:solid;
-    border-color:var(--bubble) transparent transparent transparent;
-  }
-
-  .girl-spot{
-    position:absolute;
-    left:16px;
-    top:12px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    z-index:3;
-  }
-
-  .girl-spot img{
-    width:64px;
-    height:64px;
-    border-radius:16px;
-    object-fit:cover;
-    box-shadow:0 6px 14px rgba(0,0,0,.25);
-    border:4px solid #ffe3f7;
-    background:#ffd6f2;
-    cursor:pointer;
-  }
-
-  .girl-hint{
-    font-weight:800;
-    color:#d62828;
-    font-size:.9rem;
+    display:none;
   }
 
   .tap-line{
@@ -320,11 +288,7 @@
   <div class="card">
     <div class="poster-area">
       <img class="poster-img" src="../../../../assets/images/shapes/C25ccc.png" alt="True or False poster">
-      <div class="bubble speakable" data-text="Let’s play with the shapes together." id="mainBubble">Let’s play with<br>the shapes together.</div>
-      <div class="girl-spot">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
-        <div class="girl-hint">Tap the girl</div>
-      </div>
+      <div class="bubble speakable" data-text="I can count numbers up to 20." id="mainBubble">I can count<br>numbers up to 20.</div>
       <div class="tap-line" id="tapLine"></div>
     </div>
 
@@ -374,7 +338,8 @@
   <script>
     window.__GP_REQUIRE_INTRO_AUDIO__ = true;
 
-    const girlBtn = document.getElementById('girlBtn');
+    const micIconBtn = document.getElementById('micIconBtn');
+    const mainBubble = document.getElementById('mainBubble');
     const tapLine = document.getElementById('tapLine');
     const quizPanel = document.getElementById('quizPanel');
 
@@ -403,22 +368,12 @@
       step();
     }
 
-    const textBlock =
-      "(2) Circle the true statements about polygons.\n" +
-      "<span class=\"green\">o</span> = <span class=\"green\">true</span>   " +
-      "<span class=\"red\">x</span> = <span class=\"red\">false</span>\n\n" +
-      "① A pentagon has 5 sides.      ( <span class=\"green\">o</span> / <span class=\"red\">x</span> )\n" +
-      "② A hexagon has 6 vertices.   ( <span class=\"green\">o</span> / <span class=\"red\">x</span> )\n" +
-      "③ An octagon has 0 sides.      ( <span class=\"green\">o</span> / <span class=\"red\">x</span> )\n\n" +
-      "(3) Which shape has the most sides?\n" +
-      "① Circle         ② Pentagon";
-
-    girlBtn.addEventListener('click', () => {
-      setTimeout(() => {
-        typeLine(tapLine, textBlock);
-        speak('Circle the true statements about polygons. Which shape has the most sides?');
-      }, 200);
-    });
+    if (micIconBtn && mainBubble) {
+      micIconBtn.addEventListener('click', () => {
+        mainBubble.classList.add('show');
+        speak(mainBubble.dataset.text || 'I can count numbers up to 20.');
+      });
+    }
 
     quizPanel.addEventListener('click', (event) => {
       const button = event.target.closest('.option-btn');
@@ -437,7 +392,7 @@
       const rows = Array.from(quizPanel.querySelectorAll('.quiz-row'));
       const solved = rows.filter((item) => item.querySelector('.option-btn.correct')).length;
 
-      if (typeof finishActivity === 'function') {
+      if (typeof window.finishAndSave === 'function') {
         const score = Math.round((solved / rows.length) * 100);
         window.finishAndSave({
           pageId: 'LevelC25',
@@ -445,6 +400,7 @@
           activityType: 'lesson',
           score,
           stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
+          completed: solved === rows.length,
           skills: { reading: 1, writing: 1, speaking: 1, listening: 1 }
         });
       }

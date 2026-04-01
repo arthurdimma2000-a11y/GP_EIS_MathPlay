@@ -68,17 +68,21 @@
 
   .bubble{
     position:absolute;
-    left:14%;
-    top:26%;
-    padding:12px 16px;
-    border-radius:16px;
+    left:50%;
+    top:80%;
+    transform:translateX(-50%);
+    padding:16px 22px;
+    border-radius:22px;
     font-weight:800;
-    font-size:1.3rem;
-    max-width:320px;
-    line-height:1.2;
+    font-size:clamp(1.6rem,3vw,2.7rem);
+    max-width:760px;
+    width:min(76%,760px);
+    line-height:1.16;
     box-shadow:0 8px 18px rgba(0,0,0,.12);
     background:var(--bubble);
     opacity:0;
+    text-align:center;
+    z-index:3;
   }
 
   .bubble.show{opacity:1;}
@@ -86,11 +90,12 @@
   .bubble::after{
     content:"";
     position:absolute;
-    left:12px;
-    bottom:-10px;
-    border-width:10px 8px 0 8px;
+    left:50%;
+    top:-12px;
+    transform:translateX(-50%);
+    border-width:0 10px 12px 10px;
     border-style:solid;
-    border-color:var(--bubble) transparent transparent transparent;
+    border-color:transparent transparent var(--bubble) transparent;
   }
 
   .red{color:var(--red);}    
@@ -108,14 +113,10 @@
   .shape-hit.wrong{border-color:#d62828;box-shadow:0 0 0 2px rgba(214,40,40,.25);}
 
   .girl-spot{
-    position:absolute;
-    left:16px;
-    top:12px;
-    display:flex;
+    display:inline-flex;
     flex-direction:column;
     align-items:center;
     gap:6px;
-    z-index:3;
   }
 
   .girl-spot img{
@@ -160,7 +161,7 @@
   .controls{
     margin-top:12px;
     display:flex;
-    justify-content:space-between;
+    justify-content:center;
     gap:10px;
     flex-wrap:wrap;
     align-items:center;
@@ -295,16 +296,15 @@
       <button class="shape-hit" data-correct="false" aria-label="Pentagon" style="left:32%;top:57%;width:28%;height:21%;"></button>
       <button class="shape-hit" data-correct="false" aria-label="Other polygon" style="left:66%;top:57%;width:24%;height:19%;"></button>
 
-      <div class="girl-spot">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
-        <div class="girl-hint">Tap the girl</div>
-      </div>
-
       <div class="tap-line" id="tapLine"></div>
       <div class="tap-line2" id="tapLine2"></div>
     </div>
 
     <div class="controls">
+      <div class="girl-spot">
+        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
+        <div class="girl-hint">Tap the girl</div>
+      </div>
       <button class="btn prev" id="prevBtn">← Previous page</button>
       <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
         <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
@@ -320,6 +320,8 @@
     const tapLine = document.getElementById('tapLine');
     const tapLine2 = document.getElementById('tapLine2');
     const shapeHits = Array.from(document.querySelectorAll('.shape-hit'));
+    const mainBubble = document.getElementById('mainBubble');
+    const micIconBtn = document.getElementById('micIconBtn');
 
     function speak(text){
       if(!('speechSynthesis' in window)) return;
@@ -381,6 +383,13 @@
         syncShapeProgress();
       });
     });
+
+    if (micIconBtn && mainBubble) {
+      micIconBtn.addEventListener('click', () => {
+        mainBubble.classList.add('show');
+        speak(mainBubble.dataset.text || 'A hexagon has six sides and six vertices.');
+      });
+    }
 
     document.getElementById('prevBtn').addEventListener('click', () => { window.location.href = '../monday/LevelC21.html'; });
     document.getElementById('nextBtn').addEventListener('click', () => { window.location.href = 'LevelC23.html'; });

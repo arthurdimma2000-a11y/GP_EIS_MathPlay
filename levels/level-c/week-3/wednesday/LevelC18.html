@@ -21,29 +21,198 @@
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Level C9 - Quadrangles and Pentagons</title>
+<title>Level C18 - Tangram Insect Match</title>
 <link rel="stylesheet" href="../../../../shared/css/base.css" />
 <link rel="stylesheet" href="../../../../shared/css/layout.css" />
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
-<style>
-  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--shadow:0 20px 40px rgba(0,0,0,.08);}
-  body{display:flex;align-items:center;justify-content:center;background:#bfe9fb;padding:6px;}
-  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){visibility:hidden !important;}
 
-  .card{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:12px 12px 18px;position:relative;}
-  .poster-area{position:relative;width:100%;max-width:1120px;margin:0 auto;touch-action:none;}
-  .poster-img{width:100%;height:auto;display:block;position:relative;z-index:0;pointer-events:none;}
-  .dot-layer{position:absolute;inset:0;pointer-events:none;z-index:1;}
-  .draw-layer{position:absolute;inset:0;pointer-events:auto;z-index:2;touch-action:none;display:block;cursor:crosshair;}
-  .progress-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px;}
-  .progress-bar{width:min(560px,92%);height:14px;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}
-  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3cc4ff,#7dffb3);transition:width .15s ease-out;}
-  .progress-text{font-weight:800;color:#184a86;}
-  .progress-message{min-height:1.2em;font-weight:800;color:#2e9b2e;}
-  .status-line{text-align:center;min-height:1.4em;font-weight:700;color:#1f7a3a;margin-top:8px;}
-  .controls{margin-top:10px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
-  button{border:none;border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer;background:linear-gradient(180deg,#fffad7,#ffd86a);color:#8b5a00;box-shadow:0 4px 0 rgba(0,0,0,.2);}
-  button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2);}
+<style>
+  :root{
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+    --ink:#234057;
+    --shadow:0 18px 36px rgba(0,0,0,.10);
+    --good:#239b56;
+    --warn:#d93025;
+    --accent:#ff8a5b;
+    --accent-soft:#eaf5ff;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#e7f7e7;
+    padding:6px;
+    color:var(--ink);
+  }
+
+  html.gp-intro-video-pending body > *:not(#gpIntroVideoOverlay){
+    visibility:hidden !important;
+  }
+
+  .card{
+    width:min(1280px,99vw);
+    min-height:calc(100vh - 12px);
+    border-radius:18px;
+    padding:12px 12px 18px;
+  }
+
+  .poster-area{
+    position:relative;
+    width:100%;
+    max-width:1120px;
+    margin:0 auto;
+  }
+
+  .poster-img{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+
+  .match-lines{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:2;
+  }
+
+  .match-hit{
+    position:absolute;
+    width:50px;
+    height:50px;
+    border:none;
+    border-radius:50%;
+    background:transparent;
+    transform:translate(-50%, -50%);
+    cursor:pointer;
+    z-index:3;
+    touch-action:manipulation;
+    padding:0;
+  }
+
+  .match-hit::before{
+    content:"";
+    position:absolute;
+    inset:9px;
+    border-radius:50%;
+    background:#111;
+    box-shadow:0 0 0 2px rgba(255,255,255,.85);
+  }
+
+  .match-hit.active{
+    box-shadow:0 0 0 7px rgba(29,95,214,.24);
+  }
+
+  .match-hit.done{
+    box-shadow:0 0 0 7px rgba(35,155,86,.26);
+  }
+
+  .prompt-bubble{
+    margin:12px auto 0;
+    width:min(1120px,100%);
+    padding:12px 16px;
+    border-radius:18px;
+    background:var(--accent-soft);
+    color:var(--ink);
+    font-weight:800;
+    text-align:center;
+    box-shadow:0 10px 24px rgba(0,0,0,.08);
+  }
+
+  .progress-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    margin-top:12px;
+    width:min(1120px,100%);
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .progress-text{
+    font-weight:800;
+    color:#184a86;
+  }
+
+  .progress-bar{
+    width:min(560px,92%);
+    height:14px;
+    border-radius:999px;
+    background:#e7efff;
+    overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#3cc4ff,#7dffb3);
+    transition:width .16s ease-out;
+  }
+
+  .status-line{
+    text-align:center;
+    min-height:1.4em;
+    font-weight:800;
+    color:#1f7a3a;
+    margin-top:2px;
+  }
+
+  .controls{
+    margin-top:12px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    width:min(1120px,100%);
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:9px 14px;
+    font-size:.92rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+    background:var(--accent);
+    color:#fff;
+  }
+
+  .btn.secondary{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .mic-icon-btn{
+    border:none;
+    background:transparent;
+    padding:0;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .mic-icon-btn img{
+    width:32px;
+    height:32px;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
+  }
 
   #gpIntroVideoOverlay{
     position:fixed;
@@ -57,6 +226,7 @@
     flex-direction:column;
     gap:14px;
   }
+
   #gpIntroVideoOverlay.active{display:flex;}
 
   #gpIntroVideo{
@@ -110,14 +280,33 @@
     background:linear-gradient(180deg,#ffffff,#e9eef7);
     color:#304060;
   }
+
+  @media (max-width:780px){
+    .match-hit{
+      width:34px;
+      height:34px;
+    }
+
+    .match-hit::before{
+      inset:7px;
+    }
+  }
 </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+
+<style id="gpUnifiedIntroPrehide">
+  #introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+</style>
 </head>
 <body>
 
   <div id="gpIntroVideoOverlay" class="active" aria-label="Lesson intro video">
-    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/LevelC10.png">
-      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463160/LC10cvideo_zt7oum.mp4" type="video/mp4">
+    <video id="gpIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline poster="../../../../assets/images/shapes/C18.png">
+      <source src="https://res.cloudinary.com/dtknykrkf/video/upload/f_auto:video,q_auto/v1774463166/LC18cvideo_fllzye.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
     <div class="gp-intro-help" id="gpIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
@@ -129,117 +318,89 @@
   </div>
 
   <div class="card">
-    <div class="poster-area" id="posterArea">
-      <img class="poster-img" src="../../../../assets/images/shapes/levelC9.png" alt="Quadrangles and pentagons">
-      <svg class="dot-layer" id="dotLayer" viewBox="0 0 1000 1400" preserveAspectRatio="xMidYMid meet"></svg>
-      <canvas class="draw-layer" id="drawLayer"></canvas>
+    <div class="poster-area">
+      <img class="poster-img" src="../../../../assets/images/shapes/C18.png" alt="Tangram insects poster">
+      <svg class="match-lines" id="matchLines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+      <button class="match-hit" data-side="left" data-index="0" aria-label="Insect dot 1" style="left:35.30%;top:37.25%;"></button>
+      <button class="match-hit" data-side="left" data-index="1" aria-label="Insect dot 2" style="left:35.33%;top:53.06%;"></button>
+      <button class="match-hit" data-side="left" data-index="2" aria-label="Insect dot 3" style="left:35.26%;top:68.92%;"></button>
+      <button class="match-hit" data-side="left" data-index="3" aria-label="Insect dot 4" style="left:35.33%;top:86.30%;"></button>
+
+      <button class="match-hit" data-side="right" data-index="0" aria-label="Name dot 1" style="left:63.92%;top:37.36%;"></button>
+      <button class="match-hit" data-side="right" data-index="1" aria-label="Name dot 2" style="left:63.27%;top:52.45%;"></button>
+      <button class="match-hit" data-side="right" data-index="2" aria-label="Name dot 3" style="left:62.70%;top:68.86%;"></button>
+      <button class="match-hit" data-side="right" data-index="3" aria-label="Name dot 4" style="left:71.72%;top:86.16%;"></button>
     </div>
+
+    <div class="prompt-bubble" id="promptBubble">Connect each tangram insect on the left to its correct name on the right.</div>
+
     <div class="progress-wrap">
-      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
+      <div class="progress-text">Match progress: <span id="progressPercent">0%</span></div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-message" id="progressMessage">Trace the quadrangles and pentagons.</div>
+      <div class="status-line" id="statusLine"></div>
     </div>
-    <div id="vertexEntryMount"></div>
-    <div class="status-line" id="statusLine"></div>
+
     <div class="controls">
-      <button id="prevBtn"><- Previous page</button>
-      <button id="clearBtn">Clear [X]</button>
-      <button id="nextBtn">Next page -></button>
+      <button class="btn secondary" id="prevBtn">&#8592; Previous page</button>
+      <button class="btn secondary" id="clearBtn">Clear</button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat instruction">
+        <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
+      </button>
+      <button class="btn" id="nextBtn">Next page &#8594;</button>
     </div>
   </div>
 
-<script src="../../../../shared/js/vertex-entry.js"></script>
 <script>
+(() => {
   window.__GP_REQUIRE_INTRO_AUDIO__ = true;
 
-  const posterArea = document.getElementById('posterArea');
-  const posterImg = posterArea.querySelector('.poster-img');
-  const dotLayer = document.getElementById('dotLayer');
-  const drawLayer = document.getElementById('drawLayer');
-  const statusLine = document.getElementById('statusLine');
-  const progressPercentEl = document.getElementById('progressPercent');
-  const progressFillEl = document.getElementById('progressFill');
-  const progressMessageEl = document.getElementById('progressMessage');
-  const ctx = drawLayer.getContext('2d');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const clearBtn = document.getElementById('clearBtn');
+  const matchLines = document.getElementById("matchLines");
+  const matchHits = Array.from(document.querySelectorAll(".match-hit"));
+  const progressPercentEl = document.getElementById("progressPercent");
+  const progressFillEl = document.getElementById("progressFill");
+  const statusLine = document.getElementById("statusLine");
+  const promptBubble = document.getElementById("promptBubble");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const micIconBtn = document.getElementById("micIconBtn");
 
-  const introLines = [
-    "⑴Practice drawing shapes with 4 vertices and 5 vertices.",
-    "Draw Quadrangles and Pentagons by drawing lines to connect the red and blue dots."
-  ];
+  /* Left order:
+     0 bee
+     1 dragonfly
+     2 ladybug
+     3 butterfly
+
+     Right order:
+     0 ladybug flies.
+     1 dragonfly flies.
+     2 butterfly flies.
+     3 bee flies.
+  */
+  const correctMap = [3, 1, 0, 2];
+
+  let startIndex = null;
+  const matchedLeft = new Set();
+  const matchedRight = new Set();
+  let progressSaveTimer = null;
+  let celebrated = false;
 
   function speak(text){
-    if(!('speechSynthesis' in window)) return;
+    if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
+      window.GPTracing.speakText(text, { rate: 0.95, pitch: 1.05 });
+      return;
+    }
+    if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.rate = 0.96;
-    u.pitch = 1.08;
-    u.volume = 1.0;
-    if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
+    u.pitch = 1.06;
     window.speechSynthesis.speak(u);
   }
 
-  function speakIntro(){
-    let i = 0;
-    const next = () => {
-      if(i >= introLines.length) return;
-      speak(introLines[i]);
-      i += 1;
-      setTimeout(next, 1200);
-    };
-    next();
-  }
-
-  const quadrangles = [
-    { id:'q1', row:0, points:[[0.14,0.24],[0.34,0.24],[0.38,0.38],[0.18,0.38]] },
-    { id:'q2', row:1, points:[[0.14,0.48],[0.34,0.48],[0.38,0.62],[0.18,0.62]] },
-    { id:'q3', row:2, points:[[0.14,0.72],[0.34,0.72],[0.38,0.86],[0.18,0.86]] }
-  ];
-  const pentagons = [
-    { id:'p1', row:0, points:[[0.66,0.24],[0.80,0.24],[0.87,0.33],[0.73,0.43],[0.59,0.33]] },
-    { id:'p2', row:1, points:[[0.66,0.48],[0.80,0.48],[0.87,0.57],[0.73,0.67],[0.59,0.57]] },
-    { id:'p3', row:2, points:[[0.66,0.72],[0.80,0.72],[0.87,0.81],[0.73,0.91],[0.59,0.81]] }
-  ];
-
-  const shapes = [...quadrangles, ...pentagons];
-  const samples = new Map();
-  const visited = new Map();
-  const completed = new Set();
-  const shapePercents = new Map();
-  const rowCompleted = [false,false,false];
-  const rowMessages = ["Amazing Job!","Thumps up!","Wow! you are super smart!"];
-  const progressMilestones = new Set();
-  let progressSaveTimer = null;
-  let traceFinished = false;
-  let lastTraceSound = 0;
-  let combinedProgress = 0;
-
-  function playTraceTick(){
-    if (window.GPTracing?.playTraceTick) {
-      window.GPTracing.playTraceTick({ throttleMs: 100 });
-      return;
-    }
-    try{
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if(!AudioCtx) return;
-      const a = new AudioCtx();
-      const osc = a.createOscillator();
-      const gain = a.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = 880;
-      gain.gain.value = 0.06;
-      osc.connect(gain);
-      gain.connect(a.destination);
-      osc.start();
-      osc.stop(a.currentTime + 0.05);
-      osc.onended = () => a.close();
-    }catch(e){}
-  }
-
   function playChime(){
-    try{ new Audio('../../../../assets/audio/chimes/chime.mp3.mp3').play().catch(()=>{}); }catch(_e){}
+    try{ new Audio("../../../../assets/audio/chimes/chime.mp3.mp3").play().catch(()=>{}); }catch(_e){}
   }
 
   function playCelebration(){
@@ -247,305 +408,176 @@
     window.GPTracing?.playTraceCelebration?.();
   }
 
-  function computeOverallProgress(){
-    const values = shapes.map((shape) => shapePercents.get(shape.id) || 0);
-    return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
+  function drawMatchLine(startBtn, endBtn){
+    const x1 = parseFloat(startBtn.style.left);
+    const y1 = parseFloat(startBtn.style.top);
+    const x2 = parseFloat(endBtn.style.left);
+    const y2 = parseFloat(endBtn.style.top);
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x1);
+    line.setAttribute("y1", y1);
+    line.setAttribute("x2", x2);
+    line.setAttribute("y2", y2);
+    line.setAttribute("stroke", "#239b56");
+    line.setAttribute("stroke-width", "0.95");
+    line.setAttribute("stroke-linecap", "round");
+    matchLines.appendChild(line);
   }
 
-  function progressMessageFor(score){
-    if (score >= 100) return 'Fantastic! All the shapes are complete.';
-    if (score >= 75) return 'Amazing job! Finish the last sides.';
-    if (score >= 40) return 'Great tracing. Keep joining the dots.';
-    return 'Trace the quadrangles and pentagons.';
+  function computeScore(){
+    return Math.round((matchedLeft.size / correctMap.length) * 100);
   }
 
-  function updateProgressUI(score){
-    progressPercentEl.textContent = `${score}%`;
-    progressFillEl.style.width = `${score}%`;
-    progressMessageEl.textContent = progressMessageFor(score);
+  function updateProgressUI(){
+    const score = computeScore();
+    progressPercentEl.textContent = score + "%";
+    progressFillEl.style.width = score + "%";
+
+    if (score === 0) {
+      promptBubble.textContent = "Connect each tangram insect on the left to its correct name on the right.";
+      statusLine.textContent = "";
+    } else if (score < 100) {
+      promptBubble.textContent = "Great. Keep matching the black dots to the correct insect names.";
+    } else {
+      promptBubble.textContent = "Excellent! You matched all the tangram insects correctly.";
+      statusLine.textContent = "Excellent! You completed the page quest.";
+    }
+    return score;
   }
 
-  function applyCombinedProgress(score){
-    combinedProgress = Math.max(0, Math.min(100, Math.round(score)));
-    updateProgressUI(combinedProgress);
-  }
-
-  function persistTraceProgress(score){
-    if (typeof window.finishAndSave !== 'function') return;
+  function persistProgress(){
+    const score = updateProgressUI();
+    if (typeof window.finishAndSave !== "function") return;
     window.finishAndSave({
-      pageId: 'LevelC9',
-      level: 'C',
-      activityType: 'tracing',
+      pageId: "LevelC18",
+      level: "C",
+      activityType: "matching",
       score,
+      progress: score,
       tracing: score,
+      completed: score === 100,
       stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
       skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
     }).catch(() => {});
   }
 
-  function schedulePersist(score){
-    if (progressSaveTimer) window.clearTimeout(progressSaveTimer);
-    progressSaveTimer = window.setTimeout(() => persistTraceProgress(score), 160);
+  function schedulePersist(){
+    if (progressSaveTimer) clearTimeout(progressSaveTimer);
+    progressSaveTimer = setTimeout(persistProgress, 120);
   }
 
-  const vertexEntry = window.GPVertexEntry?.create({
-    mount: "#vertexEntryMount",
-    title: "Write the number of vertices",
-    prompt: "Write 4 for each quadrangle and 5 for each pentagon.",
-    showProgress: false,
-    items: [
-      { id: "q1Vertices", label: "Quadrangle 1", answer: 4, hint: "Write 4", successSpeech: "Correct. A quadrangle has 4 vertices." },
-      { id: "q2Vertices", label: "Quadrangle 2", answer: 4, hint: "Write 4", successSpeech: "Correct. A quadrangle has 4 vertices." },
-      { id: "q3Vertices", label: "Quadrangle 3", answer: 4, hint: "Write 4", successSpeech: "Correct. A quadrangle has 4 vertices." },
-      { id: "p1Vertices", label: "Pentagon 1", answer: 5, hint: "Write 5", successSpeech: "Correct. A pentagon has 5 vertices." },
-      { id: "p2Vertices", label: "Pentagon 2", answer: 5, hint: "Write 5", successSpeech: "Correct. A pentagon has 5 vertices." },
-      { id: "p3Vertices", label: "Pentagon 3", answer: 5, hint: "Write 5", successSpeech: "Correct. A pentagon has 5 vertices." }
-    ],
-    onProgress(state){
-      applyCombinedProgress(state.totalProgress);
-      schedulePersist(state.totalProgress);
-      maybeCelebrateProgress(state.totalProgress);
-    }
-  }) || null;
+  function clearPuzzle(){
+    startIndex = null;
+    matchedLeft.clear();
+    matchedRight.clear();
+    celebrated = false;
+    matchLines.innerHTML = "";
+    matchHits.forEach(btn => btn.classList.remove("active", "done"));
+    updateProgressUI();
+    statusLine.textContent = "Start from a black dot on the left.";
+    schedulePersist();
+  }
 
-  function queueTraceSave(score){
-    if (vertexEntry) {
-      vertexEntry.setBaseProgress(score);
+  function handleSelection(btn){
+    const side = btn.dataset.side;
+    const index = Number(btn.dataset.index);
+
+    if (side === "left") {
+      if (matchedLeft.has(index)) return;
+      matchHits.forEach(node => node.classList.remove("active"));
+      startIndex = index;
+      btn.classList.add("active");
+      statusLine.textContent = "Good. Now tap the correct black dot on the right.";
       return;
     }
-    applyCombinedProgress(score);
-    schedulePersist(score);
-  }
 
-  function maybeCelebrateProgress(score){
-    [
-      [35, 'Nice tracing. Keep going!'],
-      [70, 'Great work. You are almost done!']
-    ].forEach(([mark, message]) => {
-      if (score >= mark && !progressMilestones.has(mark)) {
-        progressMilestones.add(mark);
-        playChime();
-        speak(message);
-      }
-    });
-
-    if (score >= 100 && !traceFinished) {
-      traceFinished = true;
-      playCelebration();
-      speak('Excellent! You completed all the quadrangles and pentagons.');
-    }
-  }
-
-  function redrawDots(){
-    dotLayer.innerHTML = '';
-    shapes.forEach(shape => {
-      const color = shape.id.startsWith('q') ? '#d62c2c' : '#1d76c9';
-      const pts = shape.points.map(p => `${p[0]*1000},${p[1]*1400}`).join(' ');
-      const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
-      poly.setAttribute('points', pts + ' ' + pts.split(' ')[0]);
-      poly.setAttribute('fill','none');
-      poly.setAttribute('stroke','rgba(200,200,200,0.7)');
-      poly.setAttribute('stroke-width','3');
-      poly.setAttribute('stroke-dasharray','10 8');
-      dotLayer.appendChild(poly);
-      shape.points.forEach(p => {
-        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-        c.setAttribute('cx', p[0]*1000);
-        c.setAttribute('cy', p[1]*1400);
-        c.setAttribute('r', 10);
-        c.setAttribute('fill', color);
-        dotLayer.appendChild(c);
-      });
-    });
-  }
-
-  function toCanvasPoint(pt){
-    return { x: pt[0] * drawLayer.width, y: pt[1] * drawLayer.height };
-  }
-
-  function buildSamples(){
-    samples.clear();
-    visited.clear();
-    completed.clear();
-    shapePercents.clear();
-    if (vertexEntry) vertexEntry.reset();
-    shapes.forEach(shape => {
-      const pts = shape.points.map(p => toCanvasPoint(p));
-      const spacing = 10;
-      const s = [];
-      for(let i=0;i<pts.length;i++){
-        const a = pts[i];
-        const b = pts[(i+1)%pts.length];
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const dist = Math.hypot(dx,dy);
-        const steps = Math.max(1, Math.ceil(dist/spacing));
-        for(let k=0;k<=steps;k++){
-          s.push({ x: a.x + (dx*k/steps), y: a.y + (dy*k/steps) });
-        }
-      }
-      samples.set(shape.id, s);
-      visited.set(shape.id, new Array(s.length).fill(false));
-      shapePercents.set(shape.id, 0);
-    });
-    updateProgressUI(0);
-  }
-
-  function updateVisited(pos){
-    const threshold = 34;
-    const thr2 = threshold * threshold;
-    let changedAny = false;
-    shapes.forEach(shape => {
-      if(completed.has(shape.id)) return;
-      const s = samples.get(shape.id) || [];
-      const v = visited.get(shape.id) || [];
-      let changed = false;
-      for(let i=0;i<s.length;i++){
-        if(v[i]) continue;
-        const dx = pos.x - s[i].x;
-        const dy = pos.y - s[i].y;
-        if(dx*dx + dy*dy <= thr2){ v[i]=true; changed=true; }
-      }
-      if(changed){
-        let pct = Math.round((v.filter(Boolean).length / s.length) * 100);
-        if (pct >= 96) pct = 100;
-        shapePercents.set(shape.id, pct);
-        if(pct >= 100){ completed.add(shape.id); }
-        changedAny = true;
-      }
-    });
-
-    if (changedAny) {
-      const overall = computeOverallProgress();
-      queueTraceSave(overall);
-      maybeCelebrateProgress(overall);
+    if (startIndex === null) {
+      statusLine.textContent = "Tap a black dot on the left first.";
+      speak("Tap a black dot on the left first.");
+      return;
     }
 
-    for(let row=0; row<3; row++){
-      const qId = `q${row+1}`;
-      const pId = `p${row+1}`;
-      if(!rowCompleted[row] && completed.has(qId) && completed.has(pId)){
-        rowCompleted[row] = true;
-        const msg = rowMessages[row];
-        statusLine.textContent = msg;
+    if (matchedLeft.has(startIndex) || matchedRight.has(index)) return;
+
+    const leftBtn = matchHits.find(node => node.dataset.side === "left" && Number(node.dataset.index) === startIndex);
+    if (!leftBtn) {
+      startIndex = null;
+      return;
+    }
+
+    if (correctMap[startIndex] === index) {
+      drawMatchLine(leftBtn, btn);
+      leftBtn.classList.remove("active");
+      leftBtn.classList.add("done");
+      btn.classList.add("done");
+      matchedLeft.add(startIndex);
+      matchedRight.add(index);
+      statusLine.textContent = "Correct!";
+      playChime();
+
+      if (matchedLeft.size === correctMap.length && !celebrated) {
+        celebrated = true;
         playCelebration();
-        speak(msg);
-        queueTraceSave(computeOverallProgress());
+        speak("Excellent! You matched all the tangram insects correctly.");
       }
+      schedulePersist();
+    } else {
+      statusLine.textContent = "Try again!";
+      speak("Try again!");
+      matchHits.forEach(node => node.classList.remove("active"));
     }
+
+    startIndex = null;
+    updateProgressUI();
   }
 
-  let drawing = false;
-  function getEventPos(e){
-    const rect = drawLayer.getBoundingClientRect();
-    if (e.touches && e.touches[0]) {
-      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
-    }
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  }
-
-  function startDraw(e){
-    e.preventDefault();
-    drawing = true;
-    const pos = getEventPos(e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x,pos.y);
-    updateVisited(pos);
-  }
-
-  function moveDraw(e){
-    if(!drawing) return;
-    e.preventDefault();
-    const pos = getEventPos(e);
-    ctx.lineTo(pos.x,pos.y);
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#ff4d4d';
-    ctx.stroke();
-    updateVisited(pos);
-    const now = performance.now();
-    if(now - lastTraceSound > 120){ lastTraceSound = now; playTraceTick(); }
-  }
-
-  function endDraw(e){
-    if(!drawing) return;
-    e && e.preventDefault();
-    drawing = false;
-  }
-
-  drawLayer.addEventListener('pointerdown', startDraw);
-  drawLayer.addEventListener('pointermove', moveDraw);
-  drawLayer.addEventListener('pointerup', endDraw);
-  drawLayer.addEventListener('pointerleave', endDraw);
-  drawLayer.addEventListener('pointercancel', endDraw);
-  drawLayer.addEventListener('mousedown', startDraw);
-  drawLayer.addEventListener('mousemove', moveDraw);
-  drawLayer.addEventListener('mouseup', endDraw);
-  drawLayer.addEventListener('touchstart', startDraw, { passive:false });
-  drawLayer.addEventListener('touchmove', moveDraw, { passive:false });
-  drawLayer.addEventListener('touchend', endDraw);
-
-  clearBtn.addEventListener('click', () => {
-    ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
-    rowCompleted.fill(false);
-    statusLine.textContent = '';
-    progressMilestones.clear();
-    traceFinished = false;
-    buildSamples();
-    queueTraceSave(0);
+  matchHits.forEach(btn => {
+    ["click","pointerup","touchend"].forEach(eventName => {
+      btn.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        handleSelection(btn);
+      }, { passive:false });
+    });
   });
 
-  if (prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../tuesday/LevelC17.html'; });
-  if (nextBtn) prevBtn ? nextBtn.addEventListener('click', () => { window.location.href = 'LevelC19.html'; }) : null;
+  micIconBtn.addEventListener("click", () => {
+    statusLine.textContent = "Tap a left black dot, then tap its correct name dot on the right.";
+    speak("Tap a left black dot, then tap its correct name dot on the right.");
+  });
 
-  function resize(){
-    const imgRect = posterImg.getBoundingClientRect();
-    const areaRect = posterArea.getBoundingClientRect();
-    const width = imgRect.width || areaRect.width;
-    const height = imgRect.height || areaRect.height;
-    if(!width || !height){
-      requestAnimationFrame(resize);
-      return;
-    }
-    drawLayer.width = width;
-    drawLayer.height = height;
-    drawLayer.style.width = width + 'px';
-    drawLayer.style.height = height + 'px';
-    ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
-    redrawDots();
-    buildSamples();
-  }
+  clearBtn.addEventListener("click", clearPuzzle);
+  prevBtn.addEventListener("click", () => { window.location.href = "LevelC17.html"; });
+  nextBtn.addEventListener("click", async () => {
+    persistProgress();
+    window.location.href = "LevelC19.html";
+  });
 
-  resize();
-  if (posterImg && !posterImg.complete) {
-    posterImg.addEventListener('load', resize, { once:true });
-  }
-  window.addEventListener('resize', resize);
-  if ('ResizeObserver' in window) {
-    const ro = new ResizeObserver(resize);
-    ro.observe(posterArea);
-  }
-
-  setTimeout(speakIntro, 150);
+  updateProgressUI();
+  schedulePersist();
+})();
 </script>
+
 <script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
+
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
   window.GPProgress.installTracker({
     saveActivityResult,
     markLoginPing,
-    defaultPageId: "LevelC9",
+    defaultPageId: "LevelC18",
     defaultLevel: "C",
     defaultActivityType: "lesson",
-    defaultScore: 100,
-    defaultStars: 1,
+    defaultScore: 0,
+    defaultStars: 0,
     defaultSkills: {
       reading: 1,
-      writing: 0,
-      speaking: 1,
+      writing: 1,
+      speaking: 0,
       listening: 1
     }
   });

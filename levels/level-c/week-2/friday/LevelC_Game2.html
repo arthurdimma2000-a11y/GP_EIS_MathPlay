@@ -4,118 +4,470 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Level C - Game 2 (Match the Tangram Names)</title>
+
 <style>
   :root{
-    --bg1:#c7ffd8; --bg2:#bde0fe; --ink:#14324a;
+    --bg1:#d9fff0;
+    --bg2:#cfe9ff;
+    --bg3:#fff5d6;
+    --ink:#17324a;
+    --panel:#ffffffee;
+    --panelSoft:#f8fcff;
+    --primary:#3a86ff;
+    --primaryDark:#2359ad;
+    --accent:#ff8fab;
+    --success:#22b573;
+    --danger:#ef476f;
+    --gold:#ffd166;
+    --chip:#142233;
+    --shadow:0 18px 42px rgba(0,0,0,.14);
+    --softShadow:0 12px 24px rgba(0,0,0,.10);
     font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
   }
+
   *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+  }
+
   body{
-    margin:0; min-height:100vh; color:var(--ink);
+    color:var(--ink);
     background:
-      radial-gradient(900px 500px at 20% 20%, #ffffffcc, transparent 60%),
-      radial-gradient(900px 500px at 80% 30%, #ffffffcc, transparent 60%),
-      linear-gradient(135deg,var(--bg1),var(--bg2));
-    display:flex; justify-content:center; padding:18px;
+      radial-gradient(900px 520px at 12% 8%, #ffffffdd, transparent 55%),
+      radial-gradient(900px 520px at 88% 16%, #ffffffcc, transparent 58%),
+      radial-gradient(700px 420px at 50% 100%, #fff8cfaa, transparent 65%),
+      linear-gradient(135deg,var(--bg1),var(--bg2) 55%, var(--bg3));
+    display:flex;
+    justify-content:center;
+    padding:16px;
   }
-  .app{width:min(1100px,96vw);}
+
+  .app{
+    width:min(1180px, 98vw);
+  }
+
   .topbar{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:12px 14px; border-radius:18px;
-    background:linear-gradient(180deg,#ffffffdd,#ffffffaa);
-    box-shadow:0 14px 35px rgba(0,0,0,.12);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:14px 16px;
+    border-radius:24px;
+    background:linear-gradient(180deg,#ffffffef,#ffffffd2);
+    box-shadow:var(--shadow);
     backdrop-filter: blur(10px);
-  }
-  .brand{display:flex; align-items:center; gap:10px}
-  .badge{
-    display:inline-flex; align-items:center; gap:10px;
-    padding:10px 12px; border-radius:999px;
-    background:linear-gradient(135deg,#00bbf9,#00f5a0);
-    color:#063b2a; font-weight:1000;
-    box-shadow:0 10px 22px rgba(0,187,249,.18);
-  }
-  .btn{
-    border:0; cursor:pointer; font-weight:1000;
-    padding:10px 14px; border-radius:14px;
-    background:#fff; color:var(--ink);
-    box-shadow:0 10px 18px rgba(0,0,0,.12);
-    transition:transform .08s ease;
-    text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
-  }
-  .btn:active{transform:translateY(1px) scale(.99)}
-  .btn.primary{background:linear-gradient(135deg,#ff4d6d,#ffd166); color:#4a1020}
-  .grid{display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:14px}
-  @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
-  .card{
-    background:linear-gradient(180deg,#ffffffdd,#ffffffb8);
     border:2px solid #ffffff;
-    border-radius:22px;
-    box-shadow:0 18px 45px rgba(0,0,0,.12);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#59d7ff,#7cffb7);
+    color:#083b2d;
+    font-weight:1000;
+    box-shadow:0 10px 24px rgba(0,187,249,.20);
+  }
+
+  .title-wrap h1{
+    margin:0;
+    font-size:clamp(1.05rem,2.2vw,1.45rem);
+    line-height:1.1;
+  }
+
+  .title-wrap .sub{
+    font-weight:900;
+    opacity:.82;
+    font-size:13px;
+    margin-top:2px;
+  }
+
+  .top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    font-weight:1000;
+    padding:11px 15px;
+    border-radius:15px;
+    background:#fff;
+    color:var(--ink);
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:transform .09s ease, filter .09s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:46px;
+  }
+
+  .btn:hover,.btn:focus{ transform:translateY(-1px); filter:brightness(1.02); }
+  .btn:active{ transform:translateY(1px) scale(.99); }
+  .btn.primary{
+    background:linear-gradient(135deg,#ff5c7a,#ffd166);
+    color:#4a1020;
+  }
+  .btn.secondary{
+    background:linear-gradient(135deg,#dff4ff,#ffffff);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1.15fr .92fr;
+    gap:14px;
+    margin-top:14px;
+  }
+
+  @media (max-width: 980px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:linear-gradient(180deg,#ffffffee,#ffffffd7);
+    border:2px solid #ffffff;
+    border-radius:24px;
+    box-shadow:var(--shadow);
     padding:14px;
   }
-  h1{margin:0; font-size:18px}
-  h2{margin:0 0 10px; font-size:20px}
+
+  .section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+
+  .section-head h2{
+    margin:0;
+    font-size:1.18rem;
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-weight:1000;
+    background:#112131;
+    color:#fff;
+    font-size:12px;
+  }
+
   .stage{
-    background:linear-gradient(180deg,#f6fbff,#ffffff);
-    border:2px dashed rgba(20,50,74,.25);
-    border-radius:18px;
+    background:linear-gradient(180deg,#f7fbff,#ffffff);
+    border:2px dashed rgba(23,50,74,.20);
+    border-radius:20px;
     padding:12px;
   }
-  .items{display:grid; gap:10px}
-  .row{display:grid; grid-template-columns: 160px 1fr; gap:10px; align-items:center}
-  .slot{
-    min-height:56px;
-    border-radius:16px;
-    border:2px dashed rgba(20,50,74,.25);
-    background:#ffffff;
-    display:flex; align-items:center; justify-content:center;
-    font-weight:1000;
-    padding:10px;
+
+  .instructions{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-top:10px;
   }
-  .slot.good{border-style:solid; border-color: rgba(0,245,160,.8); box-shadow:0 10px 18px rgba(0,245,160,.18)}
-  .slot.bad{border-style:solid; border-color: rgba(255,77,109,.55)}
-  .labelBank{display:flex; flex-wrap:wrap; gap:10px}
+
+  .instruction-chip{
+    background:#fff;
+    border-radius:16px;
+    padding:10px;
+    font-weight:900;
+    font-size:13px;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:var(--softShadow);
+    text-align:center;
+  }
+
+  @media (max-width:700px){
+    .instructions{grid-template-columns:1fr;}
+  }
+
+  .items{
+    display:grid;
+    gap:12px;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns: 170px 1fr;
+    gap:12px;
+    align-items:center;
+    padding:8px;
+    border-radius:18px;
+    background:linear-gradient(180deg,#ffffff,#f7fbff);
+  }
+
+  @media (max-width:700px){
+    .row{
+      grid-template-columns:1fr;
+      justify-items:center;
+    }
+  }
+
+  .shape-card{
+    width:100%;
+    max-width:180px;
+    background:#fff;
+    border-radius:18px;
+    padding:8px;
+    box-shadow:var(--softShadow);
+    border:1px solid rgba(0,0,0,.05);
+  }
+
+  .slot-wrap{
+    width:100%;
+  }
+
+  .slot-label{
+    font-weight:1000;
+    font-size:13px;
+    opacity:.82;
+    margin-bottom:6px;
+  }
+
+  .slot{
+    min-height:74px;
+    border-radius:18px;
+    border:3px dashed rgba(23,50,74,.22);
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:1000;
+    padding:10px 12px;
+    font-size:1rem;
+    position:relative;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+  }
+
+  .slot.hover{
+    transform:translateY(-1px);
+    box-shadow:0 10px 18px rgba(58,134,255,.16);
+    border-color:rgba(58,134,255,.55);
+    background:#f6fbff;
+  }
+
+  .slot.good{
+    border-style:solid;
+    border-color:rgba(34,181,115,.92);
+    box-shadow:0 12px 22px rgba(34,181,115,.18);
+    background:#effff7;
+    color:#0f6d45;
+  }
+
+  .slot.bad{
+    border-style:solid;
+    border-color:rgba(239,71,111,.70);
+    background:#fff2f5;
+  }
+
+  .slot.locked::after{
+    content:"✅";
+    position:absolute;
+    right:12px;
+    top:10px;
+    font-size:20px;
+  }
+
+  .slot.empty::before{
+    content:"Drop label here";
+    opacity:.55;
+  }
+
+  .labelBank{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+  }
+
   .chip{
     user-select:none;
-    padding:10px 12px;
+    -webkit-user-select:none;
+    padding:12px 14px;
     border-radius:999px;
-    background:#0b1b2a; color:#fff;
+    background:var(--chip);
+    color:#fff;
     font-weight:1000;
     box-shadow:0 10px 18px rgba(0,0,0,.18);
     cursor:grab;
+    touch-action:manipulation;
+    border:3px solid transparent;
+    transition:transform .1s ease, box-shadow .1s ease, background .1s ease;
   }
+
+  .chip:hover,.chip:focus{
+    transform:translateY(-1px);
+    box-shadow:0 12px 20px rgba(0,0,0,.22);
+  }
+
   .chip:active{cursor:grabbing}
-  .pill{
-    display:inline-flex; align-items:center; gap:8px;
-    padding:8px 10px; border-radius:999px; font-weight:1000;
-    background:#0b1b2a; color:#fff; font-size:12px;
+  .chip.used{
+    opacity:.45;
+    pointer-events:none;
+    filter:grayscale(.1);
   }
-  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px}
-  .kpi{background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,.06)}
-  .kpi .big{font-size:20px; font-weight:1000}
-  .toast{
-    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-    background:#0b1b2a; color:#fff; padding:12px 14px; border-radius:16px;
-    box-shadow:0 18px 35px rgba(0,0,0,.25);
-    display:none; max-width:min(92vw,720px);
+
+  .chip.selected{
+    background:linear-gradient(135deg,#245bff,#5ec5ff);
+    border-color:#fff;
+    box-shadow:0 0 0 5px rgba(58,134,255,.16), 0 14px 22px rgba(58,134,255,.18);
+  }
+
+  .hint-box{
+    margin-top:12px;
+    border-radius:18px;
+    padding:12px;
+    background:linear-gradient(135deg,#fff7da,#ffffff);
+    font-weight:1000;
+    box-shadow:var(--softShadow);
+    min-height:60px;
+  }
+
+  .preview-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+
+  @media (max-width:700px){
+    .preview-grid{grid-template-columns:1fr;}
+  }
+
+  .mini-card{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:var(--softShadow);
+  }
+
+  .mini-card h3{
+    margin:0 0 8px;
+    font-size:15px;
+  }
+
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-top:12px;
+  }
+
+  @media (max-width:780px){
+    .kpis{grid-template-columns:repeat(2,1fr);}
+  }
+
+  .kpi{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:var(--softShadow);
+    text-align:center;
+  }
+
+  .kpi .big{
+    font-size:22px;
+    font-weight:1000;
+    line-height:1.1;
+  }
+
+  .kpi .small{
     font-weight:900;
+    opacity:.82;
+    font-size:12px;
+    margin-top:4px;
   }
-  svg{max-width:100%; height:auto}
+
+  .celebrate{
+    animation:bounceGlow .46s ease;
+  }
+
+  @keyframes bounceGlow{
+    0%{transform:scale(.96)}
+    50%{transform:scale(1.03)}
+    100%{transform:scale(1)}
+  }
+
+  .confetti{
+    pointer-events:none;
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:40;
+  }
+
+  .confetti-piece{
+    position:absolute;
+    width:12px;
+    height:18px;
+    border-radius:4px;
+    opacity:.95;
+    animation:fall 1300ms linear forwards;
+  }
+
+  @keyframes fall{
+    0%{transform:translateY(-40px) rotate(0deg)}
+    100%{transform:translateY(105vh) rotate(540deg)}
+  }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    background:#0b1b2a;
+    color:#fff;
+    padding:12px 14px;
+    border-radius:16px;
+    box-shadow:0 18px 35px rgba(0,0,0,.25);
+    display:none;
+    max-width:min(92vw,720px);
+    font-weight:900;
+    z-index:60;
+    text-align:center;
+  }
+
+  svg{max-width:100%; height:auto; display:block}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topbar">
     <div class="brand">
-      <div class="badge">🏷️ <b>Level C</b> <span style="opacity:.9">• Game 2</span></div>
-      <div>
+      <div class="badge">🧩 <b>Level C</b> <span style="opacity:.9">• Game 2</span></div>
+      <div class="title-wrap">
         <h1>Match the Tangram Piece Names</h1>
-        <div style="font-weight:900; opacity:.85; font-size:13px">Drag the labels onto the correct shapes ✨</div>
+        <div class="sub">Fun drag-and-drop game for learning tangram piece names</div>
       </div>
     </div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
-      <a class="btn" href="../thursday/LevelC_Revision2.html">⬅ Back</a>
-      <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
+
+    <div class="top-actions">
+      <a class="btn secondary" href="../thursday/LevelC_Revision2.html">⬅ Back</a>
+      <button class="btn secondary" id="speakBtn" type="button">🗣️ Read Game</button>
+      <button class="btn secondary" id="soundBtn" type="button">🔊 Sound: ON</button>
       <button class="btn primary" id="resetBtn" type="button">↻ Reset</button>
       <a class="btn primary" href="LevelC_Quiz2.html">Next ➜</a>
     </div>
@@ -123,45 +475,96 @@
 
   <div class="grid">
     <section class="card">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
-        <h2>🧩 Shapes</h2>
+      <div class="section-head">
+        <h2>🎯 Match the Shapes</h2>
         <span class="pill" id="statusPill">0/5 matched</span>
       </div>
+
       <div class="stage">
         <div class="items" id="slots"></div>
       </div>
 
+      <div class="instructions">
+        <div class="instruction-chip">1. Tap a label or drag it.</div>
+        <div class="instruction-chip">2. Drop it on the correct shape.</div>
+        <div class="instruction-chip">3. Fill all matches to win stars.</div>
+      </div>
+
       <div class="kpis">
-        <div class="kpi"><div class="big" id="score">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Score</div></div>
-        <div class="kpi"><div class="big" id="stars">⭐ 0</div><div style="font-weight:900; opacity:.85; font-size:12px">Stars</div></div>
-        <div class="kpi"><div class="big" id="tries">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Tries</div></div>
+        <div class="kpi">
+          <div class="big" id="score">0</div>
+          <div class="small">Score</div>
+        </div>
+        <div class="kpi">
+          <div class="big" id="stars">⭐ 0</div>
+          <div class="small">Stars</div>
+        </div>
+        <div class="kpi">
+          <div class="big" id="tries">0</div>
+          <div class="small">Tries</div>
+        </div>
+        <div class="kpi">
+          <div class="big" id="combo">0</div>
+          <div class="small">Combo</div>
+        </div>
       </div>
     </section>
 
     <section class="card">
-      <h2>🏷️ Label Bank</h2>
+      <div class="section-head">
+        <h2>🏷️ Label Bank</h2>
+        <span class="pill" id="helperPill">Pick a label</span>
+      </div>
+
       <div class="stage">
-        <div style="font-weight:900; opacity:.9; margin-bottom:10px">
-          Labels to match (like “Count the pieces • Match the names” in the book):
+        <div style="font-weight:1000; opacity:.92; margin-bottom:10px">
+          Match each label to the correct tangram piece group.
         </div>
         <div class="labelBank" id="bank"></div>
-        <div style="margin-top:10px; font-weight:900; opacity:.85" id="hint"></div>
+        <div class="hint-box" id="hint">Tip: Start with the square or the parallelogram.</div>
+      </div>
+
+      <div class="preview-grid" style="margin-top:12px">
+        <div class="mini-card">
+          <h3>✨ Game Goal</h3>
+          <div style="font-weight:900; line-height:1.45">
+            Learn the names of tangram pieces while playing. Correct matches earn points, stars, cheers, and a happy chime.
+          </div>
+        </div>
+
+        <div class="mini-card">
+          <h3>👀 Remember</h3>
+          <div style="font-weight:900; line-height:1.45">
+            Tangram sets include <b>2 large triangles</b>, <b>1 medium triangle</b>, <b>2 small triangles</b>, <b>1 square</b>, and <b>1 parallelogram</b>.
+          </div>
+        </div>
       </div>
 
       <div class="stage" style="margin-top:12px">
-        <div style="font-weight:1000; margin-bottom:8px">Preview of pieces:</div>
-        <svg viewBox="0 0 560 170" aria-label="Preview">
+        <div style="font-weight:1000; margin-bottom:8px">Preview of tangram piece groups:</div>
+        <svg viewBox="0 0 560 210" aria-label="Preview of tangram piece groups">
           <defs>
-            <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="8" stdDeviation="7" flood-opacity=".16"/>
+            <filter id="previewShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity=".16"/>
             </filter>
           </defs>
-          <g filter="url(#sh)">
-            <polygon points="30,130 90,70 150,130" fill="#00bbf9"/>
-            <polygon points="170,130 230,70 290,130" fill="#ff4d6d"/>
-            <polygon points="310,130 370,70 430,130" fill="#00f5a0"/>
-            <rect x="440" y="75" width="60" height="60" rx="10" fill="#ffd166"/>
-            <polygon points="500,70 540,100 500,130 460,100" fill="#9b5de5"/>
+
+          <g filter="url(#previewShadow)">
+            <polygon points="28,152 78,102 128,152" fill="#2f9df4"/>
+            <polygon points="90,152 140,102 190,152" fill="#00c2ff"/>
+            <text x="108" y="184" font-size="16" font-weight="900" fill="#17324a" text-anchor="middle">2 small triangles</text>
+
+            <polygon points="220,152 290,82 360,152" fill="#18c37e"/>
+            <text x="290" y="184" font-size="16" font-weight="900" fill="#17324a" text-anchor="middle">1 medium triangle</text>
+
+            <polygon points="388,164 468,84 548,164" fill="#ff5e78"/>
+            <text x="468" y="196" font-size="16" font-weight="900" fill="#17324a" text-anchor="middle">2 large triangles</text>
+
+            <rect x="122" y="16" width="62" height="62" rx="10" fill="#ffd34d"/>
+            <text x="153" y="98" font-size="16" font-weight="900" fill="#17324a" text-anchor="middle">1 square</text>
+
+            <polygon points="302,76 346,32 406,32 362,76" fill="#a45cff"/>
+            <text x="354" y="98" font-size="16" font-weight="900" fill="#17324a" text-anchor="middle">1 parallelogram</text>
           </g>
         </svg>
       </div>
@@ -170,182 +573,699 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
 
 <script>
-/* ====== Tracker ====== */
-const TRACK_LEVEL="C";
-const PAGE_ID="LevelC_Game2";
-function getProgressStore(){ try{return JSON.parse(localStorage.getItem("gpeis_progress_v1")||"{}");}catch(e){return{};} }
-function saveProgress(entry){
-  const s=getProgressStore();
-  const arr=Array.isArray(s.entries)?s.entries:[];
-  arr.push(entry); s.entries=arr; s.last=entry;
-  localStorage.setItem("gpeis_progress_v1", JSON.stringify(s));
+/* =========================
+   CONFIG
+========================= */
+const PAGE_ID = "LevelC_Game2";
+const TRACK_LEVEL = "C";
+const STORAGE_KEY = "GP_EIS_LC_GAME2_STATE_V2";
+
+/* =========================
+   AUDIO + SPEECH
+========================= */
+let SOUND_ON = true;
+let audioCtx = null;
+
+function getAudioCtx(){
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) audioCtx = new Ctx();
+  }
+  return audioCtx;
 }
 
-/* ====== Sound + Voice ====== */
-let SOUND_ON=true;
-document.getElementById("soundBtn").addEventListener("click", ()=>{
-  SOUND_ON=!SOUND_ON;
-  document.getElementById("soundBtn").textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-});
-function beep(freq=440, ms=120, type="sine", gain=0.06){
-  if(!SOUND_ON) return;
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const ctx = new AudioCtx();
-  const o = ctx.createOscillator();
-  const g = ctx.createGain();
-  o.type = type; o.frequency.value = freq;
-  g.gain.value = gain;
-  o.connect(g); g.connect(ctx.destination);
-  o.start();
-  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+async function ensureAudioUnlocked(){
+  try{
+    const ctx = getAudioCtx();
+    if (ctx && ctx.state === "suspended") await ctx.resume();
+  }catch(_e){}
 }
-function chimeSuccess(){ beep(523,110,"sine",0.07); setTimeout(()=>beep(659,110,"sine",0.07),120); setTimeout(()=>beep(784,160,"sine",0.07),240); }
-function buzzWrong(){ beep(180,140,"square",0.05); setTimeout(()=>beep(140,160,"square",0.05),160); }
+
+function beep(freq = 440, ms = 140, type = "sine", gain = 0.055){
+  if (!SOUND_ON) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, now);
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(gain, now + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + ms / 1000);
+
+  osc.connect(g);
+  g.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + ms / 1000 + 0.03);
+}
+
+function chimeSuccess(){
+  beep(523,120,"sine",0.06);
+  setTimeout(()=>beep(659,120,"sine",0.06),120);
+  setTimeout(()=>beep(784,180,"sine",0.06),250);
+}
+
+function bigWinChime(){
+  chimeSuccess();
+  setTimeout(chimeSuccess, 260);
+  setTimeout(()=>beep(988,220,"triangle",0.07), 540);
+}
+
+function buzzWrong(){
+  beep(180,130,"square",0.05);
+  setTimeout(()=>beep(145,170,"square",0.05),150);
+}
+
+function clickPop(){
+  beep(620,60,"triangle",0.038);
+}
+
 function speak(text){
   if(!SOUND_ON) return;
   if(!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.rate=1.02; u.pitch=1.12; u.volume=1;
-  speechSynthesis.cancel(); speechSynthesis.speak(u);
-}
-const toast=document.getElementById("toast");
-function toastShow(msg){
-  toast.textContent=msg; toast.style.display="block";
-  clearTimeout(toast._t); toast._t=setTimeout(()=>toast.style.display="none", 1600);
+  u.rate = 1.0;
+  u.pitch = 1.12;
+  u.volume = 1;
+  window.speechSynthesis.speak(u);
 }
 
-/* ====== Game data ====== */
-const pieces = [
-  {id:"square", label:"1 square", draw:()=>`<rect x="36" y="34" width="88" height="88" rx="14" fill="#ffd166"/>`},
-  {id:"parallelogram", label:"1 parallelogram", draw:()=>`<polygon points="30,92 78,44 140,44 92,92" fill="#9b5de5"/>`},
-  {id:"smallTriangles", label:"2 small triangles", draw:()=>`<polygon points="30,120 80,70 130,120" fill="#00bbf9"/>`},
-  {id:"mediumTriangle", label:"1 medium triangle", draw:()=>`<polygon points="30,120 95,55 160,120" fill="#00f5a0"/>`},
-  {id:"largeTriangles", label:"2 large triangles", draw:()=>`<polygon points="30,130 110,50 190,130" fill="#ff4d6d"/>`}
+const cheers = [
+  "Great job!",
+  "Amazing match!",
+  "Super work!",
+  "Well done!",
+  "Fantastic!",
+  "You got it!"
 ];
 
-let score=0, stars=0, tries=0, matched=0;
-const slotsEl=document.getElementById("slots");
-const bankEl=document.getElementById("bank");
-const statusPill=document.getElementById("statusPill");
-const scoreEl=document.getElementById("score");
-const starsEl=document.getElementById("stars");
-const triesEl=document.getElementById("tries");
-const hintEl=document.getElementById("hint");
+const winCheer = [
+  "You matched them all! Fantastic!",
+  "Excellent work! You finished the game!",
+  "Brilliant! All tangram names are matched!"
+];
 
+/* =========================
+   UI HELPERS
+========================= */
+const toast = document.getElementById("toast");
+function toastShow(msg){
+  toast.textContent = msg;
+  toast.style.display = "block";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.style.display = "none", 1700);
+}
+
+function makeConfetti(){
+  const root = document.getElementById("confetti");
+  root.innerHTML = "";
+  const colors = ["#ff5c7a","#ffd166","#22b573","#3a86ff","#9b5de5","#00c2ff"];
+  for(let i=0;i<34;i++){
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = (Math.random() * 100) + "vw";
+    piece.style.top = (-10 - Math.random()*20) + "px";
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = (Math.random() * 240) + "ms";
+    piece.style.transform = `translateY(-40px) rotate(${Math.random()*180}deg)`;
+    root.appendChild(piece);
+  }
+  setTimeout(()=>{ root.innerHTML = ""; }, 1600);
+}
+
+/* =========================
+   GAME DATA
+========================= */
+const pieces = [
+  {
+    id:"square",
+    label:"1 square",
+    draw:()=>`
+      <rect x="42" y="32" width="88" height="88" rx="14" fill="#ffd34d"/>
+    `
+  },
+  {
+    id:"parallelogram",
+    label:"1 parallelogram",
+    draw:()=>`
+      <polygon points="30,96 78,48 140,48 92,96" fill="#9b5de5"/>
+    `
+  },
+  {
+    id:"smallTriangles",
+    label:"2 small triangles",
+    draw:()=>`
+      <polygon points="30,118 80,68 130,118" fill="#2f9df4"/>
+      <polygon points="76,118 126,68 176,118" fill="#00c2ff"/>
+    `
+  },
+  {
+    id:"mediumTriangle",
+    label:"1 medium triangle",
+    draw:()=>`
+      <polygon points="32,122 98,56 164,122" fill="#18c37e"/>
+    `
+  },
+  {
+    id:"largeTriangles",
+    label:"2 large triangles",
+    draw:()=>`
+      <polygon points="20,126 84,62 148,126" fill="#ff7b54"/>
+      <polygon points="92,126 156,62 220,126" fill="#ef476f"/>
+    `
+  }
+];
+
+let score = 0;
+let stars = 0;
+let tries = 0;
+let matched = 0;
+let combo = 0;
+let selectedChipId = null;
+let hasWon = false;
+
+/* =========================
+   ELEMENTS
+========================= */
+const slotsEl = document.getElementById("slots");
+const bankEl = document.getElementById("bank");
+const statusPill = document.getElementById("statusPill");
+const helperPill = document.getElementById("helperPill");
+const scoreEl = document.getElementById("score");
+const starsEl = document.getElementById("stars");
+const triesEl = document.getElementById("tries");
+const comboEl = document.getElementById("combo");
+const hintEl = document.getElementById("hint");
+const soundBtn = document.getElementById("soundBtn");
+const resetBtn = document.getElementById("resetBtn");
+const speakBtn = document.getElementById("speakBtn");
+
+/* =========================
+   PROGRESS SAVE
+========================= */
 function updateUI(){
   statusPill.textContent = `${matched}/5 matched`;
+  helperPill.textContent = selectedChipId ? "Now tap a shape" : "Pick a label";
   scoreEl.textContent = score;
   starsEl.textContent = `⭐ ${stars}`;
   triesEl.textContent = tries;
+  comboEl.textContent = combo;
 }
 
-function render(){
-  slotsEl.innerHTML="";
-  bankEl.innerHTML="";
-  hintEl.textContent = "Tip: Drag a label to a shape. If it turns green ✅ it’s correct!";
+function computeStars(scoreValue){
+  return scoreValue >= 95 ? 3 : scoreValue >= 65 ? 2 : scoreValue > 0 ? 1 : 0;
+}
 
-  // randomize labels
-  const labels = pieces.map(p=>({id:p.id, text:p.label})).sort(()=>Math.random()-0.5);
+function persistState(){
+  try{
+    const locked = {};
+    document.querySelectorAll(".slot.good").forEach((slot) => {
+      locked[slot.dataset.accept] = slot.textContent.trim();
+    });
+    const usedIds = Array.from(document.querySelectorAll(".chip.used")).map(el => el.dataset.id);
+    const state = {
+      score, stars, tries, matched, combo, selectedChipId, hasWon, locked, usedIds
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(_e){}
+}
 
-  pieces.forEach(p=>{
+function readState(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+  }catch(_e){
+    return null;
+  }
+}
+
+function clearState(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(_e){}
+}
+
+/* =========================
+   SHARED TRACKER SAVE
+========================= */
+async function saveGameProgress(overrides = {}){
+  const currentScore = Math.max(0, Math.min(100, score));
+  const payload = {
+    pageId: PAGE_ID,
+    level: TRACK_LEVEL,
+    activityType: "game",
+    score: currentScore,
+    tracing: currentScore,
+    progress: currentScore,
+    completed: matched === pieces.length,
+    stars: computeStars(currentScore),
+    skills: { reading: 1, writing: 0, speaking: 1, listening: 1 },
+    ...overrides
+  };
+
+  if (typeof window.finishAndSave === "function") {
+    await window.finishAndSave(payload);
+  } else if (typeof window.finishActivity === "function") {
+    try{
+      await window.finishActivity(payload);
+    }catch(_err){}
+  }
+}
+
+/* =========================
+   GAME LOGIC
+========================= */
+function shuffle(arr){
+  const copy = [...arr];
+  for(let i=copy.length - 1; i>0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function renderSlots(){
+  slotsEl.innerHTML = "";
+  pieces.forEach((p) => {
     const row = document.createElement("div");
-    row.className="row";
+    row.className = "row";
     row.innerHTML = `
-      <div>
-        <svg viewBox="0 0 200 150" aria-label="${p.id}">
-          <defs><filter id="sh2" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity=".16"/>
-          </filter></defs>
-          <g filter="url(#sh2)">${p.draw()}</g>
+      <div class="shape-card">
+        <svg viewBox="0 0 230 150" aria-label="${p.label}">
+          <defs>
+            <filter id="sh2-${p.id}" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity=".16"/>
+            </filter>
+          </defs>
+          <g filter="url(#sh2-${p.id})">${p.draw()}</g>
         </svg>
       </div>
-      <div class="slot" data-accept="${p.id}" aria-label="Drop slot for ${p.id}">Drop label here</div>
+      <div class="slot-wrap">
+        <div class="slot-label">Match the correct name:</div>
+        <div class="slot empty" data-accept="${p.id}" tabindex="0" aria-label="Match slot for ${p.label}"></div>
+      </div>
     `;
     slotsEl.appendChild(row);
   });
 
-  labels.forEach(l=>{
-    const chip=document.createElement("div");
-    chip.className="chip";
-    chip.textContent=l.text;
-    chip.setAttribute("draggable","true");
-    chip.dataset.id=l.id;
-    chip.addEventListener("dragstart", (e)=>{
-      e.dataTransfer.setData("text/plain", l.id);
-      e.dataTransfer.effectAllowed="move";
+  bindSlots();
+}
+
+function renderBank(){
+  bankEl.innerHTML = "";
+  const labels = shuffle(pieces.map(p => ({id:p.id, text:p.label})));
+
+  labels.forEach((l) => {
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.type = "button";
+    chip.textContent = l.text;
+    chip.setAttribute("draggable", "true");
+    chip.dataset.id = l.id;
+    chip.setAttribute("aria-label", l.text);
+
+    chip.addEventListener("click", async () => {
+      await ensureAudioUnlocked();
+      clickPop();
+      selectChip(l.id);
     });
+
+    chip.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", l.id);
+      e.dataTransfer.effectAllowed = "move";
+      selectChip(l.id);
+    });
+
     bankEl.appendChild(chip);
   });
+}
 
-  // bind slots
-  [...document.querySelectorAll(".slot")].forEach(slot=>{
-    slot.addEventListener("dragover",(e)=>{e.preventDefault(); e.dataTransfer.dropEffect="move";});
-    slot.addEventListener("drop",(e)=>{
-      e.preventDefault();
-      const id = e.dataTransfer.getData("text/plain");
-      if(!id) return;
-      tries++;
-      const accept = slot.dataset.accept;
-      if(slot.classList.contains("good")) return;
+function selectChip(id){
+  selectedChipId = id;
+  document.querySelectorAll(".chip").forEach((chip) => {
+    chip.classList.toggle("selected", chip.dataset.id === id && !chip.classList.contains("used"));
+  });
+  const piece = pieces.find(p => p.id === id);
+  hintEl.textContent = piece
+    ? `Selected: ${piece.label}. Now tap or drop it on the matching shape.`
+    : "Pick a label, then tap the correct shape.";
+  updateUI();
+  persistState();
+}
 
-      if(id===accept){
-        slot.classList.remove("bad");
-        slot.classList.add("good");
-        slot.textContent = pieces.find(p=>p.id===id).label;
-        // remove chip
-        const chip = [...bankEl.children].find(c=>c.dataset.id===id);
-        if(chip) chip.remove();
-        matched++;
-        score += 20;
-        stars += 1;
-        chimeSuccess();
-        speak(["Nice!","Great match!","Perfect!","Super!"][Math.floor(Math.random()*4)]);
-        toastShow("✅ Correct match! +20");
-        if(matched===5){
-          win();
-        }
-      }else{
-        slot.classList.add("bad");
-        score = Math.max(0, score-2);
-        buzzWrong();
-        speak("Oops. Try another label!");
-        toastShow("❌ Not this one!");
-        setTimeout(()=>slot.classList.remove("bad"), 500);
-      }
+function clearSelectedChip(){
+  selectedChipId = null;
+  document.querySelectorAll(".chip").forEach((chip) => chip.classList.remove("selected"));
+  updateUI();
+  persistState();
+}
+
+function lockChip(id){
+  const chip = [...document.querySelectorAll(".chip")].find(c => c.dataset.id === id);
+  if (chip) {
+    chip.classList.add("used");
+    chip.classList.remove("selected");
+  }
+}
+
+function handleMatch(id, slot){
+  if (!id || !slot || slot.classList.contains("good")) return;
+
+  tries++;
+  const accept = slot.dataset.accept;
+
+  if (id === accept) {
+    slot.classList.remove("bad","empty","hover");
+    slot.classList.add("good","locked","celebrate");
+    slot.textContent = pieces.find(p => p.id === id).label;
+
+    setTimeout(() => slot.classList.remove("celebrate"), 460);
+
+    lockChip(id);
+    matched++;
+    combo++;
+    score = Math.min(100, score + 18 + (combo >= 2 ? 2 : 0));
+    stars = computeStars(score);
+
+    chimeSuccess();
+    speak(cheers[Math.floor(Math.random() * cheers.length)]);
+    toastShow(`✅ Correct! +${combo >= 2 ? 20 : 18}`);
+    hintEl.textContent = combo >= 2
+      ? "Wonderful combo. Keep going!"
+      : "Great match. Choose another label.";
+    clearSelectedChip();
+
+    if (matched === pieces.length) {
+      hasWon = true;
       updateUI();
+      persistState();
+      winGame();
+      return;
+    }
+  } else {
+    combo = 0;
+    score = Math.max(0, score - 3);
+    stars = computeStars(score);
+
+    slot.classList.add("bad");
+    setTimeout(() => slot.classList.remove("bad"), 520);
+
+    buzzWrong();
+    speak("Oops. Try another label.");
+    toastShow("❌ Not this one. Try again!");
+    hintEl.textContent = "Look carefully at the shape and try another label.";
+  }
+
+  updateUI();
+  persistState();
+  saveGameProgress();
+}
+
+function bindSlots(){
+  [...document.querySelectorAll(".slot")].forEach((slot) => {
+    slot.addEventListener("dragover", (e) => {
+      if (slot.classList.contains("good")) return;
+      e.preventDefault();
+      slot.classList.add("hover");
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+    });
+
+    slot.addEventListener("dragleave", () => {
+      slot.classList.remove("hover");
+    });
+
+    slot.addEventListener("drop", async (e) => {
+      await ensureAudioUnlocked();
+      if (slot.classList.contains("good")) return;
+      e.preventDefault();
+      slot.classList.remove("hover");
+      const id = e.dataTransfer.getData("text/plain");
+      handleMatch(id, slot);
+    });
+
+    slot.addEventListener("click", async () => {
+      await ensureAudioUnlocked();
+      if (!selectedChipId || slot.classList.contains("good")) return;
+      handleMatch(selectedChipId, slot);
+    });
+
+    slot.addEventListener("keydown", async (e) => {
+      if ((e.key === "Enter" || e.key === " ") && selectedChipId && !slot.classList.contains("good")) {
+        e.preventDefault();
+        await ensureAudioUnlocked();
+        handleMatch(selectedChipId, slot);
+      }
     });
   });
+}
+
+function restoreState(){
+  const state = readState();
+  if (!state) return;
+
+  score = Number(state.score || 0);
+  stars = Number(state.stars || 0);
+  tries = Number(state.tries || 0);
+  matched = Number(state.matched || 0);
+  combo = Number(state.combo || 0);
+  selectedChipId = state.selectedChipId || null;
+  hasWon = !!state.hasWon;
+
+  if (state.locked && typeof state.locked === "object") {
+    Object.entries(state.locked).forEach(([accept, label]) => {
+      const slot = document.querySelector(`.slot[data-accept="${accept}"]`);
+      if (!slot) return;
+      slot.classList.remove("empty");
+      slot.classList.add("good","locked");
+      slot.textContent = label || (pieces.find(p=>p.id===accept)?.label || "");
+    });
+  }
+
+  if (Array.isArray(state.usedIds)) {
+    state.usedIds.forEach((id) => lockChip(id));
+  }
+
+  if (selectedChipId) {
+    const chip = [...document.querySelectorAll(".chip")].find(c => c.dataset.id === selectedChipId && !c.classList.contains("used"));
+    if (chip) chip.classList.add("selected");
+  }
 
   updateUI();
 }
 
-function win(){
-  chimeSuccess(); setTimeout(chimeSuccess, 240);
-  speak("You matched them all! Fantastic!");
-  toastShow("🎉 All matched! Saved ✅");
-  saveProgress({
-    level:TRACK_LEVEL,
-    page:PAGE_ID,
-    type:"game",
-    score, stars,
-    ts:new Date().toISOString()
-  });
+async function winGame(){
+  bigWinChime();
+  makeConfetti();
+  speak(winCheer[Math.floor(Math.random() * winCheer.length)]);
+  toastShow("🎉 Amazing! You matched them all!");
+  hintEl.textContent = "Excellent work. You finished the game!";
+  updateUI();
+  persistState();
+  await saveGameProgress({ completed: true, score: Math.max(score, 100) });
 }
 
 function resetAll(){
-  score=0; stars=0; tries=0; matched=0;
+  score = 0;
+  stars = 0;
+  tries = 0;
+  matched = 0;
+  combo = 0;
+  selectedChipId = null;
+  hasWon = false;
+  clearState();
   render();
+  updateUI();
+  hintEl.textContent = "Tip: Start with the square or the parallelogram.";
+  toastShow("↻ Game reset!");
 }
 
-document.getElementById("resetBtn").addEventListener("click", resetAll);
+/* =========================
+   RENDER
+========================= */
+function render(){
+  renderSlots();
+  renderBank();
+  restoreState();
+  updateUI();
+}
+
+/* =========================
+   EVENTS
+========================= */
+soundBtn.addEventListener("click", async () => {
+  await ensureAudioUnlocked();
+  SOUND_ON = !SOUND_ON;
+  soundBtn.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+  toastShow(SOUND_ON ? "Sound turned on" : "Sound turned off");
+});
+
+speakBtn.addEventListener("click", async () => {
+  await ensureAudioUnlocked();
+  clickPop();
+  speak("Match each tangram label to the correct shape. Drag a label or tap a label, then tap the matching box.");
+});
+
+resetBtn.addEventListener("click", async () => {
+  await ensureAudioUnlocked();
+  clickPop();
+  resetAll();
+});
+
+window.addEventListener("pointerdown", ensureAudioUnlocked, { once:true });
+window.addEventListener("keydown", ensureAudioUnlocked, { once:true });
 
 render();
+
+setTimeout(() => {
+  if (SOUND_ON) {
+    speak("Welcome. Match the tangram piece names to the correct shapes.");
+  }
+}, 700);
+
+window.addEventListener("beforeunload", () => {
+  persistState();
+});
 </script>
+
 <script src="./levelbc-runtime-fix.js"></script>
-<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
-<script type="module" src="./progress-tracker.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LevelC_Game2",
+    defaultLevel: "C",
+    defaultActivityType: "game",
+    defaultScore: 0,
+    defaultStars: 0,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C|Levelc_Game)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "game";
+
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : false,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+
+    saveLocalActivityFallback(fullPayload);
+
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+
 <script>
   window.addEventListener("load", () => {
     if (!window.GPTrack) return;
@@ -360,24 +1280,20 @@ render();
       ? "A"
       : (/^(LB|LevelB)/i.test(pageFile))
         ? "B"
-        : (/^(LC|LevelC)/i.test(pageFile))
+        : (/^(LC|LevelC|Levelc_Game)/i.test(pageFile))
           ? "C"
           : null;
 
     await GPTrack.finish({
       pageId: pageFile || document.title || "Activity",
       level: inferredLevel,
-      activityType: "activity",
-      score: null,
+      activityType: "game",
+      score: 0,
       stars: 0,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      skills: { reading: 1, writing: 0, speaking: 1, listening: 1 },
       ...overrides
     });
   }
 </script>
 </body>
 </html>
-
-
-
-

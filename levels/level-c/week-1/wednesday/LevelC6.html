@@ -481,32 +481,6 @@
   }
   .recording audio{height:32px;}
   .recording-status{font-size:.85rem;color:#555;}
-  .girl-spot{
-    position:absolute;
-    left:16px;
-    top:12px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    z-index:3;
-  }
-  .girl-spot img{
-    width:64px;
-    height:64px;
-    border-radius:16px;
-    object-fit:cover;
-    box-shadow:0 6px 14px rgba(0,0,0,.25);
-    border:4px solid #ffe3f7;
-    background:#ffd6f2;
-    cursor:pointer;
-  }
-  .girl-hint{
-    font-size:.85rem;
-    font-weight:800;
-    color:#d62828;
-    text-align:center;
-  }
   .footer-note{
     margin-top:6px;
     font-size:.9rem;
@@ -686,12 +660,7 @@
       <input class="answer-input most" id="answerMost" type="text" placeholder="Green" aria-label="Answer for most color">
       <input class="answer-input least" id="answerLeast" type="text" placeholder="Red" aria-label="Answer for least color">
 
-      <div class="girl-spot" aria-label="Tap the girl">
-        <img src="EyeglassGirl.png" alt="Tap the girl" id="tapGirl">
-        <div class="girl-hint">Tap the girl</div>
-      </div>
-
-      <div class="plate-text reveal-line" id="instructionLine">Write the number of pieces in a Tangram puzzle.</div>
+        <div class="plate-text reveal-line" id="instructionLine">Write the number of pieces in a Tangram puzzle.</div>
 
       <div class="qa-block" id="qaBlock">
         <div class="reveal-line" id="qa1">How many <span class="word-triangle">triangles</span> are there?</div>
@@ -714,7 +683,7 @@
     <div class="controls">
       <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
       <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
-        <img src="Microphone.png" alt="Microphone">
+        <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
       </button>
       <button class="btn next" id="nextBtn">Next page &#8594;</button>
       <button class="btn stop" id="clearBtn" type="button">Clear</button>
@@ -746,7 +715,6 @@
     const recordingPlayback = document.getElementById("recordingPlayback");
     const recordingStatus = document.getElementById("recordingStatus");
     const conversationStatus = document.getElementById("conversationStatus");
-    const tapGirl = document.getElementById("tapGirl");
     const instructionLine = document.getElementById("instructionLine");
     const bubbleLine1 = document.getElementById("bubbleLine1");
     const bubbleLine2 = document.getElementById("bubbleLine2");
@@ -1065,7 +1033,6 @@
     hideAllLines();
 
     if (clearBtn) clearBtn.addEventListener("click", clearConversation);
-    if (tapGirl) tapGirl.addEventListener("click", showTapGirlMessage);
     if (boardEl) boardEl.addEventListener("click", showCountQuestions);
     if (micIconBtn) {
       micIconBtn.addEventListener("click", async (event) => {

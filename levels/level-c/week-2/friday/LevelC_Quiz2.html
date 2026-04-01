@@ -4,139 +4,510 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Level C - Quiz 2 (Find the Mistake)</title>
+
 <style>
-  :root{--ink:#14324a; font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
+  :root{
+    --ink:#14324a;
+    --bg1:#d8fff0;
+    --bg2:#fff3b8;
+    --bg3:#dbeafe;
+    --panel:#ffffffee;
+    --white:#ffffff;
+    --primary:#7c4dff;
+    --primary2:#00bbf9;
+    --good:#22b573;
+    --bad:#ef476f;
+    --gold:#ffd166;
+    --shadow:0 18px 45px rgba(0,0,0,.12);
+    --softShadow:0 10px 20px rgba(0,0,0,.08);
+    font-family:"Baloo 2","Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
   *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    min-height:100%;
+  }
+
   body{
-    margin:0; min-height:100vh; color:var(--ink);
+    color:var(--ink);
     background:
       radial-gradient(900px 500px at 20% 20%, #ffffffcc, transparent 60%),
       radial-gradient(900px 500px at 80% 30%, #ffffffcc, transparent 60%),
-      linear-gradient(135deg,#c7ffd8,#fff3b0);
-    display:flex; justify-content:center; padding:18px;
+      linear-gradient(135deg,var(--bg1),var(--bg2) 55%, var(--bg3));
+    display:flex;
+    justify-content:center;
+    padding:18px;
   }
-  .app{width:min(1100px,96vw);}
+
+  .app{width:min(1180px,96vw);}
+
   .topbar{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:12px 14px; border-radius:18px;
-    background:linear-gradient(180deg,#ffffffdd,#ffffffaa);
-    box-shadow:0 14px 35px rgba(0,0,0,.12);
-    backdrop-filter: blur(10px);
-  }
-  .badge{
-    display:inline-flex; align-items:center; gap:10px;
-    padding:10px 12px; border-radius:999px;
-    background:linear-gradient(135deg,#9b5de5,#ffd166);
-    color:#1f103a; font-weight:1000;
-  }
-  .btn{
-    border:0; cursor:pointer; font-weight:1000;
-    padding:10px 14px; border-radius:14px;
-    background:#fff; color:var(--ink);
-    box-shadow:0 10px 18px rgba(0,0,0,.12);
-    transition:transform .08s ease;
-    text-decoration:none; display:inline-flex; align-items:center; justify-content:center;
-  }
-  .btn:active{transform:translateY(1px) scale(.99)}
-  .btn.primary{background:linear-gradient(135deg,#00bbf9,#00f5a0); color:#063b2a}
-  .btn.warn{background:linear-gradient(135deg,#ff4d6d,#ffd166); color:#4a1020}
-  .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; margin-top:14px}
-  @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
-  .card{
-    background:linear-gradient(180deg,#ffffffdd,#ffffffb8);
-    border:2px solid #ffffff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
     border-radius:22px;
-    box-shadow:0 18px 45px rgba(0,0,0,.12);
+    background:linear-gradient(180deg,#ffffffee,#ffffffcc);
+    box-shadow:var(--shadow);
+    backdrop-filter: blur(10px);
+    border:2px solid #fff;
+  }
+
+  .top-left{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#9b5de5,#ffd166);
+    color:#1f103a;
+    font-weight:1000;
+    box-shadow:0 10px 22px rgba(155,93,229,.18);
+  }
+
+  .top-title h1{
+    margin:0;
+    font-size:clamp(18px,2vw,24px);
+    line-height:1.05;
+  }
+
+  .top-title div{
+    font-weight:900;
+    opacity:.86;
+    font-size:13px;
+    margin-top:2px;
+  }
+
+  .top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    font-weight:1000;
+    padding:10px 14px;
+    border-radius:14px;
+    background:#fff;
+    color:var(--ink);
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:transform .08s ease, filter .08s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:44px;
+  }
+
+  .btn:hover,.btn:focus{
+    transform:translateY(-1px);
+    filter:brightness(1.02);
+  }
+
+  .btn:active{transform:translateY(1px) scale(.99)}
+
+  .btn.primary{
+    background:linear-gradient(135deg,#00bbf9,#00f5a0);
+    color:#063b2a;
+  }
+
+  .btn.warn{
+    background:linear-gradient(135deg,#ff4d6d,#ffd166);
+    color:#4a1020;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1.16fr .84fr;
+    gap:14px;
+    margin-top:14px;
+  }
+
+  @media (max-width: 920px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:linear-gradient(180deg,#ffffffee,#ffffffd8);
+    border:2px solid #ffffff;
+    border-radius:24px;
+    box-shadow:var(--shadow);
     padding:14px;
   }
-  h1{margin:0; font-size:18px}
-  h2{margin:0 0 10px; font-size:20px}
+
+  h2{
+    margin:0 0 10px;
+    font-size:21px;
+  }
+
+  .row-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
   .stage{
     background:linear-gradient(180deg,#f6fbff,#ffffff);
-    border:2px dashed rgba(20,50,74,.25);
-    border-radius:18px;
+    border:2px dashed rgba(20,50,74,.20);
+    border-radius:20px;
     padding:12px;
   }
+
   .pill{
-    display:inline-flex; align-items:center; gap:8px;
-    padding:8px 10px; border-radius:999px; font-weight:1000;
-    background:#0b1b2a; color:#fff; font-size:12px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-weight:1000;
+    background:#0b1b2a;
+    color:#fff;
+    font-size:12px;
   }
-  .cards{display:grid; gap:10px}
+
+  .rule-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+    font-weight:1000;
+    line-height:1.45;
+  }
+
+  .rule-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 12px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#efe6ff,#fff2bf);
+    color:#3b2468;
+    font-weight:1000;
+  }
+
+  .cards{
+    display:grid;
+    gap:12px;
+  }
+
   .opt{
-    border-radius:18px; background:#fff; border:1px solid rgba(0,0,0,.06);
-    box-shadow:0 10px 18px rgba(0,0,0,.06);
+    border-radius:20px;
+    background:#fff;
+    border:2px solid rgba(0,0,0,.05);
+    box-shadow:var(--softShadow);
     padding:12px;
     cursor:pointer;
-    transition:transform .08s ease;
+    transition:transform .10s ease, box-shadow .10s ease, border-color .10s ease;
+    position:relative;
+    overflow:hidden;
   }
-  .opt:active{transform:translateY(1px) scale(.99)}
-  .opt.good{outline:4px solid rgba(0,245,160,.55)}
-  .opt.bad{outline:4px solid rgba(255,77,109,.45)}
-  .optHead{display:flex; justify-content:space-between; align-items:center; gap:10px}
-  .tag{font-weight:1000; opacity:.85}
-  svg{width:100%; height:auto}
-  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px}
-  .kpi{background:#fff; border-radius:18px; padding:12px; border:1px solid rgba(0,0,0,.06)}
-  .kpi .big{font-size:20px; font-weight:1000}
-  .toast{
-    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-    background:#0b1b2a; color:#fff; padding:12px 14px; border-radius:16px;
-    box-shadow:0 18px 35px rgba(0,0,0,.25);
-    display:none; max-width:min(92vw,720px);
+
+  .opt:hover,.opt:focus{
+    transform:translateY(-1px);
+    box-shadow:0 14px 24px rgba(0,0,0,.10);
+  }
+
+  .opt.locked{cursor:default}
+
+  .opt.good{
+    border-color:rgba(34,181,115,.70);
+    box-shadow:0 0 0 5px rgba(34,181,115,.14), 0 14px 24px rgba(34,181,115,.16);
+    background:#effff7;
+  }
+
+  .opt.bad{
+    border-color:rgba(239,71,111,.65);
+    box-shadow:0 0 0 5px rgba(239,71,111,.10), 0 14px 24px rgba(239,71,111,.12);
+    background:#fff3f6;
+  }
+
+  .optHead{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+
+  .tag{
+    font-weight:1000;
+    opacity:.86;
+    font-size:13px;
+  }
+
+  .tap-hint{
+    margin-top:8px;
+    font-size:12px;
     font-weight:900;
+    opacity:.8;
+  }
+
+  svg{width:100%; height:auto; display:block}
+
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-top:10px;
+  }
+
+  @media (max-width:700px){
+    .kpis{grid-template-columns:repeat(2,1fr);}
+  }
+
+  .kpi{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:var(--softShadow);
+    text-align:center;
+  }
+
+  .kpi .big{
+    font-size:22px;
+    font-weight:1000;
+    line-height:1.05;
+  }
+
+  .kpi .small{
+    font-weight:900;
+    opacity:.85;
+    font-size:12px;
+    margin-top:4px;
+  }
+
+  .message-box{
+    margin-top:10px;
+    font-weight:900;
+    line-height:1.5;
+    background:#fff;
+    border-radius:16px;
+    padding:12px;
+    box-shadow:var(--softShadow);
+  }
+
+  .help-list{
+    display:grid;
+    gap:10px;
+  }
+
+  .help-item{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    box-shadow:var(--softShadow);
+    border:1px solid rgba(0,0,0,.05);
+  }
+
+  .help-item h3{
+    margin:0 0 6px;
+    font-size:16px;
+  }
+
+  .round-dots{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+
+  .dot{
+    width:14px;
+    height:14px;
+    border-radius:999px;
+    background:#d7e4ef;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+
+  .dot.done{background:#22b573;}
+  .dot.now{background:#7c4dff;}
+
+  .legend{
+    margin-top:10px;
+    display:grid;
+    gap:8px;
+  }
+
+  .legend-item{
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+    font-weight:900;
+    line-height:1.45;
+    background:#fff;
+    padding:10px 12px;
+    border-radius:14px;
+    box-shadow:var(--softShadow);
+  }
+
+  .legend-mark{
+    min-width:26px;
+    height:26px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:1000;
+    color:#fff;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    background:#0b1b2a;
+    color:#fff;
+    padding:12px 14px;
+    border-radius:16px;
+    box-shadow:0 18px 35px rgba(0,0,0,.25);
+    display:none;
+    max-width:min(92vw,720px);
+    font-weight:900;
+    text-align:center;
+    z-index:50;
+  }
+
+  .confetti{
+    pointer-events:none;
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:40;
+  }
+
+  .confetti-piece{
+    position:absolute;
+    width:12px;
+    height:18px;
+    border-radius:4px;
+    opacity:.95;
+    animation:fall 1300ms linear forwards;
+  }
+
+  @keyframes fall{
+    0%{transform:translateY(-40px) rotate(0deg)}
+    100%{transform:translateY(105vh) rotate(540deg)}
   }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topbar">
-    <div style="display:flex; gap:10px; align-items:center">
+    <div class="top-left">
       <div class="badge">🏷️ <b>Level C</b> <span style="opacity:.9">• Quiz 2</span></div>
-      <div>
+      <div class="top-title">
         <h1>Find the Mistake</h1>
-        <div style="font-weight:900; opacity:.85; font-size:13px">Which picture breaks the rule? (Hint: use all 7 pieces!)</div>
+        <div>For each round, two pictures use a full tangram set. One picture breaks the rule. Find the wrong one.</div>
       </div>
     </div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
+
+    <div class="top-actions">
       <a class="btn" href="LevelC_Game2.html">⬅ Back</a>
+      <button class="btn" id="readBtn" type="button">🗣️ Read Quiz</button>
       <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
-      <button class="btn primary" id="newBtn" type="button">🔁 New Round</button>
+      <button class="btn warn" id="newBtn" type="button">🔁 New Round</button>
       <a class="btn primary" href="../../week-3/monday/LevelC14.html">Next ➜</a>
     </div>
   </div>
 
   <div class="grid">
     <section class="card">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
-        <h2>🔎 Choose the wrong one</h2>
-        <span class="pill" id="statusPill">Round 1</span>
+      <div class="row-head">
+        <h2>🔎 Choose the Wrong Picture</h2>
+        <span class="pill" id="statusPill">Round 1 of 5</span>
       </div>
+
       <div class="stage">
-        <div style="font-weight:1000; margin-bottom:10px">
-          Rule: Use <span style="color:#9b5de5">all seven pieces</span> ✅
+        <div class="rule-box">
+          <span>Rule:</span>
+          <span class="rule-chip">🧩 A complete tangram set uses <b>7 pieces</b>.</span>
+          <span class="rule-chip">◼ It should include <b>1 square</b> and <b>1 parallelogram</b>.</span>
         </div>
+
         <div class="cards" id="options"></div>
+        <div class="round-dots" id="roundDots"></div>
       </div>
     </section>
 
     <section class="card">
-      <h2>⭐ Score</h2>
+      <h2>⭐ Quiz Score</h2>
       <div class="stage">
         <div class="kpis">
-          <div class="kpi"><div class="big" id="score">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Score</div></div>
-          <div class="kpi"><div class="big" id="stars">⭐ 0</div><div style="font-weight:900; opacity:.85; font-size:12px">Stars</div></div>
-          <div class="kpi"><div class="big" id="wrong">0</div><div style="font-weight:900; opacity:.85; font-size:12px">Wrong</div></div>
+          <div class="kpi">
+            <div class="big" id="score">0</div>
+            <div class="small">Score</div>
+          </div>
+          <div class="kpi">
+            <div class="big" id="stars">⭐ 0</div>
+            <div class="small">Stars</div>
+          </div>
+          <div class="kpi">
+            <div class="big" id="correct">0</div>
+            <div class="small">Correct</div>
+          </div>
+          <div class="kpi">
+            <div class="big" id="wrong">0</div>
+            <div class="small">Wrong</div>
+          </div>
         </div>
-        <div style="margin-top:10px; font-weight:900; opacity:.85" id="msg">
-          Tap the picture that uses <b>not 7</b> pieces.
+
+        <div class="message-box" id="msg">
+          Look for the picture that does <b>not</b> use a complete 7-piece tangram set.
         </div>
       </div>
 
       <div class="stage" style="margin-top:12px">
-        <div style="font-weight:1000; margin-bottom:8px">Auto-save</div>
-        <div style="font-weight:900; opacity:.85">
-          After 3 rounds, your result is saved ✅
+        <div class="help-list">
+          <div class="help-item">
+            <h3>💡 Tangram facts</h3>
+            <div style="font-weight:900; opacity:.88; line-height:1.45">
+              A full tangram set has <b>2 large triangles</b>, <b>1 medium triangle</b>, <b>2 small triangles</b>, <b>1 square</b>, and <b>1 parallelogram</b>.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <h3>🎯 How this quiz works</h3>
+            <div style="font-weight:900; opacity:.88; line-height:1.45">
+              In every round, <b>2 pictures are correct</b>. <b>1 picture is wrong</b>. The wrong picture is missing an important tangram piece.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <h3>📘 Progress report</h3>
+            <div style="font-weight:900; opacity:.88; line-height:1.45">
+              Your quiz score is saved to <b>ProgressReport.html</b> while you play and again when you finish.
+            </div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-mark" style="background:#22b573">✓</span>
+            <span>A correct full set has <b>one sharp-corner square</b> and <b>one parallelogram</b>.</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-mark" style="background:#ef476f">!</span>
+            <span>The wrong set breaks the rule by <b>missing the parallelogram</b>. It does not add extra squares.</span>
+          </div>
         </div>
       </div>
     </section>
@@ -144,188 +515,573 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
 
 <script>
-/* ====== Tracker ====== */
-const TRACK_LEVEL="C";
-const PAGE_ID="LevelC_Quiz2";
-function getProgressStore(){ try{return JSON.parse(localStorage.getItem("gpeis_progress_v1")||"{}");}catch(e){return{};} }
-function saveProgress(entry){
-  const s=getProgressStore();
-  const arr=Array.isArray(s.entries)?s.entries:[];
-  arr.push(entry); s.entries=arr; s.last=entry;
-  localStorage.setItem("gpeis_progress_v1", JSON.stringify(s));
+const TRACK_LEVEL = "C";
+const PAGE_ID = "LevelC_Quiz2";
+const TOTAL_ROUNDS = 5;
+const STORAGE_KEY = "GP_EIS_LC_QUIZ2_STATE_V3";
+
+let SOUND_ON = true;
+let audioCtx = null;
+
+function getAudioCtx(){
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) audioCtx = new Ctx();
+  }
+  return audioCtx;
 }
 
-/* ====== Sound + Voice ====== */
-let SOUND_ON=true;
-document.getElementById("soundBtn").addEventListener("click", ()=>{
-  SOUND_ON=!SOUND_ON;
-  document.getElementById("soundBtn").textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-});
-function beep(freq=440, ms=120, type="sine", gain=0.06){
+async function ensureAudioUnlocked(){
+  try{
+    const ctx = getAudioCtx();
+    if (ctx && ctx.state === "suspended") await ctx.resume();
+  }catch(_e){}
+}
+
+function beep(freq = 440, ms = 120, type = "sine", gain = 0.06){
   if(!SOUND_ON) return;
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const ctx = new AudioCtx();
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
   const o = ctx.createOscillator();
   const g = ctx.createGain();
-  o.type = type; o.frequency.value = freq;
-  g.gain.value = gain;
-  o.connect(g); g.connect(ctx.destination);
-  o.start();
-  setTimeout(()=>{ o.stop(); ctx.close(); }, ms);
+
+  o.type = type;
+  o.frequency.setValueAtTime(freq, now);
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(gain, now + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + ms / 1000);
+
+  o.connect(g);
+  g.connect(ctx.destination);
+  o.start(now);
+  o.stop(now + ms / 1000 + 0.03);
 }
-function chimeSuccess(){ beep(523,110,"sine",0.07); setTimeout(()=>beep(659,110,"sine",0.07),120); setTimeout(()=>beep(784,160,"sine",0.07),240); }
-function buzzWrong(){ beep(180,140,"square",0.05); setTimeout(()=>beep(140,160,"square",0.05),160); }
+
+function chimeSuccess(){
+  beep(523,110,"sine",0.07);
+  setTimeout(()=>beep(659,110,"sine",0.07),120);
+  setTimeout(()=>beep(784,160,"sine",0.07),240);
+}
+
+function bigWinChime(){
+  chimeSuccess();
+  setTimeout(chimeSuccess, 250);
+  setTimeout(()=>beep(988,220,"triangle",0.08), 520);
+}
+
+function buzzWrong(){
+  beep(180,140,"square",0.05);
+  setTimeout(()=>beep(140,160,"square",0.05),160);
+}
+
+function clickPop(){
+  beep(620,60,"triangle",0.038);
+}
+
 function speak(text){
   if(!SOUND_ON) return;
   if(!("speechSynthesis" in window)) return;
   const u = new SpeechSynthesisUtterance(text);
-  u.rate=1.02; u.pitch=1.12; u.volume=1;
-  speechSynthesis.cancel(); speechSynthesis.speak(u);
+  u.rate = 0.98;
+  u.pitch = 1.08;
+  u.volume = 1;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
 }
-const toast=document.getElementById("toast");
+
+const goodCheers = [
+  "Great! You found the wrong picture!",
+  "Excellent looking!",
+  "Super job!",
+  "You are right!",
+  "Fantastic answer!"
+];
+
+const finishCheers = [
+  "Quiz finished! Amazing work!",
+  "You completed the quiz! Great learning!",
+  "Wonderful! You finished all the rounds!"
+];
+
+const toast = document.getElementById("toast");
 function toastShow(msg){
-  toast.textContent=msg; toast.style.display="block";
-  clearTimeout(toast._t); toast._t=setTimeout(()=>toast.style.display="none", 1600);
+  toast.textContent = msg;
+  toast.style.display = "block";
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>toast.style.display="none", 1700);
 }
 
-/* ====== Quiz logic ====== */
-const optionsEl=document.getElementById("options");
-const statusPill=document.getElementById("statusPill");
-const scoreEl=document.getElementById("score");
-const starsEl=document.getElementById("stars");
-const wrongEl=document.getElementById("wrong");
-const msgEl=document.getElementById("msg");
-
-let round=1, score=0, stars=0, wrong=0, locked=false;
-let correctIndex=0;
-
-function miniTangramSVG(pieceCount){
-  // Simple abstract “tangram-like” blocks; we only need count difference visually.
-  const colors = ["#ff4d6d","#00bbf9","#00f5a0","#ffd166","#9b5de5","#34d399","#f7b801"];
-  const blocks = [];
-  for(let i=0;i<pieceCount;i++){
-    const x = 10 + (i%4)*55;
-    const y = 10 + Math.floor(i/4)*45;
-    blocks.push(`<rect x="${x}" y="${y}" width="48" height="38" rx="10" fill="${colors[i%colors.length]}" opacity=".92"/>`);
+function makeConfetti(){
+  const root = document.getElementById("confetti");
+  root.innerHTML = "";
+  const colors = ["#ff5c7a","#ffd166","#22b573","#3a86ff","#9b5de5","#00c2ff"];
+  for(let i=0;i<32;i++){
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = (Math.random()*100) + "vw";
+    piece.style.top = (-10 - Math.random()*20) + "px";
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = (Math.random()*260) + "ms";
+    root.appendChild(piece);
   }
+  setTimeout(()=>{ root.innerHTML=""; }, 1600);
+}
+
+const optionsEl = document.getElementById("options");
+const statusPill = document.getElementById("statusPill");
+const scoreEl = document.getElementById("score");
+const starsEl = document.getElementById("stars");
+const correctEl = document.getElementById("correct");
+const wrongEl = document.getElementById("wrong");
+const msgEl = document.getElementById("msg");
+const roundDotsEl = document.getElementById("roundDots");
+
+let round = 1;
+let score = 0;
+let correct = 0;
+let wrong = 0;
+let stars = 0;
+let locked = false;
+let correctIndex = 0;
+let finished = false;
+
+function computeStars(scoreValue){
+  return scoreValue >= 95 ? 3 : scoreValue >= 65 ? 2 : scoreValue > 0 ? 1 : 0;
+}
+
+function persistState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      round, score, correct, wrong, stars, finished
+    }));
+  }catch(_e){}
+}
+
+function clearState(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(_e){}
+}
+
+function updateDots(){
+  roundDotsEl.innerHTML = "";
+  for(let i=1;i<=TOTAL_ROUNDS;i++){
+    const dot = document.createElement("div");
+    dot.className = "dot";
+    if(i < round) dot.classList.add("done");
+    if(i === round && !finished) dot.classList.add("now");
+    roundDotsEl.appendChild(dot);
+  }
+}
+
+function updateUI(){
+  statusPill.textContent = finished ? "Quiz Complete" : `Round ${round} of ${TOTAL_ROUNDS}`;
+  scoreEl.textContent = score;
+  starsEl.textContent = `⭐ ${stars}`;
+  correctEl.textContent = correct;
+  wrongEl.textContent = wrong;
+  updateDots();
+  persistState();
+}
+
+function polygon(points, fill){
+  return `<polygon points="${points}" fill="${fill}" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>`;
+}
+
+function fullTangramFigure(variant){
+  const variants = [
+    [
+      polygon("24,146 94,76 164,146", "#ff8c42"),
+      polygon("152,146 214,84 276,146", "#00bbf9"),
+      polygon("246,146 330,62 414,146", "#22c55e"),
+      polygon("112,76 152,36 192,76", "#9b5de5"),
+      polygon("194,76 234,36 274,76", "#ef476f"),
+      `<rect x="166" y="76" width="56" height="56" fill="#ffd34d" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>`,
+      polygon("224,76 266,34 314,34 272,76", "#a855f7")
+    ],
+    [
+      polygon("32,138 102,68 172,138", "#22c55e"),
+      polygon("172,138 242,68 312,138", "#ff8c42"),
+      polygon("312,138 390,60 468,138", "#3b82f6"),
+      polygon("112,68 152,28 192,68", "#9b5de5"),
+      polygon("192,68 232,28 272,68", "#ef476f"),
+      `<rect x="174" y="68" width="56" height="56" fill="#ffd34d" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>`,
+      polygon("230,68 272,26 320,26 278,68", "#8b5cf6")
+    ],
+    [
+      polygon("42,146 112,76 182,146", "#ff8c42"),
+      polygon("182,146 256,72 330,146", "#22c55e"),
+      polygon("322,146 400,68 478,146", "#3b82f6"),
+      polygon("146,76 186,36 226,76", "#ef476f"),
+      polygon("226,76 266,36 306,76", "#00bbf9"),
+      `<rect x="188" y="76" width="56" height="56" fill="#ffd34d" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>`,
+      polygon("244,76 286,34 334,34 292,76", "#9b5de5")
+    ]
+  ];
+  return variants[variant % variants.length].join("");
+}
+
+function wrongTangramFigure(variant){
+  const variants = [
+    [
+      polygon("24,146 94,76 164,146", "#ff8c42"),
+      polygon("152,146 214,84 276,146", "#00bbf9"),
+      polygon("246,146 330,62 414,146", "#22c55e"),
+      polygon("112,76 152,36 192,76", "#9b5de5"),
+      polygon("194,76 234,36 274,76", "#ef476f"),
+      `<rect x="166" y="76" width="56" height="56" fill="#ffd34d" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>`
+    ],
+    [
+      polygon("32,138 102,68 172,138", "#22c55e"),
+      polygon("172,138 242,68 312,138", "#ff8c42"),
+      polygon("312,138 390,60 468,138", "#3b82f6"),
+      polygon("112,68 152,28 192,68", "#9b5de5"),
+      polygon("192,68 232,28 272,68", "#ef476f"),
+      `<rect x="174" y="68" width="56" height="56" fill="#ffd34d" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>`
+    ],
+    [
+      polygon("42,146 112,76 182,146", "#ff8c42"),
+      polygon("182,146 256,72 330,146", "#22c55e"),
+      polygon("322,146 400,68 478,146", "#3b82f6"),
+      polygon("146,76 186,36 226,76", "#ef476f"),
+      polygon("226,76 266,36 306,76", "#00bbf9"),
+      `<rect x="188" y="76" width="56" height="56" fill="#ffd34d" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>`
+    ]
+  ];
+  return variants[variant % variants.length].join("");
+}
+
+function tangramSVG(isWrong, variant){
+  const art = isWrong ? wrongTangramFigure(variant) : fullTangramFigure(variant);
+  const pieceCount = isWrong ? 6 : 7;
+  const footer = isWrong
+    ? "Missing the parallelogram"
+    : "Complete 7-piece tangram";
   return `
-    <svg viewBox="0 0 240 120" aria-label="${pieceCount} pieces">
-      <defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="10" stdDeviation="8" flood-opacity=".15"/>
-      </filter></defs>
-      <g filter="url(#sh)">
-        <rect x="6" y="6" width="228" height="108" rx="18" fill="#ffffff"/>
-        ${blocks.join("")}
-      </g>
-      <text x="120" y="114" text-anchor="middle" font-size="14" font-weight="900" fill="#14324a">${pieceCount} pieces</text>
+    <svg viewBox="0 0 500 170" aria-label="${footer}">
+      <rect x="6" y="6" width="488" height="158" rx="20" fill="#ffffff"/>
+      ${art}
+      <text x="250" y="162" text-anchor="middle" font-size="14" font-weight="900" fill="#14324a">${pieceCount} pieces</text>
     </svg>
   `;
 }
 
-function updateUI(){
-  statusPill.textContent = `Round ${round}`;
-  scoreEl.textContent=score;
-  starsEl.textContent=`⭐ ${stars}`;
-  wrongEl.textContent=wrong;
+function shuffle(arr){
+  const copy = [...arr];
+  for(let i=copy.length - 1; i>0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+async function saveQuizProgress(overrides = {}){
+  const normalizedScore = Math.max(0, Math.min(100, score));
+  const payload = {
+    pageId: PAGE_ID,
+    level: TRACK_LEVEL,
+    activityType: "quiz",
+    score: normalizedScore,
+    tracing: normalizedScore,
+    progress: normalizedScore,
+    completed: finished || round > TOTAL_ROUNDS,
+    stars: computeStars(normalizedScore),
+    skills: { reading: 1, writing: 0, speaking: 0, listening: 1 },
+    extra: { correct, wrong, rounds: TOTAL_ROUNDS },
+    ...overrides
+  };
+
+  if (typeof window.finishAndSave === "function") {
+    await window.finishAndSave(payload);
+  } else if (typeof window.finishActivity === "function") {
+    try{
+      await window.finishActivity(payload);
+    }catch(_err){}
+  }
 }
 
 function renderRound(){
-  locked=false;
-  msgEl.textContent="Tap the picture that uses NOT 7 pieces.";
-  optionsEl.innerHTML="";
+  if (finished) return;
 
-  // Build 3 options: two have 7 pieces, one has 6 or 5
-  const wrongPieces = [5,6][Math.floor(Math.random()*2)];
-  const arr = [
-    {pieces:7, ok:true},
-    {pieces:7, ok:true},
-    {pieces:wrongPieces, ok:false}
-  ].sort(()=>Math.random()-0.5);
+  locked = false;
+  msgEl.innerHTML = 'Look carefully. Which picture does <b>not</b> use a complete 7-piece tangram set?';
+  optionsEl.innerHTML = "";
 
-  correctIndex = arr.findIndex(x=>!x.ok);
+  const wrongVariant = Math.floor(Math.random() * 3);
+  const correctVariants = shuffle([0,1,2].filter(v => v !== wrongVariant)).slice(0,2);
 
-  arr.forEach((opt,i)=>{
-    const div=document.createElement("div");
-    div.className="opt";
+  const arr = shuffle([
+    {isWrong:false, variant:correctVariants[0]},
+    {isWrong:false, variant:correctVariants[1]},
+    {isWrong:true, variant:wrongVariant}
+  ]);
+
+  correctIndex = arr.findIndex(x => x.isWrong);
+
+  arr.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "opt";
+    div.tabIndex = 0;
+    div.setAttribute("role", "button");
+    div.setAttribute("aria-label", `Picture ${i+1}`);
     div.innerHTML = `
       <div class="optHead">
         <div style="font-weight:1000; font-size:16px">Picture ${i+1}</div>
-        <div class="tag">${opt.ok ? "✅ uses 7?" : "❌ mistake?"}</div>
+        <div class="tag">Choose carefully</div>
       </div>
-      <div style="margin-top:10px">${miniTangramSVG(opt.pieces)}</div>
+      <div>${tangramSVG(opt.isWrong, opt.variant)}</div>
+      <div class="tap-hint">Tap the picture that breaks the tangram rule.</div>
     `;
-    div.addEventListener("click", ()=>pick(i, div, opt.ok));
+
+    const selectOption = async () => {
+      await ensureAudioUnlocked();
+      pick(i, div);
+    };
+
+    div.addEventListener("click", selectOption);
+    div.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        selectOption();
+      }
+    });
+
     optionsEl.appendChild(div);
   });
 
   updateUI();
 }
 
-function pick(i, el, ok){
-  if(locked) return;
-  locked=true;
-  const opts=[...document.querySelectorAll(".opt")];
+async function pick(i, el){
+  if(locked || finished) return;
+  locked = true;
 
-  if(i===correctIndex){
+  const opts = [...document.querySelectorAll(".opt")];
+
+  if(i === correctIndex){
     el.classList.add("good");
-    score += 20; stars += 1;
-    chimeSuccess(); speak("Great! You found the mistake!");
+    correct++;
+    score = Math.min(100, score + 20);
+    stars = computeStars(score);
+    chimeSuccess();
+    speak(goodCheers[Math.floor(Math.random()*goodCheers.length)]);
     toastShow("✅ Correct!");
-    msgEl.textContent="Yes! That one breaks the rule.";
+    msgEl.innerHTML = "Yes. That picture is wrong because it is <b>missing the parallelogram</b>, so it is not a full tangram set.";
   }else{
     el.classList.add("bad");
-    wrong++; score=Math.max(0, score-2);
-    buzzWrong(); speak("Try again next round!");
-    toastShow("❌ Oops!");
-    msgEl.textContent="Not that one. Remember: must use all seven pieces.";
     opts[correctIndex].classList.add("good");
+    wrong++;
+    score = Math.max(0, score - 2);
+    stars = computeStars(score);
+    buzzWrong();
+    speak("Oops. The wrong picture is the one missing the parallelogram.");
+    toastShow("❌ Oops!");
+    msgEl.innerHTML = "Not that one. The wrong picture is the one <b>missing the parallelogram</b>. A full set should have 7 pieces.";
   }
 
-  round++;
-  updateUI();
+  opts.forEach(opt => opt.classList.add("locked"));
 
-  if(round===4){
-    // finish after 3 rounds
-    setTimeout(()=>{
-      chimeSuccess(); setTimeout(chimeSuccess, 240);
-      speak("Quiz finished!");
-      toastShow("Saved to Progress Report ✅");
-      saveProgress({
-        level:TRACK_LEVEL,
-        page:PAGE_ID,
-        type:"quiz",
-        score, stars, wrong,
-        rounds:3,
-        ts:new Date().toISOString()
-      });
-      if (window.GPTrack && typeof window.GPTrack.finish === "function") {
-        window.GPTrack.finish({
-          pageId: PAGE_ID,
-          level: TRACK_LEVEL,
-          activityType: "quiz",
-          score,
-          stars,
-          skills: { reading: 1, writing: 0, speaking: 0, listening: 1 },
-          extra: { wrong, rounds: 3 }
-        }).catch(() => {});
-      }
+  updateUI();
+  await saveQuizProgress();
+
+  if(round >= TOTAL_ROUNDS){
+    finished = true;
+    updateUI();
+    setTimeout(async () => {
+      bigWinChime();
+      makeConfetti();
+      speak(finishCheers[Math.floor(Math.random()*finishCheers.length)]);
+      toastShow("🎉 Quiz finished! Saved to Progress Report.");
+      msgEl.innerHTML = `Wonderful work. You finished the quiz with <b>${score}</b> points, <b>${correct}</b> correct answers, and <b>${wrong}</b> wrong answers.`;
+      await saveQuizProgress({ completed:true, score: Math.max(score, 0) });
     }, 800);
   }else{
-    setTimeout(renderRound, 900);
+    setTimeout(() => {
+      round++;
+      renderRound();
+    }, 1200);
   }
 }
 
-document.getElementById("newBtn").addEventListener("click", ()=>{
-  renderRound();
+document.getElementById("soundBtn").addEventListener("click", async () => {
+  await ensureAudioUnlocked();
+  SOUND_ON = !SOUND_ON;
+  document.getElementById("soundBtn").textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+  toastShow(SOUND_ON ? "Sound turned on" : "Sound turned off");
 });
 
+document.getElementById("readBtn").addEventListener("click", async () => {
+  await ensureAudioUnlocked();
+  clickPop();
+  speak("Find the wrong picture. A full tangram picture should use all seven pieces, including one square and one parallelogram. Tap the picture that breaks the rule.");
+});
+
+document.getElementById("newBtn").addEventListener("click", async () => {
+  await ensureAudioUnlocked();
+  clickPop();
+  finished = false;
+  round = 1;
+  score = 0;
+  correct = 0;
+  wrong = 0;
+  stars = 0;
+  locked = false;
+  clearState();
+  renderRound();
+  toastShow("🔁 New quiz started!");
+});
+
+window.addEventListener("pointerdown", ensureAudioUnlocked, { once:true });
+window.addEventListener("keydown", ensureAudioUnlocked, { once:true });
+
 renderRound();
+setTimeout(() => {
+  speak("Welcome to Quiz 2. Two pictures are full tangram sets. One picture is wrong because it is missing the parallelogram. Find the wrong one.");
+}, 700);
+
+window.addEventListener("beforeunload", () => {
+  persistState();
+});
 </script>
+
 <script src="./levelbc-runtime-fix.js"></script>
-<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
-<script type="module" src="./progress-tracker.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LevelC_Quiz2",
+    defaultLevel: "C",
+    defaultActivityType: "quiz",
+    defaultScore: 0,
+    defaultStars: 0,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 0,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Levelc_Quiz)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "quiz";
+
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : false,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+
+    saveLocalActivityFallback(fullPayload);
+
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+
 <script>
   window.addEventListener("load", () => {
     if (!window.GPTrack) return;
@@ -340,24 +1096,20 @@ renderRound();
       ? "A"
       : (/^(LB|LevelB)/i.test(pageFile))
         ? "B"
-        : (/^(LC|LevelC)/i.test(pageFile))
+        : (/^(LC|LevelC|Levelc_Quiz)/i.test(pageFile))
           ? "C"
           : null;
 
     await GPTrack.finish({
       pageId: pageFile || document.title || "Activity",
       level: inferredLevel,
-      activityType: "activity",
-      score: null,
+      activityType: "quiz",
+      score: 0,
       stars: 0,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      skills: { reading: 1, writing: 0, speaking: 0, listening: 1 },
       ...overrides
     });
   }
 </script>
 </body>
 </html>
-
-
-
-

@@ -10,11 +10,14 @@
   function pickPreferredFemaleVoice(voices) {
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena)/i;
+    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|lisa)/i;
+    const americanLang = /^en[-_]us/i;
     const targetLang = /^(en[-_](us|ca|au|gb))/i;
     const englishLang = /^en[-_]/i;
 
     return (
+      list.find((voice) => americanLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
+      list.find((voice) => americanLang.test(voice.lang || "")) ||
       list.find((voice) => targetLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
       list.find((voice) => targetLang.test(voice.lang || "")) ||
       list.find((voice) => englishLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
@@ -53,8 +56,8 @@
                 utterance.lang = "en-US";
               }
             }
-            if (typeof utterance.rate !== "number" || utterance.rate >= 0.98) utterance.rate = 0.8;
-            if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.02) utterance.pitch = 1.16;
+            if (typeof utterance.rate !== "number" || utterance.rate >= 0.98 || utterance.rate < 0.88) utterance.rate = 0.92;
+            if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.1) utterance.pitch = 1.34;
             utterance.volume = 1;
           }
         } catch (_) {}
@@ -232,6 +235,7 @@
         chain.push("week-4/friday/LA_Game4.html");
         chain.push("week-4/friday/LA_FinalQuiz.html");
       } else if (level === "B" && week === 4) {
+        // Level B week 4 is stored with mixed legacy filenames in this repo.
         chain.push("week-4/friday/LA_Quiz4.html");
         chain.push("week-4/friday/LB_FinalQuiz.html");
       } else {
@@ -321,8 +325,8 @@
       hit.textContent || ""
     ].join(" ").toLowerCase();
     if (/prev|previous|back/.test(label)) return "prev";
-    if (/next/.test(label)) return "next";
-    if (/home/.test(label)) return "home";
+    if (/next|continue|finish|done|complete/.test(label)) return "next";
+    if (/home|menu|dashboard/.test(label)) return "home";
     return "";
   }
 
@@ -631,6 +635,46 @@
     return bubble ? String(bubble.textContent || "").replace(/\s+/g, " ").trim() : "";
   }
 
+  function ensureFallbackMicOutputs(lines) {
+    const repeatOutputs = [];
+    const starOutputs = [];
+
+    lines.forEach((line, index) => {
+      const bubble = getConversationBubble(line);
+      const host = bubble && bubble.parentElement ? bubble.parentElement : line;
+      if (!host) {
+        repeatOutputs[index] = null;
+        starOutputs[index] = null;
+        return;
+      }
+
+      let repeatEl =
+        host.querySelector(":scope > .repeat-result, :scope > .repeat-text, :scope > [data-repeat-result]") ||
+        line.querySelector(".repeat-result, .repeat-text, [data-repeat-result]");
+      if (!repeatEl) {
+        repeatEl = document.createElement("div");
+        repeatEl.className = "repeat-result gp-auto-repeat-result";
+        repeatEl.setAttribute("data-gp-auto-repeat", String(index));
+        host.appendChild(repeatEl);
+      }
+
+      let starsEl =
+        host.querySelector(":scope > .star-row, :scope > .stars, :scope > [data-stars]") ||
+        line.querySelector(".star-row, .stars, [data-stars]");
+      if (!starsEl) {
+        starsEl = document.createElement("div");
+        starsEl.className = "star-row gp-auto-star-row";
+        starsEl.setAttribute("data-gp-auto-stars", String(index));
+        host.appendChild(starsEl);
+      }
+
+      repeatOutputs[index] = repeatEl;
+      starOutputs[index] = starsEl;
+    });
+
+    return { repeatOutputs, starOutputs };
+  }
+
   function speakConversationBubble(line) {
     const text = getConversationBubbleText(line);
     speakMicPrompt(text);
@@ -694,8 +738,9 @@
     lines.forEach(hideConversationLine);
     const hasCustomMicFlow = !!document.querySelector(".repeat-result,.star-row,.conversation-status,.recording-status");
 
-      const repeatOutputs = Array.from(document.querySelectorAll(".repeat-text,.repeat-result"));
-      const starOutputs = Array.from(document.querySelectorAll(".star-row"));
+      const fallbackOutputs = ensureFallbackMicOutputs(lines);
+      const repeatOutputs = fallbackOutputs.repeatOutputs;
+      const starOutputs = fallbackOutputs.starOutputs;
       const conversationStatus = document.getElementById("conversationStatus") || document.querySelector(".conversation-status");
       const attempts = new Array(lines.length).fill(0);
       const starsAwarded = new Array(lines.length).fill(0);

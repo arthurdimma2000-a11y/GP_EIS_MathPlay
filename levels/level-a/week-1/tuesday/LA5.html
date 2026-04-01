@@ -198,6 +198,7 @@
     position:relative;
     inset:auto;
     width:100%;
+    flex-direction:row;
     justify-content:center;
     pointer-events:none;
     z-index:3;
@@ -235,6 +236,7 @@
     flex-direction:column;
     gap:6px;
     align-items:flex-start;
+    justify-content:center;
   }
 
   .row.right .bubble-stack{
@@ -1005,12 +1007,12 @@
     });
   }
 
-  const sentenceLines = [
-    {
-      text: "There are 2 circle-shaped bear cakes.",
-      html: "There are 2 circle-shaped bear cakes."
-    }
-  ];
+    const sentenceLines = [
+      {
+        text: "There are two circle-shaped bear cakes.",
+        html: "There are two circle-shaped bear cakes."
+      }
+    ];
   let sentenceToken = 0;
 
   function showSpark(){

@@ -75,6 +75,23 @@
     pointer-events:none;
   }
 
+  .mic-prompt{
+    position:absolute;
+    left:67.5%;
+    top:12.2%;
+    transform:translateX(-50%);
+    width:min(48%,480px);
+    text-align:center;
+    font-weight:900;
+    font-size:clamp(1.45rem,3vw,2.8rem);
+    line-height:1.2;
+    color:#23406a;
+    text-shadow:0 3px 12px rgba(255,255,255,.95);
+    z-index:3;
+    pointer-events:none;
+    min-height:2.4em;
+  }
+
   .poster-answer-box{
     position:absolute;
     pointer-events:auto;
@@ -82,28 +99,32 @@
     min-width:78px;
     max-width:134px;
     aspect-ratio:1.7 / 1;
-    border:4px dashed #ff7a7a;
+    border:3px dashed rgba(255,122,122,.72);
     border-radius:10px;
-    background:rgba(255,255,255,.94);
-    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    background:rgba(255,255,255,.08);
+    box-shadow:none;
     text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     font-size:clamp(1.25rem,2.8vw,2.2rem);
     font-weight:800;
     color:#243447;
     caret-color:#ff6b35;
     outline:none;
     padding:0;
+    transform:translate(-50%,-50%);
   }
 
   .poster-answer-box::placeholder{
-    color:#b8b8b8;
+    color:rgba(86,110,142,.45);
     opacity:1;
   }
 
   .poster-answer-box:focus{
     border-style:solid;
     border-color:#ff9f1c;
-    background:#fffef5;
+    background:rgba(255,254,245,.92);
     box-shadow:0 0 0 5px rgba(255,159,28,.18), 0 10px 22px rgba(0,0,0,.12);
   }
 
@@ -124,11 +145,11 @@
   }
 
   /* 5 poster answer boxes */
-  .box-1{ left:72.2%; top:28.6%; }  /* top-right box */
-  .box-2{ left:55.8%; top:43.1%; }  /* middle-right upper */
-  .box-3{ left:17.6%; top:54.3%; }  /* left middle */
-  .box-4{ left:53.9%; top:67.2%; }  /* right lower-middle */
-  .box-5{ left:31.2%; top:82.4%; }  /* bottom-left area */
+  .box-1{ left:80.8%; top:31.8%; }
+  .box-2{ left:62.0%; top:45.9%; }
+  .box-3{ left:22.0%; top:57.0%; }
+  .box-4{ left:60.4%; top:70.7%; }
+  .box-5{ left:38.2%; top:85.0%; }
 
   .tap-row{
     margin-top:10px;
@@ -284,11 +305,17 @@
       border-radius:8px;
     }
 
-    .box-1{ left:72.1%; top:28.7%; }
-    .box-2{ left:55.5%; top:43.0%; }
-    .box-3{ left:17.5%; top:54.1%; }
-    .box-4{ left:53.7%; top:67.1%; }
-    .box-5{ left:31.0%; top:82.2%; }
+    .mic-prompt{
+      left:69%;
+      top:11.4%;
+      width:min(44%,260px);
+    }
+
+    .box-1{ left:80.6%; top:31.8%; }
+    .box-2{ left:61.8%; top:45.9%; }
+    .box-3{ left:21.9%; top:56.9%; }
+    .box-4{ left:60.2%; top:70.5%; }
+    .box-5{ left:38.0%; top:84.9%; }
   }
 </style>
 
@@ -316,11 +343,12 @@
     </div>
   </div>
 
-  <div class="card">
+    <div class="card">
     <div class="poster-area">
       <img class="poster-img" src="../../../../assets/images/shapes/C12ccc.png" alt="Tangrams poster">
+      <div class="mic-prompt" id="micPrompt" aria-live="polite"></div>
 
-      <div class="poster-answer-layer" aria-label="Write the answers in the boxes on the poster">
+        <div class="poster-answer-layer" aria-label="Write the answers in the boxes on the poster">
         <input
           id="answer1"
           class="poster-answer-box box-1"
@@ -406,12 +434,15 @@
   const nextBtn = document.getElementById('nextBtn');
   const questNote = document.getElementById('questNote');
   const answerInputs = Array.from(document.querySelectorAll('.poster-answer-box'));
+  const micPrompt = document.getElementById('micPrompt');
 
   const fillChime = new Audio('../../../../assets/audio/chimes/chime.mp3.mp3');
   fillChime.preload = 'auto';
 
   let fillProgressUi = null;
   let fillCelebrated = false;
+  let promptTypingTimer = null;
+  let promptDelayTimer = null;
 
   const promptLines = [
     'Count the number of pieces used to make each shape.',
@@ -432,12 +463,28 @@
     window.speechSynthesis.speak(u);
   }
 
+  function typePromptText(text){
+    if (promptTypingTimer) clearInterval(promptTypingTimer);
+    if (promptDelayTimer) clearTimeout(promptDelayTimer);
+    if (micPrompt) micPrompt.textContent = '';
+    let index = 0;
+    promptTypingTimer = setInterval(() => {
+      index += 1;
+      if (micPrompt) micPrompt.textContent = text.slice(0, index);
+      if (index >= text.length) {
+        clearInterval(promptTypingTimer);
+        promptTypingTimer = null;
+      }
+    }, 28);
+  }
+
   function speakPrompt(){
-    let delay = 0;
-    promptLines.forEach((line) => {
-      setTimeout(() => speak(line), delay);
-      delay += 1700;
-    });
+    const leadLine = "Let's make shapes using tangram.";
+    typePromptText(leadLine);
+    speak(leadLine);
+    promptDelayTimer = setTimeout(() => {
+      speak('Count the number of pieces used to make each shape.');
+    }, 5000);
   }
 
   girlBtn.addEventListener('click', speakPrompt);
@@ -517,7 +564,7 @@
       fillProgressUi.fillEl.style.width = score + '%';
     }
 
-    nextBtn.disabled = !completed;
+    nextBtn.disabled = false;
 
     if (!completed) {
       questNote.textContent = 'Fill all 5 blank boxes on the poster to complete the page quest.';
@@ -599,13 +646,9 @@
 
   if (nextBtn) {
     nextBtn.addEventListener('click', async () => {
-      await updateFillProgress(true);
-      if (!allBoxesFilled()) {
-        speak('Please fill all the boxes first.');
-        return;
-      }
-      window.location.href = 'LevelC13.html';
-    });
+        await updateFillProgress(true);
+        window.location.href = 'LevelC13.html';
+      });
   }
 </script>
 

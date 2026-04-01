@@ -102,7 +102,7 @@
   .instruction-bubble{
     position:absolute;
     left:25%;
-    top:17%;
+    top:13.5%;
     max-width:46%;
     background:linear-gradient(180deg,#f4fbff,#dff1ff);
     border:4px solid #7cb8ff;
@@ -409,7 +409,7 @@
   @media (max-width:900px){
     .instruction-bubble{
       left:23%;
-      top:16%;
+      top:12.8%;
       max-width:58%;
       font-size:clamp(18px,3.2vw,32px);
       padding:14px 18px;
@@ -419,7 +419,7 @@
   @media (max-width:640px){
     .instruction-bubble{
       left:21%;
-      top:15%;
+      top:12.2%;
       max-width:62%;
       font-size:clamp(16px,3.6vw,24px);
       padding:12px 14px;
@@ -467,18 +467,18 @@
       <div class="instruction-bubble" id="introBubble">Can you find all of the quadrangles?</div>
 
       <!-- Top row -->
-      <button class="shape-hit pulse" data-shape-id="s1" data-correct="true"  aria-label="Shape 1" style="left:17%;top:30.5%;width:27%;height:19%;"></button>
+        <button class="shape-hit pulse" data-shape-id="s1" data-correct="true" data-rx="0.46" data-ry="0.42" aria-label="Shape 1" style="left:15.8%;top:31.3%;width:24.5%;height:16.5%;"></button>
       <button class="shape-hit pulse" data-shape-id="s2" data-correct="false" aria-label="Shape 2" style="left:45%;top:30.5%;width:20%;height:19%;"></button>
       <button class="shape-hit pulse" data-shape-id="s3" data-correct="false" aria-label="Shape 3" style="left:68.5%;top:30.5%;width:22%;height:19%;"></button>
 
       <!-- Middle row -->
       <button class="shape-hit pulse" data-shape-id="s4" data-correct="false" aria-label="Shape 4" style="left:17%;top:49%;width:24%;height:19%;"></button>
       <button class="shape-hit pulse" data-shape-id="s5" data-correct="false" aria-label="Shape 5" style="left:41.5%;top:49%;width:24%;height:19%;"></button>
-      <button class="shape-hit pulse" data-shape-id="s6" data-correct="true"  aria-label="Shape 6" style="left:66.2%;top:49%;width:23%;height:19%;"></button>
+        <button class="shape-hit pulse" data-shape-id="s6" data-correct="true" data-rx="0.40" data-ry="0.38" aria-label="Shape 6" style="left:65.2%;top:51%;width:22.2%;height:15.8%;"></button>
 
       <!-- Bottom row -->
       <button class="shape-hit pulse" data-shape-id="s7" data-correct="false" aria-label="Shape 7" style="left:16.5%;top:68%;width:25%;height:19%;"></button>
-      <button class="shape-hit pulse" data-shape-id="s8" data-correct="true"  aria-label="Shape 8" style="left:44%;top:68%;width:24%;height:19%;"></button>
+        <button class="shape-hit pulse" data-shape-id="s8" data-correct="true" data-rx="0.44" data-ry="0.34" aria-label="Shape 8" style="left:42.8%;top:70.8%;width:20.5%;height:13.2%;"></button>
       <button class="shape-hit pulse" data-shape-id="s9" data-correct="false" aria-label="Shape 9" style="left:68.5%;top:68%;width:23%;height:19%;"></button>
     </div>
 
@@ -605,8 +605,11 @@
     const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
     ellipse.setAttribute('cx', (x + w / 2).toFixed(2));
     ellipse.setAttribute('cy', (y + h / 2).toFixed(2));
-    ellipse.setAttribute('rx', (w * 0.44).toFixed(2));
-    ellipse.setAttribute('ry', (h * 0.44).toFixed(2));
+      const isCorrect = hit.dataset.correct === 'true';
+      const rxScale = Number(hit.dataset.rx || (isCorrect ? 0.42 : 0.44));
+      const ryScale = Number(hit.dataset.ry || (isCorrect ? 0.38 : 0.44));
+      ellipse.setAttribute('rx', (w * rxScale).toFixed(2));
+      ellipse.setAttribute('ry', (h * ryScale).toFixed(2));
     ellipse.setAttribute('class', 'circle-stroke' + (isWrong ? ' wrong' : ''));
     ellipse.setAttribute('data-circle-for', hit.dataset.shapeId);
 

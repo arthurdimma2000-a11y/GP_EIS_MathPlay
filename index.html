@@ -2748,17 +2748,17 @@
       shape: {
         title: "Click Shapes Video",
         subtitle: "Shape highlights",
-        src: "assets/video/Shapehighlights.mp4"
+        src: "https://res.cloudinary.com/dtknykrkf/video/upload/v1774462768/Shapehighlights_fplqo7.mp4"
       },
       polygon: {
         title: "Click Polygon Video",
         subtitle: "Polygon highlights",
-        src: "assets/video/Polygonhighlights.mp4"
+        src: "https://res.cloudinary.com/dtknykrkf/video/upload/v1774462768/Polygonhighlights_qsuxpb.mp4"
       },
       tangram: {
         title: "Click Tangram Video",
         subtitle: "Tangram highlights",
-        src: "assets/video/Tangramhighlights.mp4"
+        src: "https://res.cloudinary.com/dtknykrkf/video/upload/v1774462787/Tangramhighlights_lqowx8.mp4"
       }
     };
 
@@ -4561,9 +4561,12 @@
     function resolveAppUrl(target){
       const cleaned = String(target || "").trim().replace(/\\/g, "/");
       if (!cleaned) return "";
-      if (/^https?:\/\//i.test(cleaned)) return cleaned;
+      if (/^(https?:|file:)/i.test(cleaned)) return cleaned;
       const relativeTarget = cleaned.replace(/^\/+/, "");
-      return new URL(relativeTarget, window.location.origin + "/").toString();
+      const baseHref = window.location.protocol === "file:"
+        ? window.location.href
+        : new URL("./", window.location.href).toString();
+      return new URL(relativeTarget, baseHref).toString();
     }
 
     function fastNavigateTo(targetUrl){
@@ -5055,9 +5058,9 @@
       const base = {
         "report": REPORT_PAGE + "?portal=report",
         "analysis": "./PerformanceAnalysis.html?portal=analysis",
-        "teacher-ids": REPORT_PAGE + "?portal=teacher-ids",
-        "parent-dashboard": REPORT_PAGE + "?portal=parent-dashboard",
-        "admin-dashboard": REPORT_PAGE + "?portal=admin-dashboard"
+        "teacher-ids": "./teacher/teacher/dashboard.html?portal=teacher-ids",
+        "parent-dashboard": "./parent/parent/dashboard.html?portal=parent-dashboard",
+        "admin-dashboard": "./admin/dashboard.html?portal=admin-dashboard"
       }[portal] || (REPORT_PAGE + "?portal=report");
 
       safePlay("soft");

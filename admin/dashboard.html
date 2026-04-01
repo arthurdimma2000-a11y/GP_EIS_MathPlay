@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Admin Control</title>
+  <style>
+    :root{
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+      --ink:#20314f;
+      --panel:#ffffff;
+      --sky:#eaf6ff;
+      --blue:#4ea2ff;
+      --green:#26b96d;
+      --purple:#9b74ff;
+      --pink:#ff77aa;
+      --shadow:0 18px 36px rgba(0,0,0,.12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:linear-gradient(180deg,#d8f2ff,#c4ebff 48%,#eef8ff);
+      color:var(--ink);
+      display:flex;
+      justify-content:center;
+      padding:24px 14px 32px;
+    }
+    .page{
+      width:min(1180px,100%);
+      background:rgba(255,255,255,.88);
+      border-radius:28px;
+      padding:24px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(8px);
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(2rem,4vw,3.2rem);
+    }
+    .sub{
+      margin:0 0 22px;
+      font-size:clamp(1rem,2vw,1.25rem);
+      font-weight:700;
+      color:#53657f;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:18px;
+    }
+    .card{
+      background:var(--panel);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:0 12px 24px rgba(0,0,0,.08);
+      border:1px solid rgba(78,162,255,.12);
+    }
+    .card h2{
+      margin:0 0 8px;
+      font-size:clamp(1.35rem,2vw,1.7rem);
+    }
+    .card p{
+      margin:0 0 18px;
+      color:#66768f;
+      font-weight:700;
+      line-height:1.4;
+    }
+    .btn{
+      width:100%;
+      border:none;
+      border-radius:999px;
+      padding:14px 18px;
+      font:800 1.05rem/1.2 inherit;
+      cursor:pointer;
+      color:#16314f;
+      box-shadow:0 6px 0 rgba(0,0,0,.12);
+    }
+    .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+    .btn.blue{background:linear-gradient(180deg,#d9ecff,#8dbfff)}
+    .btn.green{background:linear-gradient(180deg,#eafff1,#7de2a8)}
+    .btn.purple{background:linear-gradient(180deg,#efe5ff,#c3a3ff)}
+    .btn.pink{background:linear-gradient(180deg,#ffe5f0,#ff9fc4)}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>Admin Control</h1>
+    <p class="sub">Open the main administration and report pages from here.</p>
+    <section class="grid">
+      <article class="card">
+        <h2>Progress Report</h2>
+        <p>Open the full learning report page.</p>
+        <button class="btn blue" type="button" onclick="window.location.href='../ProgressReport.html?portal=report'">Open Progress Report</button>
+      </article>
+      <article class="card">
+        <h2>Performance Analysis</h2>
+        <p>Open the learning analysis summary page.</p>
+        <button class="btn green" type="button" onclick="window.location.href='../PerformanceAnalysis.html?portal=analysis'">Open Performance Analysis</button>
+      </article>
+      <article class="card">
+        <h2>Teacher Student IDs</h2>
+        <p>Open the teacher dashboard tools for student ID management.</p>
+        <button class="btn purple" type="button" onclick="window.location.href='../teacher/teacher/dashboard.html?portal=teacher-ids'">Open Teacher IDs</button>
+      </article>
+      <article class="card">
+        <h2>Home</h2>
+        <p>Return to the main portal and lesson launcher.</p>
+        <button class="btn pink" type="button" onclick="window.location.href='../index.html#panel-portals'">Back To Home</button>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -43,11 +43,14 @@
   function pickPreferredFemaleVoice(voices){
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena)/i;
+    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|guy?l?e? ?female|lisa)/i;
+    const americanLang = /^en[-_]us/i;
     const targetLang = /^(en[-_](us|ca|au|gb))/i;
     const englishLang = /^en[-_]/i;
 
     return (
+      list.find((voice) => americanLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
+      list.find((voice) => americanLang.test(voice.lang || "")) ||
       list.find((voice) => targetLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
       list.find((voice) => targetLang.test(voice.lang || "")) ||
       list.find((voice) => englishLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
@@ -70,11 +73,11 @@
       } else if (shouldForceEnglish && !utterance.lang) {
         utterance.lang = "en-US";
       }
-      if (typeof utterance.rate !== "number" || utterance.rate >= 0.98) {
-        utterance.rate = 0.8;
+      if (typeof utterance.rate !== "number" || utterance.rate >= 0.98 || utterance.rate < 0.88) {
+        utterance.rate = 0.92;
       }
-      if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.02) {
-        utterance.pitch = 1.16;
+      if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.1) {
+        utterance.pitch = 1.34;
       }
       utterance.volume = 1;
     } catch (_err) {}
@@ -1349,8 +1352,8 @@
       }
       try { global.speechSynthesis.cancel(); } catch (_err) {}
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.86;
-      utter.pitch = 1.22;
+      utter.rate = 0.92;
+      utter.pitch = 1.34;
       utter.volume = 1;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };

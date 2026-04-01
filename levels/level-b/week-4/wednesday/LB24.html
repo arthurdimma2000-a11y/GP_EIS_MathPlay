@@ -330,9 +330,8 @@
 
     function buildPayload(source){
       const correctCount = correctTargets.filter((target) => target.classList.contains("circled")).length;
-      const wrongCount = targets.filter((target) => target.dataset.correct !== "true" && target.classList.contains("wrong")).length;
       const progress = Math.max(0, Math.round((correctCount / Math.max(1, correctTargets.length)) * 100));
-      const score = Math.max(0, Math.min(100, progress - wrongCount * 10));
+      const score = progress;
       const stars = score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0;
       return {
         pageId: "LB24",
@@ -347,7 +346,7 @@
           progress,
           correctCount,
           totalCorrect: correctTargets.length,
-          wrongCount,
+          wrongCount: 0,
           selected: targets.filter((target) => target.classList.contains("circled") || target.classList.contains("wrong")).map((target) => ({
             number: target.dataset.num,
             correct: target.dataset.correct === "true",
@@ -360,9 +359,9 @@
 
     function updateUI(source){
       const payload = buildPayload(source);
-      if (payload.extra.progress >= 100 && payload.extra.wrongCount === 0) {
+      if (payload.extra.progress >= 100) {
         feedback.textContent = "Excellent! All odd numbers are circled.";
-      } else if (payload.extra.correctCount > 0 || payload.extra.wrongCount > 0) {
+      } else if (payload.extra.correctCount > 0) {
         feedback.textContent = `Odd numbers: ${payload.extra.progress}% complete`;
       } else {
         feedback.textContent = "";
@@ -391,10 +390,12 @@
         const isCorrect = target.dataset.correct === "true";
         if (isCorrect) {
           target.classList.remove("wrong");
-          target.classList.toggle("circled");
+          target.classList.add("circled");
         } else {
           target.classList.remove("circled");
-          target.classList.toggle("wrong");
+          target.classList.add("wrong");
+          window.setTimeout(() => target.classList.remove("wrong"), 700);
+          speak("Try again.");
         }
         updateUI("selection");
       });

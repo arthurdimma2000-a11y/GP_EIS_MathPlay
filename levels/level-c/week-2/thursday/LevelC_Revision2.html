@@ -6,94 +6,463 @@
   <title>Level C • Revision 2 • Tangram Pieces Lab</title>
   <style>
     :root{
-      --bg1:#bde0fe; --bg2:#ffc8dd; --ink:#102a43;
-      --card:#ffffffcc; --shadow:0 18px 50px rgba(0,0,0,.16);
-      --r:22px; --good:#20c997; --bad:#ff4d6d; --warn:#ffb703;
+      --bg1:#bde0fe;
+      --bg2:#ffc8dd;
+      --bg3:#caffbf;
+      --ink:#102a43;
+      --card:#ffffffd9;
+      --shadow:0 18px 50px rgba(0,0,0,.16);
+      --r:24px;
+      --good:#20c997;
+      --bad:#ff4d6d;
+      --warn:#ffb703;
+      --blue:#3a86ff;
+      --violet:#8338ec;
+      --cyan:#00d4ff;
+      --gold:#ffd166;
+      --pink:#ff7eb6;
+      --soft:#f6fbff;
       font-family:"Baloo 2","Comic Sans MS","Trebuchet MS","Segoe UI",system-ui,-apple-system,Arial;
     }
+
     *{box-sizing:border-box}
+
     body{
-      margin:0; min-height:100vh; color:var(--ink);
+      margin:0;
+      min-height:100vh;
+      color:var(--ink);
       background:
-        radial-gradient(900px 650px at 15% 0%, #fff 0%, transparent 55%),
-        radial-gradient(900px 650px at 92% 10%, #ffffffb3 0%, transparent 60%),
-        linear-gradient(135deg,var(--bg1),var(--bg2));
-      display:flex; justify-content:center; padding:16px;
+        radial-gradient(900px 650px at 10% 0%, #fff 0%, transparent 55%),
+        radial-gradient(900px 650px at 92% 10%, #ffffffc7 0%, transparent 60%),
+        linear-gradient(135deg,var(--bg1),var(--bg2) 52%, var(--bg3));
+      display:flex;
+      justify-content:center;
+      padding:14px;
     }
-    .app{width:min(1100px,100%); display:flex; flex-direction:column; gap:14px}
+
+    .app{
+      width:min(1140px,100%);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
     header{
-      background:var(--card); border:3px solid #fff; border-radius:var(--r);
+      background:var(--card);
+      border:3px solid #fff;
+      border-radius:var(--r);
       box-shadow:var(--shadow);
-      padding:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      position:relative;
+      overflow:hidden;
     }
+
+    header::before{
+      content:"";
+      position:absolute;
+      inset:auto auto -40px -30px;
+      width:180px;
+      height:180px;
+      border-radius:50%;
+      background:radial-gradient(circle,#ffffffaa 0%, transparent 68%);
+      pointer-events:none;
+    }
+
     .badge{
-      padding:10px 12px; border-radius:999px; font-weight:1100; color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:1100;
+      color:#fff;
       border:2px solid #fff;
       background:linear-gradient(135deg,#8338ec,#3a86ff);
-      display:flex; gap:10px; align-items:center;
+      display:flex;
+      gap:10px;
+      align-items:center;
       text-shadow:0 2px 0 rgba(0,0,0,.16);
+      box-shadow:0 10px 18px rgba(58,134,255,.22);
     }
-    .btnRow{display:flex; gap:10px; flex-wrap:wrap}
+
+    .title-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .title-main{
+      font-weight:1100;
+      font-size:clamp(1.1rem,2.3vw,1.6rem);
+    }
+
+    .title-sub{
+      font-weight:900;
+      opacity:.85;
+      font-size:clamp(.92rem,1.7vw,1rem);
+    }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
     a.btn, button.btn{
-      appearance:none; border:none; cursor:pointer; text-decoration:none;
-      padding:10px 12px; border-radius:14px; font-weight:1100;
-      background:#fff; color:#102a43; border:2px solid #fff;
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      text-decoration:none;
+      padding:11px 14px;
+      border-radius:15px;
+      font-weight:1100;
+      background:#fff;
+      color:#102a43;
+      border:2px solid #fff;
       box-shadow:0 10px 20px rgba(0,0,0,.12);
-      display:inline-flex; gap:8px; align-items:center;
-      transition:transform .12s ease;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      transition:transform .12s ease, filter .12s ease;
+      font:inherit;
     }
-    a.btn:hover,button.btn:hover{transform:translateY(-2px)}
-    .btn.primary{background:linear-gradient(135deg,#3a86ff,#00d4ff); color:#fff}
-    .btn.warn{background:linear-gradient(135deg,#ffb703,#ffd166); color:#3a2500}
-    main{display:grid; grid-template-columns: 1.05fr .95fr; gap:14px}
-    @media (max-width:920px){ main{grid-template-columns:1fr} }
+
+    a.btn:hover, button.btn:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.02);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,#3a86ff,#00d4ff);
+      color:#fff;
+    }
+
+    .btn.warn{
+      background:linear-gradient(135deg,#ffb703,#ffd166);
+      color:#3a2500;
+    }
+
+    .btn.fun{
+      background:linear-gradient(135deg,#ff7eb6,#ff4d6d);
+      color:#fff;
+    }
+
+    main{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:14px;
+    }
+
+    @media (max-width:920px){
+      main{grid-template-columns:1fr}
+    }
+
     .panel{
-      background:var(--card); border:3px solid #fff; border-radius:var(--r);
-      box-shadow:var(--shadow); padding:14px; position:relative; overflow:hidden;
+      background:var(--card);
+      border:3px solid #fff;
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:14px;
+      position:relative;
+      overflow:hidden;
     }
-    h2{margin:0 0 10px; font-size:22px}
-    p{margin:0 0 10px; font-weight:900; opacity:.9}
+
+    .panel::after{
+      content:"";
+      position:absolute;
+      right:-50px;
+      top:-50px;
+      width:160px;
+      height:160px;
+      background:radial-gradient(circle,#ffffff95 0%, transparent 70%);
+      pointer-events:none;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size:22px;
+    }
+
+    p{
+      margin:0 0 10px;
+      font-weight:900;
+      opacity:.92;
+    }
+
     .stage{
       background:
         radial-gradient(900px 420px at 40% 0%, #fff, transparent 55%),
-        repeating-linear-gradient(0deg,#ffffffc0 0,#ffffffc0 14px,#f1f7ff 14px,#f1f7ff 28px);
-      border:2px dashed #fff; border-radius:18px; padding:14px;
+        repeating-linear-gradient(0deg,#ffffffcc 0,#ffffffcc 14px,#f1f7ff 14px,#f1f7ff 28px);
+      border:2px dashed #fff;
+      border-radius:20px;
+      padding:14px;
+      position:relative;
     }
+
+    .stage::before{
+      content:"";
+      position:absolute;
+      inset:auto auto 10px 10px;
+      width:120px;
+      height:120px;
+      background:radial-gradient(circle,#ffffff70 0%, transparent 75%);
+      pointer-events:none;
+    }
+
     .hud{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-      margin-bottom:10px;
-      background:#ffffffd9; border:2px solid #fff; border-radius:18px; padding:10px 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:12px;
+      background:#ffffffdf;
+      border:2px solid #fff;
+      border-radius:20px;
+      padding:10px 12px;
     }
-    .chip{background:#fff; border:2px solid #eef2ff; padding:6px 10px; border-radius:999px; font-weight:1100}
-    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
-    .big{font-size:20px; font-weight:1100}
-    .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
-    @media (max-width:640px){ .cards{grid-template-columns:repeat(2,1fr)} }
+
+    .chip{
+      background:#fff;
+      border:2px solid #eef2ff;
+      padding:7px 11px;
+      border-radius:999px;
+      font-weight:1100;
+      box-shadow:0 6px 12px rgba(0,0,0,.06);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .big{
+      font-size:20px;
+      font-weight:1100;
+    }
+
+    .speaker-card{
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      background:linear-gradient(135deg,#fffef6,#eef8ff);
+      border:2px solid #fff;
+      border-radius:18px;
+      padding:10px 12px;
+      box-shadow:0 10px 18px rgba(0,0,0,.08);
+    }
+
+    .speaker-icon{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,#ffcb77,#ff8fab);
+      color:#fff;
+      font-size:28px;
+      font-weight:1100;
+      box-shadow:0 10px 18px rgba(255,126,182,.25);
+      flex:0 0 auto;
+    }
+
+    .speaker-text{
+      font-weight:1000;
+      font-size:clamp(1rem,1.7vw,1.1rem);
+      line-height:1.35;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+
+    @media (max-width:640px){
+      .cards{grid-template-columns:repeat(2,1fr)}
+    }
+
     .card{
-      background:#fff; border:2px solid #eef2ff; border-radius:18px;
+      background:#fff;
+      border:2px solid #eef2ff;
+      border-radius:20px;
       box-shadow:0 10px 18px rgba(0,0,0,.10);
-      padding:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-      min-height:150px;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-height:172px;
+      position:relative;
+      transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease;
     }
+
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 14px 22px rgba(0,0,0,.12);
+    }
+
+    .card.good{
+      border-color:#baf4dc;
+      box-shadow:0 0 0 4px rgba(32,201,151,.10), 0 14px 24px rgba(32,201,151,.12);
+    }
+
+    .card.bad{
+      border-color:#ffd2db;
+      box-shadow:0 0 0 4px rgba(255,77,109,.10), 0 14px 24px rgba(255,77,109,.10);
+    }
+
     .card input{
-      width:90px; padding:10px; border-radius:14px; border:2px solid #e8edff;
-      font:inherit; font-weight:1100; text-align:center;
+      width:96px;
+      padding:11px 10px;
+      border-radius:14px;
+      border:2px solid #e8edff;
+      font:inherit;
+      font-weight:1100;
+      text-align:center;
+      font-size:1.1rem;
+      transition:border-color .14s ease, box-shadow .14s ease, background .14s ease;
     }
-    .card input:focus{border-color:#3a86ff; box-shadow:0 0 0 4px rgba(58,134,255,.18); outline:none}
-    .tag{font-weight:1100; font-size:13px; background:#f6f7ff; border:2px solid #eef2ff; padding:5px 9px; border-radius:999px}
+
+    .card input:focus{
+      border-color:#3a86ff;
+      box-shadow:0 0 0 4px rgba(58,134,255,.18);
+      outline:none;
+      background:#fcfeff;
+    }
+
+    .card input.good{
+      border-color:var(--good);
+      background:#f3fff9;
+      color:#0f6b55;
+    }
+
+    .card input.bad{
+      border-color:var(--bad);
+      background:#fff6f8;
+      color:#a6233d;
+    }
+
+    .tag{
+      font-weight:1100;
+      font-size:13px;
+      background:#f6f7ff;
+      border:2px solid #eef2ff;
+      padding:5px 9px;
+      border-radius:999px;
+    }
+
+    .hint{
+      margin-top:12px;
+      font-weight:900;
+      opacity:.94;
+      background:#ffffffd7;
+      padding:10px 12px;
+      border-radius:16px;
+      border:2px solid #fff;
+    }
+
+    .miniCard{
+      background:#fff;
+      border:2px solid #eef2ff;
+      border-radius:18px;
+      padding:12px 12px;
+      box-shadow:0 10px 18px rgba(0,0,0,.10);
+      margin-bottom:10px;
+    }
+
+    .voice-box{
+      background:linear-gradient(135deg,#eef8ff,#fff6fb);
+      border:2px solid #fff;
+      border-radius:18px;
+      padding:12px;
+      font-weight:1000;
+      line-height:1.45;
+      box-shadow:0 10px 18px rgba(0,0,0,.08);
+      min-height:88px;
+    }
+
+    .best-stars{
+      font-size:30px;
+      font-weight:1100;
+    }
+
+    .meter{
+      height:18px;
+      width:100%;
+      background:#eef6ff;
+      border:2px solid #d9ebff;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:8px;
+    }
+
+    .meter-fill{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,#06d6a0,#3a86ff,#8338ec);
+      transition:width .25s ease;
+      border-radius:999px;
+    }
+
     .toast{
-      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-      background:#111827; color:#fff; padding:12px 14px; border-radius:14px;
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      background:#111827;
+      color:#fff;
+      padding:12px 14px;
+      border-radius:14px;
       box-shadow:0 18px 50px rgba(0,0,0,.25);
-      font-weight:1100; display:none; z-index:50;
+      font-weight:1100;
+      display:none;
+      z-index:50;
       max-width:min(900px, calc(100% - 24px));
     }
-    .toast.show{display:block; animation:pop .18s ease-out}
-    @keyframes pop{from{transform:translateX(-50%) translateY(10px); opacity:0}to{transform:translateX(-50%) translateY(0); opacity:1}}
-    .confetti{position:absolute; inset:-30px; pointer-events:none; opacity:0}
-    .confetti.on{opacity:1; animation:fall 900ms ease-out}
-    @keyframes fall{0%{transform:translateY(-18px); opacity:0} 20%{opacity:1} 100%{transform:translateY(62px); opacity:0}}
-    .miniCard{background:#fff; border:2px solid #eef2ff; border-radius:18px; padding:10px 12px; box-shadow:0 10px 18px rgba(0,0,0,.10)}
+
+    .toast.show{
+      display:block;
+      animation:pop .18s ease-out;
+    }
+
+    @keyframes pop{
+      from{transform:translateX(-50%) translateY(10px); opacity:0}
+      to{transform:translateX(-50%) translateY(0); opacity:1}
+    }
+
+    .confetti{
+      position:absolute;
+      inset:-30px;
+      pointer-events:none;
+      opacity:0;
+    }
+
+    .confetti.on{
+      opacity:1;
+      animation:fall 900ms ease-out;
+    }
+
+    @keyframes fall{
+      0%{transform:translateY(-18px); opacity:0}
+      20%{opacity:1}
+      100%{transform:translateY(62px); opacity:0}
+    }
+
+    .pulse{
+      animation:pulse 1.4s infinite ease-in-out;
+    }
+
+    @keyframes pulse{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.03)}
+    }
   </style>
 </head>
 <body>
@@ -101,16 +470,16 @@
     <header>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <div class="badge">🏅 Level C</div>
-        <div>
-          <
-          
-           style="font-weight:1100">Revision 2 • Tangram Pieces Lab</div>
-          <div style="font-weight:900;opacity:.85">Count & type how many pieces (then check ✅)</div>
+        <div class="title-wrap">
+          <div class="title-main">Revision 2 • Tangram Pieces Lab</div>
+          <div class="title-sub">Count, type, listen, and check your answers ✅</div>
         </div>
       </div>
+
       <div class="btnRow">
         <a class="btn" href="../wednesday/LevelC13.html">⬅️ Back</a>
         <button class="btn warn" id="btnSound">🔊 Sound: ON</button>
+        <button class="btn fun" id="btnSpeak">🗣️ Read Page</button>
         <button class="btn" id="btnCheck">✅ Check</button>
         <button class="btn" id="btnReset">🔁 Reset</button>
         <a class="btn primary" href="../friday/LevelC_Game2.html">Next ➜</a>
@@ -136,7 +505,7 @@
         </svg>
 
         <div class="hud">
-          <div class="big">🧩 Tangram Set = 7 pieces</div>
+          <div class="big pulse">🧩 Tangram Set = 7 pieces</div>
           <div class="row">
             <div class="chip">⭐ Stars: <b id="stars">0</b></div>
             <div class="chip">✅ Correct Boxes: <b id="ok">0</b>/3</div>
@@ -144,17 +513,21 @@
           </div>
         </div>
 
+        <div class="speaker-card">
+          <div class="speaker-icon">🧠</div>
+          <div class="speaker-text" id="promptText">Count the tangram pieces. Then type the correct number in each box.</div>
+        </div>
+
         <div class="stage">
-          <div style="font-weight:1000;margin-bottom:10px">
+          <div style="font-weight:1100;margin-bottom:10px;font-size:1.05rem">
             Fill in the numbers:
           </div>
 
           <div class="cards">
-            <div class="card">
+            <div class="card" id="cardTri">
               <div class="tag">Triangles</div>
               <div style="font-weight:1100">How many triangles?</div>
               <div aria-hidden="true">
-                <!-- 5 triangles icon -->
                 <svg width="160" height="90" viewBox="0 0 160 90">
                   <g stroke="#ff4d6d" stroke-width="3" fill="#ffd166">
                     <polygon points="18,78 35,45 52,78"/>
@@ -168,7 +541,7 @@
               <input id="tri" inputmode="numeric" maxlength="2" placeholder="?" aria-label="Number of triangles">
             </div>
 
-            <div class="card">
+            <div class="card" id="cardSq">
               <div class="tag">Square</div>
               <div style="font-weight:1100">How many squares?</div>
               <svg width="120" height="90" viewBox="0 0 120 90" aria-hidden="true">
@@ -177,7 +550,7 @@
               <input id="sq" inputmode="numeric" maxlength="2" placeholder="?" aria-label="Number of squares">
             </div>
 
-            <div class="card">
+            <div class="card" id="cardPara">
               <div class="tag">Parallelogram</div>
               <div style="font-weight:1100">How many parallelograms?</div>
               <svg width="140" height="90" viewBox="0 0 140 90" aria-hidden="true">
@@ -187,20 +560,24 @@
             </div>
           </div>
 
-          <div style="margin-top:12px;font-weight:900;opacity:.9">
-            Tip: A classic tangram has <b>5 triangles</b>, <b>1 square</b>, and <b>1 parallelogram</b>.
+          <div class="hint">
+            💡 Tip: A classic tangram has <b>5 triangles</b>, <b>1 square</b>, and <b>1 parallelogram</b>.
           </div>
         </div>
       </section>
 
       <aside class="panel">
         <h2>🎯 Rule Reminder</h2>
-        <p>You must use <b>all seven pieces</b> when you build a tangram picture!</p>
+        <p>You must use <b>all seven pieces</b> when you build a tangram picture.</p>
 
-        <div class="miniCard" style="margin-bottom:10px">
-          <div style="font-weight:1100">Mini Match (tap)</div>
+        <div class="voice-box" id="voiceBox">
+          Tap <b>Read Page</b> to hear the instructions. Enter your answers, then tap <b>Check</b>.
+        </div>
+
+        <div class="miniCard">
+          <div style="font-weight:1100">Mini Match</div>
           <div style="margin-top:6px;font-weight:900;opacity:.9">Which one is NOT in a tangram set?</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
             <button class="btn" data-m="circle">Circle</button>
             <button class="btn" data-m="square">Square</button>
             <button class="btn" data-m="triangle">Triangle</button>
@@ -208,8 +585,16 @@
         </div>
 
         <div class="miniCard">
+          <div style="font-weight:1100">Progress Meter</div>
+          <div class="meter">
+            <div class="meter-fill" id="meterFill"></div>
+          </div>
+          <div style="margin-top:8px;font-weight:1000" id="meterText">0% complete</div>
+        </div>
+
+        <div class="miniCard">
           <div style="font-weight:1100">Best Stars</div>
-          <div style="font-size:28px;font-weight:1100" id="best">0</div>
+          <div class="best-stars" id="best">0</div>
         </div>
       </aside>
     </main>
@@ -218,12 +603,6 @@
   </div>
 
 <script>
-/* ===============================
-   Level C Revision 2
-   Tracker payload: level:"C"
-   Back link: LevelCHPage.html
-   Next link: LevelC_Revision3.html
-================================*/
 const TRACKER_KEY="GP_EIS_PROGRESS";
 const PAGE_ID="LevelC_Revision2";
 const trackerPayload={level:"C", page:PAGE_ID};
@@ -235,10 +614,16 @@ const starsEl=$("#stars");
 const okEl=$("#ok");
 const timeEl=$("#time");
 const bestEl=$("#best");
+const meterFill=$("#meterFill");
+const meterText=$("#meterText");
+const voiceBox=$("#voiceBox");
+const promptText=$("#promptText");
 
 const tri=$("#tri"), sq=$("#sq"), para=$("#para");
+const cardTri=$("#cardTri"), cardSq=$("#cardSq"), cardPara=$("#cardPara");
 
 const btnSound=$("#btnSound");
+const btnSpeak=$("#btnSpeak");
 const btnCheck=$("#btnCheck");
 const btnReset=$("#btnReset");
 
@@ -247,45 +632,93 @@ let t0=Date.now();
 let timer=null;
 let stars=0;
 
+const answers = {
+  tri:5,
+  sq:1,
+  para:1
+};
+
 function toast(msg){
   toastEl.textContent=msg;
   toastEl.classList.add("show");
   clearTimeout(toast._t);
-  toast._t=setTimeout(()=>toastEl.classList.remove("show"), 1400);
+  toast._t=setTimeout(()=>toastEl.classList.remove("show"), 1600);
 }
+
 function confetti(){
   confettiEl.classList.remove("on");
   void confettiEl.offsetWidth;
   confettiEl.classList.add("on");
 }
-function cheer(){
-  if(!soundOn) return;
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
-  const t=ctx.currentTime;
-  [988,1319,1760].forEach((f,i)=>{
-    const o=ctx.createOscillator(), g=ctx.createGain();
-    o.type="sine"; o.frequency.setValueAtTime(f,t+i*0.09);
-    g.gain.setValueAtTime(0.0001,t+i*0.09);
-    g.gain.exponentialRampToValueAtTime(0.35,t+i*0.09+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.09+0.22);
-    o.connect(g).connect(ctx.destination);
-    o.start(t+i*0.09); o.stop(t+i*0.09+0.25);
-  });
-  setTimeout(()=>ctx.close(), 450);
+
+function getAudioCtx(){
+  return new (window.AudioContext||window.webkitAudioContext)();
 }
-function boop(){
+
+function playSuccessChime(){
   if(!soundOn) return;
-  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const ctx=getAudioCtx();
   const t=ctx.currentTime;
-  const o=ctx.createOscillator(), g=ctx.createGain();
-  o.type="square"; o.frequency.setValueAtTime(220,t);
-  o.frequency.exponentialRampToValueAtTime(160,t+0.16);
+  [784,988,1319,1760].forEach((f,i)=>{
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.type="sine";
+    o.frequency.setValueAtTime(f,t+i*0.08);
+    g.gain.setValueAtTime(0.0001,t+i*0.08);
+    g.gain.exponentialRampToValueAtTime(0.28,t+i*0.08+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.08+0.26);
+    o.connect(g).connect(ctx.destination);
+    o.start(t+i*0.08);
+    o.stop(t+i*0.08+0.28);
+  });
+  setTimeout(()=>ctx.close(),550);
+}
+
+function playWrongBuzz(){
+  if(!soundOn) return;
+  const ctx=getAudioCtx();
+  const t=ctx.currentTime;
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.type="square";
+  o.frequency.setValueAtTime(220,t);
+  o.frequency.exponentialRampToValueAtTime(140,t+0.22);
   g.gain.setValueAtTime(0.0001,t);
-  g.gain.exponentialRampToValueAtTime(0.22,t+0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001,t+0.20);
+  g.gain.exponentialRampToValueAtTime(0.20,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.24);
   o.connect(g).connect(ctx.destination);
-  o.start(t); o.stop(t+0.22);
-  setTimeout(()=>ctx.close(), 350);
+  o.start(t);
+  o.stop(t+0.25);
+  setTimeout(()=>ctx.close(),350);
+}
+
+function playClickTone(freq=620){
+  if(!soundOn) return;
+  const ctx=getAudioCtx();
+  const t=ctx.currentTime;
+  const o=ctx.createOscillator();
+  const g=ctx.createGain();
+  o.type="triangle";
+  o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.12,t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.10);
+  o.connect(g).connect(ctx.destination);
+  o.start(t);
+  o.stop(t+0.12);
+  setTimeout(()=>ctx.close(),220);
+}
+
+function speak(text){
+  voiceBox.innerHTML=text;
+  if(!soundOn) return;
+  if(!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
+  u.rate=0.92;
+  u.pitch=1.08;
+  u.volume=1;
+  window.speechSynthesis.speak(u);
 }
 
 function save(extra={}){
@@ -294,7 +727,16 @@ function save(extra={}){
   let data={};
   try{ data=JSON.parse(localStorage.getItem(TRACKER_KEY)||"{}"); }catch(e){}
   if(!data.C) data.C={};
-  data.C[PAGE_ID]={...trackerPayload, stars, tri:tri.value, sq:sq.value, para:para.value, timeSec:elapsed, ts:now, ...extra};
+  data.C[PAGE_ID]={
+    ...trackerPayload,
+    stars,
+    tri:tri.value,
+    sq:sq.value,
+    para:para.value,
+    timeSec:elapsed,
+    ts:now,
+    ...extra
+  };
   localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
 
   const bestKey="GP_EIS_BEST_"+PAGE_ID;
@@ -302,73 +744,201 @@ function save(extra={}){
   if(stars>prev) localStorage.setItem(bestKey, String(stars));
   bestEl.textContent=String(Math.max(stars, prev));
 }
+
 function loadBest(){
   const bestKey="GP_EIS_BEST_"+PAGE_ID;
   bestEl.textContent=localStorage.getItem(bestKey)||"0";
 }
-function tick(){ timeEl.textContent=String(Math.floor((Date.now()-t0)/1000)); }
 
-function check(){
-  const aTri=5, aSq=1, aPara=1;
+function tick(){
+  timeEl.textContent=String(Math.floor((Date.now()-t0)/1000));
+}
+
+function sanitize(input){
+  input.value=String(input.value||"").replace(/[^\d]/g,"").slice(0,2);
+}
+
+function updateMeter(){
   let ok=0;
-  if(Number(tri.value)===aTri) ok++;
-  if(Number(sq.value)===aSq) ok++;
-  if(Number(para.value)===aPara) ok++;
+  if(Number(tri.value)===answers.tri) ok++;
+  if(Number(sq.value)===answers.sq) ok++;
+  if(Number(para.value)===answers.para) ok++;
   okEl.textContent=String(ok);
 
+  const pct=Math.round((ok/3)*100);
+  meterFill.style.width=pct+"%";
+  meterText.textContent=pct+"% complete";
+}
+
+function styleCard(card, input, isCorrect, isFilled){
+  card.classList.remove("good","bad");
+  input.classList.remove("good","bad");
+  if(isCorrect){
+    card.classList.add("good");
+    input.classList.add("good");
+  }else if(isFilled){
+    card.classList.add("bad");
+    input.classList.add("bad");
+  }
+}
+
+function evaluateInputsLive(){
+  const triVal=Number(tri.value);
+  const sqVal=Number(sq.value);
+  const paraVal=Number(para.value);
+
+  styleCard(cardTri, tri, triVal===answers.tri, tri.value!=="");
+  styleCard(cardSq, sq, sqVal===answers.sq, sq.value!=="");
+  styleCard(cardPara, para, paraVal===answers.para, para.value!=="");
+
+  updateMeter();
+  save({live:true});
+}
+
+function addStars(n){
+  stars+=n;
+  starsEl.textContent=String(stars);
+}
+
+function check(){
+  const triOk=Number(tri.value)===answers.tri;
+  const sqOk=Number(sq.value)===answers.sq;
+  const paraOk=Number(para.value)===answers.para;
+  const ok=[triOk,sqOk,paraOk].filter(Boolean).length;
+
+  styleCard(cardTri, tri, triOk, tri.value!=="");
+  styleCard(cardSq, sq, sqOk, sq.value!=="");
+  styleCard(cardPara, para, paraOk, para.value!=="");
+  okEl.textContent=String(ok);
+  updateMeter();
+
   if(ok===3){
-    stars+=5;
-    starsEl.textContent=String(stars);
+    addStars(5);
     confetti();
-    cheer();
+    playSuccessChime();
     toast("🎉 Perfect! You know the tangram pieces!");
-    save({perfect:true});
+    speak("Excellent work. You got all the tangram pieces correct.");
+    save({perfect:true, score:100});
+    if(typeof finishActivity==="function"){
+      finishActivity({
+        pageId: PAGE_ID,
+        level:"C",
+        activityType:"activity",
+        score:100,
+        stars,
+        skills:{reading:1, writing:1, speaking:1, listening:1}
+      });
+    }
   }else{
-    boop();
+    playWrongBuzz();
     toast("Try again! Hint: total pieces = 7.");
-    save({checked:true});
+    speak("Good try. Check your answers again. A tangram has five triangles, one square, and one parallelogram.");
+    save({checked:true, score:Math.round((ok/3)*100)});
+    if(typeof finishActivity==="function"){
+      finishActivity({
+        pageId: PAGE_ID,
+        level:"C",
+        activityType:"activity",
+        score:Math.round((ok/3)*100),
+        stars,
+        skills:{reading:1, writing:1, speaking:1, listening:1}
+      });
+    }
   }
 }
 
 function resetAll(){
-  tri.value=""; sq.value=""; para.value="";
+  tri.value="";
+  sq.value="";
+  para.value="";
+  cardTri.classList.remove("good","bad");
+  cardSq.classList.remove("good","bad");
+  cardPara.classList.remove("good","bad");
+  tri.classList.remove("good","bad");
+  sq.classList.remove("good","bad");
+  para.classList.remove("good","bad");
   okEl.textContent="0";
-  stars=0; starsEl.textContent="0";
+  meterFill.style.width="0%";
+  meterText.textContent="0% complete";
+  stars=0;
+  starsEl.textContent="0";
   t0=Date.now();
+  playClickTone(720);
   toast("Reset done ✅");
-  save({reset:true});
+  speak("The page has been reset. Let's try again.");
+  save({reset:true, score:0});
+}
+
+function readPage(){
+  speak("Count the tangram pieces. Type how many triangles, how many squares, and how many parallelograms. Then tap check.");
 }
 
 btnSound.addEventListener("click", ()=>{
   soundOn=!soundOn;
   btnSound.textContent = soundOn ? "🔊 Sound: ON" : "🔈 Sound: OFF";
+  if(!soundOn && "speechSynthesis" in window) window.speechSynthesis.cancel();
+  toast(soundOn ? "Sound turned on" : "Sound turned off");
   save({soundOn});
 });
-btnCheck.addEventListener("click", check);
+
+btnSpeak.addEventListener("click", ()=>{
+  playClickTone(760);
+  readPage();
+});
+
+btnCheck.addEventListener("click", ()=>{
+  playClickTone(660);
+  check();
+});
+
 btnReset.addEventListener("click", resetAll);
+
+[tri,sq,para].forEach((input, idx)=>{
+  input.addEventListener("input", ()=>{
+    sanitize(input);
+    playClickTone(600 + idx*80);
+    evaluateInputsLive();
+  });
+  input.addEventListener("focus", ()=>playClickTone(520 + idx*70));
+});
 
 // mini match
 document.querySelectorAll('button[data-m]').forEach(btn=>{
   btn.addEventListener("click", ()=>{
     const v=btn.dataset.m;
     const correct = v==="circle";
+    playClickTone(correct ? 820 : 300);
+
     if(correct){
-      stars+=2; starsEl.textContent=String(stars);
-      confetti(); cheer();
+      addStars(2);
+      confetti();
+      playSuccessChime();
       toast("✅ Correct! A circle is NOT a tangram piece. +2⭐");
+      speak("Correct. A circle is not a tangram piece.");
       save({mini:true, correct:true});
     }else{
-      boop(); toast("Not yet — that IS in a tangram set!");
+      playWrongBuzz();
+      toast("Not yet — that IS in a tangram set!");
+      speak("Not yet. That shape is part of a tangram set.");
       save({mini:true, correct:false});
     }
   });
 });
 
 loadBest();
-timer=setInterval(()=>{ tick(); save(); }, 1000);
+timer=setInterval(()=>{
+  tick();
+  save();
+}, 1000);
+
 tick();
+updateMeter();
 save({init:true});
+setTimeout(()=>{
+  readPage();
+}, 500);
 </script>
+
 <script src="./levelbc-runtime-fix.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 <script type="module" src="./progress-tracker.js"></script>
@@ -403,7 +973,3 @@ save({init:true});
 </script>
 </body>
 </html>
-
-
-
-
