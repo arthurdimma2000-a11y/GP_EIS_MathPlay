@@ -50,11 +50,8 @@
 
     return (
       list.find((voice) => americanLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => americanLang.test(voice.lang || "")) ||
       list.find((voice) => targetLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => targetLang.test(voice.lang || "")) ||
       list.find((voice) => englishLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => englishLang.test(voice.lang || "")) ||
       list.find((voice) => femaleName.test(voice.name || "")) ||
       null
     );
@@ -454,8 +451,11 @@
     if (onDone) onDone(percentWordMatch(expectedText, said), said);
   }
 
-  function listenForRepeat(expectedText, onDone){
+  function listenForRepeat(expectedText, onDone, options){
     const SpeechRecognition = global.SpeechRecognition || global.webkitSpeechRecognition;
+    const opts = options || {};
+    const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 3000;
+    const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 900;
     if (!SpeechRecognition) {
       promptRepeatFallback(expectedText, onDone);
       return;
@@ -522,7 +522,7 @@
         global.clearTimeout(fallbackTimer);
         fallbackTimer = global.setTimeout(() => {
           finish(percentWordMatch(expectedText, heard), heard);
-        }, 6000);
+        }, settleMs);
       }
       const transcripts = [];
       for (let i = 0; i < event.results.length; i += 1) {
@@ -562,7 +562,7 @@
         return;
       }
       finishWithFallback();
-    }, 9000);
+    }, timeoutMs);
 
     try {
       recognition.start();
@@ -837,11 +837,11 @@
     canvas.dataset.gpSharedTracePad = "true";
 
     const ctx = canvas.getContext("2d");
-    const strokeStyle = opts.strokeStyle || "#ff4d4d";
-    const lineWidth = opts.lineWidth || 6;
-    const threshold = typeof opts.threshold === "number"
-      ? opts.threshold
-      : Math.max(10, Math.round(lineWidth * 1.55));
+      const strokeStyle = opts.strokeStyle || "#ff4d4d";
+      const lineWidth = opts.lineWidth || 8;
+      const threshold = typeof opts.threshold === "number"
+        ? opts.threshold
+        : Math.max(12, Math.round(lineWidth * 1.8));
     const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 98;
     const getMessage = typeof opts.getMessage === "function" ? opts.getMessage : null;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
@@ -849,8 +849,8 @@
     const pointGroups = typeof opts.getPoints === "function" ? opts.getPoints : (() => opts.points || []);
     const onTick = typeof opts.onTick === "function" ? opts.onTick : null;
     const onComplete = typeof opts.onComplete === "function" ? opts.onComplete : null;
-    const smoothing = opts.smoothing !== false;
-    const smoothness = typeof opts.smoothness === "number" ? opts.smoothness : 22;
+      const smoothing = opts.smoothing !== false;
+      const smoothness = typeof opts.smoothness === "number" ? opts.smoothness : 28;
 
     let drawing = false;
     let lastPoint = null;
@@ -1275,11 +1275,12 @@
     }, 80);
   }
 
-  function installLevelBMicProtocol(){
+  function installUnifiedLessonMicProtocol(){
     const doc = global.document;
     if (!doc) return;
     const page = getPageInfo();
     if (!page.isLevelApp) return;
+    if (global.__GP_DISABLE_UNIFIED_MIC_PROTOCOL) return;
 
     const micIconBtn = doc.getElementById("micIconBtn");
     const lines = Array.from(doc.querySelectorAll(
@@ -1345,16 +1346,17 @@
       line.style.display = line.classList.contains("row") ? "flex" : "block";
     }
 
-    function speakLine(text, onend){
+    function speakLine(text, onend, options){
       if (!text || !("speechSynthesis" in global)) {
         if (onend) onend();
         return;
       }
       try { global.speechSynthesis.cancel(); } catch (_err) {}
+      const opts = options || {};
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.92;
-      utter.pitch = 1.34;
-      utter.volume = 1;
+        utter.rate = typeof opts.rate === "number" ? opts.rate : 0.92;
+        utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.34;
+        utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       try {
@@ -1512,8 +1514,15 @@
           }
           setConversationStatus("Sorry, try again!");
           speakLine("Sorry, try again!");
+        }, {
+          timeoutMs: 3000,
+          settleMs: 900
         });
-      });
+      }, {
+          rate: 0.92,
+          pitch: 1.34,
+          volume: 1
+        });
     }
 
     micIconBtn.dataset.gpLa2ProtocolBound = "1";
@@ -1530,8 +1539,13 @@
     }
   }
 
+  function installLevelBMicProtocol(){
+    installUnifiedLessonMicProtocol();
+  }
+
   function installLevelBFixes(){
     installLevelBIntroAutoplayFix();
+    installUnifiedLessonMicProtocol();
   }
 
   global.GPTracing = {
@@ -1553,7 +1567,8 @@
     createCircleTracePad,
     createPathTracePad,
     stopIntroMedia,
-    installLevelBFixes
+    installLevelBFixes,
+    installUnifiedLessonMicProtocol
   };
 
   installSpeechSynthesisPatch();

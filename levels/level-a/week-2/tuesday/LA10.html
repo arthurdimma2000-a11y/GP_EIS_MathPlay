@@ -642,12 +642,12 @@
     let micBusy = false;
     let micDone = false;
     let micInitialized = false;
-    let activitySaved = false;
+      let activitySaved = false;
 
-    const sentenceLines = [
-      { text:"How many triangle fish are there?", html:"How many triangle fish are there?" },
-      { text:"There are 2 triangle fish.", html:"There are 2 triangle fish." }
-    ];
+      const sentenceLines = [
+      { text:"How many triangle-shaped fish are there?", html:'How many <span class="red">triangle-shaped</span> fish are there?' },
+        { text:"There are 2 triangle-shaped fish.", html:'There are 2 <span class="red">triangle-shaped</span> fish.' }
+      ];
     let sentenceToken = 0;
 
     function setConversationStatus(text){

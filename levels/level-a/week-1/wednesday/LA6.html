@@ -1084,15 +1084,16 @@
       });
     }
 
-    function setupTrace(canvasId, points, index){
-      const reset = window.GPTracing.createPathTracePad({
-        canvasId,
-        getPoints: () => points,
-        lineWidth: 14,
-        threshold: 24,
-        onProgress: (pct) => {
-          tracePercents[index] = pct;
-          updateTotal();
+      function setupTrace(canvasId, points, index){
+        const reset = window.GPTracing.createPathTracePad({
+          canvasId,
+          getPoints: () => points,
+          lineWidth: 16,
+          threshold: 30,
+          smoothness: 32,
+          onProgress: (pct) => {
+            tracePercents[index] = pct;
+            updateTotal();
         },
         onTick: () => {
           const now = performance.now();

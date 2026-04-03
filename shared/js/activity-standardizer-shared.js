@@ -17,11 +17,8 @@
 
     return (
       list.find((voice) => americanLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => americanLang.test(voice.lang || "")) ||
       list.find((voice) => targetLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => targetLang.test(voice.lang || "")) ||
       list.find((voice) => englishLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => englishLang.test(voice.lang || "")) ||
       list.find((voice) => femaleName.test(voice.name || "")) ||
       null
     );
@@ -151,7 +148,7 @@
     };
     const saveTask = Promise.resolve().then(() => window.finishActivity(payload)).catch(() => {});
     const failOpenTimeout = new Promise((resolve) => {
-      window.setTimeout(resolve, 350);
+      window.setTimeout(resolve, 120);
     });
     savePromise = Promise.race([saveTask, failOpenTimeout]).finally(() => {
       savePromise = null;
@@ -286,6 +283,19 @@
     const normalizedTarget = String(target || "").replace(/^\/+/, "");
     if (!normalizedTarget) return "";
     try {
+      const currentHref = String(window.location.href || "");
+      if (/^file:/i.test(currentHref)) {
+        const normalizedHref = currentHref.replace(/\\/g, "/");
+        const levelMarker = "/levels/level-";
+        const levelIndex = normalizedHref.indexOf(levelMarker);
+        if (levelIndex >= 0) {
+          const appRoot = normalizedHref.slice(0, levelIndex + 1);
+          return new URL(normalizedTarget, appRoot).href;
+        }
+        const fileName = (window.location.pathname || "").split("/").pop() || "";
+        const pageBase = normalizedHref.slice(0, normalizedHref.length - fileName.length);
+        return new URL(normalizedTarget, pageBase).href;
+      }
       return new URL("/" + normalizedTarget, window.location.origin).href;
     } catch (_) {
       return "/" + normalizedTarget;
@@ -496,7 +506,7 @@
     style.textContent =
       ".convo-line[hidden],.speech-line[hidden],.dialog-line[hidden],.bubble-line[hidden],.bubble-left[hidden],.bubble-right[hidden],#bubbleLeft[hidden],#bubbleRight[hidden],.headline-line[hidden],.sentence-line[hidden],.bubble[hidden],.speech-bubble[hidden],.dialog-bubble[hidden],.convo-bubble[hidden],.character-bubble[hidden],.fish-bubble[hidden]{display:none !important;}" +
       ".row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;align-items:center !important;gap:12px !important;}" +
-      ".convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show,.headline-line.show,.sentence-line.show,.bubble.show,.speech-bubble.show,.dialog-bubble.show,.convo-bubble.show,.character-bubble.show,.fish-bubble.show{display:block !important;}" +
+      ".convo-line.show:not(.row),.speech-line.show:not(.row),.dialog-line.show:not(.row),.bubble-line.show:not(.row),.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show,.headline-line.show,.sentence-line.show,.bubble.show,.speech-bubble.show,.dialog-bubble.show,.convo-bubble.show,.character-bubble.show,.fish-bubble.show{display:block !important;}" +
       ".bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line{font-size:clamp(18px,2.5vw,28px) !important;line-height:1.28 !important;max-width:min(70vw,620px) !important;white-space:normal !important;word-break:normal !important;overflow-wrap:anywhere !important;}" +
       ".bubble *,.speech-bubble *,.dialog-bubble *,.convo-bubble *,.bubble-left *,.bubble-right *,#bubbleLeft *,#bubbleRight *,.headline-line *,.sentence-line *{font-size:inherit !important;line-height:inherit !important;}" +
         ".row .bubble,.row .speech-bubble,.row .dialog-bubble,.row .convo-bubble,.row .bubble-left,.row .bubble-right,.row #bubbleLeft,.row #bubbleRight,.row .headline-line,.row .sentence-line{margin-left:8px !important;margin-right:8px !important;}" +
@@ -686,20 +696,20 @@
       if (done) done();
       return;
     }
-    try {
-      if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
-        window.GPTracing.speakText(text, {
-          rate: 0.8,
-          pitch: 1.16,
-          volume: 1,
-          onEnd: done,
-          onError: done
-        });
-        return;
-      }
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.8;
-      utter.pitch = 1.16;
+      try {
+        if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
+          window.GPTracing.speakText(text, {
+          rate: 0.92,
+          pitch: 1.34,
+            volume: 1,
+            onEnd: done,
+            onError: done
+          });
+          return;
+        }
+        const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.92;
+      utter.pitch = 1.34;
       utter.volume = 1;
       utter.onend = () => { if (done) done(); };
       utter.onerror = () => { if (done) done(); };
@@ -716,7 +726,7 @@
       }, 160);
     } catch (_) {
       if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
-        window.GPTracing.speakText(text, { rate: 0.82, pitch: 1.14, volume: 1, onEnd: done, onError: done });
+        window.GPTracing.speakText(text, { rate: 0.92, pitch: 1.34, volume: 1, onEnd: done, onError: done });
         return;
       }
       if (done) done();

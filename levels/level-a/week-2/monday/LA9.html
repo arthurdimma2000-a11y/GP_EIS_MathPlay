@@ -102,7 +102,14 @@
     height:100%;
   }
   .dot-layer{pointer-events:none; z-index:1;}
-  .draw-layer{z-index:4; touch-action:none; display:block; pointer-events:auto; cursor:crosshair;}
+  .draw-layer{
+    z-index:8;
+    touch-action:none;
+    -ms-touch-action:none;
+    display:block;
+    pointer-events:auto;
+    cursor:crosshair;
+  }
 
   .poster-note{
     position:absolute;
@@ -571,18 +578,33 @@
   let drawing = false;
   let last = null;
   let lastMid = null;
+  let activePointerId = null;
 
   function getPosFromPointer(e){
     const rect = drawLayer.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
+  function getUnifiedPos(e){
+    if (e && typeof e.clientX === 'number' && typeof e.clientY === 'number') {
+      return getPosFromPointer(e);
+    }
+    const touch = e && e.touches && e.touches[0] ? e.touches[0] : (e && e.changedTouches && e.changedTouches[0] ? e.changedTouches[0] : null);
+    if (!touch) return null;
+    const rect = drawLayer.getBoundingClientRect();
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+
   function startDraw(e){
     e.preventDefault();
-    drawLayer.setPointerCapture(e.pointerId);
+    activePointerId = typeof e.pointerId === 'number' ? e.pointerId : null;
+    try {
+      if (activePointerId != null && drawLayer.setPointerCapture) drawLayer.setPointerCapture(activePointerId);
+    } catch (_) {}
 
     drawing = true;
-    last = getPosFromPointer(e);
+    last = getUnifiedPos(e);
+    if (!last) return;
     lastMid = last;
 
     ctx.beginPath();
@@ -599,9 +621,11 @@
   function moveDraw(e){
     if(!drawing) return;
     e.preventDefault();
+    if (activePointerId != null && typeof e.pointerId === 'number' && e.pointerId !== activePointerId) return;
 
     const prev = last;
-    const p = getPosFromPointer(e);
+    const p = getUnifiedPos(e);
+    if (!p || !prev) return;
     const mid = { x:(prev.x+p.x)/2, y:(prev.y+p.y)/2 };
 
     ctx.quadraticCurveTo(prev.x, prev.y, mid.x, mid.y);
@@ -620,6 +644,10 @@
     if(!drawing) return;
     e.preventDefault();
     drawing = false;
+    try {
+      if (activePointerId != null && drawLayer.releasePointerCapture) drawLayer.releasePointerCapture(activePointerId);
+    } catch (_) {}
+    activePointerId = null;
     last = null;
     lastMid = null;
   }
@@ -629,6 +657,13 @@
   drawLayer.addEventListener('pointerup', endDraw);
   drawLayer.addEventListener('pointercancel', endDraw);
   drawLayer.addEventListener('pointerleave', endDraw);
+  drawLayer.addEventListener('mousedown', startDraw);
+  drawLayer.addEventListener('mousemove', moveDraw);
+  window.addEventListener('mouseup', endDraw);
+  drawLayer.addEventListener('touchstart', startDraw, { passive:false });
+  drawLayer.addEventListener('touchmove', moveDraw, { passive:false });
+  drawLayer.addEventListener('touchend', endDraw, { passive:false });
+  drawLayer.addEventListener('touchcancel', endDraw, { passive:false });
 
   clearBtn.addEventListener('click', () => {
     const rect = posterImg.getBoundingClientRect();
