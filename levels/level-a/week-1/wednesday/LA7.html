@@ -120,11 +120,13 @@
     }
 
     .poster-area{
-      position:relative;
-      width:min(820px,90vw);
-      margin:6px auto 0;
-      z-index:1;
-    }
+        position:relative;
+        width:min(820px,90vw);
+        margin:6px auto 0;
+        z-index:1;
+        touch-action:none;
+        -ms-touch-action:none;
+      }
 
     .poster-img{
       width:min(820px,90vw);
@@ -269,21 +271,25 @@
     }
 
     .trace-layer{
-      position:absolute;
-      inset:0;
-      pointer-events:auto;
-      z-index:3;
-      background:transparent;
-    }
+        position:absolute;
+        inset:0;
+        pointer-events:auto;
+        z-index:9;
+        background:transparent;
+      }
 
     .trace-canvas{
-      position:absolute;
-      pointer-events:auto;
-      touch-action:none;
-      z-index:4;
-      background:transparent;
-      border-radius:12px;
-    }
+        position:absolute;
+        pointer-events:auto;
+        touch-action:none;
+        -ms-touch-action:none;
+        z-index:10;
+        background:transparent;
+        border-radius:12px;
+        cursor:crosshair;
+        user-select:none;
+        -webkit-user-select:none;
+      }
 
     #trace1{ right:6.2%; top:29.4%; width:22.5%; height:17.5%; }
     #trace2{ right:6.0%; top:49.2%; width:22.8%; height:18.5%; }
@@ -630,9 +636,9 @@
       </div>
 
       <div class="trace-layer">
-        <canvas class="trace-canvas" id="trace1"></canvas>
-        <canvas class="trace-canvas" id="trace2"></canvas>
-        <canvas class="trace-canvas" id="trace3"></canvas>
+        <canvas class="trace-canvas" id="trace1" aria-label="Trace circle and number 1"></canvas>
+        <canvas class="trace-canvas" id="trace2" aria-label="Trace circle and number 2"></canvas>
+        <canvas class="trace-canvas" id="trace3" aria-label="Trace circle and number 3"></canvas>
       </div>
     </div>
 
@@ -1078,14 +1084,94 @@
       });
     }
 
-    function setupTrace(canvasId, points, index){
+    function buildEllipsePoints(cx, cy, rx, ry, segments = 80, start = 0, end = Math.PI * 2){
+      const pts = [];
+      for(let i = 0; i <= segments; i++){
+        const t = start + ((end - start) * i / segments);
+        pts.push({ x: cx + Math.cos(t) * rx, y: cy + Math.sin(t) * ry });
+      }
+      return pts;
+    }
+
+    function buildLinePoints(x1, y1, x2, y2, segments = 18){
+      const pts = [];
+      for(let i = 0; i <= segments; i++){
+        const t = i / segments;
+        pts.push({
+          x: x1 + (x2 - x1) * t,
+          y: y1 + (y2 - y1) * t
+        });
+      }
+      return pts;
+    }
+
+    function buildQuadraticPoints(x1, y1, cx, cy, x2, y2, segments = 32){
+      const pts = [];
+      for(let i = 0; i <= segments; i++){
+        const t = i / segments;
+        const mt = 1 - t;
+        pts.push({
+          x: mt * mt * x1 + 2 * mt * t * cx + t * t * x2,
+          y: mt * mt * y1 + 2 * mt * t * cy + t * t * y2
+        });
+      }
+      return pts;
+    }
+
+    function scaleGroupsToRect(groups, rect){
+      return groups.map(group => group.map(p => ({
+        x: p.x * rect.width,
+        y: p.y * rect.height
+      })));
+    }
+
+    function getLessonTraceGroups(kind, rect){
+      const groups = [];
+
+      if (kind === "1") {
+        groups.push(buildEllipsePoints(0.34, 0.52, 0.18, 0.27, 90));
+        groups.push(buildLinePoints(0.76, 0.18, 0.76, 0.84, 26));
+        groups.push(buildLinePoints(0.67, 0.28, 0.76, 0.18, 12));
+        groups.push(buildLinePoints(0.67, 0.84, 0.85, 0.84, 12));
+      }
+
+      if (kind === "2") {
+        groups.push(buildEllipsePoints(0.34, 0.52, 0.18, 0.27, 90));
+        groups.push(buildQuadraticPoints(0.64, 0.28, 0.77, 0.10, 0.86, 0.26, 28));
+        groups.push(buildQuadraticPoints(0.86, 0.26, 0.88, 0.42, 0.69, 0.55, 24));
+        groups.push(buildQuadraticPoints(0.69, 0.55, 0.59, 0.63, 0.62, 0.78, 18));
+        groups.push(buildLinePoints(0.62, 0.78, 0.88, 0.78, 18));
+      }
+
+      if (kind === "3") {
+        groups.push(buildEllipsePoints(0.34, 0.52, 0.18, 0.27, 90));
+        groups.push(buildQuadraticPoints(0.63, 0.26, 0.78, 0.10, 0.86, 0.28, 28));
+        groups.push(buildQuadraticPoints(0.66, 0.53, 0.81, 0.42, 0.87, 0.55, 26));
+        groups.push(buildQuadraticPoints(0.63, 0.79, 0.80, 0.93, 0.87, 0.71, 28));
+      }
+
+      return scaleGroupsToRect(groups, rect);
+    }
+
+    function getCanvasRelativeGroups(canvasId, kind){
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return [];
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return [];
+      return getLessonTraceGroups(kind, rect);
+    }
+
+    function setupTrace(canvasId, kind, index){
       const reset = window.GPTracing.createPathTracePad({
         canvasId,
-        getPoints: () => points,
-        lineWidth: 14,
-        threshold: 24,
+        getPoints: () => getCanvasRelativeGroups(canvasId, kind),
+        lineWidth: 20,
+        threshold: 40,
+        smoothness: 44,
+        simplify: false,
+        completionSnap: 96,
         onProgress: (pct) => {
-          tracePercents[index] = pct;
+          tracePercents[index] = Math.max(0, Math.min(100, Math.round(pct)));
           updateTotal();
         },
         onTick: () => {
@@ -1098,28 +1184,39 @@
       });
 
       if (typeof reset === "function") {
-        traceResets.push(() => {
+        traceResets[index] = () => {
           reset();
           tracePercents[index] = 0;
           updateTotal();
-        });
+        };
+      } else {
+        traceResets[index] = () => {
+          tracePercents[index] = 0;
+          updateTotal();
+        };
       }
     }
 
     function initTracingOnce(){
       if (traceSetupDone) return;
-      syncTraceCanvasResolution();
+      if (!window.GPTracing || typeof window.GPTracing.createPathTracePad !== "function") {
+        console.warn("GPTracing.createPathTracePad is not available.");
+        return;
+      }
 
-      setupTrace("trace1", window.GPTracing.getDigitTraceGroups("1"), 0);
-      setupTrace("trace2", window.GPTracing.getDigitTraceGroups("2"), 1);
-      setupTrace("trace3", window.GPTracing.getDigitTraceGroups("3"), 2);
+      syncTraceCanvasResolution();
+      setupTrace("trace1", "1", 0);
+      setupTrace("trace2", "2", 1);
+      setupTrace("trace3", "3", 2);
 
       traceSetupDone = true;
       updateTotal();
     }
 
     function resetTracingOnly(){
-      traceResets.forEach(fn => fn());
+      traceResets.forEach(fn => {
+        if (typeof fn === "function") fn();
+      });
       syncTraceCanvasResolution();
       tracePercents[0] = 0;
       tracePercents[1] = 0;
@@ -1227,7 +1324,9 @@
           level: "A",
           activityType: "lesson",
           score: Math.max(0, Math.min(100, Math.round(score))),
-          stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
+          stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0,
+          tracing: Math.max(0, Math.min(100, Math.round(score))),
+          completed: score >= 90
         }).catch(() => {});
       }, 250);
     };
@@ -1242,7 +1341,7 @@
       defaultStars: 1,
       defaultSkills: {
         reading: 1,
-        writing: 0,
+        writing: 1,
         speaking: 1,
         listening: 1
       }

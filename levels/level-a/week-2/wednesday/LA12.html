@@ -88,11 +88,13 @@
   }
 
   .poster-area{
-    position:relative;
-    width:min(820px,90vw);
-    margin:6px auto 0;
-    overflow:visible;
-  }
+      position:relative;
+      width:min(820px,90vw);
+      margin:6px auto 0;
+      overflow:visible;
+      touch-action:none;
+      -ms-touch-action:none;
+    }
 
   .poster-img{
     width:min(820px,90vw);
@@ -111,15 +113,18 @@
   }
 
   .trace-canvas{
-    position:absolute;
-    width:22%;
-    height:26%;
-    pointer-events:auto;
-    touch-action:none;
-    z-index:6;
-    background:transparent;
-    display:block;
-  }
+      position:absolute;
+      width:22%;
+      height:26%;
+      pointer-events:auto;
+      touch-action:none;
+      -ms-touch-action:none;
+      z-index:6;
+      background:transparent;
+      display:block;
+      border-radius:12px;
+      cursor:crosshair;
+    }
 
   #trace1{ right:6%; top:30%; }
   #trace2{ right:6%; top:52%; }
@@ -956,19 +961,35 @@
   }
 
   const posterImg = document.querySelector(".poster-img");
+  const posterArea = document.querySelector(".poster-area");
+  let traceSetupDone = false;
 
-  function setupTrace(canvasId, points, index){
+  function syncTraceCanvasResolution(){
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    document.querySelectorAll(".trace-canvas").forEach((canvas) => {
+      const rect = canvas.getBoundingClientRect();
+      const targetW = Math.max(1, Math.round(rect.width * dpr));
+      const targetH = Math.max(1, Math.round(rect.height * dpr));
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+    });
+  }
+
+  function setupTrace(canvasId, digit, index){
     const reset = window.GPTracing.createPathTracePad({
       canvasId,
-      getPoints: () => points,
-      lineWidth: 13,
-      threshold: 26,
+      getPoints: () => window.GPTracing.getDigitTraceGroups(digit),
+      lineWidth: 18,
+      threshold: 34,
       posterImg,
       smoothing: true,
-      smoothness: 22,
+      smoothness: 40,
       simplify: false,
+      completionSnap: 96,
       onProgress: (pct) => {
-        tracePercents[index] = pct;
+        tracePercents[index] = Math.max(0, Math.min(100, Math.round(pct)));
         updateTotal();
       },
       onTick: () => {
@@ -981,17 +1002,61 @@
     });
 
     if (typeof reset === "function") {
-      traceResets.push(() => {
+      traceResets[index] = () => {
         reset();
         tracePercents[index] = 0;
         updateTotal();
-      });
+      };
+    } else {
+      traceResets[index] = () => {
+        tracePercents[index] = 0;
+        updateTotal();
+      };
     }
   }
 
-  setupTrace("trace1", window.GPTracing.getDigitTraceGroups("1"), 0);
-  setupTrace("trace2", window.GPTracing.getDigitTraceGroups("2"), 1);
-  setupTrace("trace3", window.GPTracing.getDigitTraceGroups("3"), 2);
+  function initTracingOnce(){
+    if (traceSetupDone) return;
+    if (!window.GPTracing || typeof window.GPTracing.createPathTracePad !== "function") {
+      console.warn("GPTracing.createPathTracePad is not available.");
+      return;
+    }
+
+    syncTraceCanvasResolution();
+    setupTrace("trace1", "1", 0);
+    setupTrace("trace2", "2", 1);
+    setupTrace("trace3", "3", 2);
+    traceSetupDone = true;
+    updateTotal();
+  }
+
+  function waitForPosterThenInit(){
+    if (posterImg.complete) {
+      requestAnimationFrame(() => {
+        syncTraceCanvasResolution();
+        initTracingOnce();
+      });
+      return;
+    }
+
+    posterImg.addEventListener("load", () => {
+      requestAnimationFrame(() => {
+        syncTraceCanvasResolution();
+        initTracingOnce();
+      });
+    }, { once:true });
+  }
+
+  waitForPosterThenInit();
+  window.addEventListener("resize", syncTraceCanvasResolution);
+  window.addEventListener("orientationchange", syncTraceCanvasResolution);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", syncTraceCanvasResolution);
+  if (window.ResizeObserver && posterArea) {
+    const ro = new ResizeObserver(() => {
+      syncTraceCanvasResolution();
+    });
+    ro.observe(posterArea);
+  }
 </script>
 
 <script src="../../../../activity-standardizer.js"></script>
@@ -1011,7 +1076,9 @@
         level: "A",
         activityType: "lesson",
         score: Math.max(0, Math.min(100, Math.round(score))),
-        stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
+        stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0,
+        tracing: Math.max(0, Math.min(100, Math.round(score))),
+        completed: score >= 90
       }).catch(() => {});
     }, 250);
   };

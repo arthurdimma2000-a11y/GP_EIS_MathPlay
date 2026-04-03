@@ -792,6 +792,13 @@
       }
     }
 
+    async function safeFinishAndSave(payload){
+      if (typeof window.finishAndSave !== "function") return;
+      const saveTask = Promise.resolve().then(() => window.finishAndSave(payload)).catch(() => {});
+      const failOpenTimeout = new Promise((resolve) => window.setTimeout(resolve, 180));
+      await Promise.race([saveTask, failOpenTimeout]);
+    }
+
     async function goToNextMicLine(){
       highlightLine(currentLineIndex, false);
       const nextIndex = currentLineIndex + 1;
@@ -918,7 +925,7 @@
 
     prevBtn.addEventListener("click", async () => {
       if (typeof window.finishAndSave === "function" && !activitySaved) {
-        await window.finishAndSave({
+        await safeFinishAndSave({
           pageId: "LA10",
           level: "A",
           activityType: "lesson",
@@ -933,7 +940,7 @@
 
     nextBtn.addEventListener("click", async () => {
       if (typeof window.finishAndSave === "function" && !activitySaved) {
-        await window.finishAndSave({
+        await safeFinishAndSave({
           pageId: "LA10",
           level: "A",
           activityType: "lesson",

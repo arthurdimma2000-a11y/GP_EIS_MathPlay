@@ -374,11 +374,15 @@
         const replacement = el.cloneNode(true);
         replacement.dataset.gpExpectedNav = target;
         replacement.dataset.gpNavHardened = "1";
+        if ("disabled" in replacement) replacement.disabled = false;
         if (replacement.tagName === "A") {
           replacement.setAttribute("href", target);
         }
         if (replacement.tagName === "BUTTON" && !replacement.getAttribute("type")) {
           replacement.setAttribute("type", "button");
+        }
+        if (replacement.hasAttribute("onclick")) {
+          replacement.removeAttribute("onclick");
         }
         replacement.addEventListener("click", (ev) => {
           navigateToTarget(target, ev);
@@ -396,6 +400,7 @@
       const target = kind === "prev" ? targets.prev : kind === "home" ? targets.home : targets.next;
       if (!target) return;
       el.dataset.gpExpectedNav = target;
+      if ("disabled" in el) el.disabled = false;
       if (el.tagName === "A") {
         el.setAttribute("href", target);
       }
@@ -412,7 +417,18 @@
 
     hardBindNavElements();
     window.setTimeout(hardBindNavElements, 0);
+    window.setTimeout(hardBindNavElements, 250);
+    window.setTimeout(hardBindNavElements, 1000);
     window.addEventListener("load", hardBindNavElements, { once: true });
+    if (window.MutationObserver && document.body) {
+      const navObserver = new MutationObserver(() => {
+        hardBindNavElements();
+      });
+      navObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
   }
 
   function getAutoIntroFileName(level, lessonNumber) {
