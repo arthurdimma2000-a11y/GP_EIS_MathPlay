@@ -26,75 +26,7 @@
   }
 </style>
 
-<script>
-  document.documentElement.classList.add('lb-intro-video-pending');
-  setTimeout(function(){
-    document.documentElement.classList.remove('lb-intro-video-pending');
-  }, 60000);
-</script>
 
-<style id="lbIntroVideoOverlayStyles">
-  html.lb-intro-video-pending body > *:not(#lbIntroVideoOverlay){visibility:hidden !important;}
-  #lbIntroVideoOverlay{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,.78);
-    z-index:2147483647;
-    padding:16px;
-    flex-direction:column;
-    gap:14px;
-  }
-  #lbIntroVideoOverlay.active{display:flex;}
-  #lbIntroVideoOverlay video{
-    width:min(92vw,980px);
-    max-height:84vh;
-    height:auto;
-    border-radius:14px;
-    background:#000;
-    opacity:0;
-    transition:opacity .18s ease;
-    box-shadow:0 18px 48px rgba(0,0,0,.45);
-  }
-  #lbIntroVideoOverlay .intro-start-btn{
-    border:none;
-    border-radius:999px;
-    padding:12px 20px;
-    font-size:1rem;
-    font-weight:800;
-    background:#ffd86a;
-    color:#6a4500;
-    box-shadow:0 4px 0 rgba(0,0,0,.18);
-    cursor:pointer;
-  }
-  #lbIntroVideoOverlay .intro-skip-btn{
-    border:none;
-    border-radius:999px;
-    padding:12px 20px;
-    font-size:1rem;
-    font-weight:800;
-    background:#dfeaff;
-    color:#1f3b6b;
-    box-shadow:0 4px 0 rgba(0,0,0,.18);
-    cursor:pointer;
-  }
-  #lbIntroVideoOverlay .intro-help{
-    color:#fff;
-    font-size:.98rem;
-    font-weight:700;
-    text-align:center;
-    max-width:min(92vw,780px);
-    line-height:1.35;
-  }
-  #lbIntroVideoOverlay .intro-actions{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    justify-content:center;
-  }
-</style>
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
@@ -476,15 +408,7 @@
   }
 </style>
 
-<style id="gpUnifiedIntroPrehide">
-  #introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{
-    display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-  }
-</style>
-</head>
+  </head>
 
 <body>
 
@@ -536,14 +460,7 @@
     </div>
   </div>
 
-  <div id="lbIntroVideoOverlay" aria-label="Intro video overlay">
-    <video id="lbIntroVideo" preload="metadata" autoplay muted playsinline webkit-playsinline></video>
-    <div class="intro-help" id="lbIntroHelp">Video is playing muted. Tap "Turn On Sound" if you want audio.</div>
-    <div class="intro-actions">
-      <button class="intro-start-btn" id="lbIntroStartBtn" type="button">Turn On Sound</button>
-      <button class="intro-skip-btn" id="lbIntroSkipBtn" type="button">Skip Intro</button>
-    </div>
-  </div>
+  
 
   <script src="../../../../shared/js/storage.js"></script>
   <script src="../../../../shared/js/progress.js"></script>
@@ -787,110 +704,7 @@
     })();
   </script>
 
-  <script id="lbIntroVideoOverlayScript">
-      (function(){
-      if (window.__lbIntroVideoOverlayInit) return;
-      window.__lbIntroVideoOverlayInit = true;
-
-      const html = document.documentElement;
-      const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1774463130/LB7bvideo_ay6wwl.mp4";
-      const overlay = document.getElementById('lbIntroVideoOverlay');
-      const video = document.getElementById('lbIntroVideo');
-      const startBtn = document.getElementById('lbIntroStartBtn');
-      const skipBtn = document.getElementById('lbIntroSkipBtn');
-      const helpText = document.getElementById('lbIntroHelp');
-
-      if (!overlay || !video) {
-        html.classList.remove('lb-intro-video-pending');
-        return;
-      }
-
-      function revealPage(){
-        try { video.pause(); } catch (_) {}
-        try { video.currentTime = 0; } catch (_) {}
-        overlay.classList.remove('active');
-        overlay.style.display = 'none';
-        html.classList.remove('lb-intro-video-pending');
-      }
-
-      overlay.classList.add('active');
-      overlay.style.display = 'flex';
-
-      let started = false;
-      let hardTimeout = setTimeout(revealPage, 60000);
-
-      function clearHardTimeout(){
-        if (hardTimeout) {
-          clearTimeout(hardTimeout);
-          hardTimeout = null;
-        }
-      }
-
-      function markStarted(){
-        started = true;
-        video.style.opacity = '1';
-      }
-
-      async function tryPlayMutedFirst(){
-        try{
-          video.muted = true;
-          video.defaultMuted = true;
-          video.volume = 1;
-          await video.play();
-          markStarted();
-          helpText.textContent = 'Video is playing muted. Tap "Turn On Sound" if you want audio.';
-        }catch(_err){
-          helpText.textContent = 'Tap "Turn On Sound" or tap the video to start the intro.';
-        }
-      }
-
-      async function turnOnSound(){
-        try{
-          video.muted = false;
-          video.defaultMuted = false;
-          video.volume = 1;
-          await video.play();
-          markStarted();
-          helpText.textContent = 'Sound is on.';
-        }catch(_err){
-          helpText.textContent = 'If sound is still blocked, tap directly on the video once.';
-        }
-      }
-
-      video.addEventListener('playing', markStarted);
-      video.addEventListener('timeupdate', markStarted, { once:true });
-      video.addEventListener('ended', () => {
-        clearHardTimeout();
-        revealPage();
-      }, { once:true });
-      video.addEventListener('error', () => {
-        clearHardTimeout();
-        revealPage();
-      }, { once:true });
-
-      startBtn.addEventListener('click', turnOnSound);
-      if (skipBtn) {
-        skipBtn.addEventListener('click', () => {
-          clearHardTimeout();
-          revealPage();
-        });
-      }
-      video.addEventListener('click', turnOnSound);
-      video.addEventListener('loadeddata', tryPlayMutedFirst, { once:true });
-
-      video.src = INTRO_VIDEO_URL;
-      try { video.load(); } catch (_) { clearHardTimeout(); revealPage(); return; }
-
-      setTimeout(() => {
-        if (!started && video.readyState < 2) {
-          clearHardTimeout();
-          revealPage();
-          return;
-        }
-        if (!started) tryPlayMutedFirst();
-      }, 1000);
-    })();
-  </script>
+  
 
   <script type="module">
     import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";

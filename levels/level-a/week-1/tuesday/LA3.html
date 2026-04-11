@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Draw the circle - Week 1</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<style>
+  :root{
+    --sky:#bfe9fb;
+    --panel:#ffffff;
+    --ink:#3b3b3b;
+    --blue:#3aa7e8;
+    --soft-blue:#dbe8f6;
+    --dash:#415a8a;
+    --shadow:0 20px 40px rgba(0,0,0,.08);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
+  html,body{
+    height:auto;
+    min-height:100%;
+  }
+  body{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    background:var(--sky);
+    padding:8px;
+    overflow-y:auto;
+  }
+
+  .card{
+    width:min(980px,96vw);
+    border-radius:18px;
+    padding:26px 26px 80px;
+    transform-origin:top center;
+    will-change:transform;
+  }
+
+  .canvas-title{
+    text-align:center;
+    font-size:3.2rem;
+    font-weight:800;
+    color:var(--ink);
+    margin:4px 0 6px;
+  }
+  .canvas-title{display:none !important;}
+
+  .header-pill{
+    background:var(--blue);
+    color:#fff;
+    font-size:1.05rem;
+    font-weight:700;
+    border-radius:999px;
+    padding:10px 22px;
+    display:inline-flex;
+    align-items:center;
+    max-width:100%;
+  }
+
+  .mini-trace-area{
+    width:min(820px,90vw);
+    margin:8px auto 10px;
+    position:relative;
+  }
+
+  .mini-trace-area img{
+    width:100%;
+    height:auto;
+    display:block;
+  }
+
+  .mini-overlay{
+    position:absolute;
+    left:7%;
+    top:33%;
+    width:86%;
+    height:54%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:8% 6%;
+    pointer-events:auto;
+    z-index:2;
+  }
+
+  .mini-cell{position:relative;width:100%;height:100%;}
+  .mini-cell svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  .mini-trace{position:absolute;inset:0;width:100%;height:100%;touch-action:none;pointer-events:auto;z-index:2;}
+
+  .mini-progress-row{
+    width:min(820px,90vw);
+    margin:6px auto 4px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    transform:translateY(-15%);
+  }
+  .mini-progress{display:flex;flex-direction:column;gap:4px;}
+  .mini-label{font-size:.75rem;text-align:center;font-weight:700;color:#2d2d2d;}
+  .mini-sub{font-size:.7rem;text-align:center;color:#6b6b6b;}
+  .mini-remark{
+    font-size:.75rem;
+    text-align:center;
+    font-weight:800;
+    color:#2e9b2e;
+    min-height:1.1em;
+    opacity:0;
+    transition:opacity .2s ease;
+  }
+
+  .mini-remark.show{opacity:1;}
+
+  .center-text{
+    margin-top:12px;
+    text-align:center;
+    color:var(--ink);
+    font-size:2.4rem;
+    line-height:1.3;
+    font-weight:700;
+    min-height:3.2em;
+  }
+  .headline-on-poster{
+    position:absolute;
+    left:50%;
+    bottom:4%;
+    width:92%;
+    margin:0;
+    z-index:8;
+    pointer-events:none;
+    transform:translate(-50%,18%);
+  }
+  .mascot-spot.beside-headline{
+    position:absolute;
+    right:5%;
+    bottom:4%;
+    transform:translateY(18%);
+    z-index:9;
+    background:rgba(255,255,255,.88);
+    border-radius:12px;
+    padding:4px 6px;
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+  }
+  .red-word{color:#d62828;}
+
+  .mascot-spot{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .mascot{
+    width:64px;height:64px;border-radius:18px;overflow:hidden;
+    box-shadow:0 6px 14px rgba(0,0,0,.25);
+    border:3px solid #ffe3f7;background:#ffd6f2;cursor:pointer;
+  }
+  .mascot img{width:100%;height:100%;object-fit:cover;}
+  .mascot-hint{font-size:.82rem;font-weight:700;color:#d62828;text-align:center;}
+
+  .controls{
+    position:absolute;
+    left:26px;right:26px;bottom:12px;
+    display:flex;flex-direction:column;gap:6px;
+    transform:translateY(10%);
+  }
+  button{
+    border:none;border-radius:999px;padding:8px 18px;font-size:.9rem;font-weight:700;
+    cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+    transition:transform .08s ease, box-shadow .08s ease, background .1s ease, opacity .1s ease;
+    box-shadow:0 4px 0 rgba(0,0,0,.18);
+  }
+  .button-row{
+    width:min(820px,90vw);
+    margin:12px auto 0;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transform:translateY(40%);
+  }
+  button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+  button:active{transform:translateY(2px) scale(.98);box-shadow:0 1px 0 rgba(0,0,0,.18);}
+  .btn-nav{
+    background:#ffe8a3;
+    color:#8b5a00;
+    padding:8px 18px;
+    font-size:.9rem;
+    font-weight:700;
+    border-radius:999px;
+    border:none;
+    box-shadow:0 4px 0 rgba(0,0,0,.18);
+    transition:transform .08s ease, box-shadow .08s ease, background .1s ease, opacity .1s ease;
+  }
+  .btn-main{background:linear-gradient(135deg,#ff7b6b,#ffb27b);color:#fff;}
+  .btn-quiet{background:linear-gradient(180deg,#f2f6ff,#d5e4ff);color:var(--ink);}
+  .btn-clear{background:linear-gradient(180deg,#ffe5fb,#ffb9f2);color:#8a2a7b;}
+  .button-row .mascot-spot{margin:0;align-self:center;}
+  .button-row #vertexEntryMount{
+    display:flex;
+    align-items:center;
+    margin:0;
+  }
+  .button-row #vertexEntryMount .gp-vertex-entry{
+    width:auto;
+    margin:0;
+    padding:0;
+    background:transparent;
+    box-shadow:none;
+    border:none;
+    display:flex;
+    align-items:center;
+  }
+  .button-row #vertexEntryMount .gp-vertex-entry__title,
+  .button-row #vertexEntryMount .gp-vertex-entry__prompt,
+  .button-row #vertexEntryMount .gp-vertex-entry__progress,
+  .button-row #vertexEntryMount .gp-vertex-entry__hint,
+  .button-row #vertexEntryMount .gp-vertex-entry__label{
+    display:none !important;
+  }
+  .button-row #vertexEntryMount .gp-vertex-entry__grid{
+    display:flex;
+    gap:0;
+  }
+  .button-row #vertexEntryMount .gp-vertex-entry__card{
+    min-height:auto;
+    padding:0;
+    background:transparent;
+    border:none;
+    box-shadow:none;
+  }
+  .button-row #vertexEntryMount .gp-vertex-entry__input{
+    width:48px;
+    min-height:48px;
+    border-radius:12px;
+    font-size:1.05rem;
+  }
+  .button-row #vertexEntryMount .gp-vertex-entry__card.is-correct .gp-vertex-entry__input{
+    border-color:#2fbf71;
+  }
+  .button-row #vertexEntryMount .gp-vertex-entry__card.is-wrong .gp-vertex-entry__input{
+    border-color:#ff9f5a;
+  }
+  .hint-clear{font-size:.75rem;text-align:center;color:#777;}
+  .tap-girl,
+  #tapGirl{display:none !important;}
+  .mic-icon-btn,
+  #micIconBtn,
+  .btn.mic,
+  [aria-label*="microphone" i]{display:none !important;}
+  .bubble,
+  .speech-bubble,
+  .dialog-bubble,
+  .convo-line{display:none !important;}
+
+  .progress-row{display:none !important;align-items:flex-end;justify-content:space-between;gap:16px;transform:none;}
+  .progress-wrap{flex:1;position:relative;display:flex;flex-direction:column;gap:4px;margin-top:2px;padding-top:28px;}
+
+  .progress-message{font-size:1.8rem;font-weight:800;text-align:center;min-height:1.4em;color:#1e6bff;}
+
+  #progressMessage{display:none;}
+
+  .overlay-message{position:absolute;left:0;right:0;top:90%;z-index:3;pointer-events:none;}
+
+  .progress-label{font-size:.83rem;text-align:center;}
+
+  .progress-bar{width:88%;height:12px;margin:0 auto;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3cc4ff,#7dffb3);transition:width .15s ease-out;}
+
+  #stopBtn,#readBtn{display:none;}
+
+  @media (max-width:780px){
+    body{padding:12px;}
+    .card{padding:18px 16px 90px;}
+    .header-pill{font-size:.95rem;}
+    .center-text{font-size:1.2rem;}
+    .dot-row{right:90px;}
+  }
+
+  .home-btn{
+    flex-direction:column;
+    justify-content:flex-start;
+    gap:4px;
+  }
+  .home-label{
+    font-size:.9rem;font-weight:800;color:var(--ink);
+    text-shadow:0 1px 2px rgba(255,255,255,.8);
+  }
+
+  /* Intro overlay */
+  .intro-video-container{
+    width:min(92vw,980px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  .intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+  .intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+  .intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+  .intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
+  .intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
+    text-align:center;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+  }
+</style>
+</head>
+
+<body>
+  
+
+  <div class="card">
+
+    <a class="home-btn" href="../../../../index.html" aria-label="Home">
+      <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
+      <div class="home-label">Week1</div>
+    </a>
+
+    <div class="canvas-title"></div>
+
+    <div class="mini-trace-area" id="miniTraceArea">
+      <img src="../../../../assets/images/shapes/LA3A.png" alt="Circle practice sheet">
+      <div class="mini-overlay">
+        <div class="mini-cell">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#4c5a77" stroke-width="2.5" stroke-dasharray="8 6" />
+          </svg>
+          <canvas class="mini-trace" id="miniTrace1"></canvas>
+        </div>
+
+        <div class="mini-cell">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#4c5a77" stroke-width="2.5" stroke-dasharray="8 6" />
+          </svg>
+          <canvas class="mini-trace" id="miniTrace2"></canvas>
+        </div>
+
+        <div class="mini-cell">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#4c5a77" stroke-width="2.5" stroke-dasharray="8 6" />
+          </svg>
+          <canvas class="mini-trace" id="miniTrace3"></canvas>
+        </div>
+
+        <div class="mini-cell">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#4c5a77" stroke-width="2.5" stroke-dasharray="8 6" />
+          </svg>
+          <canvas class="mini-trace" id="miniTrace4"></canvas>
+        </div>
+      </div>
+
+      <div class="progress-message overlay-message" id="progressMessageOverlay"></div>
+    </div>
+
+    <div class="mini-progress-row">
+      <div class="mini-progress">
+        <div class="mini-label">Circle 1: <span id="miniPct1">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="miniFill1"></div></div>
+        <div class="mini-sub">Trace Progress %</div>
+        <div class="mini-remark" id="miniMsg1"></div>
+      </div>
+
+      <div class="mini-progress">
+        <div class="mini-label">Circle 2: <span id="miniPct2">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="miniFill2"></div></div>
+        <div class="mini-sub">Trace Progress %</div>
+        <div class="mini-remark" id="miniMsg2"></div>
+      </div>
+
+      <div class="mini-progress">
+        <div class="mini-label">Circle 3: <span id="miniPct3">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="miniFill3"></div></div>
+        <div class="mini-sub">Trace Progress %</div>
+        <div class="mini-remark" id="miniMsg3"></div>
+      </div>
+
+      <div class="mini-progress">
+        <div class="mini-label">Circle 4: <span id="miniPct4">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="miniFill4"></div></div>
+        <div class="mini-sub">Trace Progress %</div>
+        <div class="mini-remark" id="miniMsg4"></div>
+      </div>
+    </div>
+
+    <div class="dot-row" aria-hidden="true">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="center-text" id="headline"></div>
+
+    <div class="controls">
+      <div class="progress-row">
+        <div class="progress-wrap">
+          <div class="progress-message" id="progressMessage"></div>
+          <div class="progress-label">
+            Trace progress: <span id="progressPercent">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="btn-nav" id="prevBtn"><- Previous page</button>
+        <button class="btn-nav" id="nextBtn">Next page -></button>
+        <div class="mascot-spot" id="boyWrap">
+          <div class="mascot tap-boy" id="boyBtn">
+            <img src="../../../../assets/images/shapes/jnb.png" alt="Circle helper">
+          </div>
+          <div class="mascot-hint">Tap the boy</div>
+        </div>
+        <button class="btn-quiet" id="stopBtn">⏹ Stop voice</button>
+        <button class="btn-main" id="readBtn">🔊 Read this page</button>
+        <button class="btn-clear" id="clearBtn">Clear [X]</button>
+        <div id="vertexEntryMount"></div>
+      </div>
+      <div class="hint-clear">Tap Clear Button to clear the trace.</div>
+    </div>
+  </div>
+
+<script>
+  // Shared lesson utilities
+</script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script src="../../../../shared/js/vertex-entry.js"></script>
+
+
+
+<script>
+  function finalizeLessonLayout(){
+    document.body.classList.remove('intro-active');
+    document.body.style.overflowY = "auto";
+    requestAnimationFrame(() => window.scrollTo(0, 0));
+    const card = document.querySelector('.card');
+    if (card) card.style.transform = "none";
+  }
+  window.addEventListener('DOMContentLoaded', () => {
+      finalizeLessonLayout();
+    }, { once:true });
+    window.addEventListener('gp:intro-end', finalizeLessonLayout, { once:true });
+
+  function fitCardToViewport(){
+    window.GPTracing.fitElementToViewport('.card', {
+      minWidth: 320,
+      minHeight: 420,
+      padding: 8,
+      minScale: 0.62,
+      isActive: () => document.body.classList.contains("intro-active")
+    });
+  }
+  fitCardToViewport();
+
+  window.addEventListener('resize', fitCardToViewport);
+
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fitCardToViewport);
+</script>
+
+<script>
+  const headlineEl = document.getElementById('headline');
+  const miniTraceArea = document.getElementById('miniTraceArea');
+  const boyBtn = document.getElementById('boyBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const readBtn = document.getElementById('readBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const boyWrap = document.getElementById('boyWrap');
+
+  if (miniTraceArea && headlineEl) {
+    headlineEl.classList.add('headline-on-poster');
+    miniTraceArea.appendChild(headlineEl);
+  }
+  if (boyWrap) {
+    boyWrap.classList.remove('beside-headline');
+  }
+
+  const progressPercentEl = document.getElementById('progressPercent');
+  const progressFillEl = document.getElementById('progressFill');
+  const progressMessageEl = document.getElementById('progressMessage');
+  const progressMessageOverlayEl = document.getElementById('progressMessageOverlay');
+  const miniPercents = [0,0,0,0];
+  const miniResetFns = [];
+  let aggregateCelebrated = false;
+  let traceCompletedNotified = false;
+  let combinedProgress = 0;
+
+  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+  chimeAudio.preload = "auto";
+
+  function playChime(){
+    try{
+      chimeAudio.currentTime = 0;
+      const p = chimeAudio.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    }catch(e){}
+  }
+
+  let speaking = false;
+
+  function speak(text, onend){
+    if(!("speechSynthesis" in window)) return;
+    stopVoice();
+    const u = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    const happyAmericanFemaleVoice =
+      voices.find(v => /^en(-|_)?us/i.test(v.lang || "") && /aria|jenny|samantha|ava|female/i.test(v.name || "")) ||
+      voices.find(v => /^en(-|_)?us/i.test(v.lang || "") && /zira|female/i.test(v.name || "")) ||
+      voices.find(v => /^en(-|_)?us/i.test(v.lang || "")) ||
+      voices.find(v => /jenny|samantha|ava|aria|zira|female/i.test(v.name || "")) ||
+      voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang || ""));
+    if(happyAmericanFemaleVoice) u.voice = happyAmericanFemaleVoice;
+    u.rate = 0.92;
+    u.pitch = 1.08;
+    speaking = true;
+
+    u.onend = () => { speaking = false; if (onend) onend(); };
+    u.onerror = () => { speaking = false; if (onend) onend(); };
+
+    window.speechSynthesis.speak(u);
+  }
+
+  function stopVoice(){
+    if("speechSynthesis" in window && speaking){
+      window.speechSynthesis.cancel();
+    }
+    speaking = false;
+  }
+
+  function applyCombinedProgress(total){
+    combinedProgress = Math.max(0, Math.min(100, Math.round(total)));
+    progressPercentEl.textContent = combinedProgress + "%";
+    progressFillEl.style.width = combinedProgress + "%";
+    if (typeof window.__gpRealtimeSaveLA3 === "function") {
+      window.__gpRealtimeSaveLA3(combinedProgress);
+    }
+  }
+
+  const vertexEntry = window.GPVertexEntry?.create({
+    mount: "#vertexEntryMount",
+    title: "Write the number of vertices",
+    prompt: "Write how many vertices a circle has.",
+    showProgress: false,
+    items: [
+      {
+        id: "circleVertices",
+        label: "Circle",
+        answer: 0,
+        hint: "Write 0",
+        successSpeech: "Correct. A circle has 0 vertices."
+      }
+    ],
+    onProgress(state){
+      applyCombinedProgress(state.totalProgress);
+    }
+  }) || null;
+
+  function updateAggregate(){
+    const baseTotal = miniPercents.reduce((a,b)=>a+b,0);
+    const total = vertexEntry ? vertexEntry.setBaseProgress(baseTotal) : baseTotal;
+    if (!vertexEntry) applyCombinedProgress(total);
+    if (total >= 93 && !aggregateCelebrated){
+      aggregateCelebrated = true;
+      playChime();
+      progressMessageEl.textContent = "Wow! you are super smart!";
+      if (progressMessageOverlayEl) progressMessageOverlayEl.textContent = "Wow! you are super smart!";
+      speak("Wow! you are super smart!");
+      if (!traceCompletedNotified){
+        traceCompletedNotified = true;
+        window.dispatchEvent(new Event("gp:trace-complete"));
+      }
+    }
+
+    if (total < 93){
+      aggregateCelebrated = false;
+      traceCompletedNotified = false;
+    }
+  }
+
+  function resetAllMini(){
+    miniResetFns.forEach(fn => fn());
+    for(let i=0;i<miniPercents.length;i++){ miniPercents[i] = 0; }
+    if (vertexEntry) vertexEntry.reset();
+    updateAggregate();
+  }
+
+  const headlineLines = [
+    { text: "They are Circles.", html: 'They are <span class="red-word">Circles</span>.' },
+    { text: "A Circle has 0 vertices.", html: 'A <span class="red-word">Circle</span> has <span class="red-word">0 Vertices</span>.' }
+  ];
+
+  clearBtn.addEventListener('click', () => {
+    resetAllMini();
+    progressMessageEl.textContent = "";
+    if (progressMessageOverlayEl) progressMessageOverlayEl.textContent = "";
+  });
+
+  stopBtn.addEventListener('click', () => stopVoice());
+
+  readBtn.addEventListener('click', () => {
+    const text = headlineLines.map(l => l.text).join(" ");
+    speak(text);
+  });
+
+  prevBtn.addEventListener('click', () => { window.location.href = "LA2.html"; });
+  nextBtn.addEventListener('click', () => { window.location.href = "../tuesday/LA4.html"; });
+
+  function showSpark(){
+    const boyRect = boyBtn.getBoundingClientRect();
+    const targetRect = headlineEl.getBoundingClientRect();
+    const startX = boyRect.left + boyRect.width / 2;
+    const startY = boyRect.top + boyRect.height / 2;
+    const endX = targetRect.left + targetRect.width / 2;
+    const endY = targetRect.top + targetRect.height / 2;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+
+    const spark = document.createElement("div");
+    spark.className = "spark";
+    spark.style.left = startX + "px";
+    spark.style.top = startY + "px";
+    spark.style.setProperty("--dx", dx + "px");
+    spark.style.setProperty("--dy", dy + "px");
+    document.body.appendChild(spark);
+    spark.addEventListener("animationend", () => spark.remove());
+  }
+
+  let headlineToken = 0;
+
+  function revealHeadlineLine(index, token){
+    if (token !== headlineToken) return;
+    if (index >= headlineLines.length) return;
+    const lineEl = headlineEl.querySelector(`[data-line="${index}"]`);
+    if (!lineEl) return;
+    lineEl.classList.add("show");
+    speak(headlineLines[index].text, () => {
+      setTimeout(() => revealHeadlineLine(index + 1, token), 180);
+    });
+  }
+
+  boyBtn.addEventListener('click', () => {
+    headlineToken += 1;
+    const token = headlineToken;
+    headlineEl.innerHTML = headlineLines
+      .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
+      .join("");
+    showSpark();
+    playChime();
+    setTimeout(() => revealHeadlineLine(0, token), 220);
+  });
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  const miniConfigs = [
+    { canvasId: "miniTrace1", pctId: "miniPct1", fillId: "miniFill1", msgId: "miniMsg1" },
+    { canvasId: "miniTrace2", pctId: "miniPct2", fillId: "miniFill2", msgId: "miniMsg2" },
+    { canvasId: "miniTrace3", pctId: "miniPct3", fillId: "miniFill3", msgId: "miniMsg3" },
+    { canvasId: "miniTrace4", pctId: "miniPct4", fillId: "miniFill4", msgId: "miniMsg4" }
+  ];
+
+  function setupMiniTrace(cfg, index){
+    const resetTrace = window.GPTracing.createCircleTracePad({
+      canvasId: cfg.canvasId,
+      pctId: cfg.pctId,
+      fillId: cfg.fillId,
+      msgId: cfg.msgId,
+      maxPercent: 25,
+      speak,
+      onProgress: (percent) => {
+        miniPercents[index] = percent;
+        updateAggregate();
+      },
+      getMessage: (percent) => {
+        if (percent < 15) return "Oh no! Try again!";
+        if (percent <= 22) return "Good job but try again!";
+        return "Wow! you are amazing!";
+      }
+    });
+    if (resetTrace) miniResetFns.push(resetTrace);
+  }
+
+  miniConfigs.forEach((cfg, index) => setupMiniTrace(cfg, index));
+  updateAggregate();
+
+  window.addEventListener('load', () => {
+    resetAllMini();
+  });
+</script>
+
+<script>
+  (function(){
+    const homeBtn = document.querySelector('.home-btn');
+    if(!homeBtn) return;
+
+    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    chime.preload = "auto";
+
+    homeBtn.addEventListener('click', () => {
+      try{
+        chime.currentTime = 0;
+        const p = chime.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }catch(e){}
+    });
+  })();
+</script>
+
+<script>
+  (function(){
+    function removeTapGirl(){
+      const taps = document.querySelectorAll('#tapGirl, .tap-girl');
+      taps.forEach((el) => {
+        const wrap = el.closest('.mascot-spot');
+        if (wrap) wrap.remove();
+        else el.remove();
+      });
+      const hints = document.querySelectorAll('.mascot-hint');
+      hints.forEach((h) => {
+        if (/tap the girl/i.test((h.textContent || '').trim())) {
+          const wrap = h.closest('.mascot-spot');
+          if (wrap) wrap.remove();
+          else h.remove();
+        }
+      });
+    }
+    removeTapGirl();
+    const mo = new MutationObserver(removeTapGirl);
+    mo.observe(document.body, { childList:true, subtree:true });
+  })();
+</script>
+<script src="../../../../activity-standardizer.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  let realtimeSaveTimer = null;
+  window.__gpRealtimeSaveLA3 = function(score){
+    if (typeof window.finishAndSave !== "function") return;
+    if (realtimeSaveTimer) window.clearTimeout(realtimeSaveTimer);
+    realtimeSaveTimer = window.setTimeout(() => {
+      window.finishAndSave({
+        pageId: "LA3",
+        level: "A",
+        activityType: "lesson",
+        score: Math.max(0, Math.min(100, Math.round(score))),
+        tracing: Math.max(0, Math.min(100, Math.round(score))),
+        stars: score >= 93 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
+      }).catch(() => {});
+    }, 250);
+  };
+
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA3",
+    defaultLevel: "A",
+    defaultActivityType: "lesson",
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+
+    saveLocalActivityFallback(fullPayload);
+
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>

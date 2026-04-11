@@ -46,6 +46,7 @@
   }
 
   function initAutoIntro(){
+    if (/[\\/]levels[\\/]level-(a|b|c)[\\/]/i.test((location.pathname || "") + " " + (location.href || ""))) return;
     var pageFile = getPageFile();
     var src = getIntroSrc(pageFile);
     if (!src) {

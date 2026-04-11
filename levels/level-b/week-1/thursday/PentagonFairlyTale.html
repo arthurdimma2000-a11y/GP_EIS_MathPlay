@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pentagon Fairly Tale</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #fff7e6, #ffe4ec, #e8f4ff);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .page-wrap {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .video-shell {
+      position: relative;
+      width: min(1200px, 100%);
+      height: min(90vh, 700px);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      background: #000;
+      border: 6px solid #ffffff;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
+    .top-bar,
+    .bottom-bar {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(6px);
+    }
+
+    .top-bar {
+      top: 0;
+    }
+
+    .bottom-bar {
+      bottom: 0;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .title-badge {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: rgba(255, 105, 180, 0.9);
+      padding: 10px 16px;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .nav-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      text-decoration: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #222;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      background: #ffe97f;
+    }
+
+    .nav-btn:active {
+      transform: scale(0.97);
+    }
+
+    .home-btn {
+      background: #8ef58e;
+    }
+
+    .prev-btn {
+      background: #9fd4ff;
+    }
+
+    .next-btn {
+      background: #ffbf69;
+    }
+
+    .history-btn {
+      background: #ffd4f0;
+    }
+
+    .center-play {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .play-note {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.92);
+      color: #222;
+      padding: 14px 22px;
+      border-radius: 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      animation: floatUp 2s ease-in-out infinite;
+    }
+
+    @keyframes floatUp {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @media (max-width: 768px) {
+      .video-shell {
+        height: 100vh;
+        width: 100%;
+        border-radius: 0;
+        border: none;
+      }
+
+      .top-bar,
+      .bottom-bar {
+        padding: 10px;
+      }
+
+      .nav-btn {
+        min-width: 90px;
+        font-size: 0.92rem;
+        padding: 10px 14px;
+      }
+
+      .title-badge {
+        font-size: 0.95rem;
+        padding: 8px 12px;
+      }
+
+      .page-wrap {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="video-shell">
+
+      <!-- Top Navigation Bar -->
+      <div class="top-bar">
+        <div class="title-badge">Pentagon Fairly Tale</div>
+
+        <div class="nav-group">
+          <button class="nav-btn history-btn" onclick="goBack()">⬅ Back</button>
+          <a href="../../../../index.html" class="nav-btn home-btn">🏠 Home</a>
+          <button class="nav-btn history-btn" onclick="goForward()">Forward ➡</button>
+        </div>
+      </div>
+
+      <!-- Video -->
+      <video id="fairyVideo" controls playsinline preload="auto">
+        <source src="PentagonFairlytale.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <!-- Optional center note -->
+      <div class="center-play" id="playHint">
+        <div class="play-note">▶ Tap Play to watch the story</div>
+      </div>
+
+      <!-- Bottom Navigation Bar -->
+      <div class="bottom-bar">
+        <a href="../wednesday/LB7.html" class="nav-btn prev-btn">⏮ Previous Page</a>
+        <button class="nav-btn" onclick="togglePlay()">⏯ Play / Pause</button>
+        <button class="nav-btn" onclick="restartVideo()">🔁 Replay</button>
+        <button class="nav-btn" onclick="fullscreenVideo()">⛶ Full Screen</button>
+        <a href="../friday/LB_Revision1.html" class="nav-btn next-btn">Next Page ⏭</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById("fairyVideo");
+    const playHint = document.getElementById("playHint");
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function goForward() {
+      window.history.forward();
+    }
+
+    function togglePlay() {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    }
+
+    function restartVideo() {
+      video.currentTime = 0;
+      video.play();
+    }
+
+    function fullscreenVideo() {
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen();
+      } else if (video.msRequestFullscreen) {
+        video.msRequestFullscreen();
+      }
+    }
+
+    video.addEventListener("play", () => {
+      playHint.style.display = "none";
+    });
+
+    video.addEventListener("pause", () => {
+      if (video.currentTime < 1) {
+        playHint.style.display = "flex";
+      }
+    });
+  </script>
+</body>
+</html>

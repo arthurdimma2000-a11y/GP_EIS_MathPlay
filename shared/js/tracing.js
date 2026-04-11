@@ -441,7 +441,25 @@
     return smoothed;
   }
 
-  function promptRepeatFallback(expectedText, onDone){
+  function shouldSuppressPromptRepeatFallback(options){
+    const opts = options || {};
+    if (opts.promptFallback === true) return false;
+    if (opts.promptFallback === false) return true;
+    if (global.__GP_DISABLE_REPEAT_PROMPT_FALLBACK) return true;
+    const path = String((global.location && global.location.pathname) || "");
+    if (/[\\\/]levels[\\\/]level-[abc][\\\/]/i.test(path)) return true;
+    const body = global.document && global.document.body;
+    if (body && body.dataset && (body.dataset.gpUnifiedMicProtocol === "1" || body.dataset.gpForceLa2Mic === "1")) {
+      return true;
+    }
+    return false;
+  }
+
+  function promptRepeatFallback(expectedText, onDone, options){
+    if (shouldSuppressPromptRepeatFallback(options)) {
+      if (onDone) onDone(percentWordMatch(expectedText, ""), "");
+      return;
+    }
     let said = "";
     try {
       if (typeof global.prompt === "function") {
@@ -457,7 +475,7 @@
     const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 3000;
     const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 900;
     if (!SpeechRecognition) {
-      promptRepeatFallback(expectedText, onDone);
+      promptRepeatFallback(expectedText, onDone, opts);
       return;
     }
     prepareMicSupport().catch(() => {});
@@ -496,7 +514,7 @@
     function finishWithFallback(){
       if (fallbackUsed || done) return;
       fallbackUsed = true;
-      promptRepeatFallback(expectedText, onDone);
+      promptRepeatFallback(expectedText, onDone, opts);
       done = true;
       if (fallbackTimer) {
         global.clearTimeout(fallbackTimer);
@@ -1093,6 +1111,49 @@
     });
   }
 
+  function isWeek1LessonPage(page){
+    const info = page || getPageInfo();
+    return /\/levels\/level-(a|b|c)\/week-1\//i.test(String(info && info.pathname || ""));
+  }
+
+  function suppressLessonIntroVideos(){
+    const doc = global.document;
+    if (!doc) return;
+    const html = doc.documentElement;
+    const body = doc.body;
+
+    stopIntroMedia();
+
+    [
+      "gp-intro-video-pending",
+      "lb-intro-video-pending",
+      "lesson-intro-video-pending"
+    ].forEach((className) => {
+      if (html) html.classList.remove(className);
+    });
+
+    if (body) body.classList.remove("intro-active");
+
+    const overlays = doc.querySelectorAll(
+      "#gpIntroVideoOverlay,#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay"
+    );
+
+    overlays.forEach((node) => {
+      try { node.classList.remove("active", "hidden"); } catch (_err) {}
+      try { node.pause && node.pause(); } catch (_err) {}
+      try { node.style.display = "none"; } catch (_err) {}
+      try { node.style.visibility = "hidden"; } catch (_err) {}
+      try { node.style.pointerEvents = "none"; } catch (_err) {}
+      try {
+        if (node.parentNode) node.parentNode.removeChild(node);
+      } catch (_err) {}
+    });
+  }
+
+  function suppressWeek1IntroVideos(){
+    suppressLessonIntroVideos();
+  }
+
   function buildIntroCandidateList(page, doc){
     const seen = new Set();
     const candidates = [];
@@ -1135,6 +1196,8 @@
   }
 
   function installLevelBIntroAutoplayFix(){
+    suppressLessonIntroVideos();
+    return;
     const doc = global.document;
     if (!doc || doc.body.dataset.gpLevelBIntroFixed === "1") return;
     const page = getPageInfo();
@@ -1544,6 +1607,8 @@
   }
 
   function installLevelBFixes(){
+    const page = getPageInfo();
+    suppressLessonIntroVideos();
     installLevelBIntroAutoplayFix();
     installUnifiedLessonMicProtocol();
   }
@@ -1567,6 +1632,8 @@
     createCircleTracePad,
     createPathTracePad,
     stopIntroMedia,
+    suppressWeek1IntroVideos,
+    suppressLessonIntroVideos,
     installLevelBFixes,
     installUnifiedLessonMicProtocol
   };
@@ -1574,6 +1641,13 @@
   installSpeechSynthesisPatch();
   global.__GP_STOP_INTRO_MEDIA = stopIntroMedia;
   if (global.document) {
+    if (isWeek1LessonPage()) {
+      if (global.document.readyState === "loading") {
+        global.document.addEventListener("DOMContentLoaded", suppressWeek1IntroVideos, { once: true });
+      } else {
+        suppressWeek1IntroVideos();
+      }
+    }
     if (global.document.readyState === "loading") {
       global.document.addEventListener("DOMContentLoaded", installLevelBFixes, { once: true });
     } else {

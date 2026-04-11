@@ -217,30 +217,128 @@
   }
 
   function buildExpectedLessonChain(level) {
-    const chain = [];
-    const prefix = level === "A" ? "LA" : level === "B" ? "LB" : "LevelC";
-    for (let week = 1; week <= 4; week += 1) {
-      const start = 2 + ((week - 1) * 6);
-      chain.push("week-" + week + "/monday/" + prefix + start + ".html");
-      chain.push("week-" + week + "/monday/" + prefix + (start + 1) + ".html");
-      chain.push("week-" + week + "/tuesday/" + prefix + (start + 2) + ".html");
-      chain.push("week-" + week + "/tuesday/" + prefix + (start + 3) + ".html");
-      chain.push("week-" + week + "/wednesday/" + prefix + (start + 4) + ".html");
-      chain.push("week-" + week + "/wednesday/" + prefix + (start + 5) + ".html");
-      chain.push("week-" + week + "/thursday/" + prefix + "_Revision" + week + ".html");
-      if (level === "A" && week === 4) {
-        chain.push("week-4/friday/LA_Game4.html");
-        chain.push("week-4/friday/LA_FinalQuiz.html");
-      } else if (level === "B" && week === 4) {
-        // Level B week 4 is stored with mixed legacy filenames in this repo.
-        chain.push("week-4/friday/LA_Quiz4.html");
-        chain.push("week-4/friday/LB_FinalQuiz.html");
-      } else {
-        chain.push("week-" + week + "/friday/" + prefix + "_Game" + week + ".html");
-        chain.push("week-" + week + "/friday/" + prefix + "_Quiz" + week + ".html");
-      }
-    }
-    return chain;
+    const CHAINS = {
+      A: [
+        "week-1/monday/CircleArtClass.html",
+        "week-1/tuesday/LA2.html",
+        "week-1/tuesday/LA3.html",
+        "week-1/wednesday/LA4.html",
+        "week-1/wednesday/LA5.html",
+        "week-1/tuesday/LA6.html",
+        "week-1/tuesday/LA7.html",
+        "week-1/thursday/CircleFairlyTale.html",
+        "week-1/friday/LA_Revision1.html",
+        "week-1/friday/LA_Game1.html",
+        "week-1/friday/LA_Quiz1.html",
+        "week-2/tuesday/LA8.html",
+        "week-2/tuesday/LA9.html",
+        "week-2/wednesday/LA10.html",
+        "week-2/wednesday/LA11.html",
+        "week-2/tuesday/LA12.html",
+        "week-2/tuesday/LA13.html",
+        "week-2/friday/LA_Revision2.html",
+        "week-2/friday/LA_Game2.html",
+        "week-2/friday/LA_Quiz2.html",
+        "week-3/tuesday/LA14.html",
+        "week-3/tuesday/LA15.html",
+        "week-3/wednesday/LA16.html",
+        "week-3/wednesday/LA17.html",
+        "week-3/tuesday/LA18.html",
+        "week-3/tuesday/LA19.html",
+        "week-3/friday/LA_Revision3.html",
+        "week-3/friday/LA_Game3.html",
+        "week-3/friday/LA_Quiz3.html",
+        "week-4/tuesday/LA20.html",
+        "week-4/tuesday/LA21.html",
+        "week-4/wednesday/LA22.html",
+        "week-4/wednesday/LA23.html",
+        "week-4/tuesday/LA24.html",
+        "week-4/tuesday/LA25.html",
+        "week-4/friday/LA_Revision4.html",
+        "week-4/friday/LA_Game4.html",
+        "week-4/friday/LA_FinalQuiz.html"
+      ],
+      B: [
+        "week-1/monday/PentagonArtClass.html",
+        "week-1/tuesday/LB2.html",
+        "week-1/tuesday/LB3.html",
+        "week-1/tuesday/LB4.html",
+        "week-1/tuesday/LB5.html",
+        "week-1/wednesday/LB6.html",
+        "week-1/wednesday/LB7.html",
+        "week-1/thursday/PentagonFairlyTale.html",
+        "week-1/friday/LB_Revision1.html",
+        "week-1/friday/LB_Game1.html",
+        "week-1/friday/LB_Quiz1.html",
+        "week-2/tuesday/LB8.html",
+        "week-2/tuesday/LB9.html",
+        "week-2/wednesday/LB10.html",
+        "week-2/wednesday/LB11.html",
+        "week-2/tuesday/LB12.html",
+        "week-2/tuesday/LB13.html",
+        "week-2/friday/LB_Revision2.html",
+        "week-2/friday/LB_Game2.html",
+        "week-2/friday/LB_Quiz2.html",
+        "week-3/tuesday/LB14.html",
+        "week-3/tuesday/LB15.html",
+        "week-3/wednesday/LB16.html",
+        "week-3/wednesday/LB17.html",
+        "week-3/tuesday/LB18.html",
+        "week-3/tuesday/LB19.html",
+        "week-3/friday/LB_Revision3.html",
+        "week-3/friday/LB_Game3.html",
+        "week-3/friday/LB_Quiz3.html",
+        "week-4/tuesday/LB20.html",
+        "week-4/tuesday/LB21.html",
+        "week-4/wednesday/LB22.html",
+        "week-4/wednesday/LB23.html",
+        "week-4/tuesday/LB24.html",
+        "week-4/tuesday/LB25.html",
+        "week-4/friday/LB_Revision4.html",
+        "week-4/friday/LA_Quiz4.html",
+        "week-4/friday/LB_FinalQuiz.html"
+      ],
+      C: [
+        "week-1/monday/TangramArtClass.html",
+        "week-1/tuesday/LevelC2.html",
+        "week-1/tuesday/LevelC3.html",
+        "week-1/wednesday/LevelC4.html",
+        "week-1/wednesday/LevelC5.html",
+        "week-1/tuesday/LevelC6.html",
+        "week-1/tuesday/LevelC7.html",
+        "week-1/friday/LevelC_Revision1.html",
+        "week-1/friday/LevelC_Game1.html",
+        "week-1/friday/LevelC_Quiz1.html",
+        "week-2/tuesday/LevelC8.html",
+        "week-2/tuesday/LevelC9.html",
+        "week-2/wednesday/LevelC10.html",
+        "week-2/wednesday/LevelC11.html",
+        "week-2/tuesday/LevelC12.html",
+        "week-2/tuesday/LevelC13.html",
+        "week-2/friday/LevelC_Revision2.html",
+        "week-2/friday/LevelC_Game2.html",
+        "week-2/friday/LevelC_Quiz2.html",
+        "week-3/tuesday/LevelC14.html",
+        "week-3/tuesday/LevelC15.html",
+        "week-3/wednesday/LevelC16.html",
+        "week-3/wednesday/LevelC17.html",
+        "week-3/tuesday/LevelC18.html",
+        "week-3/tuesday/LevelC19.html",
+        "week-3/friday/LevelC_Revision3.html",
+        "week-3/friday/LevelC_Game3.html",
+        "week-3/friday/LevelC_Quiz3.html",
+        "week-4/tuesday/LevelC20.html",
+        "week-4/tuesday/LevelC21.html",
+        "week-4/wednesday/LevelC22.html",
+        "week-4/wednesday/LevelC23.html",
+        "week-4/tuesday/LevelC24.html",
+        "week-4/tuesday/LevelC25.html",
+        "week-4/friday/LevelC_Revision4.html",
+        "week-4/friday/LevelC_Game4.html",
+        "week-4/friday/LevelC_Quiz4.html"
+      ]
+    };
+    return (CHAINS[level] || []).slice();
   }
 
   function toPosixRelative(from, to) {
@@ -340,9 +438,9 @@
     return "";
   }
 
-  function initExpectedLessonNavigation() {
-    const targets = getExpectedLessonTargets();
-    if (!targets) return;
+    function initExpectedLessonNavigation() {
+      const targets = getExpectedLessonTargets();
+      if (!targets) return;
 
     const navElements = Array.from(document.querySelectorAll(
       "#prevBtn,#nextBtn,#backBtn,a[href],button,[role='button'],input[type='button'],input[type='submit']"
@@ -361,39 +459,29 @@
       window.location.href = target;
     }
 
-    function hardBindNavElements() {
-      const currentNavElements = Array.from(document.querySelectorAll(
-        "#prevBtn,#nextBtn,#backBtn,a[href],button,[role='button'],input[type='button'],input[type='submit']"
-      )).filter((el) => detectNavKind(el));
+      function hardBindNavElements() {
+        const currentNavElements = Array.from(document.querySelectorAll(
+          "#prevBtn,#nextBtn,#backBtn,a[href],button,[role='button'],input[type='button'],input[type='submit']"
+        )).filter((el) => detectNavKind(el));
 
-      currentNavElements.forEach((el) => {
-        const kind = detectNavKind(el);
-        const target = kind === "prev" ? targets.prev : kind === "home" ? targets.home : targets.next;
-        if (!target || !el.parentNode) return;
-
-        const replacement = el.cloneNode(true);
-        replacement.dataset.gpExpectedNav = target;
-        replacement.dataset.gpNavHardened = "1";
-        if ("disabled" in replacement) replacement.disabled = false;
-        if (replacement.tagName === "A") {
-          replacement.setAttribute("href", target);
-        }
-        if (replacement.tagName === "BUTTON" && !replacement.getAttribute("type")) {
-          replacement.setAttribute("type", "button");
-        }
-        if (replacement.hasAttribute("onclick")) {
-          replacement.removeAttribute("onclick");
-        }
-        replacement.addEventListener("click", (ev) => {
-          navigateToTarget(target, ev);
-        }, { capture: true });
-        replacement.addEventListener("keydown", (ev) => {
-          if (ev.key !== "Enter" && ev.key !== " ") return;
-          navigateToTarget(target, ev);
-        }, { capture: true });
-        el.parentNode.replaceChild(replacement, el);
-      });
-    }
+        currentNavElements.forEach((el) => {
+          const kind = detectNavKind(el);
+          const target = kind === "prev" ? targets.prev : kind === "home" ? targets.home : targets.next;
+          if (!target || !el.parentNode) return;
+          el.dataset.gpExpectedNav = target;
+          el.dataset.gpNavHardened = "1";
+          if ("disabled" in el) el.disabled = false;
+          if (el.tagName === "A") {
+            el.setAttribute("href", target);
+          }
+          if (el.tagName === "BUTTON" && !el.getAttribute("type")) {
+            el.setAttribute("type", "button");
+          }
+          if (el.hasAttribute("onclick")) {
+            el.removeAttribute("onclick");
+          }
+        });
+      }
 
     navElements.forEach((el) => {
       const kind = detectNavKind(el);
@@ -991,14 +1079,15 @@
         handleForcedMicClick(ev);
       }
 
-      function forceOwnMicButton() {
-        const liveMicButton = document.querySelector("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
-        if (!liveMicButton || liveMicButton.dataset.gpStrictLa2MicBound === "1") return;
-        const replacement = liveMicButton.cloneNode(true);
-        replacement.dataset.gpStrictLa2MicBound = "1";
-        liveMicButton.parentNode && liveMicButton.parentNode.replaceChild(replacement, liveMicButton);
-        replacement.addEventListener("click", handleForcedMicClick, true);
-      }
+        function forceOwnMicButton() {
+          const liveMicButton = document.querySelector("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
+          if (!liveMicButton || liveMicButton.dataset.gpStrictLa2MicBound === "1") return;
+          liveMicButton.dataset.gpStrictLa2MicBound = "1";
+          if (liveMicButton.hasAttribute("onclick")) {
+            liveMicButton.removeAttribute("onclick");
+          }
+          liveMicButton.addEventListener("click", handleForcedMicClick, true);
+        }
 
       if (forceLA2MicForLesson) {
         document.body.dataset.gpUnifiedMicProtocol = "1";
@@ -1124,7 +1213,7 @@
   }
 
   function initAutoIntroVideo() {
-    if (isLevelLessonPage() && window.GPTracing) return;
+    if (isLevelLessonPage()) return;
     const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
     const candidates = [];
     collectExistingIntroSources().forEach((src) => pushUniqueCandidate(candidates, src));

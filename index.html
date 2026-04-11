@@ -1373,10 +1373,10 @@
     }
 
     .day-tv-title{
-      font-size:1.55rem;
+      font-size:1.16rem;
       font-weight:1000;
       color:#121826;
-      line-height:1;
+      line-height:1.12;
       margin:0;
     }
 
@@ -1622,6 +1622,121 @@
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
+    }
+
+    .partner-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .partner-inline .btn{
+      flex:0 0 auto;
+    }
+
+    .partner-inline select,
+    .partner-inline input{
+      min-width:0;
+      flex:1 1 240px;
+    }
+
+    .partner-school-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .partner-school-item{
+      border-radius:20px;
+      padding:14px;
+      background:linear-gradient(180deg,#ffffff,#f4f8ff);
+      border:1px solid rgba(0,0,0,.06);
+      box-shadow:var(--pill);
+      display:grid;
+      gap:10px;
+    }
+
+    .partner-school-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .partner-school-item h4{
+      margin:0;
+      font-size:1.05rem;
+      color:#203151;
+    }
+
+    .partner-school-item p{
+      margin:0;
+      color:#667085;
+      font-weight:800;
+      line-height:1.28;
+      font-size:.92rem;
+    }
+
+    .partner-school-tags{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .partner-school-tag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.82rem;
+      font-weight:900;
+      box-shadow:var(--pill);
+      background:linear-gradient(180deg,#eef4ff,#e1eaff);
+      color:#324564;
+    }
+
+    .partner-school-tag.good{
+      background:linear-gradient(180deg,#def7ea,#c5efd6);
+      color:#0d6a3d;
+    }
+
+    .partner-school-tag.warn{
+      background:linear-gradient(180deg,#fff3d8,#ffe3ab);
+      color:#8a5300;
+    }
+
+    .partner-school-tag.bad{
+      background:linear-gradient(180deg,#ffe4e4,#ffcfcf);
+      color:#8d1f1f;
+    }
+
+    .partner-empty{
+      border-radius:18px;
+      padding:14px;
+      background:linear-gradient(180deg,#ffffff,#f7fbff);
+      border:1px dashed rgba(76,104,172,.24);
+      color:#667085;
+      font-weight:800;
+      line-height:1.3;
+      text-align:center;
+    }
+
+    .auth-lock-note{
+      border-radius:18px;
+      padding:14px 16px;
+      background:linear-gradient(180deg,#fff6e6,#fff1d2);
+      border:1px solid rgba(226,163,42,.24);
+      color:#7b4b00;
+      font-weight:800;
+      line-height:1.35;
+    }
+
+    .auth-lock-note strong{
+      display:block;
+      margin-bottom:4px;
+      color:#6a3700;
     }
 
     .auth-status{
@@ -2435,7 +2550,7 @@
                     <div class="role-icon">🛡️</div>
                     <h3>Admin</h3>
                     <p>Open admin control pages.</p>
-                    <button class="btn btn-purple" onclick="goToLogin('admin')">Admin</button>
+                    <button class="btn btn-purple" onclick="showAuthSubpanel('admin-auth');showPanel('panel-login');">Admin</button>
                   </article>
                 </div>
               </div>
@@ -2453,9 +2568,23 @@
                     <input id="teacherSignupName" type="text" placeholder="Enter full name">
                   </div>
                   <div class="field">
-                    <label for="teacherSignupSchool">School Name</label>
-                    <input id="teacherSignupSchool" type="text" placeholder="Enter school or center name">
+                    <label for="teacherSignupSchool">Kindergarten / School Name</label>
+                    <div class="partner-inline">
+                      <input id="teacherSignupSchool" type="text" placeholder="Type your kindergarten or school name">
+                      <button class="btn btn-soft" id="reloadPartnerSchoolsBtn" type="button">Refresh Security</button>
+                    </div>
+                    <p class="field-note">Type your school name exactly as approved by GP EIS Admin. Other partner schools are not shown publicly.</p>
                   </div>
+                  <div class="field">
+                    <label for="teacherPartnerInviteCode">School Invite Code</label>
+                    <input id="teacherPartnerInviteCode" type="text" placeholder="Example: GP2026-HAPPYKIDS">
+                    <p class="field-note">Use the school-specific invite code shared with your kindergarten by GP EIS Admin.</p>
+                  </div>
+                  <div class="auth-lock-note">
+                    <strong>Partner-only teacher access</strong>
+                    Teachers can only create accounts for approved partner kindergartens. Students do not sign up publicly here; they login later with the generated Class ID, Student ID and PIN.
+                  </div>
+                  <div class="auth-status" id="teacherPartnerStatus"></div>
                   <div class="field">
                     <label for="teacherSignupEmail">Email</label>
                     <input id="teacherSignupEmail" type="email" placeholder="teacher@example.com" autocomplete="username">
@@ -2490,12 +2619,12 @@
                       <button class="field-toggle" type="button" data-toggle-target="teacherLoginPassword">Show</button>
                     </div>
                   </div>
-                      <div class="auth-actions">
-                        <button class="btn btn-primary" id="teacherLoginBtn">Login Teacher</button>
-                        <button class="btn btn-soft" id="teacherForgotPasswordBtn" type="button">Forgot Password</button>
-                        <button class="btn btn-soft" id="teacherResetPasswordBtn" type="button">Reset Password</button>
-                      </div>
-                    <div class="auth-status" id="teacherLoginStatus"></div>
+                  <div class="auth-actions">
+                    <button class="btn btn-primary" id="teacherLoginBtn">Login Teacher</button>
+                    <button class="btn btn-soft" id="teacherForgotPasswordBtn" type="button">Forgot Password</button>
+                    <button class="btn btn-soft" id="teacherResetPasswordBtn" type="button">Reset Password</button>
+                  </div>
+                  <div class="auth-status" id="teacherLoginStatus"></div>
                 </div>
               </div>
             </div>
@@ -2619,11 +2748,60 @@
           </div>
 
           <div class="auth-subpanel" id="admin-auth">
-            <div class="auth-box">
-              <h3>Admin Access</h3>
-              <p>Use the portal button below to continue to admin controls and reports.</p>
-              <div class="row">
-                <button class="btn btn-purple" onclick="goToLogin('admin')">Open Admin Area</button>
+            <div class="auth-grid">
+              <div class="auth-box">
+                <h3>Partner Kindergarten Approval</h3>
+                <p>Use this Admin area to approve partner kindergartens before any teacher can complete signup.</p>
+                <div class="auth-callout">
+                  <strong>Recommended GPEIS partner model</strong>
+                  Add each approved kindergarten with its own secure school record and invite code. Teachers will type their school name manually and enter the matching code. The public signup area will not reveal other partner schools.
+                </div>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="adminPartnerKeyInput">Admin Partner Key</label>
+                    <div class="field-input-wrap has-toggle">
+                      <input id="adminPartnerKeyInput" type="password" placeholder="Enter admin partner key">
+                      <button class="field-toggle" type="button" data-toggle-target="adminPartnerKeyInput">Show</button>
+                    </div>
+                    <p class="field-note">If your Netlify Admin function is live, this key is verified by the server. The local fallback key is stored inside this file and should be changed after you paste the update.</p>
+                  </div>
+                  <div class="field">
+                    <label for="adminPartnerSchoolId">Internal School ID (optional)</label>
+                    <input id="adminPartnerSchoolId" type="text" placeholder="Leave blank to auto-generate from school name">
+                    <p class="field-note">Leave this blank to let GP EIS create a private internal ID from the school name.</p>
+                  </div>
+                  <div class="field">
+                    <label for="adminPartnerSchoolName">School Name</label>
+                    <input id="adminPartnerSchoolName" type="text" placeholder="Example: Happy Kids Kindergarten">
+                  </div>
+                  <div class="field">
+                    <label for="adminPartnerInviteCode">School Invite Code</label>
+                    <input id="adminPartnerInviteCode" type="text" placeholder="Example: GP2026-HAPPYKIDS">
+                  </div>
+                  <div class="field">
+                    <label for="adminPartnerStatusSelect">Partner Access Status</label>
+                    <select id="adminPartnerStatusSelect">
+                      <option value="approved-active">Approved and Active</option>
+                      <option value="approved-inactive">Approved but Inactive</option>
+                      <option value="not-approved">Not Approved</option>
+                    </select>
+                  </div>
+                  <div class="auth-actions">
+                    <button class="btn btn-purple" id="adminSavePartnerSchoolBtn" type="button">Save Partner School</button>
+                    <button class="btn btn-soft" id="adminClearPartnerSchoolBtn" type="button">Clear Form</button>
+                    <button class="btn btn-soft" id="adminReloadPartnerSchoolsBtn" type="button">Reload Schools</button>
+                    <button class="btn btn-orange" type="button" onclick="goPortal('admin-dashboard')">Open Admin Control</button>
+                  </div>
+                  <div class="auth-status" id="adminPartnerSchoolStatus"></div>
+                </div>
+              </div>
+
+              <div class="auth-box auth-hero">
+                <h3>Partner School Records</h3>
+                <p>For business privacy, the internal school list stays hidden until Admin unlocks it with the correct key.</p>
+                <div id="adminPartnerSchoolList" class="partner-school-list">
+                  <div class="partner-empty">School list is hidden. Enter a valid admin partner key to unlock the internal partner records.</div>
+                </div>
               </div>
             </div>
           </div>
@@ -2785,7 +2963,16 @@
         appOrigin: "GP_EIS_APP_ORIGIN",
         lastTeacherEmail: "GP_EIS_LAST_TEACHER_EMAIL",
         lastParentEmail: "GP_EIS_LAST_PARENT_EMAIL",
-        credentialCache: "GP_EIS_CREDENTIAL_CACHE"
+        credentialCache: "GP_EIS_CREDENTIAL_CACHE",
+        partnerSchools: "GP_EIS_PARTNER_SCHOOLS",
+        partnerSchoolsBackup: "GP_EIS_PARTNER_SCHOOLS_BACKUP"
+      };
+
+      const PARTNER_ACCESS_CONFIG = {
+        LOCAL_ADMIN_KEY: "GPEIS-ADMIN-2026",
+        listEndpoint: "/.netlify/functions/get-approved-schools",
+        verifyEndpoint: "/.netlify/functions/verify-partner-school",
+        saveEndpoint: "/.netlify/functions/admin-save-school"
       };
 
       function getCredentialCache(){
@@ -2902,51 +3089,53 @@
         subtitle: "Starter Learning Path",
         avatar: ASSET("ProfDog.png"),
         first: [
-          "levels/level-a/week-1/monday/LA2.html",
-          "levels/level-a/week-1/monday/LA3.html"
+          "levels/level-a/week-1/monday/CircleArtClass.html",
+          "levels/level-a/week-1/tuesday/LA2.html"
         ],
         weeks: {
           1: [
-            "levels/level-a/week-1/monday/LA2.html",
-            "levels/level-a/week-1/monday/LA3.html",
-            "levels/level-a/week-1/tuesday/LA4.html",
-            "levels/level-a/week-1/tuesday/LA5.html",
-            "levels/level-a/week-1/wednesday/LA6.html",
-            "levels/level-a/week-1/wednesday/LA7.html",
-            "levels/level-a/week-1/thursday/LA_Revision1.html",
+            "levels/level-a/week-1/monday/CircleArtClass.html",
+            "levels/level-a/week-1/tuesday/LA2.html",
+            "levels/level-a/week-1/tuesday/LA3.html",
+            "levels/level-a/week-1/tuesday/LA6.html",
+            "levels/level-a/week-1/tuesday/LA7.html",
+            "levels/level-a/week-1/wednesday/LA4.html",
+            "levels/level-a/week-1/wednesday/LA5.html",
+            "levels/level-a/week-1/thursday/CircleFairlyTale.html",
+            "levels/level-a/week-1/friday/LA_Revision1.html",
             "levels/level-a/week-1/friday/LA_Game1.html",
             "levels/level-a/week-1/friday/LA_Quiz1.html"
           ],
           2: [
-            "levels/level-a/week-2/monday/LA8.html",
-            "levels/level-a/week-2/monday/LA9.html",
-            "levels/level-a/week-2/tuesday/LA10.html",
-            "levels/level-a/week-2/tuesday/LA11.html",
-            "levels/level-a/week-2/wednesday/LA12.html",
-            "levels/level-a/week-2/wednesday/LA13.html",
-            "levels/level-a/week-2/thursday/LA_Revision2.html",
+            "levels/level-a/week-2/tuesday/LA8.html",
+            "levels/level-a/week-2/tuesday/LA9.html",
+            "levels/level-a/week-2/tuesday/LA12.html",
+            "levels/level-a/week-2/tuesday/LA13.html",
+            "levels/level-a/week-2/wednesday/LA10.html",
+            "levels/level-a/week-2/wednesday/LA11.html",
+            "levels/level-a/week-2/friday/LA_Revision2.html",
             "levels/level-a/week-2/friday/LA_Game2.html",
             "levels/level-a/week-2/friday/LA_Quiz2.html"
           ],
           3: [
-            "levels/level-a/week-3/monday/LA14.html",
-            "levels/level-a/week-3/monday/LA15.html",
-            "levels/level-a/week-3/tuesday/LA16.html",
-            "levels/level-a/week-3/tuesday/LA17.html",
-            "levels/level-a/week-3/wednesday/LA18.html",
-            "levels/level-a/week-3/wednesday/LA19.html",
-            "levels/level-a/week-3/thursday/LA_Revision3.html",
+            "levels/level-a/week-3/tuesday/LA14.html",
+            "levels/level-a/week-3/tuesday/LA15.html",
+            "levels/level-a/week-3/tuesday/LA18.html",
+            "levels/level-a/week-3/tuesday/LA19.html",
+            "levels/level-a/week-3/wednesday/LA16.html",
+            "levels/level-a/week-3/wednesday/LA17.html",
+            "levels/level-a/week-3/friday/LA_Revision3.html",
             "levels/level-a/week-3/friday/LA_Game3.html",
             "levels/level-a/week-3/friday/LA_Quiz3.html"
           ],
           4: [
-            "levels/level-a/week-4/monday/LA20.html",
-            "levels/level-a/week-4/monday/LA21.html",
-            "levels/level-a/week-4/tuesday/LA22.html",
-            "levels/level-a/week-4/tuesday/LA23.html",
-            "levels/level-a/week-4/wednesday/LA24.html",
-            "levels/level-a/week-4/wednesday/LA25.html",
-            "levels/level-a/week-4/thursday/LA_Revision4.html",
+            "levels/level-a/week-4/tuesday/LA20.html",
+            "levels/level-a/week-4/tuesday/LA21.html",
+            "levels/level-a/week-4/tuesday/LA24.html",
+            "levels/level-a/week-4/tuesday/LA25.html",
+            "levels/level-a/week-4/wednesday/LA22.html",
+            "levels/level-a/week-4/wednesday/LA23.html",
+            "levels/level-a/week-4/friday/LA_Revision4.html",
             "levels/level-a/week-4/friday/LA_Game4.html",
             "levels/level-a/week-4/friday/LA_FinalQuiz.html"
           ]
@@ -2958,51 +3147,54 @@
         subtitle: "Intermediate Learning Path",
         avatar: ASSET("ProfBearB.png"),
         first: [
-          "levels/level-b/week-1/monday/LB2.html",
-          "levels/level-b/week-1/monday/LB3.html"
+          "levels/level-b/week-1/monday/PentagonArtClass.html",
+          "levels/level-b/week-1/tuesday/LB2.html"
         ],
         weeks: {
           1: [
-            "levels/level-b/week-1/monday/LB2.html",
-            "levels/level-b/week-1/monday/LB3.html",
+            "levels/level-b/week-1/monday/PentagonArtClass.html",
+            "levels/level-b/week-1/tuesday/LB2.html",
+            "levels/level-b/week-1/tuesday/LB3.html",
             "levels/level-b/week-1/tuesday/LB4.html",
             "levels/level-b/week-1/tuesday/LB5.html",
             "levels/level-b/week-1/wednesday/LB6.html",
             "levels/level-b/week-1/wednesday/LB7.html",
-            "levels/level-b/week-1/thursday/LB_Revision1.html",
+            "levels/level-b/week-1/thursday/PentagonFairlyTale.html",
+            "levels/level-b/week-1/friday/LB_Revision1.html",
             "levels/level-b/week-1/friday/LB_Game1.html",
             "levels/level-b/week-1/friday/LB_Quiz1.html"
           ],
           2: [
-            "levels/level-b/week-2/monday/LB8.html",
-            "levels/level-b/week-2/monday/LB9.html",
-            "levels/level-b/week-2/tuesday/LB10.html",
-            "levels/level-b/week-2/tuesday/LB11.html",
-            "levels/level-b/week-2/wednesday/LB12.html",
-            "levels/level-b/week-2/wednesday/LB13.html",
-            "levels/level-b/week-2/thursday/LB_Revision2.html",
+            "levels/level-b/week-2/tuesday/LB8.html",
+            "levels/level-b/week-2/tuesday/LB9.html",
+            "levels/level-b/week-2/tuesday/LB12.html",
+            "levels/level-b/week-2/tuesday/LB13.html",
+            "levels/level-b/week-2/wednesday/LB10.html",
+            "levels/level-b/week-2/wednesday/LB11.html",
+            "levels/level-b/week-2/friday/LB_Revision2.html",
             "levels/level-b/week-2/friday/LB_Game2.html",
             "levels/level-b/week-2/friday/LB_Quiz2.html"
           ],
           3: [
-            "levels/level-b/week-3/monday/LB14.html",
-            "levels/level-b/week-3/monday/LB15.html",
-            "levels/level-b/week-3/tuesday/LB16.html",
-            "levels/level-b/week-3/tuesday/LB17.html",
-            "levels/level-b/week-3/wednesday/LB18.html",
-            "levels/level-b/week-3/wednesday/LB19.html",
-            "levels/level-b/week-3/thursday/LB_Revision3.html",
+            "levels/level-b/week-3/tuesday/LB14.html",
+            "levels/level-b/week-3/tuesday/LB15.html",
+            "levels/level-b/week-3/tuesday/LB18.html",
+            "levels/level-b/week-3/tuesday/LB19.html",
+            "levels/level-b/week-3/wednesday/LB16.html",
+            "levels/level-b/week-3/wednesday/LB17.html",
+            "levels/level-b/week-3/friday/LB_Revision3.html",
             "levels/level-b/week-3/friday/LB_Game3.html",
             "levels/level-b/week-3/friday/LB_Quiz3.html"
           ],
           4: [
-            "levels/level-b/week-4/monday/LB20.html",
-            "levels/level-b/week-4/monday/LB21.html",
-            "levels/level-b/week-4/tuesday/LB22.html",
-            "levels/level-b/week-4/tuesday/LB23.html",
-            "levels/level-b/week-4/wednesday/LB24.html",
-            "levels/level-b/week-4/wednesday/LB25.html",
-            "levels/level-b/week-4/thursday/LB_Revision4.html",
+            "levels/level-b/week-4/tuesday/LB20.html",
+            "levels/level-b/week-4/tuesday/LB21.html",
+            "levels/level-b/week-4/tuesday/LB24.html",
+            "levels/level-b/week-4/tuesday/LB25.html",
+            "levels/level-b/week-4/wednesday/LB22.html",
+            "levels/level-b/week-4/wednesday/LB23.html",
+            "levels/level-b/week-4/friday/LB_Revision4.html",
+            "levels/level-b/week-4/friday/LA_Quiz4.html",
             "levels/level-b/week-4/friday/LB_FinalQuiz.html"
           ]
         }
@@ -3013,51 +3205,52 @@
         subtitle: "Advanced Learning Path",
         avatar: ASSET("ProfTangramC.png"),
         first: [
-          "levels/level-c/week-1/monday/LevelC2.html",
-          "levels/level-c/week-1/monday/LevelC3.html"
+          "levels/level-c/week-1/monday/TangramArtClass.html",
+          "levels/level-c/week-1/tuesday/LevelC2.html"
         ],
         weeks: {
           1: [
-            "levels/level-c/week-1/monday/LevelC2.html",
-            "levels/level-c/week-1/monday/LevelC3.html",
-            "levels/level-c/week-1/tuesday/LevelC4.html",
-            "levels/level-c/week-1/tuesday/LevelC5.html",
-            "levels/level-c/week-1/wednesday/LevelC6.html",
-            "levels/level-c/week-1/wednesday/LevelC7.html",
-            "levels/level-c/week-1/thursday/LevelC_Revision1.html",
+            "levels/level-c/week-1/monday/TangramArtClass.html",
+            "levels/level-c/week-1/tuesday/LevelC2.html",
+            "levels/level-c/week-1/tuesday/LevelC3.html",
+            "levels/level-c/week-1/tuesday/LevelC6.html",
+            "levels/level-c/week-1/tuesday/LevelC7.html",
+            "levels/level-c/week-1/wednesday/LevelC4.html",
+            "levels/level-c/week-1/wednesday/LevelC5.html",
+            "levels/level-c/week-1/friday/LevelC_Revision1.html",
             "levels/level-c/week-1/friday/LevelC_Game1.html",
             "levels/level-c/week-1/friday/LevelC_Quiz1.html"
           ],
           2: [
-            "levels/level-c/week-2/monday/LevelC8.html",
-            "levels/level-c/week-2/monday/LevelC9.html",
-            "levels/level-c/week-2/tuesday/LevelC10.html",
-            "levels/level-c/week-2/tuesday/LevelC11.html",
-            "levels/level-c/week-2/wednesday/LevelC12.html",
-            "levels/level-c/week-2/wednesday/LevelC13.html",
-            "levels/level-c/week-2/thursday/LevelC_Revision2.html",
+            "levels/level-c/week-2/tuesday/LevelC8.html",
+            "levels/level-c/week-2/tuesday/LevelC9.html",
+            "levels/level-c/week-2/tuesday/LevelC12.html",
+            "levels/level-c/week-2/tuesday/LevelC13.html",
+            "levels/level-c/week-2/wednesday/LevelC10.html",
+            "levels/level-c/week-2/wednesday/LevelC11.html",
+            "levels/level-c/week-2/friday/LevelC_Revision2.html",
             "levels/level-c/week-2/friday/LevelC_Game2.html",
             "levels/level-c/week-2/friday/LevelC_Quiz2.html"
           ],
           3: [
-            "levels/level-c/week-3/monday/LevelC14.html",
-            "levels/level-c/week-3/monday/LevelC15.html",
-            "levels/level-c/week-3/tuesday/LevelC16.html",
-            "levels/level-c/week-3/tuesday/LevelC17.html",
-            "levels/level-c/week-3/wednesday/LevelC18.html",
-            "levels/level-c/week-3/wednesday/LevelC19.html",
-            "levels/level-c/week-3/thursday/LevelC_Revision3.html",
+            "levels/level-c/week-3/tuesday/LevelC14.html",
+            "levels/level-c/week-3/tuesday/LevelC15.html",
+            "levels/level-c/week-3/tuesday/LevelC18.html",
+            "levels/level-c/week-3/tuesday/LevelC19.html",
+            "levels/level-c/week-3/wednesday/LevelC16.html",
+            "levels/level-c/week-3/wednesday/LevelC17.html",
+            "levels/level-c/week-3/friday/LevelC_Revision3.html",
             "levels/level-c/week-3/friday/LevelC_Game3.html",
             "levels/level-c/week-3/friday/LevelC_Quiz3.html"
           ],
           4: [
-            "levels/level-c/week-4/monday/LevelC20.html",
-            "levels/level-c/week-4/monday/LevelC21.html",
-            "levels/level-c/week-4/tuesday/LevelC22.html",
-            "levels/level-c/week-4/tuesday/LevelC23.html",
-            "levels/level-c/week-4/wednesday/LevelC24.html",
-            "levels/level-c/week-4/wednesday/LevelC25.html",
-            "levels/level-c/week-4/thursday/LevelC_Revision4.html",
+            "levels/level-c/week-4/tuesday/LevelC20.html",
+            "levels/level-c/week-4/tuesday/LevelC21.html",
+            "levels/level-c/week-4/tuesday/LevelC24.html",
+            "levels/level-c/week-4/tuesday/LevelC25.html",
+            "levels/level-c/week-4/wednesday/LevelC22.html",
+            "levels/level-c/week-4/wednesday/LevelC23.html",
+            "levels/level-c/week-4/friday/LevelC_Revision4.html",
             "levels/level-c/week-4/friday/LevelC_Game4.html",
             "levels/level-c/week-4/friday/LevelC_Quiz4.html"
           ]
@@ -3079,11 +3272,11 @@
 
     const DAY_ORDER = ["monday","tuesday","wednesday","thursday","friday"];
     const DAY_LABELS = {
-      monday: "Monday",
-      tuesday: "Tuesday",
-      wednesday: "Wednesday",
-      thursday: "Thursday",
-      friday: "Friday"
+      monday: "Art Class",
+      tuesday: "Listening & Speaking",
+      wednesday: "Writing & Drawing",
+      thursday: "Fairly-tale",
+      friday: "Activity"
     };
 
     const MONTH_HUMAN_IMAGES = [
@@ -3233,7 +3426,21 @@
     const teacherLevelInput = document.getElementById("teacherLevelInput");
     const teacherStudentCountInput = document.getElementById("teacherStudentCountInput");
     const teacherGeneratorStatus = document.getElementById("teacherGeneratorStatus");
+    const teacherPartnerInviteCode = document.getElementById("teacherPartnerInviteCode");
+    const teacherPartnerStatus = document.getElementById("teacherPartnerStatus");
+    const reloadPartnerSchoolsBtn = document.getElementById("reloadPartnerSchoolsBtn");
     const studentTableBody = document.getElementById("studentTableBody");
+
+    const adminPartnerKeyInput = document.getElementById("adminPartnerKeyInput");
+    const adminPartnerSchoolId = document.getElementById("adminPartnerSchoolId");
+    const adminPartnerSchoolName = document.getElementById("adminPartnerSchoolName");
+    const adminPartnerInviteCode = document.getElementById("adminPartnerInviteCode");
+    const adminPartnerStatusSelect = document.getElementById("adminPartnerStatusSelect");
+    const adminPartnerSchoolStatus = document.getElementById("adminPartnerSchoolStatus");
+    const adminPartnerSchoolList = document.getElementById("adminPartnerSchoolList");
+    const adminSavePartnerSchoolBtn = document.getElementById("adminSavePartnerSchoolBtn");
+    const adminClearPartnerSchoolBtn = document.getElementById("adminClearPartnerSchoolBtn");
+    const adminReloadPartnerSchoolsBtn = document.getElementById("adminReloadPartnerSchoolsBtn");
 
     const parentSignupName = document.getElementById("parentSignupName");
     const parentChildName = document.getElementById("parentChildName");
@@ -3338,6 +3545,15 @@
       try{ if (FX[kind]) FX[kind](); }catch(e){}
     }
 
+    function escapeHtml(value){
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
     function warmNavigationTargets(){
       ["A", "B", "C"].forEach((level) => {
         const files = APP_CONFIG[level]?.first || [];
@@ -3400,6 +3616,15 @@
     function writeStorageMirrors(keys, value){
       const text = JSON.stringify(value);
       keys.forEach(key => storageSetItem(key, text));
+    }
+
+    async function safeJsonResponse(response){
+      const rawText = await response.text();
+      try {
+        return rawText ? JSON.parse(rawText) : {};
+      } catch (_) {
+        return { ok: response.ok, error: rawText || "Unexpected server response." };
+      }
     }
 
     function getAuthVault(){
@@ -3699,6 +3924,294 @@
       return [];
     }
 
+    function slugifyPartnerSchoolId(value){
+      return String(value || "")
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 40);
+    }
+
+    function normalizePartnerSchoolName(value){
+      return String(value || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+    }
+
+    function findPartnerSchoolByName(value){
+      const target = normalizePartnerSchoolName(value);
+      if (!target) return null;
+      return getPartnerSchools().find((item) => normalizePartnerSchoolName(item.schoolName) === target) || null;
+    }
+
+    function buildSignupGreeting(role, name){
+      const cleanName = String(name || "").trim() || "Friend";
+      if (String(role || "").trim().toLowerCase() === "teacher") {
+        return `Welcome Teacher ${cleanName}!`;
+      }
+      return `Welcome ${cleanName}!`;
+    }
+
+    function buildLoginGreeting(name){
+      const cleanName = String(name || "").trim() || "Friend";
+      return `Hi ${cleanName}! Welcome Back!!!`;
+    }
+
+    function unlockAdminSchoolList(){
+      try { sessionStorage.setItem("GP_EIS_ADMIN_SCHOOL_VIEW", "1"); } catch (_) {}
+    }
+
+    function isAdminSchoolListUnlocked(){
+      try {
+        if (sessionStorage.getItem("GP_EIS_ADMIN_SCHOOL_VIEW") === "1") return true;
+      } catch (_) {}
+      const typedKey = String(adminPartnerKeyInput && adminPartnerKeyInput.value || "").trim();
+      return !!typedKey && typedKey === PARTNER_ACCESS_CONFIG.LOCAL_ADMIN_KEY;
+    }
+
+    function normalizePartnerSchoolRecord(record){
+      if (!record || typeof record !== "object") return null;
+      const schoolName = String(record.schoolName || record.name || "").trim();
+      const schoolId = slugifyPartnerSchoolId(record.schoolId || schoolName);
+      if (!schoolId || !schoolName) return null;
+      const inviteCode = String(record.inviteCode || record.partnerCode || "").trim().toUpperCase();
+      return {
+        schoolId,
+        schoolName,
+        inviteCode,
+        approved: record.approved !== false,
+        active: record.active !== false,
+        createdAt: record.createdAt || new Date().toISOString(),
+        updatedAt: record.updatedAt || new Date().toISOString()
+      };
+    }
+
+    function getPartnerSchools(){
+      const raw = readStorageCandidates(
+        [STORAGE_KEYS.partnerSchools, STORAGE_KEYS.partnerSchoolsBackup],
+        []
+      );
+      const map = new Map();
+      toRecordList(raw)
+        .map(normalizePartnerSchoolRecord)
+        .filter(Boolean)
+        .forEach((item) => {
+          const current = map.get(item.schoolId) || null;
+          map.set(item.schoolId, preferLatestRecord(current, item, ["schoolName", "inviteCode"]));
+        });
+      return Array.from(map.values()).sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+    }
+
+    function setPartnerSchools(list){
+      const normalized = toRecordList(list)
+        .map(normalizePartnerSchoolRecord)
+        .filter(Boolean)
+        .sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+      writeStorageMirrors([STORAGE_KEYS.partnerSchools, STORAGE_KEYS.partnerSchoolsBackup], normalized);
+      renderPartnerSchoolUI();
+    }
+
+    function getApprovedActivePartnerSchools(){
+      return getPartnerSchools().filter(item => item.approved && item.active);
+    }
+
+    function renderTeacherPartnerSchoolOptions(selectedValue = ""){
+      if (!teacherSignupSchool) return;
+      const currentValue = String(selectedValue || teacherSignupSchool.value || "").trim();
+      teacherSignupSchool.placeholder = "Type your kindergarten or school name";
+      teacherSignupSchool.value = currentValue;
+    }
+
+    function partnerStatusTagsMarkup(school){
+      const tags = [];
+      tags.push(`<span class="partner-school-tag">${escapeHtml(school.schoolId)}</span>`);
+      tags.push(`<span class="partner-school-tag ${school.approved ? "good" : "bad"}">${school.approved ? "Approved" : "Not approved"}</span>`);
+      tags.push(`<span class="partner-school-tag ${school.active ? "good" : "warn"}">${school.active ? "Active" : "Inactive"}</span>`);
+      if (school.inviteCode) tags.push('<span class="partner-school-tag">Code saved</span>');
+      return tags.join("");
+    }
+
+    function renderAdminPartnerSchoolList(){
+      if (!adminPartnerSchoolList) return;
+      if (!isAdminSchoolListUnlocked()) {
+        adminPartnerSchoolList.innerHTML = '<div class="partner-empty">School list is hidden for business privacy. Enter a valid admin partner key to unlock the internal partner records.</div>';
+        return;
+      }
+      const schools = getPartnerSchools();
+      if (!schools.length) {
+        adminPartnerSchoolList.innerHTML = '<div class="partner-empty">No partner schools have been added yet. Add one here before teachers can sign up.</div>';
+        return;
+      }
+      adminPartnerSchoolList.innerHTML = schools.map((school) => `
+        <div class="partner-school-item">
+          <div class="partner-school-top">
+            <div>
+              <h4>${escapeHtml(school.schoolName)}</h4>
+              <p>Internal School ID: ${escapeHtml(school.schoolId)}${school.inviteCode ? ` • Invite code: ${escapeHtml(school.inviteCode)}` : ""}</p>
+            </div>
+            <button class="btn btn-soft" type="button" data-edit-partner-school="${escapeHtml(school.schoolId)}">Edit</button>
+          </div>
+          <div class="partner-school-tags">${partnerStatusTagsMarkup(school)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderPartnerSchoolUI(){
+      const typedSchoolName = teacherSignupSchool && teacherSignupSchool.value ? teacherSignupSchool.value : "";
+      renderTeacherPartnerSchoolOptions(typedSchoolName);
+      renderAdminPartnerSchoolList();
+    }
+
+    function fillAdminPartnerSchoolForm(schoolId){
+      const school = getPartnerSchools().find(item => item.schoolId === slugifyPartnerSchoolId(schoolId));
+      if (!school) return;
+      if (adminPartnerSchoolId) adminPartnerSchoolId.value = school.schoolId;
+      if (adminPartnerSchoolName) adminPartnerSchoolName.value = school.schoolName;
+      if (adminPartnerInviteCode) adminPartnerInviteCode.value = school.inviteCode || "";
+      if (adminPartnerStatusSelect) {
+        adminPartnerStatusSelect.value = school.approved
+          ? (school.active ? "approved-active" : "approved-inactive")
+          : "not-approved";
+      }
+      if (adminPartnerSchoolStatus) {
+        adminPartnerSchoolStatus.innerHTML = `<span class="muted">Loaded ${escapeHtml(school.schoolName)} for editing.</span>`;
+      }
+    }
+
+    function clearAdminPartnerSchoolForm(){
+      if (adminPartnerSchoolId) adminPartnerSchoolId.value = "";
+      if (adminPartnerSchoolName) adminPartnerSchoolName.value = "";
+      if (adminPartnerInviteCode) adminPartnerInviteCode.value = "";
+      if (adminPartnerStatusSelect) adminPartnerStatusSelect.value = "approved-active";
+    }
+
+    function applyPartnerStatusSelection(value){
+      const normalized = String(value || "approved-active").trim();
+      if (normalized === "approved-inactive") return { approved:true, active:false };
+      if (normalized === "not-approved") return { approved:false, active:false };
+      return { approved:true, active:true };
+    }
+
+    async function loadPartnerSchoolsFromCloud(options = {}){
+      const currentLocal = getPartnerSchools();
+      try {
+        const response = await fetch(`${PARTNER_ACCESS_CONFIG.listEndpoint}?t=${Date.now()}`, {
+          method: "GET",
+          cache: "no-store",
+          headers: { "Accept": "application/json" }
+        });
+        if (!response.ok) throw new Error("Partner school list endpoint is not ready.");
+
+        const data = await safeJsonResponse(response);
+        const incoming = Array.isArray(data.schools) ? data.schools : [];
+        if (!incoming.length) {
+          renderPartnerSchoolUI();
+          if (!options.quiet && teacherPartnerStatus) {
+            teacherPartnerStatus.innerHTML = currentLocal.length
+              ? `<span class="muted">Using saved partner security records from this device.</span>`
+              : `<span class="muted">No approved partner security records were returned yet.</span>`;
+          }
+          return currentLocal;
+        }
+
+        const mergedMap = new Map(currentLocal.map(item => [item.schoolId, item]));
+        incoming.forEach((item) => {
+          const normalized = normalizePartnerSchoolRecord({
+            schoolId: item.schoolId,
+            schoolName: item.schoolName,
+            inviteCode: item.inviteCode || (mergedMap.get(slugifyPartnerSchoolId(item.schoolId)) || {}).inviteCode || "",
+            approved: item.approved !== false,
+            active: item.active !== false
+          });
+          if (normalized) {
+            mergedMap.set(normalized.schoolId, {
+              ...(mergedMap.get(normalized.schoolId) || {}),
+              ...normalized
+            });
+          }
+        });
+        setPartnerSchools(Array.from(mergedMap.values()));
+        if (!options.quiet && teacherPartnerStatus) {
+          teacherPartnerStatus.innerHTML = `<span class="ok">Partner security records refreshed successfully.</span>`;
+        }
+        return getPartnerSchools();
+      } catch (_) {
+        renderPartnerSchoolUI();
+        if (!options.quiet && teacherPartnerStatus) {
+          teacherPartnerStatus.innerHTML = currentLocal.length
+            ? `<span class="muted">Using saved partner security records from this device.</span>`
+            : `<span class="danger">No approved partner security records are available yet on this device.</span>`;
+        }
+        return currentLocal;
+      }
+    }
+
+    async function savePartnerSchoolRecord(){
+      const adminKey = String(adminPartnerKeyInput && adminPartnerKeyInput.value || "").trim();
+      const schoolName = String(adminPartnerSchoolName && adminPartnerSchoolName.value || "").trim();
+      const inviteCode = String(adminPartnerInviteCode && adminPartnerInviteCode.value || "").trim().toUpperCase();
+      const derivedId = slugifyPartnerSchoolId(adminPartnerSchoolId && adminPartnerSchoolId.value || schoolName);
+      const { approved, active } = applyPartnerStatusSelection(adminPartnerStatusSelect && adminPartnerStatusSelect.value);
+
+      if (!adminKey || !schoolName || !derivedId || !inviteCode) {
+        if (adminPartnerSchoolStatus) adminPartnerSchoolStatus.innerHTML = `<span class="danger">Enter admin key, school name and invite code.</span>`;
+        safePlay("warning");
+        return;
+      }
+
+      const record = normalizePartnerSchoolRecord({
+        schoolId: derivedId,
+        schoolName,
+        inviteCode,
+        approved,
+        active,
+        updatedAt: new Date().toISOString()
+      });
+      if (!record) {
+        if (adminPartnerSchoolStatus) adminPartnerSchoolStatus.innerHTML = `<span class="danger">Partner school record could not be created.</span>`;
+        safePlay("warning");
+        return;
+      }
+
+      let savedRemotely = false;
+      try {
+        const response = await fetch(PARTNER_ACCESS_CONFIG.saveEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-admin-key": adminKey
+          },
+          body: JSON.stringify(record)
+        });
+        if (response.ok) {
+          savedRemotely = true;
+        }
+      } catch (_) {}
+
+      if (!savedRemotely && adminKey !== PARTNER_ACCESS_CONFIG.LOCAL_ADMIN_KEY) {
+        if (adminPartnerSchoolStatus) adminPartnerSchoolStatus.innerHTML = `<span class="danger">Admin key is incorrect for local partner management.</span>`;
+        safePlay("warning");
+        return;
+      }
+
+      const merged = getPartnerSchools().filter(item => item.schoolId !== record.schoolId).concat(record);
+      setPartnerSchools(merged);
+      unlockAdminSchoolList();
+      renderPartnerSchoolUI();
+      if (teacherSignupSchool) teacherSignupSchool.value = record.approved && record.active ? record.schoolName : "";
+      if (adminPartnerSchoolStatus) {
+        adminPartnerSchoolStatus.innerHTML = `<span class="ok">${escapeHtml(record.schoolName)} saved successfully.${savedRemotely ? " Server sync complete." : " Saved locally on this device."}</span>`;
+      }
+      if (teacherPartnerStatus) {
+        teacherPartnerStatus.innerHTML = `<span class="muted">Partner school list updated.</span>`;
+      }
+      safePlay("success");
+      FX.toast("Partner school saved.", "🏫");
+    }
+
     function normalizeTeacherRecord(record){
       if (!record || typeof record !== "object") return null;
       const email = normalizeEmail(record.email || record.teacherEmail || record.username);
@@ -3707,6 +4220,8 @@
         id: String(record.id || record.teacherId || ("T-" + Date.now())),
         name: String(record.name || record.teacherName || record.fullName || email.split("@")[0] || "").trim(),
         school: String(record.school || record.schoolName || record.center || "").trim(),
+        schoolId: String(record.schoolId || record.partnerSchoolId || "").trim().toUpperCase(),
+        partnerInviteCode: String(record.partnerInviteCode || record.inviteCode || "").trim().toUpperCase(),
         email,
         password: String(record.password || record.passcode || record.pin || "").trim(),
         createdAt: record.createdAt || record.loginAt || new Date().toISOString()
@@ -3736,7 +4251,7 @@
           const current = map.get(email) || null;
           map.set(
             email,
-            preferLatestRecord(current, item, ["password", "school", "childStudentId", "childName", "name"])
+            preferLatestRecord(current, item, ["password", "school", "schoolId", "partnerInviteCode", "childStudentId", "childName", "name"])
           );
         });
         return Array.from(map.values()).filter(Boolean);
@@ -4827,11 +5342,25 @@
       const base = String(file || "").replace(/^.*[\\/]/,"").replace(/\.html$/i,"");
       const lower = base.toLowerCase();
 
-      if (lower.includes("revision")) return "Revision";
+      const numericMatch = base.match(/^(LA|LB|LevelC)(\d+)$/i);
+      if (numericMatch) {
+        const levelCode = String(numericMatch[1]).replace(/levelc/i, "Level C").toUpperCase().replace("LEVEL C", "Level C");
+        return `${levelCode} ${numericMatch[2]}`;
+      }
+
+      const suffixMatch = base.match(/^(?:LA|LB|LevelC)?_?(Revision|Game|Quiz)(\d+)$/i);
+      if (suffixMatch) {
+        return `${suffixMatch[1][0].toUpperCase()}${suffixMatch[1].slice(1).toLowerCase()} ${suffixMatch[2]}`;
+      }
+
       if (lower.includes("finalquiz")) return "Final Quiz";
-      if (lower.includes("quiz")) return "Quiz";
-      if (lower.includes("game")) return "Game";
-      return base;
+
+      return base
+        .replace(/_/g, " ")
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/([A-Z]+)(\d+)/g, "$1 $2")
+        .replace(/\s+/g, " ")
+        .trim();
     }
 
     function groupFilesByDay(files){
@@ -4967,7 +5496,7 @@
             <div class="day-tv-head">
               <div>
                 <div class="day-tv-week">Week ${week}</div>
-                <h5 class="day-tv-title">${DAY_LABELS[day].slice(0,3).toUpperCase()}</h5>
+                <h5 class="day-tv-title">${DAY_LABELS[day]}</h5>
               </div>
               <div class="tv-dots">${dotsHtml}</div>
             </div>
@@ -5338,17 +5867,102 @@
       safePlay("success");
       setTimeout(() => safePlay("cheer"), 140);
       FX.toast(`Welcome ${matchedStudent.displayName || matchedStudent.name || studentId}!`, "🎉", 3200);
-      speakAnnouncement("Welcome to GP EIS Online Learning. A bright and professional learning home for students.");
+      speakAnnouncement(buildLoginGreeting(matchedStudent.displayName || matchedStudent.name || studentId));
+    }
+
+    async function verifyPartnerSchoolForTeacherSignup(){
+      const typedSchoolName = String(teacherSignupSchool && teacherSignupSchool.value || "").trim();
+      const inviteCode = String(teacherPartnerInviteCode && teacherPartnerInviteCode.value || "").trim().toUpperCase();
+
+      if (!typedSchoolName || !inviteCode) {
+        if (teacherPartnerStatus) {
+          teacherPartnerStatus.innerHTML = `<span class="danger">Please type your kindergarten name and enter the school invite code.</span>`;
+        }
+        return { ok:false };
+      }
+
+      const localSchool = findPartnerSchoolByName(typedSchoolName) || getPartnerSchools().find((item) => item.schoolId === slugifyPartnerSchoolId(typedSchoolName)) || null;
+      const schoolId = String(localSchool && localSchool.schoolId || slugifyPartnerSchoolId(typedSchoolName)).trim();
+
+      try {
+        const response = await fetch(PARTNER_ACCESS_CONFIG.verifyEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ schoolId, schoolName: typedSchoolName, inviteCode })
+        });
+
+        if (response.ok) {
+          const data = await safeJsonResponse(response);
+          const verifiedSchool = normalizePartnerSchoolRecord({
+            schoolId: data.school && data.school.schoolId || schoolId,
+            schoolName: data.school && data.school.schoolName || (localSchool && localSchool.schoolName) || typedSchoolName,
+            inviteCode,
+            approved: true,
+            active: true
+          });
+          if (verifiedSchool) {
+            setPartnerSchools(getPartnerSchools().filter(item => item.schoolId !== verifiedSchool.schoolId).concat(verifiedSchool));
+            if (teacherPartnerStatus) {
+              teacherPartnerStatus.innerHTML = `<span class="ok">${escapeHtml(verifiedSchool.schoolName)} verified successfully.</span>`;
+            }
+            return { ok:true, school: verifiedSchool, via:"cloud" };
+          }
+        }
+
+        const errorData = await safeJsonResponse(response);
+        if (errorData && errorData.error) {
+          if (teacherPartnerStatus) {
+            teacherPartnerStatus.innerHTML = `<span class="danger">${escapeHtml(errorData.error)}</span>`;
+          }
+          return { ok:false, error:errorData.error };
+        }
+      } catch (_) {}
+
+      if (!localSchool) {
+        if (teacherPartnerStatus) {
+          teacherPartnerStatus.innerHTML = `<span class="danger">We could not verify this school name on this device yet. Check the spelling or ask Admin to refresh partner security.</span>`;
+        }
+        return { ok:false };
+      }
+
+      if (!localSchool.approved) {
+        if (teacherPartnerStatus) {
+          teacherPartnerStatus.innerHTML = `<span class="danger">${escapeHtml(localSchool.schoolName)} is not approved yet.</span>`;
+        }
+        return { ok:false };
+      }
+
+      if (!localSchool.active) {
+        if (teacherPartnerStatus) {
+          teacherPartnerStatus.innerHTML = `<span class="danger">${escapeHtml(localSchool.schoolName)} is currently inactive for signup.</span>`;
+        }
+        return { ok:false };
+      }
+
+      if (!localSchool.inviteCode || String(localSchool.inviteCode).trim().toUpperCase() !== inviteCode) {
+        if (teacherPartnerStatus) {
+          teacherPartnerStatus.innerHTML = `<span class="danger">The school invite code does not match the approved record.</span>`;
+        }
+        return { ok:false };
+      }
+
+      if (teacherPartnerStatus) {
+        teacherPartnerStatus.innerHTML = `<span class="ok">${escapeHtml(localSchool.schoolName)} verified from the secure saved record.</span>`;
+      }
+      return { ok:true, school: localSchool, via:"local" };
     }
 
     async function handleTeacherSignup(){
       const name = (teacherSignupName.value || "").trim();
-      const school = (teacherSignupSchool.value || "").trim();
+      const typedSchoolName = String(teacherSignupSchool && teacherSignupSchool.value || "").trim();
       const email = normalizeEmail(teacherSignupEmail.value);
       const password = (teacherSignupPassword.value || "").trim();
 
-      if (!name || !school || !email || !password) {
-        teacherSignupStatus.innerHTML = `<span class="danger">Please fill all teacher signup fields.</span>`;
+      if (!name || !typedSchoolName || !email || !password || !(teacherPartnerInviteCode && teacherPartnerInviteCode.value.trim())) {
+        teacherSignupStatus.innerHTML = `<span class="danger">Please fill all teacher signup fields, type your approved school name and enter the school invite code.</span>`;
         safePlay("warning");
         return;
       }
@@ -5359,6 +5973,17 @@
         return;
       }
 
+      const partnerResult = await verifyPartnerSchoolForTeacherSignup();
+      if (!partnerResult.ok || !partnerResult.school) {
+        teacherSignupStatus.innerHTML = `<span class="danger">Teacher signup is restricted to approved partner kindergartens only. Check the spelling of the school name and invite code.</span>`;
+        safePlay("warning");
+        return;
+      }
+
+      const school = partnerResult.school.schoolName;
+      const schoolId = partnerResult.school.schoolId;
+      const inviteCode = String(partnerResult.school.inviteCode || (teacherPartnerInviteCode && teacherPartnerInviteCode.value) || "").trim().toUpperCase();
+
       const authSync = await getAuthSyncFast(700);
       const useCloud = !!(authSync && typeof authSync.saveTeacherAccount === "function");
 
@@ -5367,6 +5992,8 @@
           ? normalizeTeacherRecord((await withTimeout(authSync.saveTeacherAccount({
               name,
               school,
+              schoolId,
+              partnerInviteCode: inviteCode,
               email,
               password,
               createdAt: new Date().toISOString()
@@ -5375,6 +6002,8 @@
               uid: (findTeacherByEmail(email)?.uid) || "",
               name,
               school,
+              schoolId,
+              partnerInviteCode: inviteCode,
               email,
               password,
               createdAt: findTeacherByEmail(email)?.createdAt || new Date().toISOString(),
@@ -5385,6 +6014,8 @@
               uid: (findTeacherByEmail(email)?.uid) || "",
               name,
               school,
+              schoolId,
+              partnerInviteCode: inviteCode,
               email,
               password,
               createdAt: findTeacherByEmail(email)?.createdAt || new Date().toISOString(),
@@ -5405,6 +6036,7 @@
           id: teacherRecord.uid || teacherRecord.id,
           name: teacherRecord.name,
           school: teacherRecord.school,
+          schoolId: teacherRecord.schoolId || schoolId,
           email: teacherRecord.email,
           loginAt: new Date().toISOString()
         });
@@ -5418,15 +6050,16 @@
         }, 0);
 
         teacherSignupStatus.innerHTML = teacherRecord.mode === "existing"
-          ? `<span class="ok">Teacher account updated and logged in successfully.${useCloud ? "" : " Cloud sync is offline; this device will use local login for now."}</span>`
-          : `<span class="ok">Teacher signup successful and logged in.${useCloud ? "" : " Cloud sync is offline; this device will use local login for now."}</span>`;
+          ? `<span class="ok">Teacher account updated and logged in successfully for ${escapeHtml(school)}.${useCloud ? "" : " Cloud sync is offline; this device will use local login for now."}</span>`
+          : `<span class="ok">Teacher signup successful and logged in for ${escapeHtml(school)}.${useCloud ? "" : " Cloud sync is offline; this device will use local login for now."}</span>`;
         teacherLoginStatus.innerHTML = `<span class="ok">Teacher login successful.</span>`;
         teacherLoginEmail.value = email;
         teacherLoginPassword.value = "";
         teacherSignupPassword.value = "";
+        if (teacherPartnerInviteCode) teacherPartnerInviteCode.value = "";
         safePlay("success");
         FX.toast(teacherRecord.mode === "existing" ? "Teacher account restored." : "Teacher signup successful.", "👩‍🏫");
-        speakAnnouncement(`Hello Teacher ${teacherRecord.name || teacherRecord.email || ""}.`);
+        speakAnnouncement(buildSignupGreeting("teacher", teacherRecord.name || teacherRecord.email || ""));
       } catch (error) {
         teacherSignupStatus.innerHTML = `<span class="danger">${formatAuthError("Teacher", error)}</span>`;
         safePlay("warning");
@@ -5469,6 +6102,7 @@
           id: teacher.uid || teacher.id,
           name: teacher.name,
           school: teacher.school,
+          schoolId: teacher.schoolId || "",
           email: teacher.email,
           loginAt: new Date().toISOString()
         });
@@ -5484,7 +6118,7 @@
         }, 0);
         safePlay("success");
         FX.toast(`Welcome Teacher ${teacher.name}!`, "🎓");
-        speakAnnouncement(`Hello Teacher ${teacher.name || teacher.email || ""}.`);
+        speakAnnouncement(buildLoginGreeting(teacher.name || teacher.email || ""));
       } catch (error) {
         teacherLoginStatus.innerHTML = `<span class="danger">${formatAuthError("Teacher", error)}${buildCloudHint(authSync)}</span>`;
         safePlay("warning");
@@ -5620,7 +6254,7 @@
         parentSignupPassword.value = "";
         safePlay("success");
         FX.toast(parentRecord.mode === "existing" ? "Parent account restored." : "Parent signup successful.", "👨‍👩‍👧");
-        speakAnnouncement("Welcome to GP EIS Online Learning. A bright and professional learning home for students.");
+        speakAnnouncement(buildSignupGreeting("parent", parentRecord.name || parentRecord.email || ""));
       } catch (error) {
         parentSignupStatus.innerHTML = `<span class="danger">${formatAuthError("Parent", error)}</span>`;
         safePlay("warning");
@@ -5686,7 +6320,7 @@
         showAuthSubpanel("parent-auth");
         safePlay("success");
         FX.toast(`Welcome ${parent.name}!`, "💖");
-        speakAnnouncement("Welcome to GP EIS Online Learning. A bright and professional learning home for students.");
+        speakAnnouncement(buildLoginGreeting(parent.name || parent.email || ""));
       } catch (error) {
         parentLoginStatus.innerHTML = `<span class="danger">${formatAuthError("Parent", error)}${buildCloudHint(authSync)}</span>`;
         safePlay("warning");
@@ -6124,6 +6758,23 @@
     });
     document.getElementById("teacherSignupBtn").addEventListener("click", handleTeacherSignup);
     document.getElementById("teacherLoginBtn").addEventListener("click", handleTeacherLogin);
+    if (reloadPartnerSchoolsBtn) reloadPartnerSchoolsBtn.addEventListener("click", () => loadPartnerSchoolsFromCloud({ quiet:false }));
+    if (adminSavePartnerSchoolBtn) adminSavePartnerSchoolBtn.addEventListener("click", savePartnerSchoolRecord);
+    if (adminClearPartnerSchoolBtn) adminClearPartnerSchoolBtn.addEventListener("click", clearAdminPartnerSchoolForm);
+    if (adminReloadPartnerSchoolsBtn) adminReloadPartnerSchoolsBtn.addEventListener("click", () => loadPartnerSchoolsFromCloud({ quiet:false }));
+    if (teacherSignupSchool) teacherSignupSchool.addEventListener("input", () => { if (teacherPartnerStatus) teacherPartnerStatus.innerHTML = ""; });
+    if (teacherPartnerInviteCode) teacherPartnerInviteCode.addEventListener("input", () => { if (teacherPartnerStatus) teacherPartnerStatus.innerHTML = ""; });
+    if (adminPartnerKeyInput) adminPartnerKeyInput.addEventListener("input", () => {
+      if (String(adminPartnerKeyInput.value || "").trim() === PARTNER_ACCESS_CONFIG.LOCAL_ADMIN_KEY) {
+        unlockAdminSchoolList();
+      }
+      renderAdminPartnerSchoolList();
+    });
+    if (adminPartnerSchoolList) adminPartnerSchoolList.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-edit-partner-school]");
+      if (!btn) return;
+      fillAdminPartnerSchoolForm(btn.dataset.editPartnerSchool || "");
+    });
     teacherForgotPasswordBtn.addEventListener("click", handleTeacherForgotPassword);
     teacherResetPasswordBtn.addEventListener("click", handleTeacherResetPassword);
     document.getElementById("parentSignupBtn").addEventListener("click", handleParentSignup);
@@ -6187,6 +6838,8 @@
       teacherLoginPassword,
       teacherSignupEmail,
       teacherSignupPassword,
+      teacherSignupSchool,
+      teacherPartnerInviteCode,
       parentLoginEmail,
       parentLoginPassword,
       parentSignupEmail,
@@ -6228,6 +6881,8 @@
       .catch(() => restoreRememberedStudentAccess().then(() => scheduleSyncLevelUI()).catch(() => null));
     window.setTimeout(() => schedulePendingStudentSync("startup", 900, { quiet:true }), 0);
     hydrateRememberedAuthEmails();
+    renderPartnerSchoolUI();
+    loadPartnerSchoolsFromCloud({ quiet:true }).catch(() => renderPartnerSchoolUI());
     syncLevelUI();
     showPanel("panel-home");
   </script>

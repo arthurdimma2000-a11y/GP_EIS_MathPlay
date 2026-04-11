@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level B • Revision 1 — Vertices</title>
+<style>
+  :root{
+    --bg1:#fff4b8; --bg2:#c7f7ff; --bg3:#ffd1f3;
+    --card:#ffffff; --ink:#1f2430;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+    padding:18px;
+  }
+  .app{width:min(1100px,98vw)}
+  .topbar{
+    display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    background:#fff; border-radius:999px; padding:10px 14px;
+    box-shadow:0 12px 28px rgba(0,0,0,.10);
+    font-weight:900; color:var(--ink);
+  }
+  .badge b{font-size:18px}
+  .btn{
+    border:0; cursor:pointer; font-weight:900;
+    padding:12px 14px; border-radius:14px;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+    background:#fff; color:var(--ink); text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e); color:#0b1b10}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7); color:#06121d}
+  .grid{
+    display:grid; gap:14px;
+    grid-template-columns: 1.2fr .8fr;
+  }
+  @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+  .card{
+    background:var(--card); border-radius:22px; padding:14px;
+    box-shadow:0 16px 44px rgba(0,0,0,.12);
+  }
+  .title{font-size:26px; font-weight:1000; margin:6px 0 4px}
+  .subtitle{font-size:16px; opacity:.85; margin:0 0 10px}
+  .art{
+    width:100%; height:280px; border-radius:18px; overflow:hidden;
+    background:linear-gradient(135deg,#fff,#f7fbff);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .panel{display:grid; gap:10px}
+  .pills{display:flex; flex-wrap:wrap; gap:10px}
+  .pill{
+    background:#f6f7ff; border-radius:999px; padding:10px 12px;
+    font-weight:900; box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .qa{
+    display:grid; gap:10px;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  @media (max-width:680px){ .qa{grid-template-columns:1fr} }
+  .qbox{
+    border-radius:18px; padding:12px;
+    background:linear-gradient(180deg,#ffffff,#f7fbff);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .qbox h3{margin:0 0 8px; font-size:18px}
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  input{
+    width:92px; padding:10px 10px; border-radius:14px;
+    border:2px solid rgba(0,0,0,.12); font-size:18px; font-weight:900;
+  }
+  .small{font-size:14px; opacity:.8}
+  .msg{
+    margin-top:10px; padding:10px 12px; border-radius:16px;
+    background:#fff; box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    font-weight:900;
+  }
+  .stars{font-size:22px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="badge">🟣 <b>Level B</b> <span class="small">Revision 1 • Vertices</span></div>
+    <div class="row">
+      <a class="btn" href="../wednesday/LB7.html">⬅ Back</a>
+      <a class="btn next" href="../friday/LB_Game1.html">Next ▶</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="title">Count the vertices!</div>
+      <p class="subtitle">
+        In your book: <b>Pentagon = 5 vertices</b>, <b>Hexagon = 6 vertices</b>, <b>Octagon = 8 vertices</b>.
+      </p>
+
+      <div class="art" id="art"></div>
+
+      <div class="pills" style="margin-top:10px">
+        <div class="pill">⭐ Vertices = corners</div>
+        <div class="pill">🍯 A hexagon has <b>6 sides</b> and <b>6 vertices</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">Quick Practice</div>
+      <p class="subtitle">Type the number of vertices. Then press <b>Check</b>.</p>
+
+      <div class="qa">
+        <div class="qbox">
+          <h3>🟣 Pentagon</h3>
+          <div class="row"><input id="a1" inputmode="numeric" placeholder="?" /><span class="small">vertices</span></div>
+        </div>
+        <div class="qbox">
+          <h3>🔵 Hexagon</h3>
+          <div class="row"><input id="a2" inputmode="numeric" placeholder="?" /><span class="small">vertices</span></div>
+        </div>
+        <div class="qbox">
+          <h3>🩷 Octagon</h3>
+          <div class="row"><input id="a3" inputmode="numeric" placeholder="?" /><span class="small">vertices</span></div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="checkBtn">✅ Check</button>
+        <button class="btn" id="resetBtn">🔄 Reset</button>
+      </div>
+
+      <div class="msg" id="msg">Tap the dots on the shapes to help you count!</div>
+      <div class="msg" id="stars" style="display:none">
+        Stars: <span class="stars" id="starText">⭐</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* --------- tiny sound + tracker (self-contained) --------- */
+(function(){
+  const STORE_KEY="gpeis_progress_v1";
+  let audioCtx=null;
+  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function beep(f,t,g=0.05,type="triangle"){
+    const c=ctx(), o=c.createOscillator(), ga=c.createGain();
+    o.type=type; o.frequency.value=f; ga.gain.value=g;
+    o.connect(ga); ga.connect(c.destination);
+    o.start(); o.stop(c.currentTime+t);
+  }
+  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
+  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
+  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  window.__LegacyTrack__={
+    complete({level,activityId,score=0,stars=0}){
+      const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
+      const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
+      const a=acts[activityId];
+      a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
+      a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
+      db[level].updatedAt=new Date().toISOString(); save(db);
+      chime(); if(stars>=3||score>=85) cheer();
+      return a;
+    }
+  };
+  window.__SFX__={chime,cheer};
+})();
+
+/* --------- SVG art (interactive vertex dots) --------- */
+function polySVG(){
+  const w=740,h=260;
+  return `
+  <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg" x1="0" x2="1">
+        <stop offset="0" stop-color="#fff7b2"/>
+        <stop offset="0.5" stop-color="#c7f9ff"/>
+        <stop offset="1" stop-color="#ffd1f3"/>
+      </linearGradient>
+      <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="10" stdDeviation="10" flood-opacity="0.18"/>
+      </filter>
+    </defs>
+    <rect x="0" y="0" width="${w}" height="${h}" rx="26" fill="url(#bg)"/>
+    <g filter="url(#sh)" font-family="Comic Sans MS, Segoe UI, Arial" font-weight="900">
+      <!-- Pentagon -->
+      <g transform="translate(70,28)">
+        <path d="M 110 18 L 185 72 L 156 165 L 64 165 L 35 72 Z" fill="#9b5de5" opacity="0.95"/>
+        ${dots([[110,18],[185,72],[156,165],[64,165],[35,72]],"p")}
+        <text x="15" y="212" font-size="18" fill="#1f2430">Pentagon</text>
+      </g>
+      <!-- Hexagon -->
+      <g transform="translate(290,28)">
+        <path d="M 95 18 L 165 58 L 165 138 L 95 178 L 25 138 L 25 58 Z" fill="#00bbf9" opacity="0.95"/>
+        ${dots([[95,18],[165,58],[165,138],[95,178],[25,138],[25,58]],"h")}
+        <text x="24" y="212" font-size="18" fill="#1f2430">Hexagon</text>
+      </g>
+      <!-- Octagon -->
+      <g transform="translate(500,28)">
+        <path d="M 70 18 L 130 18 L 172 60 L 172 120 L 130 162 L 70 162 L 28 120 L 28 60 Z" fill="#f15bb5" opacity="0.95"/>
+        ${dots([[70,18],[130,18],[172,60],[172,120],[130,162],[70,162],[28,120],[28,60]],"o")}
+        <text x="30" y="212" font-size="18" fill="#1f2430">Octagon</text>
+      </g>
+    </g>
+  </svg>`;
+}
+function dots(points,prefix){
+  return points.map((p,i)=>`
+    <circle class="vDot" data-k="${prefix}${i}" cx="${p[0]}" cy="${p[1]}" r="9" fill="#222"/>
+    <circle class="vDot" data-k="${prefix}${i}" cx="${p[0]}" cy="${p[1]}" r="16" fill="#fff" opacity="0.0"/>
+  `).join("");
+}
+document.getElementById("art").innerHTML = polySVG();
+
+document.getElementById("art").addEventListener("click",(e)=>{
+  const t=e.target;
+  if(!t.classList.contains("vDot")) return;
+  const k=t.getAttribute("data-k");
+  const on = t.getAttribute("data-on")==="1";
+  t.setAttribute("data-on", on?"0":"1");
+  t.setAttribute("fill", on?"#222":"#fff");
+  window.__SFX__.chime();
+});
+
+function scoreInputs(){
+  const v1 = (document.getElementById("a1").value||"").trim();
+  const v2 = (document.getElementById("a2").value||"").trim();
+  const v3 = (document.getElementById("a3").value||"").trim();
+  let correct=0;
+  if(v1==="5") correct++;
+  if(v2==="6") correct++;
+  if(v3==="8") correct++;
+  const score = Math.round((correct/3)*100);
+  const stars = score===100 ? 3 : score>=67 ? 2 : score>=34 ? 1 : 0;
+  return {correct,score,stars};
+}
+
+document.getElementById("checkBtn").addEventListener("click", async ()=>{
+  const {correct,score,stars}=scoreInputs();
+  const msg=document.getElementById("msg");
+  const starsBox=document.getElementById("stars");
+  const starText=document.getElementById("starText");
+
+  if(correct===3){
+    msg.textContent = "🎉 Amazing! You got them all correct!";
+  }else{
+    msg.textContent = `✅ You got ${correct}/3 correct. Try again and count the dots!`;
+  }
+  starsBox.style.display="block";
+  starText.textContent = "⭐".repeat(stars||1);
+
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LB_Revision1",
+      level: "B",
+      activityType: "revision",
+      score,
+      stars,
+      skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "B", activityId: "LB_Revision1", score, stars });
+  }
+});
+
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  ["a1","a2","a3"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("msg").textContent="Tap the dots on the shapes to help you count!";
+  document.getElementById("stars").style.display="none";
+});
+  </script>
+  <script src="./levelbc-runtime-fix.js"></script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA21 - Trace Shapes</title>
+<style>
+  :root{--sky:#bfe9fb;--panel:#ffffff;--ink:#3b3b3b;--red:#d62828;--shadow:0 20px 40px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box;}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--sky);padding:18px;}
+  .card{width:min(980px,96vw);background:var(--panel);border-radius:18px;padding:18px 18px 28px;box-shadow:var(--shadow);}  
+  .poster-area{position:relative;width:min(900px,100%);margin:0 auto;touch-action:none;}
+  .poster-img{width:100%;height:auto;display:block;pointer-events:none;}
+  .trace-layer{position:absolute;inset:0;pointer-events:auto;z-index:5;}
+  .trace-canvas{position:absolute;pointer-events:auto;touch-action:none;z-index:6;background:transparent;}
+  #circleTrace{left:8%;top:20%;width:38%;height:23%;}
+  #triTrace{left:8%;top:45%;width:38%;height:23%;}
+  #squareTrace{left:8%;top:70%;width:38%;height:23%;}
+  .answer{position:absolute;left:52%;width:40%;min-height:18%;font-size:1.6rem;font-weight:800;color:var(--ink);}  
+  #circleAnswer{top:20%;}
+  #triAnswer{top:45%;}
+  #squareAnswer{top:70%;}
+  .red{color:var(--red);}  
+  .tap-row{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;}
+  .tap-girl{width:82px;height:82px;border-radius:22px;box-shadow:0 6px 14px rgba(0,0,0,.2);border:4px solid #ffe3f7;cursor:pointer;}
+  .tap-label{font-weight:700;color:#d62828;}
+  .sentence{min-height:2.4em;font-weight:700;font-size:1.35rem;text-align:center;}
+  .line{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
+  .line.show{opacity:1;transform:translateY(0);}  
+  .controls{margin-top:12px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="poster-area" id="posterArea">
+      <img class="poster-img" src="../../../../assets/images/shapes/A21.png" alt="Shapes poster">
+      <div class="trace-layer">
+        <canvas class="trace-canvas" id="circleTrace"></canvas>
+        <canvas class="trace-canvas" id="triTrace"></canvas>
+        <canvas class="trace-canvas" id="squareTrace"></canvas>
+      </div>
+      <div class="answer" id="circleAnswer"></div>
+      <div class="answer" id="triAnswer"></div>
+      <div class="answer" id="squareAnswer"></div>
+    </div>
+    <div class="tap-row">
+      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn" class="tap-girl">
+      <div class="tap-label">Tap the girl</div>
+    </div>
+    <div class="sentence" id="girlSentence"></div>
+    <div class="controls">
+      <button class="btn prev" id="prevBtn">← Previous page</button>
+      <button class="btn next" id="nextBtn">Next page →</button>
+    </div>
+  </div>
+
+<script>
+  const girlBtn = document.getElementById('girlBtn');
+  const girlSentenceEl = document.getElementById('girlSentence');
+  const circleAnswer = document.getElementById('circleAnswer');
+  const triAnswer = document.getElementById('triAnswer');
+  const squareAnswer = document.getElementById('squareAnswer');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function speak(text){
+    if(!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0; u.pitch = 1.05; u.volume = 1.0;
+    window.speechSynthesis.speak(u);
+  }
+  function typeLine(el, html){
+    el.innerHTML = '';
+    let i = 0;
+    el.classList.add('show');
+    const step = () => {
+      el.innerHTML = html.slice(0, i);
+      i += 1;
+      if(i <= html.length){ setTimeout(step, 18); }
+    };
+    step();
+  }
+
+  girlBtn.addEventListener('click', () => {
+    girlSentenceEl.innerHTML = '<div class="line">Practice drawing shapes and counting points.</div>';
+    const line = girlSentenceEl.querySelector('.line');
+    line.classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    speak('Practice drawing shapes and counting points.');
+  });
+
+  function setupTrace(canvasId, kind, onDone){
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    let drawing=false; let visited=[]; let samples=[]; let done=false;
+    function resize(){
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width; canvas.height = rect.height;
+      samples = buildSamples(kind, canvas);
+      visited = new Array(samples.length).fill(false);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    function buildSamples(kind, canvas){
+      const s=[];
+      if(kind==='circle'){
+        const cx=canvas.width/2, cy=canvas.height/2; const r=Math.min(cx,cy)*0.8;
+        const steps=300;
+        for(let i=0;i<=steps;i++){
+          const t=(i/steps)*Math.PI*2;
+          s.push({x:cx+Math.cos(t)*r, y:cy+Math.sin(t)*r});
+        }
+      } else if(kind==='triangle'){
+        const pts=[{x:canvas.width*0.5,y:canvas.height*0.15},{x:canvas.width*0.2,y:canvas.height*0.85},{x:canvas.width*0.8,y:canvas.height*0.85}];
+        for(let i=0;i<3;i++){
+          const a=pts[i], b=pts[(i+1)%3];
+          const steps=200; for(let k=0;k<=steps;k++){ const t=k/steps; s.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}); }
+        }
+      } else if(kind==='square'){
+        const pts=[{x:canvas.width*0.2,y:canvas.height*0.2},{x:canvas.width*0.8,y:canvas.height*0.2},{x:canvas.width*0.8,y:canvas.height*0.8},{x:canvas.width*0.2,y:canvas.height*0.8}];
+        for(let i=0;i<4;i++){
+          const a=pts[i], b=pts[(i+1)%4];
+          const steps=200; for(let k=0;k<=steps;k++){ const t=k/steps; s.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}); }
+        }
+      }
+      return s;
+    }
+    function updateVisited(x,y){
+      const thr=10; const thr2=thr*thr; let changed=false;
+      for(let i=0;i<samples.length;i++){
+        if(visited[i]) continue; const dx=x-samples[i].x; const dy=y-samples[i].y;
+        if(dx*dx+dy*dy<=thr2){ visited[i]=true; changed=true; }
+      }
+      if(changed){
+        const pct = Math.round((visited.filter(Boolean).length / samples.length) * 100);
+        if(pct>=90 && !done){ done=true; onDone(); }
+      }
+    }
+    function getPos(e){ const rect=canvas.getBoundingClientRect(); return {x:e.clientX-rect.left, y:e.clientY-rect.top}; }
+    canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); drawing=true; const {x,y}=getPos(e); ctx.beginPath(); ctx.moveTo(x,y); updateVisited(x,y); });
+    canvas.addEventListener('pointermove', e=>{ if(!drawing) return; e.preventDefault(); const {x,y}=getPos(e); ctx.lineTo(x,y); ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#ff4d4d'; ctx.stroke(); updateVisited(x,y); });
+    const endDraw=e=>{ if(!drawing) return; e && e.preventDefault(); drawing=false; };
+    canvas.addEventListener('pointerup', endDraw); canvas.addEventListener('pointerleave', endDraw); canvas.addEventListener('pointercancel', endDraw);
+    resize(); window.addEventListener('resize', resize);
+  }
+
+  setupTrace('circleTrace','circle', () => {
+    const html='A <span class="red">circle</span> has 0 <span class="red">vertices</span>.';
+    circleAnswer.innerHTML = `<div class="line">${html}</div>`;
+    circleAnswer.querySelector('.line').classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    speak('A circle has 0 vertices.');
+  });
+  setupTrace('triTrace','triangle', () => {
+    const html='A <span class="red">triangle</span> has 3 <span class="red">vertices</span>.';
+    triAnswer.innerHTML = `<div class="line">${html}</div>`;
+    triAnswer.querySelector('.line').classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    speak('A triangle has 3 vertices.');
+  });
+  setupTrace('squareTrace','square', () => {
+    const html='A <span class="red">square</span> has 4 <span class="red">vertices</span>.';
+    squareAnswer.innerHTML = `<div class="line">${html}</div>`;
+    squareAnswer.querySelector('.line').classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    speak('A square has 4 vertices.');
+  });
+
+  prevBtn.addEventListener('click', () => { window.location.href = '../wednesday/LA25.html'; });
+  nextBtn.addEventListener('click', () => { window.location.href = '../friday/LA_Game4.html'; });
+</script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA_Revision4",
+    defaultLevel: "A",
+    defaultActivityType: "revision",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

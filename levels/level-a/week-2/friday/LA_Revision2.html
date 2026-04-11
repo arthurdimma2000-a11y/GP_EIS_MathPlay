@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Level A • Revision 2 • Triangle (3 vertices)</title>
+<style>
+  :root{
+    --card:#ffffffcc; --ink:#1f2a37; --muted:#64748b;
+    --t1:#35c8ff; --t2:#7cffa6; --t3:#ffd84d; --t4:#ff7b6a;
+    --shadow:0 18px 60px rgba(0,0,0,.18);
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 20%, #d7f5ff 0 20%, transparent 21%),
+      radial-gradient(circle at 85% 18%, #fff2cc 0 18%, transparent 19%),
+      radial-gradient(circle at 22% 85%, #eafff0 0 20%, transparent 21%),
+      radial-gradient(circle at 88% 84%, #ffe1d8 0 22%, transparent 23%),
+      linear-gradient(135deg,#fff 0%,#f5fbff 35%,#fffdf4 70%,#f7fff7 100%);
+    display:flex; align-items:center; justify-content:center; padding:18px;
+  }
+  .app{width:min(1020px,96vw)}
+  .topbar{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px}
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    background:linear-gradient(90deg,var(--t1),var(--t2),var(--t3),var(--t4));
+    color:#111; padding:10px 14px; border-radius:999px; box-shadow:var(--shadow);
+    font-weight:900;
+  }
+  .btn{appearance:none;border:0;cursor:pointer;user-select:none;padding:10px 12px;border-radius:14px;font-weight:900;background:#111827;color:#fff;box-shadow:0 10px 26px rgba(0,0,0,.2)}
+  .btn.ghost{background:#ffffffc7;color:#111827}
+  .panel{background:var(--card);border:3px solid #fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+  .hero{padding:16px 16px 0;display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  @media (max-width:900px){.hero{grid-template-columns:1fr}}
+  .title{
+    background:linear-gradient(90deg,#35c8ff,#7cffa6,#ffd84d,#ff7b6a);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-size:38px;line-height:1;margin:6px 0 8px;font-weight:1000
+  }
+  .subtitle{font-size:18px;margin:0 0 8px;color:var(--muted);font-weight:800}
+  .card{background:#fff;border-radius:18px;padding:14px;border:2px solid #eef2ff;box-shadow:0 10px 26px rgba(0,0,0,.08)}
+  .shapeStage{
+    position:relative; min-height:310px;
+    background:
+      radial-gradient(circle at 20% 25%, rgba(53,200,255,.22), transparent 45%),
+      radial-gradient(circle at 80% 30%, rgba(124,255,166,.22), transparent 50%),
+      linear-gradient(180deg,#ffffff 0%, #f6fff9 100%);
+    border-radius:18px; overflow:hidden; border:2px dashed #dbeafe;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .bigTri{
+    width:0;height:0;
+    border-left:120px solid transparent;
+    border-right:120px solid transparent;
+    border-bottom:210px solid #ff7b6a;
+    filter:drop-shadow(0 18px 32px rgba(255,123,106,.28));
+    position:relative;
+  }
+  .bigTri:before{
+    content:""; position:absolute; left:-110px; top:18px;
+    width:0;height:0;
+    border-left:110px solid transparent;
+    border-right:110px solid transparent;
+    border-bottom:190px solid rgba(255,255,255,.35);
+  }
+  .tapHint{position:absolute;left:14px;top:14px;background:#111827;color:#fff;padding:10px 12px;border-radius:999px;font-weight:900;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+  .miniRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .pill{display:inline-flex;align-items:center;gap:10px;background:#f1f5f9;border:2px solid #e2e8f0;padding:10px 12px;border-radius:999px;font-weight:900}
+  .pill b{font-size:18px}
+  .qTitle{font-size:20px;margin:14px 0 10px;font-weight:1000}
+  .answers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media (max-width:740px){.answers{grid-template-columns:1fr}}
+  .ans{background:#fff;border:2px solid #e5e7eb;border-radius:18px;padding:12px;cursor:pointer;font-weight:1000;text-align:center;box-shadow:0 10px 24px rgba(0,0,0,.06)}
+  .ans.good{border-color:#22c55e;box-shadow:0 12px 30px rgba(34,197,94,.18)}
+  .ans.bad{border-color:#ef4444;box-shadow:0 12px 30px rgba(239,68,68,.16)}
+  .footerNav{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:12px 16px;background:linear-gradient(90deg,#ffffff,#f8fff9);border-top:2px solid #eef2ff}
+  .spark{pointer-events:none;position:fixed;inset:0;overflow:hidden;z-index:9999}
+  .star{position:absolute;font-size:22px;animation:pop 900ms ease-out forwards;filter:drop-shadow(0 10px 14px rgba(0,0,0,.18))}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}12%{opacity:1}100%{transform:translate(-50%,-160%) scale(1.25);opacity:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="badge"><div>Level A <small>Revision 2</small></div><div style="font-size:20px">⭐</div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <a class="btn ghost" href="../wednesday/LA13.html">⬅ Back</a>
+      <button class="btn ghost" id="soundBtn" type="button">🔊 Sound: ON</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="hero">
+      <div class="card">
+        <div class="title">They are TRIANGLES!</div>
+        <p class="subtitle">A triangle has <b>3 vertices</b>. Tap the big triangle to hear the chime.</p>
+
+        <div class="miniRow">
+          <div class="pill">Shape: <b>Triangle</b> 🔺</div>
+          <div class="pill">Vertices: <b>3</b> ✨</div>
+          <div class="pill">Tracker: <b>level:"A"</b> 📌</div>
+        </div>
+
+        <div class="qTitle">Quick Practice</div>
+        <div class="answers" id="answers">
+          <button class="ans" data-v="0" type="button">0 vertices</button>
+          <button class="ans" data-v="3" type="button">3 vertices</button>
+          <button class="ans" data-v="4" type="button">4 vertices</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="shapeStage" id="stage">
+          <div class="tapHint">Tap me! 🎵</div>
+          <div class="bigTri" id="tri"></div>
+        </div>
+
+        <div class="qTitle">Counting Game</div>
+        <p class="subtitle" style="margin-top:-6px">How many triangle fish are showing?</p>
+        <div class="miniRow" id="countRow"></div>
+        <div class="miniRow">
+          <button class="btn" id="newCount" type="button">🎲 New Fish</button>
+          <button class="btn ghost" id="checkCount" type="button">✅ Check</button>
+        </div>
+        <p id="msg" class="subtitle" style="margin:10px 0 0">Tip: Click the number!</p>
+      </div>
+    </div>
+
+    <div class="footerNav">
+      <a class="btn ghost" href="../wednesday/LA13.html">◀ Prev</a>
+      <a class="btn" href="../friday/LA_Game2.html">Next ➜</a>
+    </div>
+  </div>
+</div>
+
+<div class="spark" id="spark"></div>
+
+<script>
+const TRACK = { level:"A" };
+const LS_KEY = "gp_kids_progress_v1";
+let soundOn = true;
+const $ = (q)=>document.querySelector(q);
+const spark = $("#spark");
+
+function saveProgress(activity, score, max){
+  const row = { ...TRACK, activity, score, max, at: new Date().toISOString(), file: location.pathname.split("/").pop() };
+  const prev = JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+  prev.push(row);
+  localStorage.setItem(LS_KEY, JSON.stringify(prev));
+}
+function starBurst(x,y,emoji="⭐"){
+  const s = document.createElement("div");
+  s.className="star"; s.textContent=emoji;
+  s.style.left=x+"px"; s.style.top=y+"px";
+  spark.appendChild(s);
+  setTimeout(()=>s.remove(), 950);
+}
+function beep(type="good"){
+  if(!soundOn) return;
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type="sine";
+  const now = ctx.currentTime;
+  const f1 = type==="good" ? 740 : 220;
+  const f2 = type==="good" ? 1240 : 180;
+  o.frequency.setValueAtTime(f1, now);
+  o.frequency.exponentialRampToValueAtTime(f2, now+0.12);
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(0.35, now+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, now+0.18);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(now); o.stop(now+0.2);
+}
+function cheer(text){
+  if(!soundOn) return;
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate=0.95; u.pitch=1.25; u.volume=1;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+$("#soundBtn").addEventListener("click", ()=>{
+  soundOn=!soundOn;
+  $("#soundBtn").textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+  beep(soundOn?"good":"bad");
+});
+
+$("#tri").addEventListener("pointerdown",(e)=>{
+  beep("good"); starBurst(e.clientX,e.clientY,"✨");
+  cheer("They are triangles!");
+});
+
+/* Triangle has 3 vertices. :contentReference[oaicite:5]{index=5} */
+const correctVertices = 3;
+$("#answers").addEventListener("click",(e)=>{
+  const b = e.target.closest(".ans"); if(!b) return;
+  const v = Number(b.dataset.v);
+  document.querySelectorAll(".ans").forEach(x=>x.classList.remove("good","bad"));
+  if(v===correctVertices){
+    b.classList.add("good");
+    beep("good"); cheer("Yes! Three vertices!");
+    starBurst(e.clientX,e.clientY,"⭐");
+    saveProgress("LA_Rev2_VerticesTriangle", 1, 1);
+  }else{
+    b.classList.add("bad");
+    beep("bad"); cheer("Try again!");
+    saveProgress("LA_Rev2_VerticesTriangle", 0, 1);
+  }
+});
+
+/* Counting: 2 or 3 fish (simple) */
+let target=2, picked=null;
+function drawFish(){
+  target = Math.random()<0.55 ? 2 : 3;
+  picked=null;
+  const row=$("#countRow"); row.innerHTML="";
+  const choices=[1,2,3].sort(()=>Math.random()-0.5);
+  choices.forEach(n=>{
+    const btn=document.createElement("button");
+    btn.className="ans"; btn.type="button";
+    btn.textContent=n+" fish";
+    btn.addEventListener("click",(e)=>{
+      picked=n;
+      document.querySelectorAll("#countRow .ans").forEach(x=>x.classList.remove("good","bad"));
+      btn.classList.add("good");
+      beep("good"); starBurst(e.clientX,e.clientY,"🐟");
+    });
+    row.appendChild(btn);
+  });
+
+  const stage=$("#stage");
+  stage.querySelectorAll(".fish").forEach(x=>x.remove());
+  for(let i=0;i<target;i++){
+    const f=document.createElement("div");
+    f.className="fish";
+    f.style.position="absolute";
+    f.style.width="0"; f.style.height="0";
+    f.style.borderLeft="42px solid transparent";
+    f.style.borderRight="42px solid transparent";
+    f.style.borderBottom="76px solid "+(i%2? "#35c8ff":"#7cffa6");
+    f.style.left=(34 + i*100)+"px";
+    f.style.bottom="28px";
+    f.style.filter="drop-shadow(0 16px 22px rgba(0,0,0,.12))";
+    stage.appendChild(f);
+  }
+  $("#msg").textContent="Pick the number of triangle fish!";
+}
+drawFish();
+
+$("#newCount").addEventListener("click",(e)=>{ drawFish(); beep("good"); starBurst(e.clientX,e.clientY,"🎲"); });
+$("#checkCount").addEventListener("click",(e)=>{
+  if(picked==null){ beep("bad"); cheer("Pick a number first!"); starBurst(e.clientX,e.clientY,"👆"); return; }
+  const ok = picked===target;
+  if(ok){
+    beep("good"); cheer("Great counting!");
+    starBurst(e.clientX,e.clientY,"🎉");
+    saveProgress("LA_Rev2_CountTriangleFish", 1, 1);
+    $("#msg").textContent=`Correct! There are ${target} triangle fish.`;
+  }else{
+    beep("bad"); cheer("Oops! Try again!");
+    starBurst(e.clientX,e.clientY,"💛");
+    saveProgress("LA_Rev2_CountTriangleFish", 0, 1);
+    $("#msg").textContent="Not quite. Try again!";
+  }
+});
+</script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+</body>
+</html>
+
+

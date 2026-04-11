@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Circle Art Class</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --panel: rgba(255, 255, 255, 0.12);
+      --panel-strong: rgba(15, 23, 42, 0.72);
+      --text: #ffffff;
+      --accent: #f59e0b;
+      --accent2: #38bdf8;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      --radius: 24px;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .page-wrap {
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .title-bar {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .title-bar h1 {
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    }
+
+    .video-shell {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1080 / 1612;
+      max-height: 90vh;
+      background: #000;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 3px solid rgba(255,255,255,0.12);
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .top-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.65), rgba(0,0,0,0.08));
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .top-nav-left,
+    .top-nav-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      pointer-events: auto;
+    }
+
+    .nav-btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      background: rgba(30, 41, 59, 0.92);
+    }
+
+    .nav-btn:active {
+      transform: scale(0.98);
+    }
+
+    .nav-home {
+      background: rgba(245, 158, 11, 0.92);
+      color: #111827;
+    }
+
+    .nav-next {
+      background: rgba(56, 189, 248, 0.95);
+      color: #082f49;
+    }
+
+    .side-nav {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .side-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: white;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      pointer-events: auto;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .side-btn:hover {
+      transform: translateY(-50%) scale(1.06);
+      background: rgba(0, 0, 0, 0.62);
+    }
+
+    .side-btn.left {
+      left: 12px;
+    }
+
+    .side-btn.right {
+      right: 12px;
+    }
+
+    .bottom-bar {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(6px);
+      z-index: 5;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+    }
+
+    .bottom-bar .lesson-name {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .bottom-bar .hint {
+      font-size: 0.86rem;
+      color: #dbeafe;
+      opacity: 0.95;
+    }
+
+    .tap-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.18);
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .tap-overlay.show {
+      opacity: 1;
+    }
+
+    .tap-card {
+      background: rgba(15, 23, 42, 0.8);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+    }
+
+    .nav-hidden {
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .nav-visible {
+      opacity: 1;
+      transition: opacity 0.25s ease;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px;
+      }
+
+      .video-shell {
+        border-radius: 18px;
+      }
+
+      .nav-btn {
+        padding: 9px 12px;
+        font-size: 0.85rem;
+      }
+
+      .side-btn {
+        width: 50px;
+        height: 50px;
+      }
+
+      .bottom-bar {
+        padding: 10px 12px;
+      }
+
+      .bottom-bar .lesson-name {
+        font-size: 0.9rem;
+      }
+
+      .bottom-bar .hint {
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="title-bar">
+      <h1>Circle Art Class</h1>
+    </div>
+
+    <div class="video-shell" id="videoShell">
+      <video
+        id="lessonVideo"
+        controls
+        playsinline
+        preload="metadata"
+      >
+        <source src="CircleArtClass.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <div class="tap-overlay" id="tapOverlay">
+        <div class="tap-card">Tap video to Play / Pause</div>
+      </div>
+
+      <div class="top-nav nav-visible" id="topNav">
+        <div class="top-nav-left">
+          <button class="nav-btn nav-home" id="homeBtn">🏠 Home</button>
+          <button class="nav-btn" id="backBtn">⬅ Back</button>
+        </div>
+
+        <div class="top-nav-right">
+          <button class="nav-btn" id="replayBtn">⟲ Replay</button>
+          <button class="nav-btn nav-next" id="nextBtn">Next ➜</button>
+          <button class="nav-btn" id="fullscreenBtn">⛶ Full Screen</button>
+        </div>
+      </div>
+
+      <div class="side-nav">
+        <button class="side-btn left" id="sideBackBtn" aria-label="Go to previous page">❮</button>
+        <button class="side-btn right" id="sideNextBtn" aria-label="Go to next page">❯</button>
+      </div>
+
+      <div class="bottom-bar nav-visible" id="bottomBar">
+        <div class="lesson-name">Circle Art Class Video</div>
+        <div class="hint">Use the buttons to move around the app</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================
+       EDIT THESE PAGE LINKS
+       ========================= */
+    const VIDEO_SRC = "CircleArtClass.mp4";
+    const HOME_PAGE = "index.html";
+    const PREVIOUS_PAGE = ""; // Example: "LA1.html"
+    const NEXT_PAGE = "";     // Example: "CircleListeningSpeaking.html"
+
+    const video = document.getElementById("lessonVideo");
+    const videoShell = document.getElementById("videoShell");
+    const homeBtn = document.getElementById("homeBtn");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const sideBackBtn = document.getElementById("sideBackBtn");
+    const sideNextBtn = document.getElementById("sideNextBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const topNav = document.getElementById("topNav");
+    const bottomBar = document.getElementById("bottomBar");
+    const tapOverlay = document.getElementById("tapOverlay");
+
+    if (video.querySelector("source")) {
+      video.querySelector("source").src = VIDEO_SRC;
+      video.load();
+    }
+
+    function goHome() {
+      window.location.href = HOME_PAGE || "index.html";
+    }
+
+    function goBackPage() {
+      if (PREVIOUS_PAGE && PREVIOUS_PAGE.trim() !== "") {
+        window.location.href = PREVIOUS_PAGE;
+      } else if (document.referrer) {
+        history.back();
+      } else {
+        window.location.href = HOME_PAGE || "index.html";
+      }
+    }
+
+    function goNextPage() {
+      if (NEXT_PAGE && NEXT_PAGE.trim() !== "") {
+        window.location.href = NEXT_PAGE;
+      } else {
+        alert("Please set your NEXT_PAGE link inside the script first.");
+      }
+    }
+
+    function replayVideo() {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    }
+
+    async function toggleFullscreen() {
+      try {
+        if (!document.fullscreenElement) {
+          await videoShell.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (err) {
+        console.log("Fullscreen not supported on this device/browser.", err);
+      }
+    }
+
+    function togglePlayPause() {
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+      showTapHint();
+    }
+
+    let navTimer;
+
+    function showNavigation() {
+      topNav.classList.remove("nav-hidden");
+      topNav.classList.add("nav-visible");
+      bottomBar.classList.remove("nav-hidden");
+      bottomBar.classList.add("nav-visible");
+
+      clearTimeout(navTimer);
+      navTimer = setTimeout(() => {
+        topNav.classList.remove("nav-visible");
+        topNav.classList.add("nav-hidden");
+        bottomBar.classList.remove("nav-visible");
+        bottomBar.classList.add("nav-hidden");
+      }, 3500);
+    }
+
+    function showTapHint() {
+      tapOverlay.classList.add("show");
+      setTimeout(() => tapOverlay.classList.remove("show"), 900);
+      showNavigation();
+    }
+
+    homeBtn.addEventListener("click", goHome);
+    backBtn.addEventListener("click", goBackPage);
+    nextBtn.addEventListener("click", goNextPage);
+    sideBackBtn.addEventListener("click", goBackPage);
+    sideNextBtn.addEventListener("click", goNextPage);
+    replayBtn.addEventListener("click", replayVideo);
+    fullscreenBtn.addEventListener("click", toggleFullscreen);
+
+    video.addEventListener("click", togglePlayPause);
+    videoShell.addEventListener("mousemove", showNavigation);
+    videoShell.addEventListener("touchstart", showNavigation, { passive: true });
+    video.addEventListener("play", showNavigation);
+    video.addEventListener("pause", showNavigation);
+    video.addEventListener("ended", showNavigation);
+
+    document.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+
+      if (key === " ") {
+        e.preventDefault();
+        togglePlayPause();
+      } else if (key === "arrowleft") {
+        e.preventDefault();
+        goBackPage();
+      } else if (key === "arrowright") {
+        e.preventDefault();
+        goNextPage();
+      } else if (key === "h") {
+        goHome();
+      } else if (key === "f") {
+        toggleFullscreen();
+      } else if (key === "r") {
+        replayVideo();
+      }
+    });
+
+    showNavigation();
+  </script>
+</body>
+</html>

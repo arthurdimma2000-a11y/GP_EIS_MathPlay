@@ -1,0 +1,1282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Vertices • Week 2 • Square & Hexagon</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
+    font-size:clamp(13px,1.9vw,19px) !important;
+    line-height:1.24 !important;
+    max-width:min(40vw,320px) !important;
+    white-space:normal !important;
+    word-break:break-word !important;
+    overflow-wrap:anywhere !important;
+  }
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
+      font-size:clamp(13px,3.6vw,17px) !important;
+      max-width:min(44vw,220px) !important;
+      line-height:1.2 !important;
+    }
+  }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#262626;
+    --frame:#5f86c8;
+    --panel:#ffffff;
+    --shadow:0 18px 45px rgba(0,0,0,.14);
+    --gridBlueSoft:rgba(58,167,232,.30);
+    --splitPink:rgba(255,145,165,.85);
+    --splitPinkSoft:rgba(255,145,165,.55);
+    --strip:#f5a5ae;
+    --sqDot:#e63a45;
+    --hexDot:#1672c6;
+    --line:#5a5a5a;
+    --good:#2fbf71;
+    --warn:#ff8a3d;
+    font-family:"Baloo 2", system-ui, -apple-system, Segoe UI, Arial;
+  }
+
+  html,body{min-height:100%;overflow-x:hidden}
+  body{
+    display:grid;
+    place-items:center;
+    padding:18px;
+    color:var(--ink);
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.04) 0 1px, transparent 1px 26px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.04) 0 1px, transparent 1px 26px),
+      #fbfaf7;
+  }
+
+  /* ---------- SAFE INTRO OVERLAY ---------- */
+  #lbIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(18,24,38,.82);
+    backdrop-filter:blur(4px);
+    padding:18px;
+    transition:opacity .35s ease, visibility .35s ease;
+  }
+  #lbIntroVideoOverlay.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .intro-card{
+    width:min(900px,96vw);
+    background:#fff;
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 25px 60px rgba(0,0,0,.28);
+    border:6px solid #7ea0de;
+  }
+  .intro-head{
+    background:linear-gradient(180deg,#ffc6d1,#f5a5ae);
+    color:#fff;
+    text-align:center;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:clamp(20px,3vw,34px);
+    padding:14px 16px;
+  }
+  .intro-body{
+    padding:14px;
+    background:#fffefc;
+  }
+  .intro-video-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    background:#000;
+    border-radius:18px;
+    overflow:hidden;
+  }
+  #lbIntroVideo{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+    background:#000;
+  }
+  .intro-fallback{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:#fff;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:clamp(18px,2.5vw,28px);
+    padding:20px;
+    background:linear-gradient(135deg,#3b4e88,#f5a5ae);
+  }
+  .intro-fallback.hidden{display:none}
+  .intro-controls{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    padding:14px 10px 16px;
+  }
+  .intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 18px;
+    font-size:15px;
+    font-weight:900;
+    cursor:pointer;
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+    box-shadow:0 5px 0 rgba(0,0,0,.20);
+  }
+  .intro-btn:active{
+    transform:translateY(2px);
+    box-shadow:0 2px 0 rgba(0,0,0,.20);
+  }
+
+  .sheet{
+    width:min(980px, 96vw);
+    background:rgba(255,255,255,.90);
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    position:relative;
+    padding:16px 16px 18px;
+    overflow:hidden;
+  }
+  .sheet:before{
+    content:"";
+    position:absolute; inset:10px;
+    border-radius:22px;
+    border:10px solid var(--frame);
+    box-shadow: inset 0 0 0 4px rgba(255,255,255,.80);
+    pointer-events:none;
+  }
+  .paper{
+    position:absolute; inset:24px;
+    border-radius:18px;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.045) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.045) 0 1px, transparent 1px 22px);
+    opacity:.55;
+    pointer-events:none;
+  }
+
+  .title{
+    margin:0;
+    text-align:center;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size: clamp(58px, 6vw, 96px);
+    line-height:1;
+    color:#fff;
+    letter-spacing:.6px;
+    text-shadow:0 10px 0 rgba(95,134,200,.20),0 3px 0 rgba(0,0,0,.08);
+    -webkit-text-stroke: 14px var(--frame);
+    paint-order: stroke fill;
+    position:relative;
+    z-index:3;
+  }
+
+  .week{
+    position:absolute;
+    right:28px;
+    top:108px;
+    z-index:3;
+    padding:8px 12px;
+    border-radius:12px;
+    background:rgba(255,255,255,.92);
+    border:2px solid rgba(0,0,0,.10);
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:18px;
+    box-shadow:0 10px 16px rgba(0,0,0,.12);
+  }
+
+  .teacher{
+    position:absolute;
+    left:16px;
+    top:120px;
+    z-index:3;
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,.18));
+  }
+  .teacher img{ width:165px; height:auto; display:block; }
+
+  .instruction{
+    position:relative;
+    z-index:3;
+    margin:8px auto 0;
+    width:min(820px, 92%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:22px;
+    text-align:center;
+  }
+  .instruction .n{ color:#d62828; font-weight:900; }
+
+  .topicRow{
+    position:relative;
+    z-index:2;
+    margin:10px auto 0;
+    width:min(860px, 92%);
+    background:var(--strip);
+    border-radius:8px 8px 0 0;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:center;
+    text-align:center;
+    color:#fff;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:44px;
+    padding:16px 10px 16px;
+    box-shadow:0 12px 18px rgba(0,0,0,.12);
+  }
+
+  .board{
+    position:relative;
+    z-index:2;
+    margin:0 auto;
+    width:min(860px, 92%);
+    background:#fff;
+    border:3px solid var(--splitPinkSoft);
+    border-top:none;
+    border-radius:0 0 10px 10px;
+    overflow:hidden;
+    box-shadow:0 14px 18px rgba(0,0,0,.10);
+    touch-action:none;
+    user-select:none;
+  }
+  .board svg{
+    display:block;
+    width:100%;
+    height:auto;
+    touch-action:none;
+    background:#fff;
+  }
+
+  .borderIn{stroke:var(--splitPinkSoft);stroke-width:4;fill:none}
+  .cross{stroke:var(--splitPink);stroke-width:4}
+  .gridLine{stroke:var(--gridBlueSoft);stroke-width:1}
+  .gridLineBold{stroke:rgba(58,167,232,.65);stroke-width:1.6}
+
+  .shapeLine{
+    stroke:var(--line);
+    stroke-width:2.8;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    fill:none;
+  }
+
+  .trace-guide{
+    stroke:transparent;
+    stroke-width:30;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    fill:none;
+    pointer-events:stroke;
+  }
+
+  .vDot{cursor:grab;filter:drop-shadow(0 5px 6px rgba(0,0,0,.16))}
+  .vDot:active{cursor:grabbing}
+  .vDotStatic{filter:drop-shadow(0 5px 6px rgba(0,0,0,.16))}
+
+  .controls{
+    position:relative;
+    z-index:3;
+    margin:10px auto 0;
+    width:min(860px, 92%);
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .pill{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+  button{
+    border:none;
+    border-radius:999px;
+    padding:10px 14px;
+    font-size:14px;
+    font-weight:900;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+    box-shadow:0 5px 0 rgba(0,0,0,.20);
+    transition:transform .08s ease, box-shadow .08s ease;
+    user-select:none;
+  }
+  button:active{transform:translateY(2px) scale(.99);box-shadow:0 2px 0 rgba(0,0,0,.20)}
+  .toggle{background:linear-gradient(180deg,#eafff5,#b6ffd9);color:#0a6b3b}
+
+  .status{
+    background:rgba(255,255,255,.92);
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:16px;
+    padding:10px 14px;
+    box-shadow:0 10px 16px rgba(0,0,0,.12);
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .status .dot{
+    width:12px;height:12px;border-radius:50%;
+    background:var(--good);
+    box-shadow:0 0 0 4px rgba(47,191,113,.18);
+  }
+
+  .tap-line{
+    position:relative;
+    text-align:center;
+    font-family:"Comic Sans MS","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:34px;
+    color:#2b2b2b;
+    opacity:0;
+    transition:opacity .25s ease;
+    z-index:3;
+    white-space:nowrap;
+  }
+  .tap-line.show{opacity:1}
+  .tap-line .r{color:#d62828}
+  .tap-line .b{color:#1672c6}
+
+  .trace-panel{
+    position:relative;
+    z-index:3;
+    margin:10px auto 0;
+    width:min(860px, 92%);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .trace-text{text-align:center;min-height:2.2em}
+
+  .progress-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .progress-wrap{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .progress-message{
+    font-size:1.1rem;
+    font-weight:900;
+    text-align:center;
+    min-height:1.5em;
+    color:#2e9b2e;
+  }
+  .progress-message.square{color:#d62828}
+  .progress-message.hex{color:#1672c6}
+  .progress-label{font-size:.83rem;text-align:center}
+  .progress-bar{
+    width:100%;
+    height:12px;
+    border-radius:999px;
+    background:#e7efff;
+    overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#3cc4ff,#7dffb3);
+    transition:width .12s linear;
+  }
+
+  .girl-inline{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+  .girl-inline img{
+    width:64px;height:64px;border-radius:16px;object-fit:cover;
+    border:4px solid #ffe3f7;background:#ffd6f2;
+    box-shadow:0 6px 12px rgba(0,0,0,.18);cursor:pointer;
+  }
+  .girl-inline span{
+    font-size:14px;font-weight:900;color:#1d5fd6;text-align:center;
+  }
+
+  #traceCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    touch-action:none;
+    pointer-events:none;
+  }
+
+  .pageno{
+    position:absolute;
+    right:20px;
+    bottom:18px;
+    width:44px;height:44px;
+    border-radius:50%;
+    background:rgba(0,0,0,.78);
+    color:#fff;
+    display:grid;
+    place-items:center;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    z-index:4;
+  }
+
+  @media (max-width:780px){
+    body{padding:10px}
+    .teacher{transform:scale(.88);transform-origin:left top;left:6px;top:130px}
+    .topicRow{font-size:34px}
+    .tap-line{font-size:24px;white-space:normal}
+    .progress-row{flex-direction:column;align-items:stretch}
+    .week{top:92px;right:18px}
+  }
+</style>
+</head>
+
+<body>
+
+<!-- SAFE INTRO VIDEO -->
+<div class="sheet" role="application" aria-label="Vertices Week 2 Square and Hexagon practice">
+  <div class="paper" aria-hidden="true"></div>
+
+  <h1 class="title">Vertices</h1>
+  <div class="week">Week 2</div>
+
+  <div class="teacher" aria-hidden="true">
+    <img src="../../../../assets/images/shapes/OrangeHeadWoman.png" alt="">
+  </div>
+
+  <div class="instruction">
+    <span class="n">(1)</span>
+    <span>Practice drawing squares and hexagons.</span>
+  </div>
+
+  <div class="topicRow">
+    <div>Square</div>
+    <div>Hexagon</div>
+  </div>
+
+  <div class="board" aria-label="Grid board for Square and Hexagon">
+    <svg id="boardSvg" viewBox="0 0 860 620" aria-label="Draw and trace the shapes">
+      <rect x="8" y="8" width="844" height="604" class="borderIn"></rect>
+      <line x1="430" y1="8" x2="430" y2="612" class="cross"></line>
+      <line x1="8" y1="310" x2="852" y2="310" class="cross"></line>
+
+      <g opacity=".95">
+        <g id="gridV"></g>
+        <g id="gridH"></g>
+      </g>
+
+      <g id="shapes"></g>
+    </svg>
+    <canvas id="traceCanvas"></canvas>
+  </div>
+
+  <div class="trace-panel">
+    <div class="trace-text" id="traceText">
+      <div class="tap-line" id="tapLine1">A square has <span class="r">4 vertices</span>.</div>
+      <div class="tap-line" id="tapLine2">A hexagon has <span class="b">6 vertices</span>.</div>
+    </div>
+
+    <div class="progress-row">
+      <div class="progress-wrap">
+        <div class="progress-message square" id="progressMessageSquare"></div>
+        <div class="progress-label">Square trace: <span id="progressPercentSquare">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFillSquare"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-message hex" id="progressMessageHex"></div>
+        <div class="progress-label">Hexagon trace: <span id="progressPercentHex">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFillHex"></div></div>
+      </div>
+    </div>
+    <div id="vertexEntryMount"></div>
+  </div>
+
+  <div class="controls">
+    <div class="pill">
+      <button id="prevBtn" type="button">Previous</button>
+      <button id="nextBtn" type="button">Next</button>
+      <button id="resetBtn" type="button">↺ Reset</button>
+      <button id="snapBtn" class="toggle" type="button">↔ Snap: <span id="snapLabel">ON</span></button>
+      <button id="checkBtn" type="button">✓ Check</button>
+      <div class="girl-inline" aria-label="Tap the girl">
+        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="tapGirl">
+        <span>Tap the girl</span>
+      </div>
+    </div>
+
+    <div class="status" aria-live="polite">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Trace the dashed lines and drag the bottom dots to practise!</span>
+    </div>
+  </div>
+
+  <div class="pageno" aria-hidden="true">9</div>
+</div>
+
+<script>
+  let chime = null;
+  try{
+    chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    chime.preload = "auto";
+    chime.volume = 0.9;
+  }catch(e){}
+
+  function tryChime(){
+    try{
+      if(!chime) return;
+      const s = chime.cloneNode(true);
+      s.currentTime = 0;
+      const p = s.play();
+      if(p && p.catch) p.catch(()=>{});
+    }catch(e){}
+  }
+
+  const svg = document.getElementById("boardSvg");
+  const boardEl = document.querySelector(".board");
+  const gGridV = document.getElementById("gridV");
+  const gGridH = document.getElementById("gridH");
+  const gShapes = document.getElementById("shapes");
+  const traceCanvas = document.getElementById("traceCanvas");
+  const traceCtx = traceCanvas ? traceCanvas.getContext("2d") : null;
+
+  const statusText = document.getElementById("statusText");
+  const statusDot  = document.getElementById("statusDot");
+  const resetBtn   = document.getElementById("resetBtn");
+  const snapBtn    = document.getElementById("snapBtn");
+  const snapLabel  = document.getElementById("snapLabel");
+  const checkBtn   = document.getElementById("checkBtn");
+  const prevBtn    = document.getElementById("prevBtn");
+  const nextBtn    = document.getElementById("nextBtn");
+  const tapGirl    = document.getElementById("tapGirl");
+  const tapLine1   = document.getElementById("tapLine1");
+  const tapLine2   = document.getElementById("tapLine2");
+  const progressPercentSquareEl = document.getElementById("progressPercentSquare");
+  const progressFillSquareEl = document.getElementById("progressFillSquare");
+  const progressMessageSquareEl = document.getElementById("progressMessageSquare");
+  const progressPercentHexEl = document.getElementById("progressPercentHex");
+  const progressFillHexEl = document.getElementById("progressFillHex");
+  const progressMessageHexEl = document.getElementById("progressMessageHex");
+
+  const GRID = 28, W = 860, H = 620, PAD = 24;
+  let snapOn = true;
+  let dragging = null;
+  let tracing = false;
+  let lastTraceSvgPos = null;
+  let lastTraceGroup = null;
+  let traceClearTimer = null;
+  let lastLiveSaveAt = 0;
+
+  const quads = {
+    TL: {x0:8+PAD,   y0:8+PAD,   x1:430-PAD, y1:310-PAD},
+    BL: {x0:8+PAD,   y0:310+PAD, x1:430-PAD, y1:612-PAD},
+    TR: {x0:430+PAD, y0:8+PAD,   x1:852-PAD, y1:310-PAD},
+    BR: {x0:430+PAD, y0:310+PAD, x1:852-PAD, y1:612-PAD},
+  };
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+  function snap(v){ return Math.round(v/GRID)*GRID; }
+
+  function setStatus(msg, good=true){
+    statusText.textContent = msg;
+    statusDot.style.background = good ? "var(--good)" : "var(--warn)";
+    statusDot.style.boxShadow = good
+      ? "0 0 0 4px rgba(47,191,113,.18)"
+      : "0 0 0 4px rgba(255,138,61,.20)";
+  }
+
+  function drawGrid(){
+    gGridV.innerHTML = "";
+    gGridH.innerHTML = "";
+
+    let idx = 0;
+    for(let x=0;x<=W;x+=GRID){
+      const ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln.setAttribute("x1", x); ln.setAttribute("y1", 0);
+      ln.setAttribute("x2", x); ln.setAttribute("y2", H);
+      ln.setAttribute("class", (idx % 5 === 0) ? "gridLineBold" : "gridLine");
+      if (x === 430 || x === 0 || x === 860) ln.style.display = "none";
+      gGridV.appendChild(ln);
+      idx++;
+    }
+
+    idx = 0;
+    for(let y=0;y<=H;y+=GRID){
+      const ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln.setAttribute("x1", 0); ln.setAttribute("y1", y);
+      ln.setAttribute("x2", W); ln.setAttribute("y2", y);
+      ln.setAttribute("class", (idx % 5 === 0) ? "gridLineBold" : "gridLine");
+      if (y === 310 || y === 0 || y === 620) ln.style.display = "none";
+      gGridH.appendChild(ln);
+      idx++;
+    }
+  }
+
+  const defaults = (() => {
+    function squareCorners(q){
+      return [
+        { x:q.x0, y:q.y0 },
+        { x:q.x0, y:q.y1 },
+        { x:q.x1, y:q.y1 },
+        { x:q.x1, y:q.y0 }
+      ];
+    }
+    function flatHexCentered(q){
+      const cx = (q.x0 + q.x1) / 2;
+      const cy = (q.y0 + q.y1) / 2;
+      const a = Math.min((q.x1 - q.x0) * 0.42, 160);
+      const b = Math.min((q.y1 - q.y0) * 0.36, 92);
+      return [
+        { x: cx - a,   y: cy },
+        { x: cx - a/2, y: cy - b },
+        { x: cx + a/2, y: cy - b },
+        { x: cx + a,   y: cy },
+        { x: cx + a/2, y: cy + b },
+        { x: cx - a/2, y: cy + b }
+      ];
+    }
+    return {
+      sqTL: squareCorners(quads.TL),
+      sqBL: squareCorners(quads.BL),
+      hexTR: flatHexCentered(quads.TR),
+      hexBR: flatHexCentered(quads.BR),
+    };
+  })();
+
+  let shapes = JSON.parse(JSON.stringify(defaults));
+  let traceModel = {
+    square: { points: [], visited: [] },
+    hex: { points: [], visited: [] }
+  };
+  let combinedProgress = 0;
+
+  function polyPoints(arr){ return arr.map(p => `${p.x},${p.y}`).join(" "); }
+
+  function updateProgressUI(squarePct, hexPct){
+    squarePct = Math.max(0, Math.min(100, Math.round(squarePct)));
+    hexPct = Math.max(0, Math.min(100, Math.round(hexPct)));
+    progressPercentSquareEl.textContent = squarePct + "%";
+    progressFillSquareEl.style.width = squarePct + "%";
+    progressPercentHexEl.textContent = hexPct + "%";
+    progressFillHexEl.style.width = hexPct + "%";
+  }
+
+  function saveCombinedProgress(score, squarePct, hexPct){
+    const stars = score >= 90 ? 3 : score >= 70 ? 2 : score >= 50 ? 1 : 0;
+    if (window.finishAndSave && typeof window.finishAndSave === "function") {
+      window.finishAndSave({
+        pageId:"LB9",
+        level:"B",
+        activityType:"tracing",
+        score,
+        tracing: score,
+        stars,
+        skills: {
+          writing: Math.round((squarePct + hexPct) / 100),
+          reading: 1,
+          speaking: 0,
+          listening: 0
+        },
+        extra: { square: squarePct, hexagon: hexPct, vertexProgress: vertexEntry?.getVertexProgress?.() || 0, vertices: vertexEntry?.getValues?.() || {}, live: true }
+      }).catch(() => {});
+    }
+    saveProgressReport(squarePct, hexPct, score, stars);
+  }
+
+  let vertexEntry = null;
+  vertexEntry = window.GPVertexEntry?.create({
+    mount: "#vertexEntryMount",
+    title: "Write the number of vertices",
+    prompt: "Write 4 for square and 6 for hexagon.",
+    showProgress: true,
+    progressLabel: "Trace and vertex progress",
+    items: [
+      { id: "squareVertices", label: "Square", answer: 4, hint: "Write 4", successSpeech: "Correct. A square has 4 vertices." },
+      { id: "hexagonVertices", label: "Hexagon", answer: 6, hint: "Write 6", successSpeech: "Correct. A hexagon has 6 vertices." }
+    ],
+    onProgress(state){
+      combinedProgress = state.totalProgress;
+      saveCombinedProgress(state.totalProgress, getPercent("square"), getPercent("hex"));
+    }
+  }) || null;
+
+  function createLineSamples(a, b, spacing=5){
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const dist = Math.hypot(dx, dy);
+    const steps = Math.max(1, Math.ceil(dist / spacing));
+    const out = [];
+    for(let i=0;i<=steps;i++){
+      out.push({ x:a.x + dx*i/steps, y:a.y + dy*i/steps });
+    }
+    return out;
+  }
+
+  function createPolygonSamples(pts){
+    const out = [];
+    for(let i=0;i<pts.length;i++){
+      out.push(...createLineSamples(pts[i], pts[(i+1)%pts.length]));
+    }
+    return out;
+  }
+
+  function buildTraceSamples(){
+    traceModel.square.points = [
+      ...createPolygonSamples(shapes.sqTL),
+      ...createPolygonSamples(shapes.sqBL)
+    ];
+    traceModel.hex.points = [
+      ...createPolygonSamples(shapes.hexTR),
+      ...createPolygonSamples(shapes.hexBR)
+    ];
+    traceModel.square.visited = new Array(traceModel.square.points.length).fill(false);
+    traceModel.hex.visited = new Array(traceModel.hex.points.length).fill(false);
+    if (vertexEntry) vertexEntry.reset();
+    updateProgressUI(0,0);
+    progressMessageSquareEl.textContent = "";
+    progressMessageHexEl.textContent = "";
+    lastLiveSaveAt = 0;
+    saveCombinedProgress(0, 0, 0);
+  }
+
+  function resizeTraceCanvas(){
+    if (!traceCanvas || !traceCtx || !boardEl) return;
+    const rect = boardEl.getBoundingClientRect();
+    traceCanvas.width = Math.max(1, Math.round(rect.width * devicePixelRatio));
+    traceCanvas.height = Math.max(1, Math.round(rect.height * devicePixelRatio));
+    traceCanvas.style.width = rect.width + "px";
+    traceCanvas.style.height = rect.height + "px";
+    traceCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    clearTraceDrawingOnly();
+  }
+
+  function clearTraceDrawingOnly(){
+    if (!traceCanvas || !traceCtx || !boardEl) return;
+    const rect = boardEl.getBoundingClientRect();
+    traceCtx.clearRect(0,0,rect.width,rect.height);
+  }
+
+  function clearAllTraceProgress(){
+    clearTraceDrawingOnly();
+    buildTraceSamples();
+    lastTraceSvgPos = null;
+  }
+
+  function getCanvasPos(evt){
+    const rect = boardEl.getBoundingClientRect();
+    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+  }
+
+  function getSvgPos(evt){
+    const rect = svg.getBoundingClientRect();
+    return {
+      x:(evt.clientX - rect.left) * (W / rect.width),
+      y:(evt.clientY - rect.top) * (H / rect.height)
+    };
+  }
+
+  function updateVisitedForGroup(group, x, y){
+    const model = traceModel[group];
+    if (!model || !model.points.length) return;
+    const thr2 = 28 * 28;
+    for(let i=0;i<model.points.length;i++){
+      if(model.visited[i]) continue;
+      const dx = x - model.points[i].x;
+      const dy = y - model.points[i].y;
+      if(dx*dx + dy*dy <= thr2) model.visited[i] = true;
+    }
+  }
+
+  function getPercent(group){
+    const model = traceModel[group];
+    if (!model || !model.points.length) return 0;
+    const done = model.visited.filter(Boolean).length;
+    return Math.round((done / model.points.length) * 100);
+  }
+
+  function refreshProgress(){
+    const s = getPercent("square");
+    const h = getPercent("hex");
+    updateProgressUI(s,h);
+    const avg = Math.round((s + h) / 2);
+    combinedProgress = vertexEntry ? vertexEntry.setBaseProgress(avg) : avg;
+    const now = Date.now();
+    if ((now - lastLiveSaveAt) > 350 || s >= 90 || h >= 90) {
+      lastLiveSaveAt = now;
+      saveCombinedProgress(combinedProgress, s, h);
+    }
+    return { s,h };
+  }
+
+  function applyTraceSegment(fromPos, toPos){
+    if (!toPos) return;
+    if (!fromPos){
+      const group = toPos.x < (W/2) ? "square" : "hex";
+      updateVisitedForGroup(group, toPos.x, toPos.y);
+      refreshProgress();
+      return;
+    }
+
+    const dx = toPos.x - fromPos.x;
+    const dy = toPos.y - fromPos.y;
+    const dist = Math.hypot(dx, dy);
+    const steps = Math.max(1, Math.ceil(dist / 6));
+
+    for(let i=0;i<=steps;i++){
+      const t = i/steps;
+      const px = fromPos.x + dx*t;
+      const py = fromPos.y + dy*t;
+      const group = px < (W/2) ? "square" : "hex";
+      updateVisitedForGroup(group, px, py);
+    }
+    refreshProgress();
+  }
+
+  function feedbackFor(pct){
+    if (pct >= 90) return "Wow! You are super smart!";
+    if (pct >= 70) return "Amazing job!";
+    if (pct >= 40) return "Good job! Keep tracing!";
+    return "Try again!";
+  }
+
+  function saveProgressReport(squarePct, hexPct, score, stars){
+    const payload = {
+      pageId: "LB9",
+      page: "LB9",
+      file: "LB9.html",
+      title: document.title,
+      level: "B",
+      week: 2,
+      lesson: "Square and Hexagon",
+      activityType: "trace",
+      score,
+      stars,
+      completed: squarePct >= 90 && hexPct >= 90,
+      dateISO: new Date().toISOString(),
+      tracePercentSquare: squarePct,
+      tracePercentHex: hexPct,
+      skills: {
+        writing: Math.round((squarePct + hexPct) / 100),
+        reading: 1,
+        speaking: 0,
+        listening: 0
+      },
+      extra: { square: squarePct, hexagon: hexPct }
+    };
+
+    try{
+      const key = "gp_eis_activity_results";
+      const oldData = JSON.parse(localStorage.getItem(key) || "[]");
+      const idx = oldData.findIndex(item => item.pageId === "LB9");
+      if (idx >= 0) oldData[idx] = payload;
+      else oldData.push(payload);
+      localStorage.setItem(key, JSON.stringify(oldData));
+      localStorage.setItem("gp_last_activity_result", JSON.stringify(payload));
+      localStorage.setItem("LB9_result", JSON.stringify(payload));
+    }catch(e){}
+
+    if (window.finishAndSave && typeof window.finishAndSave === "function") {
+      window.finishAndSave({
+        pageId:"LB9",
+        level:"B",
+        activityType:"tracing",
+        score,
+        stars,
+        skills:payload.skills,
+        extra:payload.extra
+      }).catch(()=>{});
+    }
+  }
+
+  function maybeFinishTrace(force=false){
+    const squarePct = getPercent("square");
+    const hexPct = getPercent("hex");
+    progressMessageSquareEl.textContent = feedbackFor(squarePct);
+    progressMessageHexEl.textContent = feedbackFor(hexPct);
+
+    if ((squarePct >= 90 && hexPct >= 90) || force) {
+      const avgScore = Math.round((squarePct + hexPct) / 2);
+      const stars = avgScore >= 90 ? 3 : avgScore >= 70 ? 2 : avgScore >= 50 ? 1 : 0;
+      saveProgressReport(squarePct, hexPct, avgScore, stars);
+      setStatus("Excellent! Result saved to ProgressReport.html ✅", true);
+      tryChime();
+    }
+  }
+
+  function render(){
+    gShapes.innerHTML = "";
+
+    function addShape(id, pts, dotColor, quadKey, dashed=false, dotClass="vDot"){
+      const poly = document.createElementNS("http://www.w3.org/2000/svg","polyline");
+      const closed = pts.concat([pts[0]]);
+      poly.setAttribute("points", polyPoints(closed));
+      poly.setAttribute("class","shapeLine");
+      if (dashed) poly.setAttribute("stroke-dasharray", "10 8");
+      gShapes.appendChild(poly);
+
+      if (dashed) {
+        const guide = document.createElementNS("http://www.w3.org/2000/svg","polyline");
+        guide.setAttribute("points", polyPoints(closed));
+        guide.setAttribute("class","trace-guide");
+        gShapes.appendChild(guide);
+      }
+
+      pts.forEach((p, i) => {
+        const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+        c.setAttribute("cx", p.x);
+        c.setAttribute("cy", p.y);
+        c.setAttribute("r", 7.5);
+        c.setAttribute("fill", dotColor);
+        c.setAttribute("class", dotClass);
+        c.dataset.shape = id;
+        c.dataset.index = i;
+        c.dataset.quad = quadKey;
+        gShapes.appendChild(c);
+      });
+    }
+
+    addShape("sqTL",  shapes.sqTL,  "var(--sqDot)",  "TL", true,  "vDotStatic");
+    addShape("hexTR", shapes.hexTR, "var(--hexDot)", "TR", true,  "vDotStatic");
+    addShape("sqBL",  shapes.sqBL,  "var(--sqDot)",  "BL", true, "vDot");
+    addShape("hexBR", shapes.hexBR, "var(--hexDot)", "BR", true, "vDot");
+  }
+
+  function svgPointFromEvent(evt){
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    const m = svg.getScreenCTM();
+    if(!m) return {x:0,y:0};
+    return pt.matrixTransform(m.inverse());
+  }
+
+  svg.addEventListener("pointerdown", (e) => {
+    const t = e.target;
+    if(t && t.classList && t.classList.contains("vDot")) {
+      e.preventDefault();
+      dragging = {
+        shape: t.dataset.shape,
+        index: +t.dataset.index,
+        quad: t.dataset.quad
+      };
+      try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    }
+  });
+
+  svg.addEventListener("pointermove", (e) => {
+    if(!dragging) return;
+    e.preventDefault();
+
+    const p = svgPointFromEvent(e);
+    const q = quads[dragging.quad];
+
+    let x = clamp(p.x, q.x0, q.x1);
+    let y = clamp(p.y, q.y0, q.y1);
+
+    if(snapOn){
+      x = snap(x); y = snap(y);
+      x = clamp(x, q.x0, q.x1);
+      y = clamp(y, q.y0, q.y1);
+    }
+
+    shapes[dragging.shape][dragging.index].x = x;
+    shapes[dragging.shape][dragging.index].y = y;
+    render();
+  });
+
+  function startTraceFromEvent(e){
+    if (!traceCanvas || !traceCtx || dragging) return;
+    const target = e.target;
+    if (target && target.classList && target.classList.contains("vDot")) return;
+    if (target && target.closest && target.closest("button, .controls, .girl-inline, #tapGirl")) return;
+
+    e.preventDefault();
+    tracing = true;
+
+    const pos = getCanvasPos(e);
+    traceCtx.beginPath();
+    traceCtx.moveTo(pos.x, pos.y);
+    traceCtx.lineWidth = 7;
+    traceCtx.lineCap = "round";
+    traceCtx.lineJoin = "round";
+    traceCtx.strokeStyle = "#ff4d4d";
+
+    const svgPos = getSvgPos(e);
+    lastTraceGroup = svgPos.x < (W / 2) ? "square" : "hex";
+    lastTraceSvgPos = svgPos;
+    applyTraceSegment(null, svgPos);
+  }
+
+  function moveTraceFromEvent(e){
+    if (!tracing || !traceCanvas || !traceCtx) return;
+    e.preventDefault();
+
+    const pos = getCanvasPos(e);
+    traceCtx.lineTo(pos.x, pos.y);
+    traceCtx.stroke();
+
+    const svgPos = getSvgPos(e);
+    applyTraceSegment(lastTraceSvgPos, svgPos);
+    lastTraceSvgPos = svgPos;
+  }
+
+  function endDragOrTrace(){
+    if (dragging) {
+      dragging = null;
+      clearAllTraceProgress();
+      setStatus("Shape updated. Trace all the dashed square and hexagon lines.", true);
+    }
+    if (tracing) {
+      tracing = false;
+      lastTraceSvgPos = null;
+      maybeFinishTrace(false);
+
+      if (traceClearTimer) clearTimeout(traceClearTimer);
+      traceClearTimer = setTimeout(() => {
+        clearTraceDrawingOnly();
+      }, 5000);
+    }
+  }
+
+  boardEl.addEventListener("pointerdown", startTraceFromEvent, { passive:false });
+  window.addEventListener("pointermove", moveTraceFromEvent, { passive:false });
+  window.addEventListener("pointerup", endDragOrTrace, { passive:false });
+  window.addEventListener("pointercancel", endDragOrTrace, { passive:false });
+
+  resetBtn.addEventListener("click", () => {
+    shapes = JSON.parse(JSON.stringify(defaults));
+    render();
+    clearAllTraceProgress();
+    setStatus("Reset done! Trace the dashed lines again and drag the bottom dots. ⭐", true);
+    tryChime();
+  });
+
+  snapBtn.addEventListener("click", () => {
+    snapOn = !snapOn;
+    snapLabel.textContent = snapOn ? "ON" : "OFF";
+    setStatus(snapOn ? "Snap is ON. Dots jump to the grid!" : "Snap is OFF. Move dots freely!", true);
+    tryChime();
+  });
+
+  checkBtn.addEventListener("click", () => {
+    const s = getPercent("square");
+    const h = getPercent("hex");
+    maybeFinishTrace(true);
+
+    const lines = svg.querySelectorAll(".shapeLine");
+    lines.forEach(l => l.style.strokeWidth = "4");
+    setTimeout(()=> lines.forEach(l => l.style.strokeWidth = "2.8"), 220);
+
+    setStatus(`Square trace ${s}% • Hexagon trace ${h}% • Saved to ProgressReport.html`, true);
+  });
+
+  prevBtn.addEventListener("click", () => { window.location.href = "LB8.html"; });
+  nextBtn.addEventListener("click", () => {
+    const s = getPercent("square");
+    const h = getPercent("hex");
+    const avg = Math.round((s + h) / 2);
+    const stars = avg >= 90 ? 3 : avg >= 70 ? 2 : avg >= 50 ? 1 : 0;
+    saveProgressReport(s, h, avg, stars);
+    window.location.href = "../tuesday/LB10.html";
+  });
+
+  function speak(text, onend){
+    if (!("speechSynthesis" in window)) { if(onend) onend(); return; }
+    try{
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.0;
+      u.pitch = 1.08;
+      u.onend = () => onend && onend();
+      u.onerror = () => onend && onend();
+      speechSynthesis.speak(u);
+    }catch(e){
+      if(onend) onend();
+    }
+  }
+
+  function showTapLines(){
+    tapLine1.classList.add("show");
+    tapLine2.classList.remove("show");
+    tryChime();
+    speak("A square has 4 vertices.", () => {
+      setTimeout(() => {
+        tapLine2.classList.add("show");
+        speak("A hexagon has 6 vertices.");
+      }, 1200);
+    });
+  }
+
+  if (tapGirl) tapGirl.addEventListener("click", showTapLines);
+
+  window.addEventListener("load", () => {
+    drawGrid();
+    render();
+    buildTraceSamples();
+    resizeTraceCanvas();
+    setStatus("Trace the dashed lines and drag the bottom dots to practise!", true);
+  });
+
+  window.addEventListener("resize", resizeTraceCanvas);
+</script>
+<script src="../../../../activity-standardizer.js"></script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LB9",
+    defaultLevel: "B",
+    defaultActivityType: "tracing",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
