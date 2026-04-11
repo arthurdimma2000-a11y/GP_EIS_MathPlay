@@ -2970,7 +2970,6 @@
 
       const PARTNER_ACCESS_CONFIG = {
         LOCAL_ADMIN_KEY: "GPEIS-ADMIN-2026",
-        listEndpoint: "/.netlify/functions/get-approved-schools",
         verifyEndpoint: "/.netlify/functions/verify-partner-school",
         saveEndpoint: "/.netlify/functions/admin-save-school"
       };
@@ -4096,56 +4095,13 @@
 
     async function loadPartnerSchoolsFromCloud(options = {}){
       const currentLocal = getPartnerSchools();
-      try {
-        const response = await fetch(`${PARTNER_ACCESS_CONFIG.listEndpoint}?t=${Date.now()}`, {
-          method: "GET",
-          cache: "no-store",
-          headers: { "Accept": "application/json" }
-        });
-        if (!response.ok) throw new Error("Partner school list endpoint is not ready.");
-
-        const data = await safeJsonResponse(response);
-        const incoming = Array.isArray(data.schools) ? data.schools : [];
-        if (!incoming.length) {
-          renderPartnerSchoolUI();
-          if (!options.quiet && teacherPartnerStatus) {
-            teacherPartnerStatus.innerHTML = currentLocal.length
-              ? `<span class="muted">Using saved partner security records from this device.</span>`
-              : `<span class="muted">No approved partner security records were returned yet.</span>`;
-          }
-          return currentLocal;
-        }
-
-        const mergedMap = new Map(currentLocal.map(item => [item.schoolId, item]));
-        incoming.forEach((item) => {
-          const normalized = normalizePartnerSchoolRecord({
-            schoolId: item.schoolId,
-            schoolName: item.schoolName,
-            inviteCode: item.inviteCode || (mergedMap.get(slugifyPartnerSchoolId(item.schoolId)) || {}).inviteCode || "",
-            approved: item.approved !== false,
-            active: item.active !== false
-          });
-          if (normalized) {
-            mergedMap.set(normalized.schoolId, {
-              ...(mergedMap.get(normalized.schoolId) || {}),
-              ...normalized
-            });
-          }
-        });
-        setPartnerSchools(Array.from(mergedMap.values()));
-        if (!options.quiet && teacherPartnerStatus) {
-          teacherPartnerStatus.innerHTML = `<span class="ok">Partner security records refreshed successfully.</span>`;
-        }
-        return getPartnerSchools();
-      } catch (_) {
-        renderPartnerSchoolUI();
-        if (!options.quiet && teacherPartnerStatus) {
-          teacherPartnerStatus.innerHTML = currentLocal.length
-            ? `<span class="muted">Using saved partner security records from this device.</span>`
-            : `<span class="danger">No approved partner security records are available yet on this device.</span>`;
-        }
-        return currentLocal;
+      renderPartnerSchoolUI();
+      if (!options.quiet && teacherPartnerStatus) {
+        teacherPartnerStatus.innerHTML = currentLocal.length
+          ? `<span class="muted">Using secure partner school records saved on this device.</span>`
+          : `<span class="muted">No secure partner school records are saved on this device yet.</span>`;
       }
+      return currentLocal;
     }
 
     async function savePartnerSchoolRecord(){
@@ -4206,7 +4162,7 @@
         adminPartnerSchoolStatus.innerHTML = `<span class="ok">${escapeHtml(record.schoolName)} saved successfully.${savedRemotely ? " Server sync complete." : " Saved locally on this device."}</span>`;
       }
       if (teacherPartnerStatus) {
-        teacherPartnerStatus.innerHTML = `<span class="muted">Partner school list updated.</span>`;
+        teacherPartnerStatus.innerHTML = `<span class="muted">Partner school security updated on this device.</span>`;
       }
       safePlay("success");
       FX.toast("Partner school saved.", "🏫");
@@ -6882,7 +6838,7 @@
     window.setTimeout(() => schedulePendingStudentSync("startup", 900, { quiet:true }), 0);
     hydrateRememberedAuthEmails();
     renderPartnerSchoolUI();
-    loadPartnerSchoolsFromCloud({ quiet:true }).catch(() => renderPartnerSchoolUI());
+    loadPartnerSchoolsFromCloud({ quiet:true });
     syncLevelUI();
     showPanel("panel-home");
   </script>
