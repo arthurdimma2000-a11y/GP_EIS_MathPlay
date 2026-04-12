@@ -41,6 +41,16 @@
     padding:10px;
     color:var(--ink);
   }
+  #pageContent{
+    width:100%;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .28s ease;
+  }
+  body.intro-complete #pageContent{
+    opacity:1;
+    visibility:visible;
+  }
   body.intro-active .app{ visibility:hidden; }
   .app{
     width:min(960px,100%);
@@ -245,14 +255,14 @@
     z-index:4;
   }
   .kid-bubble{
-    right:8%;
-    top:56%;
+    right:6%;
+    top:19%;
     max-width:36%;
     align-items:flex-end;
   }
   .chef-bubble{
-    left:8%;
-    top:30%;
+    left:7%;
+    top:45%;
     max-width:36%;
     align-items:flex-start;
   }
@@ -462,8 +472,8 @@
       overflow-wrap:normal;
       word-break:normal;
     }
-    .kid-bubble{ right:4%; top:59%; max-width:46%; }
-    .chef-bubble{ left:4%; top:26%; max-width:46%; }
+    .kid-bubble{ right:4%; top:17%; max-width:48%; }
+    .chef-bubble{ left:4%; top:47%; max-width:48%; }
     .controls{
       justify-content:center;
     }
@@ -512,12 +522,75 @@
     background:var(--btn-blue);
     color:#1f3b6b;
   }
+  #lbIntroVideoOverlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(0,0,0,.82);
+    z-index:9999;
+  }
+  #lbIntroVideoOverlay[hidden]{
+    display:none !important;
+  }
+  .intro-panel{
+    width:min(920px,100%);
+    background:rgba(15,15,15,.96);
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.45);
+    border:2px solid rgba(255,255,255,.14);
+  }
+  .intro-title{
+    color:#fff4d6;
+    font-size:clamp(1.1rem,2.4vw,1.5rem);
+    font-weight:900;
+    text-align:center;
+    margin-bottom:12px;
+  }
+  #lbIntroVideo{
+    width:100%;
+    max-height:72vh;
+    border-radius:18px;
+    object-fit:contain;
+    background:#000;
+    display:block;
+  }
+  .intro-help{
+    margin-top:10px;
+    text-align:center;
+    color:#fef3c7;
+    font-size:.9rem;
+    font-weight:700;
+  }
 </style>
 </head>
 <body>
   <!-- Intro Video Overlay -->
-  
+  <div id="lbIntroVideoOverlay">
+    <div class="intro-panel">
+      <div class="intro-title">Circle Intro</div>
+      <video
+        id="lbIntroVideo"
+        playsinline
+        autoplay
+        muted
+        preload="metadata"
+      >
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776006235/Page2Circle_zn6ebl.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="intro-controls">
+        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
+        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
+      </div>
+      <div class="intro-help">If the intro does not play, the lesson page will open automatically.</div>
+    </div>
+  </div>
 
+  <div id="pageContent">
   <div class="app">
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
       <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
@@ -590,6 +663,7 @@
     <div class="conversation-status" id="conversationStatus"></div>
     <div class="footer-note">Tap the microphone to reveal the conversation line by line.</div>
   </div>
+  </div>
 
   
 
@@ -598,6 +672,58 @@
   <script src="../../../../shared/js/tracing.js"></script>
 
   <script>
+    const introOverlay = document.getElementById("lbIntroVideoOverlay");
+    const introVideo = document.getElementById("lbIntroVideo");
+    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
+    const skipIntroBtn = document.getElementById("skipIntroBtn");
+    let introFinished = false;
+
+    function revealPageContent(){
+      if (introFinished) return;
+      introFinished = true;
+      document.body.classList.add("intro-complete");
+      if (introOverlay) introOverlay.hidden = true;
+      if (introVideo) {
+        try { introVideo.pause(); } catch (_err) {}
+      }
+    }
+
+    function enableIntroSound(){
+      if (!introVideo) return;
+      introVideo.muted = false;
+      introVideo.volume = 1;
+      introVideo.play().catch(() => {});
+      if (turnOnSoundBtn) {
+        turnOnSoundBtn.textContent = "Sound On";
+        turnOnSoundBtn.disabled = true;
+      }
+    }
+
+    if (introVideo) {
+      introVideo.addEventListener("ended", revealPageContent);
+      introVideo.addEventListener("error", revealPageContent);
+      introVideo.addEventListener("stalled", () => {
+        window.setTimeout(() => {
+          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
+            revealPageContent();
+          }
+        }, 1200);
+      });
+      introVideo.play().catch(() => {});
+    } else {
+      revealPageContent();
+    }
+
+    if (turnOnSoundBtn) turnOnSoundBtn.addEventListener("click", enableIntroSound);
+    if (skipIntroBtn) skipIntroBtn.addEventListener("click", revealPageContent);
+    
+    // Fallback timeout to start audio if video takes too long or doesn't load
+    window.setTimeout(() => {
+      if (!introFinished && introVideo && introVideo.readyState < 1) {
+        revealPageContent();
+      }
+    }, 8000);
+
     const clearBtn = document.getElementById("clearBtn");
     const micIconBtn = document.getElementById("micIconBtn");
     const recordBtn = document.getElementById("recordBtn");
@@ -611,6 +737,7 @@
     const lines = Array.from(document.querySelectorAll(".convo-line"));
     const repeatResults = Array.from(document.querySelectorAll(".repeat-result"));
     const starRows = Array.from(document.querySelectorAll(".star-row"));
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
 
     let readToken = 0;
     let currentLineIndex = -1;
@@ -628,6 +755,9 @@
     let micInitialized = false;
     let activitySaved = false;
     let circleTapped = false;
+    let loadIntroStarted = false;
+
+    instructionAudio.preload = "auto";
 
     function hideAllLines(){
       lines.forEach(line => {
@@ -645,17 +775,134 @@
       line.style.display = "flex";
     }
 
-    function speakLine(text, onend){
+    function getSpeechVoice(role){
+      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+
+      const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || "")));
+      const pool = englishVoices.length ? englishVoices : voices;
+      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
+      const kidName = /(kids?|child|junior|young|ava|aria|ellie|ivy|jenny|libby|nova|grace|olivia|emma)/i;
+
+      if (role === "male") {
+        return pool.find((voice) => maleName.test(String(voice.name || ""))) || pool[0] || null;
+      }
+
+      if (role === "kid") {
+        return pool.find((voice) => kidName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+          || pool.find((voice) => !maleName.test(String(voice.name || "")))
+          || pool[0]
+          || null;
+      }
+
+      return pool[0] || null;
+    }
+
+    function speakLine(text, onend, options){
       if (!("speechSynthesis" in window)) {
         if (onend) onend();
         return;
       }
+      const opts = options || {};
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.95;
-      utter.pitch = 1.1;
+      utter.rate = typeof opts.rate === "number" ? opts.rate : 0.95;
+      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.1;
+      utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
+      utter.lang = opts.lang || "en-US";
+      const selectedVoice = getSpeechVoice(opts.role);
+      if (selectedVoice) utter.voice = selectedVoice;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
+    }
+
+    function playInstructionThenDialogue(){
+      if (loadIntroStarted) return;
+      loadIntroStarted = true;
+
+      hideAllLines();
+      setConversationStatus("");
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch (_err) {}
+      }
+
+      const steps = [
+        () => {
+          setConversationStatus("I am a baker.");
+          speakLine("I am a baker.", runNextLoadIntroStep, {
+            role: "male",
+            rate: 0.92,
+            pitch: 0.9,
+            volume: 1
+          });
+        },
+        () => {
+          showLine(0);
+          setConversationStatus("What do you make?");
+          speakLine("What do you make?", runNextLoadIntroStep, {
+            role: "kid",
+            rate: 0.98,
+            pitch: 1.35,
+            volume: 1
+          });
+        },
+        () => {
+          showLine(1);
+          setConversationStatus("I make cookies.");
+          speakLine("I make cookies.", runNextLoadIntroStep, {
+            role: "male",
+            rate: 0.92,
+            pitch: 0.9,
+            volume: 1
+          });
+        },
+        () => {
+          circleTapped = true;
+          if (circleReveal) circleReveal.classList.add("show");
+          setConversationStatus("It's a Circle!");
+          speakLine("It's a Circle!", null, {
+            role: "kid",
+            rate: 1,
+            pitch: 1.35,
+            volume: 1
+          });
+        }
+      ];
+
+      let stepIndex = 0;
+      function runNextLoadIntroStep(){
+        const step = steps[stepIndex++];
+        if (step) {
+          window.setTimeout(step, 120);
+        }
+      }
+
+      const startVoices = () => window.setTimeout(runNextLoadIntroStep, 120);
+      const fallbackTimer = window.setTimeout(startVoices, 5200);
+
+      instructionAudio.onended = () => {
+        window.clearTimeout(fallbackTimer);
+        startVoices();
+      };
+      instructionAudio.onerror = () => {
+        window.clearTimeout(fallbackTimer);
+        startVoices();
+      };
+
+      try {
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {
+            window.clearTimeout(fallbackTimer);
+            startVoices();
+          });
+        }
+      } catch (_err) {
+        window.clearTimeout(fallbackTimer);
+        startVoices();
+      }
     }
 
     function highlightLine(index, on){
@@ -886,6 +1133,20 @@
 
     hideAllLines();
     try { window.__GP_STOP_INTRO_MEDIA && window.__GP_STOP_INTRO_MEDIA(); } catch (_) {}
+    
+    // Start the audio sequence only after intro video ends
+    function startAudioSequenceAfterVideo(){
+      if (!introFinished) return;
+      playInstructionThenDialogue();
+    }
+    
+    if (introVideo) {
+      introVideo.addEventListener("ended", startAudioSequenceAfterVideo, { once: true });
+    } else {
+      window.addEventListener("load", () => {
+        playInstructionThenDialogue();
+      }, { once: true });
+    }
 
     function setRecordLabel(text){
       recordBtn.innerHTML = '<svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">' +

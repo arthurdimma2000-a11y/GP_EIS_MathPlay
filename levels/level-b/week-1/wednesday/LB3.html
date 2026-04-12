@@ -487,5 +487,467 @@
 <script src="./activity-standardizer.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
 <script type="module" src="./progress-tracker.js"></script>
+<script>
+  (function(){
+    const svg = document.getElementById("boardSvg");
+    const board = document.getElementById("board");
+    const gridV = document.getElementById("gridV");
+    const gridH = document.getElementById("gridH");
+    const shapesRoot = document.getElementById("shapes");
+    const traceCanvas = document.getElementById("traceCanvas");
+    const resetBtn = document.getElementById("resetBtn");
+    const checkBtn = document.getElementById("checkBtn");
+    const tapGirl = document.getElementById("tapGirl");
+    const statusText = document.getElementById("statusText");
+    const statusDot = document.getElementById("statusDot");
+    const tapLine1 = document.getElementById("tapLine1");
+    const tapLine2 = document.getElementById("tapLine2");
+    const progressPercentTri = document.getElementById("progressPercentTri");
+    const progressFillTri = document.getElementById("progressFillTri");
+    const progressMessageTri = document.getElementById("progressMessageTri");
+    const progressPercentPen = document.getElementById("progressPercentPen");
+    const progressFillPen = document.getElementById("progressFillPen");
+    const progressMessagePen = document.getElementById("progressMessagePen");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    if (!svg || !board || !gridV || !gridH || !shapesRoot || !traceCanvas) return;
+
+    const ctx = traceCanvas.getContext("2d");
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const W = 860;
+    const H = 620;
+    const GRID = 28;
+    const threshold = 22;
+    const threshold2 = threshold * threshold;
+    const samples = { tri: [], pen: [] };
+    const visited = { tri: [], pen: [] };
+    const progress = { tri: 0, pen: 0 };
+    let activeGroup = null;
+    let lastPoint = null;
+
+    const triPoints = [
+      { x: 231, y: 84 },
+      { x: 126, y: 252 },
+      { x: 336, y: 252 }
+    ];
+    const penPoints = [
+      { x: 640, y: 118 },
+      { x: 746, y: 182 },
+      { x: 704, y: 292 },
+      { x: 576, y: 292 },
+      { x: 534, y: 182 }
+    ];
+    const triBottom = triPoints.map((pt) => ({ x: pt.x, y: pt.y + 310 }));
+    const penBottom = penPoints.map((pt) => ({ x: pt.x, y: pt.y + 310 }));
+
+    function setStatus(text, good){
+      if (statusText) statusText.textContent = text || "";
+      if (!statusDot) return;
+      statusDot.style.background = good ? "var(--good)" : "var(--warn)";
+      statusDot.style.boxShadow = good
+        ? "0 0 0 4px rgba(47,191,113,.18)"
+        : "0 0 0 4px rgba(255,138,61,.20)";
+    }
+
+    function createNode(tag, attrs){
+      const node = document.createElementNS(SVG_NS, tag);
+      Object.entries(attrs || {}).forEach(([key, value]) => node.setAttribute(key, value));
+      return node;
+    }
+
+    function polyString(points){
+      return points.map((pt) => `${pt.x},${pt.y}`).join(" ");
+    }
+
+    function lineSamples(a, b, spacing){
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const steps = Math.max(1, Math.ceil(dist / (spacing || 6)));
+      const out = [];
+      for (let i = 0; i <= steps; i += 1) {
+        const t = i / steps;
+        out.push({ x: a.x + dx * t, y: a.y + dy * t });
+      }
+      return out;
+    }
+
+    function polygonSamples(points){
+      const out = [];
+      for (let i = 0; i < points.length; i += 1) {
+        out.push(...lineSamples(points[i], points[(i + 1) % points.length], 5));
+      }
+      return out;
+    }
+
+    function buildGrid(){
+      gridV.innerHTML = "";
+      gridH.innerHTML = "";
+      for (let x = 0; x <= W; x += GRID) {
+        if (x === 0 || x === W || x === 430) continue;
+        const line = createNode("line", {
+          x1: x, y1: 0, x2: x, y2: H,
+          stroke: "rgba(42,168,255,0.20)",
+          "stroke-width": x % (GRID * 5) === 0 ? 1.5 : 1
+        });
+        gridV.appendChild(line);
+      }
+      for (let y = 0; y <= H; y += GRID) {
+        if (y === 0 || y === H || y === 310) continue;
+        const line = createNode("line", {
+          x1: 0, y1: y, x2: W, y2: y,
+          stroke: "rgba(42,168,255,0.20)",
+          "stroke-width": y % (GRID * 5) === 0 ? 1.5 : 1
+        });
+        gridH.appendChild(line);
+      }
+    }
+
+    function addPolygon(points, opts){
+      const visible = createNode("polygon", {
+        points: polyString(points),
+        class: opts.dashed ? "traceShape" : "shapeLine",
+        stroke: opts.stroke,
+        "stroke-width": opts.strokeWidth || 5,
+        fill: "none"
+      });
+      if (opts.dashed) visible.setAttribute("stroke-dasharray", "10 8");
+      shapesRoot.appendChild(visible);
+
+      points.forEach((pt) => {
+        const dot = createNode("circle", {
+          cx: pt.x,
+          cy: pt.y,
+          r: opts.dotRadius || 11,
+          fill: opts.dotFill,
+          class: opts.dotClass || "vDotStatic"
+        });
+        shapesRoot.appendChild(dot);
+      });
+
+      if (opts.hitGroup) {
+        const hit = createNode("polygon", {
+          points: polyString(points),
+          class: "traceHit",
+          "data-group": opts.hitGroup,
+          stroke: "transparent",
+          "stroke-width": 34,
+          fill: "none"
+        });
+        shapesRoot.appendChild(hit);
+      }
+    }
+
+    function resizeCanvas(){
+      const rect = board.getBoundingClientRect();
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      traceCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+      traceCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+      traceCanvas.style.width = rect.width + "px";
+      traceCanvas.style.height = rect.height + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      clearCanvas();
+    }
+
+    function clearCanvas(){
+      const rect = board.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+    }
+
+    function getSvgPoint(evt){
+      const rect = svg.getBoundingClientRect();
+      return {
+        x: (evt.clientX - rect.left) * (W / rect.width),
+        y: (evt.clientY - rect.top) * (H / rect.height)
+      };
+    }
+
+    function getCanvasPoint(evt){
+      const rect = board.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+
+    function updateUi(group){
+      const pct = progress[group];
+      if (group === "tri") {
+        if (progressPercentTri) progressPercentTri.textContent = pct + "%";
+        if (progressFillTri) progressFillTri.style.width = pct + "%";
+      } else {
+        if (progressPercentPen) progressPercentPen.textContent = pct + "%";
+        if (progressFillPen) progressFillPen.style.width = pct + "%";
+      }
+    }
+
+    function markVisited(group, point){
+      const pts = samples[group];
+      const seen = visited[group];
+      let changed = false;
+      for (let i = 0; i < pts.length; i += 1) {
+        if (seen[i]) continue;
+        const dx = point.x - pts[i].x;
+        const dy = point.y - pts[i].y;
+        if ((dx * dx) + (dy * dy) <= threshold2) {
+          seen[i] = true;
+          changed = true;
+        }
+      }
+      if (!changed) return;
+      const covered = seen.reduce((sum, value) => sum + (value ? 1 : 0), 0);
+      progress[group] = Math.max(progress[group], Math.round((covered / Math.max(1, pts.length)) * 100));
+      updateUi(group);
+    }
+
+    function drawSegment(from, to, group){
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.strokeStyle = group === "tri" ? "#e63a45" : "#1672c6";
+      ctx.lineWidth = 8;
+      ctx.stroke();
+    }
+
+    function startTrace(evt, group){
+      evt.preventDefault();
+      activeGroup = group;
+      lastPoint = getCanvasPoint(evt);
+      const svgPoint = getSvgPoint(evt);
+      markVisited(group, svgPoint);
+      setStatus(group === "tri" ? "Trace the triangle guide." : "Trace the pentagon guide.", true);
+    }
+
+    function moveTrace(evt){
+      if (!activeGroup) return;
+      evt.preventDefault();
+      const nextCanvas = getCanvasPoint(evt);
+      const nextSvg = getSvgPoint(evt);
+      if (lastPoint) drawSegment(lastPoint, nextCanvas, activeGroup);
+      lastPoint = nextCanvas;
+      markVisited(activeGroup, nextSvg);
+    }
+
+    function stopTrace(){
+      activeGroup = null;
+      lastPoint = null;
+    }
+
+    function resetProgress(){
+      visited.tri = new Array(samples.tri.length).fill(false);
+      visited.pen = new Array(samples.pen.length).fill(false);
+      progress.tri = 0;
+      progress.pen = 0;
+      clearCanvas();
+      updateUi("tri");
+      updateUi("pen");
+      if (progressMessageTri) progressMessageTri.textContent = "";
+      if (progressMessagePen) progressMessagePen.textContent = "";
+      setStatus("Trace the dashed triangle and pentagon lines. Then drag the bottom dots.", true);
+    }
+
+    function checkProgress(){
+      progressMessageTri.textContent = progress.tri >= 90 ? "Great triangle tracing!" : "Keep tracing the triangle.";
+      progressMessagePen.textContent = progress.pen >= 90 ? "Great pentagon tracing!" : "Keep tracing the pentagon.";
+      setStatus(
+        progress.tri >= 90 && progress.pen >= 90
+          ? "Excellent work. Both dashed shapes are traced."
+          : "Continue tracing until both progress bars are high.",
+        progress.tri >= 90 && progress.pen >= 90
+      );
+    }
+
+    function renderBoard(){
+      shapesRoot.innerHTML = "";
+      buildGrid();
+      addPolygon(triPoints, {
+        dashed: true,
+        stroke: "#8d8d8d",
+        dotFill: "#e63a45",
+        hitGroup: "tri"
+      });
+      addPolygon(penPoints, {
+        dashed: true,
+        stroke: "#8d8d8d",
+        dotFill: "#1672c6",
+        hitGroup: "pen"
+      });
+      addPolygon(triBottom, {
+        dashed: true,
+        stroke: "#8d8d8d",
+        dotFill: "#e63a45",
+        hitGroup: "tri"
+      });
+      addPolygon(penBottom, {
+        dashed: true,
+        stroke: "#8d8d8d",
+        dotFill: "#1672c6",
+        hitGroup: "pen"
+      });
+      samples.tri = [
+        ...polygonSamples(triPoints),
+        ...polygonSamples(triBottom)
+      ];
+      samples.pen = [
+        ...polygonSamples(penPoints),
+        ...polygonSamples(penBottom)
+      ];
+      resetProgress();
+    }
+
+    svg.addEventListener("pointerdown", (evt) => {
+      const hit = evt.target && evt.target.closest ? evt.target.closest(".traceHit") : null;
+      if (!hit) return;
+      startTrace(evt, hit.getAttribute("data-group"));
+    });
+    window.addEventListener("pointermove", moveTrace, { passive: false });
+    window.addEventListener("pointerup", stopTrace);
+    window.addEventListener("pointercancel", stopTrace);
+    resetBtn && resetBtn.addEventListener("click", resetProgress);
+    checkBtn && checkBtn.addEventListener("click", checkProgress);
+    tapGirl && tapGirl.addEventListener("click", () => {
+      if (tapLine1) tapLine1.classList.add("show");
+      if (tapLine2) tapLine2.classList.add("show");
+      setStatus("A triangle has 3 vertices. A pentagon has 5 vertices.", true);
+    });
+    prevBtn && prevBtn.addEventListener("click", () => {
+      window.location.href = "../tuesday/LB2.html";
+    });
+    nextBtn && nextBtn.addEventListener("click", () => {
+      window.location.href = "LB7.html";
+    });
+    window.addEventListener("resize", resizeCanvas);
+
+    resizeCanvas();
+    renderBoard();
+  })();
+</script>
+<script>
+  (function(){
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    instructionAudio.preload = "auto";
+
+    const tapLine1 = document.getElementById("tapLine1");
+    const tapLine2 = document.getElementById("tapLine2");
+    const statusText = document.getElementById("statusText");
+    let loadIntroStarted = false;
+
+    function getSpeechVoice(role){
+      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+      const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || "")));
+      const pool = englishVoices.length ? englishVoices : voices;
+      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
+      const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
+      const kidName = /(kids?|child|junior|young|ava|aria|allison|ellie|libby|olivia|emma|ivy|jenny|nova|grace)/i;
+
+      if (role === "girl") {
+        return pool.find((voice) => kidName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+          || pool.find((voice) => femaleName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+          || pool.find((voice) => !maleName.test(String(voice.name || "")))
+          || pool[0]
+          || null;
+      }
+
+      if (role === "female") {
+        return pool.find((voice) => femaleName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+          || pool.find((voice) => !maleName.test(String(voice.name || "")))
+          || pool[0]
+          || null;
+      }
+
+      return pool[0] || null;
+    }
+
+    function speakLine(text, onend, options){
+      if (!("speechSynthesis" in window)) {
+        if (typeof onend === "function") onend();
+        return;
+      }
+      try { window.speechSynthesis.cancel(); } catch (_err) {}
+      const opts = options || {};
+      const utter = new SpeechSynthesisUtterance(text || "");
+      const voice = getSpeechVoice(opts.role);
+      if (voice) utter.voice = voice;
+      utter.lang = opts.lang || "en-US";
+      utter.rate = typeof opts.rate === "number" ? opts.rate : 0.94;
+      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.08;
+      utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
+      utter.onend = () => { if (typeof onend === "function") onend(); };
+      utter.onerror = () => { if (typeof onend === "function") onend(); };
+      window.speechSynthesis.speak(utter);
+    }
+
+    function playLoadInstructionSequence(){
+      if (loadIntroStarted) return;
+      loadIntroStarted = true;
+
+      if (tapLine1) tapLine1.classList.remove("show");
+      if (tapLine2) tapLine2.classList.remove("show");
+      if (statusText) statusText.textContent = "Listen carefully.";
+
+      const steps = [
+        () => {
+          if (statusText) statusText.textContent = "Look at the Pentagons.";
+          speakLine("Look at the Pentagons.", runNextStep, {
+            role: "female",
+            rate: 0.9,
+            pitch: 1.08,
+            volume: 1
+          });
+        },
+        () => {
+          if (tapLine1) tapLine1.classList.add("show");
+          if (tapLine2) tapLine2.classList.add("show");
+          if (statusText) statusText.textContent = "Subtract the numbers.";
+          speakLine("Subtract the numbers.", null, {
+            role: "girl",
+            rate: 1.0,
+            pitch: 1.36,
+            volume: 1
+          });
+        }
+      ];
+
+      let stepIndex = 0;
+      function runNextStep(){
+        const step = steps[stepIndex++];
+        if (step) window.setTimeout(step, 140);
+      }
+
+      const beginSpeech = () => window.setTimeout(runNextStep, 140);
+      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
+
+      instructionAudio.onended = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+      instructionAudio.onerror = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+
+      try {
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {
+            window.clearTimeout(fallbackTimer);
+            beginSpeech();
+          });
+        }
+      } catch (_err) {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      }
+    }
+
+    window.addEventListener("load", playLoadInstructionSequence, { once:true });
+  })();
+</script>
 </body>
 </html>

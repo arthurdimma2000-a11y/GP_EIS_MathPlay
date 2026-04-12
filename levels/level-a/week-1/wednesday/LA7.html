@@ -603,6 +603,9 @@
     const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
     chimeAudio.preload = "auto";
     chimeAudio.volume = 1;
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    instructionAudio.preload = "auto";
+    let loadIntroStarted = false;
 
     let audioUnlocked = false;
     let sentenceToken = 0;
@@ -736,6 +739,39 @@
       u.onend = () => { if (typeof onend === "function") onend(); };
       u.onerror = () => { if (typeof onend === "function") onend(); };
       window.speechSynthesis.speak(u);
+    }
+
+    function playLoadInstructionSequence(){
+      if (loadIntroStarted) return;
+      loadIntroStarted = true;
+
+      const beginSpeech = () => {
+        speak("Let’s write numbers! 1, 2, 3!");
+      };
+
+      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
+      instructionAudio.onended = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+      instructionAudio.onerror = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+
+      try{
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {
+            window.clearTimeout(fallbackTimer);
+            beginSpeech();
+          });
+        }
+      }catch(_err){
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      }
     }
 
     function showAndSpeakLine(index, onend){
@@ -1144,6 +1180,7 @@
 
     hideAllLines();
     waitForPosterThenInit();
+    window.addEventListener('load', playLoadInstructionSequence, { once:true });
 
     window.addEventListener('resize', syncTraceCanvasResolution);
     if (window.visualViewport) window.visualViewport.addEventListener('resize', syncTraceCanvasResolution);

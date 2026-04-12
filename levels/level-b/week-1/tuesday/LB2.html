@@ -451,7 +451,10 @@
     const maxAttempts = 3;
     const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
     chimeAudio.preload = "auto";
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    instructionAudio.preload = "auto";
     let designerTimer = null;
+    let loadIntroStarted = false;
 
     function hideAllLines(){
       lines.forEach(line => {
@@ -462,15 +465,47 @@
       });
     }
 
-    function speakLine(text, onend){
+    function getSpeechVoice(role){
+      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+      const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || "")));
+      const pool = englishVoices.length ? englishVoices : voices;
+      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
+      const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
+      const kidName = /(kids?|child|junior|young|ava|aria|allison|ellie|libby|olivia|emma|ivy|jenny|nova|grace)/i;
+
+      if (role === "boy") {
+        return pool.find((voice) => maleName.test(String(voice.name || "")))
+          || pool[0]
+          || null;
+      }
+
+      if (role === "girl") {
+        return pool.find((voice) => kidName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+          || pool.find((voice) => femaleName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+          || pool.find((voice) => !maleName.test(String(voice.name || "")))
+          || pool[0]
+          || null;
+      }
+
+      return pool[0] || null;
+    }
+
+    function speakLine(text, onend, options){
       if (!("speechSynthesis" in window)) {
         if (onend) onend();
         return;
       }
       window.speechSynthesis.cancel();
+      const opts = options || {};
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 1.0;
-      utter.pitch = 1.1;
+      const selectedVoice = getSpeechVoice(opts.role);
+      if (selectedVoice) utter.voice = selectedVoice;
+      utter.lang = opts.lang || "en-US";
+      utter.rate = typeof opts.rate === "number" ? opts.rate : 1.0;
+      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.1;
+      utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
@@ -678,8 +713,111 @@
       chimeAudio.play().catch(() => {});
       speakLine("I am a designer.", () => {
         if (designerSub) designerSub.classList.add("show");
-        speakLine("I design using shapes.");
+        speakLine("I design using shapes.", null, {
+          role: "girl",
+          rate: 1.02,
+          pitch: 1.42,
+          volume: 1
+        });
+      }, {
+        role: "girl",
+        rate: 1.02,
+        pitch: 1.42,
+        volume: 1
       });
+    }
+
+    function playLoadInstructionSequence(){
+      if (loadIntroStarted) return;
+      loadIntroStarted = true;
+
+      hideAllLines();
+      if (designerText) designerText.classList.remove("show");
+      if (designerSub) designerSub.classList.remove("show");
+      setConversationStatus("");
+
+      const steps = [
+        () => {
+          if (designerText) designerText.classList.add("show");
+          setConversationStatus("I am a designer.");
+          speakLine("I am a designer.", runNextStep, {
+            role: "girl",
+            rate: 1.02,
+            pitch: 1.42,
+            volume: 1
+          });
+        },
+        () => {
+          const line = lines[0];
+          if (line) {
+            line.hidden = false;
+            line.classList.add("show");
+          }
+          setConversationStatus("What do you design?");
+          speakLine("What do you design?", runNextStep, {
+            role: "boy",
+            rate: 1.02,
+            pitch: 1.28,
+            volume: 1
+          });
+        },
+        () => {
+          const line = lines[1];
+          if (line) {
+            line.hidden = false;
+            line.classList.add("show");
+          }
+          setConversationStatus("I design clothes.");
+          speakLine("I design clothes.", runNextStep, {
+            role: "girl",
+            rate: 1.02,
+            pitch: 1.42,
+            volume: 1
+          });
+        },
+        () => {
+          if (designerSub) designerSub.classList.add("show");
+          setConversationStatus("I design using shapes.");
+          speakLine("I design using shapes.", null, {
+            role: "girl",
+            rate: 1.02,
+            pitch: 1.42,
+            volume: 1
+          });
+        }
+      ];
+
+      let stepIndex = 0;
+      function runNextStep(){
+        const step = steps[stepIndex++];
+        if (step) window.setTimeout(step, 120);
+      }
+
+      const beginSpeech = () => window.setTimeout(runNextStep, 120);
+      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
+
+      instructionAudio.onended = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+      instructionAudio.onerror = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+
+      try{
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {
+            window.clearTimeout(fallbackTimer);
+            beginSpeech();
+          });
+        }
+      }catch(_err){
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      }
     }
 
     if (girlBtn) {
@@ -697,6 +835,7 @@
     });
 
     hideAllLines();
+    window.addEventListener("load", playLoadInstructionSequence, { once:true });
   </script>
 
   <script>
