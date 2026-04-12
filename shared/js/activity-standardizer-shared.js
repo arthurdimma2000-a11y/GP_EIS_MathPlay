@@ -7,6 +7,20 @@
   let localSpeechPatchInstalled = false;
   let speechCancelStamp = 0;
 
+  function isMobileSpeechDevice() {
+    try {
+      const ua = String((window.navigator && window.navigator.userAgent) || "");
+      return /Android|iPhone|iPad|iPod|Mobile|CriOS|FxiOS/i.test(ua);
+    } catch (_) {}
+    return false;
+  }
+
+  function getSpeechDelayMs(afterCancel) {
+    const minDelay = isMobileSpeechDevice() ? 280 : 180;
+    if (!afterCancel) return minDelay;
+    return Math.max(minDelay, minDelay - (Date.now() - speechCancelStamp));
+  }
+
   function pickPreferredFemaleVoice(voices) {
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
@@ -66,12 +80,13 @@
         } catch (_) {}
         const speakNow = function () {
           try {
+            if (typeof synth.resume === "function") synth.resume();
             return originalSpeak(utterance);
           } catch (_) {
             return undefined;
           }
         };
-        const delay = Math.max(0, 160 - (Date.now() - speechCancelStamp));
+        const delay = getSpeechDelayMs(true);
         if (delay > 0) {
           window.setTimeout(speakNow, delay);
           return;
@@ -797,21 +812,20 @@
       try {
         if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
           window.GPTracing.speakText(text, {
-          rate: 0.92,
-          pitch: 1.34,
+          rate: 0.88,
+          pitch: 1.38,
             volume: 1,
             onEnd: done,
             onError: done
           });
           return;
         }
-        const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.92;
-      utter.pitch = 1.34;
+        const utter = new SpeechSynthesisUtterance(" " + String(text).replace(/\s+/g, " ").trim());
+      utter.rate = 0.88;
+      utter.pitch = 1.38;
       utter.volume = 1;
       utter.onend = () => { if (done) done(); };
       utter.onerror = () => { if (done) done(); };
-      window.speechSynthesis.cancel();
       if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
         window.GPTracing.applyPreferredVoice(utter);
       }
@@ -821,10 +835,10 @@
         } catch (_) {
           if (done) done();
         }
-      }, 160);
+      }, getSpeechDelayMs(false));
     } catch (_) {
       if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
-        window.GPTracing.speakText(text, { rate: 0.92, pitch: 1.34, volume: 1, onEnd: done, onError: done });
+        window.GPTracing.speakText(text, { rate: 0.88, pitch: 1.38, volume: 1, onEnd: done, onError: done });
         return;
       }
       if (done) done();

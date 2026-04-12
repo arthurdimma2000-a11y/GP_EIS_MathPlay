@@ -40,6 +40,52 @@
   let lastTraceTickAt = 0;
   let lastTraceCelebrationAt = 0;
 
+  function isMobileSpeechDevice(){
+    try {
+      const ua = String((global.navigator && global.navigator.userAgent) || "");
+      return /Android|iPhone|iPad|iPod|Mobile|CriOS|FxiOS/i.test(ua);
+    } catch (_err) {}
+    return false;
+  }
+
+  function normalizeSpeechText(text){
+    return String(text || "")
+      .replace(/<br\s*\/?>/gi, ". ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function getSpeechDelayMs(afterCancel){
+    const minDelay = isMobileSpeechDevice() ? 280 : 180;
+    if (!afterCancel) return minDelay;
+    return Math.max(minDelay, minDelay - (Date.now() - speechCancelStamp));
+  }
+
+  function speakPreparedUtterance(utterance, options){
+    if (!utterance || !("speechSynthesis" in global)) return false;
+    const opts = options || {};
+    const synth = global.speechSynthesis;
+    const speakNow = function(){
+      try {
+        if (typeof synth.resume === "function") synth.resume();
+      } catch (_err) {}
+      try {
+        return synth.speak(applyPreferredVoice(utterance));
+      } catch (_err) {
+        if (typeof opts.onError === "function") opts.onError(_err);
+        return undefined;
+      }
+    };
+    const delay = getSpeechDelayMs(!!opts.afterCancel || !!opts.forceDelay);
+    if (delay > 0) {
+      global.setTimeout(speakNow, delay);
+      return true;
+    }
+    speakNow();
+    return true;
+  }
+
   function pickPreferredFemaleVoice(voices){
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
@@ -97,9 +143,12 @@
       const originalCancel = typeof synth.cancel === "function" ? synth.cancel.bind(synth) : null;
       synth.speak = function patchedSpeak(utterance){
         const speakNow = function () {
+          try {
+            if (typeof synth.resume === "function") synth.resume();
+          } catch (_err) {}
           return originalSpeak(applyPreferredVoice(utterance));
         };
-        const delay = Math.max(0, 160 - (Date.now() - speechCancelStamp));
+        const delay = getSpeechDelayMs(true);
         if (delay > 0) {
           global.setTimeout(speakNow, delay);
           return;
@@ -246,26 +295,27 @@
   }
 
   function speakText(text, options){
-    if (!text || !("speechSynthesis" in global)) return;
+    const normalizedText = normalizeSpeechText(text);
+    if (!normalizedText || !("speechSynthesis" in global)) return;
     try {
       const opts = options || {};
-      global.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(String(text));
+      const synth = global.speechSynthesis;
+      const shouldCancelFirst = opts.cancelFirst !== false && !!(synth.speaking || synth.pending);
+      if (shouldCancelFirst) {
+        try { synth.cancel(); } catch (_err) {}
+      }
+      const utterance = new SpeechSynthesisUtterance(" " + normalizedText);
       if (typeof opts.rate === "number") utterance.rate = opts.rate;
       if (typeof opts.pitch === "number") utterance.pitch = opts.pitch;
       if (typeof opts.volume === "number") utterance.volume = opts.volume;
       if (typeof opts.lang === "string" && opts.lang) utterance.lang = opts.lang;
       if (typeof opts.onEnd === "function") utterance.onend = opts.onEnd;
       if (typeof opts.onError === "function") utterance.onerror = opts.onError;
-      const speakNow = function(){
-        global.speechSynthesis.speak(applyPreferredVoice(utterance));
-      };
-      const delay = Math.max(0, 160 - (Date.now() - speechCancelStamp));
-      if (delay > 0) {
-        global.setTimeout(speakNow, delay);
-        return;
-      }
-      speakNow();
+      speakPreparedUtterance(utterance, {
+        afterCancel: shouldCancelFirst,
+        forceDelay: opts.forceDelay === true,
+        onError: opts.onError
+      });
     } catch (_err) {}
   }
 
@@ -1568,23 +1618,19 @@
     }
 
     function speakLine(text, onend, options){
-      if (!text || !("speechSynthesis" in global)) {
+      const normalizedText = normalizeSpeechText(text);
+      if (!normalizedText || !("speechSynthesis" in global)) {
         if (onend) onend();
         return;
       }
-      try { global.speechSynthesis.cancel(); } catch (_err) {}
       const opts = options || {};
-      const utter = new SpeechSynthesisUtterance(text);
-        utter.rate = typeof opts.rate === "number" ? opts.rate : 0.92;
-        utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.34;
-        utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
-      utter.onend = () => { if (onend) onend(); };
-      utter.onerror = () => { if (onend) onend(); };
-      try {
-        global.speechSynthesis.speak(applyPreferredVoice(utter));
-      } catch (_err) {
-        if (onend) onend();
-      }
+      speakText(normalizedText, {
+        rate: typeof opts.rate === "number" ? opts.rate : 0.88,
+        pitch: typeof opts.pitch === "number" ? opts.pitch : 1.38,
+        volume: typeof opts.volume === "number" ? opts.volume : 1,
+        onEnd: () => { if (onend) onend(); },
+        onError: () => { if (onend) onend(); }
+      });
     }
 
     function highlightLine(index, on){
