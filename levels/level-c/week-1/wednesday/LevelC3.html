@@ -164,7 +164,7 @@
 
   <div class="page">
     <div class="poster-wrap" id="posterWrap">
-      <img class="poster-img" src="../../../../assets/images/shapes/LevelC3.png" alt="Shape Sides poster">
+      <img class="poster-img" id="posterImage" src="../../../../assets/images/shapes/LevelC3.png" alt="Shape Sides poster">
       <div class="draw-instruction show">Draw Triangles by drawing lines to connect the red dots.</div>
 
       <canvas class="draw-layer tri-1" id="tri1"></canvas>
@@ -213,6 +213,7 @@
       "Wow! you are super smart!"
     ];
 
+    const posterImageEl = document.getElementById("posterImage");
     let completedCount = 0;
     const traceProgressPercentEl = document.getElementById("traceProgressPercent");
     const traceProgressFillEl = document.getElementById("traceProgressFill");
@@ -491,6 +492,7 @@
         state.completed = false;
         draw();
       };
+      state.redraw = draw;
 
       resize();
       window.addEventListener("resize", resize);
@@ -514,6 +516,18 @@
 
     updateTraceProgressUI(0);
 
+    function redrawBoardsImmediately(){
+      boardStates.forEach((state) => {
+        if (typeof state.redraw === "function") state.redraw();
+      });
+    }
+
+    if (posterImageEl && !posterImageEl.complete) {
+      posterImageEl.addEventListener("load", redrawBoardsImmediately, { once: true });
+    }
+    requestAnimationFrame(redrawBoardsImmediately);
+    setTimeout(redrawBoardsImmediately, 120);
+
     document.getElementById("resetBtn").addEventListener("click", () => {
       completedCount = 0;
       boardStates.forEach(state => state.reset());
@@ -523,6 +537,7 @@
     });
 
     window.addEventListener("load", () => {
+      redrawBoardsImmediately();
       speakSequence([
         "Practice drawing shapes with 0 sides and 3 sides.",
         "Circles and Ovals.",
@@ -535,13 +550,13 @@
 
     if (prevBtn) {
       prevBtn.addEventListener("click", () => {
-        window.location.href = "LevelC2.html";
+        window.location.href = "../tuesday/LevelC2.html";
       });
     }
 
       if (nextBtn) {
         nextBtn.addEventListener("click", () => {
-          window.location.href = "../tuesday/LevelC4.html";
+          window.location.href = "LevelC7.html";
         });
       }
   </script>

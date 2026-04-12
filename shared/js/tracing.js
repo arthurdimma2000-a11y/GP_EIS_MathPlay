@@ -43,16 +43,22 @@
   function pickPreferredFemaleVoice(voices){
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|guy?l?e? ?female|lisa)/i;
+    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|lisa|nancy|joanna|ivy|ruth|kendra|kimberly|salli|cora|luna|nova|stella|grace|amy)/i;
+    const childFriendlyName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|kids?|child|junior|young)/i;
+    const maleName = /(davis|david|guy|man|male|boy|john|matthew|matt|michael|james|daniel|george|thomas|alex|arthur|fred|richard|jason|ryan|andrew|mark|paul|brian|steve|kevin|eric|christopher|roger|guy?l?e? ?male)/i;
     const americanLang = /^en[-_]us/i;
-    const targetLang = /^(en[-_](us|ca|au|gb))/i;
     const englishLang = /^en[-_]/i;
+    const notMale = (voice) => !maleName.test(String(voice && voice.name || ""));
+    const matches = (langRe, nameRe) => list.find((voice) => langRe.test(voice.lang || "") && nameRe.test(voice.name || "") && notMale(voice));
 
     return (
-      list.find((voice) => americanLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => targetLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => englishLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => femaleName.test(voice.name || "")) ||
+      matches(americanLang, childFriendlyName) ||
+      matches(americanLang, femaleName) ||
+      matches(englishLang, childFriendlyName) ||
+      matches(englishLang, femaleName) ||
+      list.find((voice) => americanLang.test(voice.lang || "") && notMale(voice)) ||
+      list.find((voice) => englishLang.test(voice.lang || "") && notMale(voice)) ||
+      list.find((voice) => femaleName.test(voice.name || "") && notMale(voice)) ||
       null
     );
   }
@@ -634,6 +640,8 @@
       : (opts.canvas || (opts.canvasId ? global.document.getElementById(opts.canvasId) : null));
     if (!canvas) return null;
     canvas.dataset.gpSharedTracePad = "true";
+    canvas.style.pointerEvents = "auto";
+    canvas.style.touchAction = "none";
 
     const ctx = canvas.getContext("2d");
     const pctEl = opts.pctEl || (opts.pctId ? global.document.getElementById(opts.pctId) : null);
@@ -645,8 +653,8 @@
     const sampleCount = opts.sampleCount || 1800;
     const threshold = typeof opts.threshold === "number"
       ? opts.threshold
-      : Math.max(7, Math.round(lineWidth * 1.05));
-    const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 98;
+      : Math.max(9, Math.round(lineWidth * 1.2));
+    const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 96;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
     const onProgress = typeof opts.onProgress === "function" ? opts.onProgress : null;
     const onTick = typeof opts.onTick === "function" ? opts.onTick : null;
@@ -853,14 +861,16 @@
       : (opts.canvas || (opts.canvasId ? global.document.getElementById(opts.canvasId) : null));
     if (!canvas) return null;
     canvas.dataset.gpSharedTracePad = "true";
+    canvas.style.pointerEvents = "auto";
+    canvas.style.touchAction = "none";
 
     const ctx = canvas.getContext("2d");
       const strokeStyle = opts.strokeStyle || "#ff4d4d";
-      const lineWidth = opts.lineWidth || 8;
+      const lineWidth = opts.lineWidth || 12;
       const threshold = typeof opts.threshold === "number"
         ? opts.threshold
-        : Math.max(12, Math.round(lineWidth * 1.8));
-    const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 98;
+        : Math.max(18, Math.round(lineWidth * 2.4));
+    const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 94;
     const getMessage = typeof opts.getMessage === "function" ? opts.getMessage : null;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
     const onProgress = typeof opts.onProgress === "function" ? opts.onProgress : null;
@@ -868,7 +878,7 @@
     const onTick = typeof opts.onTick === "function" ? opts.onTick : null;
     const onComplete = typeof opts.onComplete === "function" ? opts.onComplete : null;
       const smoothing = opts.smoothing !== false;
-      const smoothness = typeof opts.smoothness === "number" ? opts.smoothness : 28;
+        const smoothness = typeof opts.smoothness === "number" ? opts.smoothness : 36;
 
     let drawing = false;
     let lastPoint = null;
@@ -1152,6 +1162,154 @@
 
   function suppressWeek1IntroVideos(){
     suppressLessonIntroVideos();
+  }
+
+  function installRealtimeTraceProgressSync(){
+    const doc = global.document;
+    if (!doc || !doc.body) return;
+    if (doc.body.dataset.gpRealtimeTraceSyncInstalled === "1") return;
+
+    const page = getPageInfo();
+    if (!page.isLevelApp) return;
+
+    const progressSelector = [
+      '[id*="progressPercent"]',
+      '[id*="progressFill"]',
+      '.progress-fill',
+      '.progress-text',
+      '.trace-progress',
+      '.trace-progress-bar'
+    ].join(",");
+    const traceSelector = 'canvas[id*="trace"], canvas[data-gp-shared-trace-pad="true"], .traceShape, .trace-hit, .trace-overlay';
+    if (!doc.querySelector(progressSelector) && !doc.querySelector(traceSelector)) return;
+
+    doc.body.dataset.gpRealtimeTraceSyncInstalled = "1";
+
+    const observed = new WeakSet();
+    let pendingTimer = 0;
+    let lastSavedScore = null;
+
+    function parsePercent(value){
+      const match = String(value || "").match(/(\d{1,3})(?:\.\d+)?\s*%?/);
+      if (!match) return null;
+      const pct = Number(match[1]);
+      if (!Number.isFinite(pct)) return null;
+      return Math.max(0, Math.min(100, Math.round(pct)));
+    }
+
+    function collectProgressScores(){
+      const scores = new Set();
+      const percentNodes = doc.querySelectorAll(
+        '[id*="progressPercent"], .progress-text, .progress-label, .trace-progress, [data-progress-percent]'
+      );
+      percentNodes.forEach((node) => {
+        const pct = parsePercent(node.textContent || node.getAttribute("data-progress-percent") || "");
+        if (pct !== null) scores.add(pct);
+      });
+
+      const fillNodes = doc.querySelectorAll(
+        '[id*="progressFill"], .progress-fill, .trace-progress-bar [style*="%"], [data-progress-fill]'
+      );
+      fillNodes.forEach((node) => {
+        const pct = parsePercent(
+          node.style && node.style.width
+            ? node.style.width
+            : ((node.getAttribute && node.getAttribute("data-progress-fill")) || "")
+        );
+        if (pct !== null) scores.add(pct);
+      });
+
+      return Array.from(scores).sort((a, b) => a - b);
+    }
+
+    function buildPayload(score){
+      const pathname = String((global.location && global.location.pathname) || "");
+      const fileName = page.file || ((pathname.split("/").pop() || "Activity.html"));
+      const pageId = fileName.replace(/\.html$/i, "") || "Activity";
+      const levelMatch = pathname.match(/\/levels\/level-([abc])\//i);
+      const weekMatch = pathname.match(/\/week-(\d+)\//i);
+      const hasTraceUi = !!doc.querySelector(traceSelector);
+      return {
+        pageId,
+        fileName,
+        level: levelMatch ? levelMatch[1].toUpperCase() : null,
+        week: weekMatch ? "week-" + weekMatch[1] : null,
+        activityType: hasTraceUi ? "tracing" : "activity",
+        score,
+        progress: score,
+        tracing: score,
+        completed: score >= 100
+      };
+    }
+
+    function pushPayload(score){
+      const payload = buildPayload(score);
+      try {
+        if (typeof global.finishAndSave === "function") {
+          Promise.resolve(global.finishAndSave(payload)).catch(() => {});
+          return;
+        }
+        if (typeof global.finishActivity === "function") {
+          Promise.resolve(global.finishActivity(payload)).catch(() => {});
+          return;
+        }
+        if (typeof global.saveActivityResult === "function") {
+          Promise.resolve(global.saveActivityResult(payload)).catch(() => {});
+          return;
+        }
+        if (global.GPTrack && typeof global.GPTrack.finish === "function") {
+          Promise.resolve(global.GPTrack.finish(payload)).catch(() => {});
+        }
+      } catch (_err) {}
+    }
+
+    function flushProgress(){
+      pendingTimer = 0;
+      const scores = collectProgressScores();
+      if (!scores.length) return;
+      const score = Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length);
+      if (score === lastSavedScore) return;
+      lastSavedScore = score;
+      pushPayload(score);
+    }
+
+    function scheduleFlush(){
+      if (pendingTimer) global.clearTimeout(pendingTimer);
+      pendingTimer = global.setTimeout(flushProgress, 180);
+    }
+
+    function observeNode(node){
+      if (!node || observed.has(node)) return;
+      observed.add(node);
+      try {
+        const observer = new MutationObserver(scheduleFlush);
+        observer.observe(node, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+          attributes: true,
+          attributeFilter: ["style", "class", "data-progress-percent", "data-progress-fill", "aria-valuenow"]
+        });
+      } catch (_err) {}
+    }
+
+    function bindProgressWatchers(){
+      doc.querySelectorAll(progressSelector).forEach(observeNode);
+    }
+
+    try {
+      const rootObserver = new MutationObserver(() => {
+        bindProgressWatchers();
+        scheduleFlush();
+      });
+      rootObserver.observe(doc.body, { childList: true, subtree: true });
+    } catch (_err) {}
+
+    bindProgressWatchers();
+    scheduleFlush();
+    global.setTimeout(scheduleFlush, 700);
+    global.setTimeout(scheduleFlush, 1800);
+    global.addEventListener("beforeunload", flushProgress);
   }
 
   function buildIntroCandidateList(page, doc){
@@ -1610,6 +1768,7 @@
     const page = getPageInfo();
     suppressLessonIntroVideos();
     installLevelBIntroAutoplayFix();
+    installRealtimeTraceProgressSync();
     installUnifiedLessonMicProtocol();
   }
 
@@ -1634,6 +1793,7 @@
     stopIntroMedia,
     suppressWeek1IntroVideos,
     suppressLessonIntroVideos,
+    installRealtimeTraceProgressSync,
     installLevelBFixes,
     installUnifiedLessonMicProtocol
   };

@@ -83,59 +83,6 @@
     border-color:var(--bubble-right) transparent transparent transparent;
   }
 
-  .girl-spot{
-    position:absolute;
-    left:16px;
-    top:12px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    z-index:3;
-  }
-  .girl-spot img{
-    width:64px;
-    height:64px;
-    border-radius:16px;
-    object-fit:cover;
-    box-shadow:0 6px 14px rgba(0,0,0,.25);
-    border:4px solid #ffe3f7;
-    background:#ffd6f2;
-    cursor:pointer;
-  }
-  .girl-hint{
-    font-weight:800;
-    color:#d62828;
-    font-size:.9rem;
-  }
-
-  .reveal-top{
-    position:absolute;
-    top:18%;
-    left:18%;
-    right:18%;
-    text-align:center;
-    font-size:2.6rem;
-    font-weight:800;
-    color:#2d2d2d;
-    opacity:0;
-    white-space:pre-line;
-  }
-  .reveal-bee{
-    position:absolute;
-    left:50%;
-    bottom:20%;
-    transform:translateX(-50%);
-    font-size:2.3rem;
-    font-weight:800;
-    color:#2d2d2d;
-    opacity:0;
-    white-space:pre-line;
-    text-align:center;
-  }
-  .reveal-top.show,
-  .reveal-bee.show{opacity:1;}
-
   .controls{
     margin-top:12px;
     display:flex;
@@ -176,14 +123,6 @@
 
       <div class="bubble left" id="bubbleLeft">Don’t eat alone.</div>
       <div class="bubble right" id="bubbleRight">Let's eat together.</div>
-
-      <div class="girl-spot" aria-label="Tap the girl">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
-        <div class="girl-hint">Tap the girl</div>
-      </div>
-
-      <div class="reveal-top" id="topLine"></div>
-      <div class="reveal-bee" id="beeLine"></div>
     </div>
 
     <div class="controls">
@@ -210,9 +149,6 @@
   </div>
 
   <script>
-    const girlBtn = document.getElementById('girlBtn');
-    const topLine = document.getElementById('topLine');
-    const beeLine = document.getElementById('beeLine');
     const bubbleLeft = document.getElementById('bubbleLeft');
     const bubbleRight = document.getElementById('bubbleRight');
     const micIconBtn = document.getElementById('micIconBtn');
@@ -235,11 +171,6 @@
       u.volume = 1.0;
       if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
       window.speechSynthesis.speak(u);
-    }
-
-    function showLine(el, text){
-      el.textContent = text;
-      el.classList.add('show');
     }
 
     function showBubble(el, text){
@@ -293,23 +224,12 @@
         });
     }
 
-    girlBtn.addEventListener('click', () => {
-      showLine(topLine, "I eat a piece of cake.");
-      beeLine.classList.remove('show');
-      beeLine.textContent = "";
-      speak("I eat a piece of cake.");
-      setTimeout(() => {
-        showLine(beeLine, "The cake has 0 sides\nand 3 vertices.");
-        speak("The cake has 0 sides and 3 vertices.");
-      }, 2000);
-    });
-
     hideBubbles();
 
     recordBtn.addEventListener('click', toggleRecord);
 
     if(prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../../../../index.html'; });
-    if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = 'LevelC3.html'; });
+    if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = '../wednesday/LevelC3.html'; });
   </script>
 
   <script src="../../../../activity-standardizer.js"></script>

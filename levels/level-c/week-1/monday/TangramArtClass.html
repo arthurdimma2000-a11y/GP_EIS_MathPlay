@@ -6,324 +6,353 @@
   <title>Tangram Art Class</title>
 
   <style>
-    :root{
-      --bg1:#fff7f0;
-      --bg2:#ffe7cf;
-      --card:#ffffff;
-      --primary:#ff8a00;
-      --primary-dark:#e76f00;
-      --secondary:#4cafef;
-      --accent:#7c4dff;
-      --success:#1db954;
-      --text:#24324a;
-      --shadow:0 14px 35px rgba(0,0,0,0.16);
-      --radius:24px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --text: #ffffff;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      --radius: 24px;
     }
 
-    body{
-      font-family: "Arial", "Comic Sans MS", sans-serif;
-      background: linear-gradient(180deg, var(--bg1), var(--bg2));
-      color:var(--text);
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
     }
 
-    .page-wrap{
-      width:min(1180px, 100%);
+    .page-wrap {
+      width: 100%;
+      max-width: 700px;
     }
 
-    .title-box{
-      text-align:center;
-      margin-bottom:16px;
+    .title-bar {
+      text-align: center;
+      margin-bottom: 14px;
     }
 
-    .title-box h1{
-      font-size:clamp(1.7rem, 3vw, 2.7rem);
-      color:var(--primary-dark);
-      letter-spacing:0.5px;
-      margin-bottom:8px;
-      text-shadow:0 2px 0 rgba(255,255,255,0.6);
+    .title-bar h1 {
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     }
 
-    .title-box p{
-      font-size:clamp(0.95rem, 1.8vw, 1.12rem);
-      color:#4d5c74;
-      font-weight:600;
+    .video-shell {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1080 / 1612;
+      max-height: 90vh;
+      background: #000;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 3px solid rgba(255, 255, 255, 0.12);
     }
 
-    .video-shell{
-      position:relative;
-      width:100%;
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      border:5px solid rgba(255,255,255,0.7);
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      background: #000;
     }
 
-    .video-frame{
-      position:relative;
-      width:100%;
-      aspect-ratio:16 / 9;
-      background:#000;
+    .top-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.08));
+      z-index: 5;
+      pointer-events: none;
     }
 
-    video{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      display:block;
-      background:#000;
+    .top-nav-left,
+    .top-nav-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      pointer-events: auto;
     }
 
-    .top-nav,
-    .bottom-nav{
-      position:absolute;
-      left:0;
-      width:100%;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:12px;
-      pointer-events:none;
-      z-index:4;
+    .nav-btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
     }
 
-    .top-nav{
-      top:0;
-      background:linear-gradient(to bottom, rgba(0,0,0,0.45), rgba(0,0,0,0));
+    .nav-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      background: rgba(30, 41, 59, 0.92);
     }
 
-    .bottom-nav{
-      bottom:0;
-      background:linear-gradient(to top, rgba(0,0,0,0.50), rgba(0,0,0,0));
-      flex-wrap:wrap;
-      gap:10px;
+    .nav-btn:active {
+      transform: scale(0.98);
     }
 
-    .nav-group{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      pointer-events:auto;
+    .nav-home {
+      background: rgba(245, 158, 11, 0.92);
+      color: #111827;
     }
 
-    .nav-btn{
-      border:none;
-      outline:none;
-      cursor:pointer;
-      padding:12px 16px;
-      border-radius:999px;
-      font-size:0.98rem;
-      font-weight:800;
-      color:#fff;
-      background:rgba(255,255,255,0.18);
-      backdrop-filter:blur(4px);
-      box-shadow:0 6px 16px rgba(0,0,0,0.18);
-      transition:transform 0.18s ease, background 0.18s ease;
-      min-width:92px;
+    .nav-next {
+      background: rgba(56, 189, 248, 0.95);
+      color: #082f49;
     }
 
-    .nav-btn:hover{
-      transform:translateY(-2px) scale(1.02);
-      background:rgba(255,255,255,0.28);
+    .side-nav {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
     }
 
-    .nav-btn:active{
-      transform:scale(0.98);
+    .side-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: white;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      pointer-events: auto;
+      transition: transform 0.15s ease, background 0.2s ease;
     }
 
-    .home-btn{ background:rgba(255,138,0,0.92); }
-    .back-btn{ background:rgba(76,175,239,0.92); }
-    .next-btn{ background:rgba(124,77,255,0.92); }
-    .replay-btn{ background:rgba(29,185,84,0.92); }
-    .full-btn{ background:rgba(51,51,51,0.88); }
-    .menu-btn{ background:rgba(255,105,135,0.92); }
-    .report-btn{ background:rgba(0,150,136,0.92); }
-
-    .video-caption{
-      padding:18px 18px 22px;
-      text-align:center;
-      background:linear-gradient(180deg, #fffaf5, #fff2e5);
+    .side-btn:hover {
+      transform: translateY(-50%) scale(1.06);
+      background: rgba(0, 0, 0, 0.62);
     }
 
-    .video-caption h2{
-      color:#d96a00;
-      margin-bottom:8px;
-      font-size:clamp(1.15rem, 2vw, 1.5rem);
+    .side-btn.left {
+      left: 12px;
     }
 
-    .video-caption p{
-      color:#51627d;
-      font-size:1rem;
-      font-weight:700;
-      line-height:1.5;
+    .side-btn.right {
+      right: 12px;
     }
 
-    .quick-links{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
-      gap:12px;
+    .bottom-bar {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(6px);
+      z-index: 5;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
     }
 
-    .quick-links a{
-      text-decoration:none;
-      background:#fff;
-      border-radius:18px;
-      padding:14px 16px;
-      text-align:center;
-      font-weight:800;
-      color:#31425f;
-      box-shadow:0 8px 20px rgba(0,0,0,0.08);
-      transition:transform 0.18s ease, box-shadow 0.18s ease;
+    .bottom-bar .lesson-name {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #fff;
     }
 
-    .quick-links a:hover{
-      transform:translateY(-2px);
-      box-shadow:0 12px 24px rgba(0,0,0,0.12);
+    .bottom-bar .hint {
+      font-size: 0.86rem;
+      color: #dbeafe;
+      opacity: 0.95;
     }
 
-    .note-box{
-      margin-top:14px;
-      text-align:center;
-      font-size:0.95rem;
-      color:#6b7890;
-      font-weight:700;
+    .tap-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.18);
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
     }
 
-    @media (max-width: 700px){
-      body{
-        padding:12px;
+    .tap-overlay.show {
+      opacity: 1;
+    }
+
+    .tap-card {
+      background: rgba(15, 23, 42, 0.8);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .nav-hidden {
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .nav-visible {
+      opacity: 1;
+      transition: opacity 0.25s ease;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px;
       }
 
-      .top-nav,
-      .bottom-nav{
-        padding:8px;
+      .video-shell {
+        border-radius: 18px;
       }
 
-      .nav-group{
-        gap:8px;
+      .nav-btn {
+        padding: 9px 12px;
+        font-size: 0.85rem;
       }
 
-      .nav-btn{
-        min-width:auto;
-        padding:10px 12px;
-        font-size:0.88rem;
+      .side-btn {
+        width: 50px;
+        height: 50px;
       }
 
-      .video-caption{
-        padding:16px 12px 18px;
+      .bottom-bar {
+        padding: 10px 12px;
+      }
+
+      .bottom-bar .lesson-name {
+        font-size: 0.9rem;
+      }
+
+      .bottom-bar .hint {
+        font-size: 0.78rem;
       }
     }
   </style>
 </head>
 <body>
   <div class="page-wrap">
-    <div class="title-box">
-      <h1>🧩 Tangram Art Class</h1>
-      <p>Watch, learn, and use the buttons inside the video to move around the app.</p>
+    <div class="title-bar">
+      <h1>Tangram Art Class</h1>
     </div>
 
-    <div class="video-shell">
-      <div class="video-frame">
-        <video
-          id="artVideo"
-          controls
-          playsinline
-          preload="metadata"
-        >
-          <source src="TangramArtClass.mp4" type="video/mp4" />
-          Your browser does not support HTML5 video.
-        </video>
+    <div class="video-shell" id="videoShell">
+      <video
+        id="lessonVideo"
+        controls
+        playsinline
+        preload="metadata"
+      >
+        <source src="TangramArtClass.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
-        <!-- TOP NAVIGATION INSIDE VIDEO -->
-        <div class="top-nav">
-          <div class="nav-group">
-            <button class="nav-btn home-btn" onclick="goHome()">🏠 Home</button>
-            <button class="nav-btn back-btn" onclick="goBack()">⬅ Back</button>
-          </div>
+      <div class="tap-overlay" id="tapOverlay">
+        <div class="tap-card">Tap video to Play / Pause</div>
+      </div>
 
-          <div class="nav-group">
-            <button class="nav-btn replay-btn" onclick="replayVideo()">🔁 Replay</button>
-            <button class="nav-btn full-btn" onclick="toggleFullscreen()">⛶ Full</button>
-          </div>
+      <div class="top-nav nav-visible" id="topNav">
+        <div class="top-nav-left">
+          <button class="nav-btn nav-home" id="homeBtn">Home</button>
+          <button class="nav-btn" id="backBtn">Back</button>
         </div>
 
-        <!-- BOTTOM NAVIGATION INSIDE VIDEO -->
-        <div class="bottom-nav">
-          <div class="nav-group">
-            <button class="nav-btn menu-btn" onclick="goLessons()">📚 Lessons</button>
-            <button class="nav-btn report-btn" onclick="goReport()">📊 Report</button>
-          </div>
-
-          <div class="nav-group">
-            <button class="nav-btn next-btn" onclick="goNext()">Next ➜</button>
-          </div>
+        <div class="top-nav-right">
+          <button class="nav-btn" id="replayBtn">Replay</button>
+          <button class="nav-btn nav-next" id="nextBtn">Next</button>
+          <button class="nav-btn" id="fullscreenBtn">Full Screen</button>
         </div>
       </div>
 
-      <div class="video-caption">
-        <h2>Welcome to Tangram Art Class</h2>
-        <p>
-          Watch the video, enjoy the lesson, and use the navigation buttons to go home,
-          go back, open lessons, view report, or move to the next page.
-        </p>
-      </div>
-    </div>
-
-      <div class="quick-links">
-        <a href="../../../../index.html">🏠 Go to Home</a>
-        <a href="../tuesday/LevelC2.html">📚 Open Lessons</a>
-        <a href="../../../../ProgressReport.html">📊 Open Progress Report</a>
-        <a href="../tuesday/LevelC2.html">➡ Go to Next Page</a>
+      <div class="side-nav">
+        <button class="side-btn left" id="sideBackBtn" aria-label="Go to previous page">❮</button>
+        <button class="side-btn right" id="sideNextBtn" aria-label="Go to next page">❯</button>
       </div>
 
-    <div class="note-box">
-      Video file used: <strong>TangramArtClass.mp4</strong>
+      <div class="bottom-bar nav-visible" id="bottomBar">
+        <div class="lesson-name">Tangram Art Class Video</div>
+        <div class="hint">Use the buttons to move around the app</div>
+      </div>
     </div>
   </div>
 
   <script>
-    /*
-      CHANGE THESE LINKS TO THE EXACT PAGES YOU WANT
-    */
+    const VIDEO_SRC = "TangramArtClass.mp4";
     const HOME_PAGE = "../../../../index.html";
     const PREVIOUS_PAGE = "../../../../index.html";
-    const LESSONS_PAGE = "../tuesday/LevelC2.html";
-    const REPORT_PAGE = "../../../../ProgressReport.html";
     const NEXT_PAGE = "../tuesday/LevelC2.html";
 
-    const video = document.getElementById("artVideo");
+    const video = document.getElementById("lessonVideo");
+    const videoShell = document.getElementById("videoShell");
+    const homeBtn = document.getElementById("homeBtn");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const sideBackBtn = document.getElementById("sideBackBtn");
+    const sideNextBtn = document.getElementById("sideNextBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const topNav = document.getElementById("topNav");
+    const bottomBar = document.getElementById("bottomBar");
+    const tapOverlay = document.getElementById("tapOverlay");
+
+    if (video.querySelector("source")) {
+      video.querySelector("source").src = VIDEO_SRC;
+      video.load();
+    }
 
     function goHome() {
-      window.location.href = HOME_PAGE;
+      window.location.href = HOME_PAGE || "../../../../index.html";
     }
 
-    function goLessons() {
-      window.location.href = LESSONS_PAGE;
+    function goBackPage() {
+      if (PREVIOUS_PAGE && PREVIOUS_PAGE.trim() !== "") {
+        window.location.href = PREVIOUS_PAGE;
+      } else if (document.referrer) {
+        history.back();
+      } else {
+        window.location.href = HOME_PAGE || "../../../../index.html";
+      }
     }
 
-    function goReport() {
-      window.location.href = REPORT_PAGE;
-    }
-
-    function goNext() {
-      window.location.href = NEXT_PAGE;
-    }
-
-    function goBack() {
-      window.location.href = PREVIOUS_PAGE;
+    function goNextPage() {
+      if (NEXT_PAGE && NEXT_PAGE.trim() !== "") {
+        window.location.href = NEXT_PAGE;
+      }
     }
 
     function replayVideo() {
@@ -331,20 +360,85 @@
       video.play().catch(() => {});
     }
 
-    function toggleFullscreen() {
-      const frame = document.querySelector(".video-frame");
-
-      if (!document.fullscreenElement) {
-        frame.requestFullscreen?.();
-      } else {
-        document.exitFullscreen?.();
-      }
+    async function toggleFullscreen() {
+      try {
+        if (!document.fullscreenElement) {
+          await videoShell.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (_err) {}
     }
 
-    // Optional: pause video before leaving page
-    window.addEventListener("beforeunload", () => {
-      try { video.pause(); } catch (e) {}
+    function togglePlayPause() {
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+      showTapHint();
+    }
+
+    let navTimer = 0;
+
+    function showNavigation() {
+      topNav.classList.remove("nav-hidden");
+      topNav.classList.add("nav-visible");
+      bottomBar.classList.remove("nav-hidden");
+      bottomBar.classList.add("nav-visible");
+
+      clearTimeout(navTimer);
+      navTimer = setTimeout(() => {
+        topNav.classList.remove("nav-visible");
+        topNav.classList.add("nav-hidden");
+        bottomBar.classList.remove("nav-visible");
+        bottomBar.classList.add("nav-hidden");
+      }, 3500);
+    }
+
+    function showTapHint() {
+      tapOverlay.classList.add("show");
+      setTimeout(() => tapOverlay.classList.remove("show"), 900);
+      showNavigation();
+    }
+
+    homeBtn.addEventListener("click", goHome);
+    backBtn.addEventListener("click", goBackPage);
+    nextBtn.addEventListener("click", goNextPage);
+    sideBackBtn.addEventListener("click", goBackPage);
+    sideNextBtn.addEventListener("click", goNextPage);
+    replayBtn.addEventListener("click", replayVideo);
+    fullscreenBtn.addEventListener("click", toggleFullscreen);
+
+    video.addEventListener("click", togglePlayPause);
+    videoShell.addEventListener("mousemove", showNavigation);
+    videoShell.addEventListener("touchstart", showNavigation, { passive: true });
+    video.addEventListener("play", showNavigation);
+    video.addEventListener("pause", showNavigation);
+    video.addEventListener("ended", showNavigation);
+
+    document.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+
+      if (key === " ") {
+        event.preventDefault();
+        togglePlayPause();
+      } else if (key === "arrowleft") {
+        event.preventDefault();
+        goBackPage();
+      } else if (key === "arrowright") {
+        event.preventDefault();
+        goNextPage();
+      } else if (key === "h") {
+        goHome();
+      } else if (key === "f") {
+        toggleFullscreen();
+      } else if (key === "r") {
+        replayVideo();
+      }
     });
+
+    showNavigation();
   </script>
 </body>
 </html>

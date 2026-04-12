@@ -10,16 +10,22 @@
   function pickPreferredFemaleVoice(voices) {
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|lisa)/i;
+    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|lisa|nancy|joanna|ivy|ruth|kendra|kimberly|salli|cora|luna|nova|stella|grace|amy)/i;
+    const childFriendlyName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|kids?|child|junior|young)/i;
+    const maleName = /(davis|david|guy|man|male|boy|john|matthew|matt|michael|james|daniel|george|thomas|alex|arthur|fred|richard|jason|ryan|andrew|mark|paul|brian|steve|kevin|eric|christopher|roger)/i;
     const americanLang = /^en[-_]us/i;
-    const targetLang = /^(en[-_](us|ca|au|gb))/i;
     const englishLang = /^en[-_]/i;
+    const notMale = (voice) => !maleName.test(String(voice && voice.name || ""));
+    const matches = (langRe, nameRe) => list.find((voice) => langRe.test(voice.lang || "") && nameRe.test(voice.name || "") && notMale(voice));
 
     return (
-      list.find((voice) => americanLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => targetLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => englishLang.test(voice.lang || "") && femaleName.test(voice.name || "")) ||
-      list.find((voice) => femaleName.test(voice.name || "")) ||
+      matches(americanLang, childFriendlyName) ||
+      matches(americanLang, femaleName) ||
+      matches(englishLang, childFriendlyName) ||
+      matches(englishLang, femaleName) ||
+      list.find((voice) => americanLang.test(voice.lang || "") && notMale(voice)) ||
+      list.find((voice) => englishLang.test(voice.lang || "") && notMale(voice)) ||
+      list.find((voice) => femaleName.test(voice.name || "") && notMale(voice)) ||
       null
     );
   }
@@ -221,13 +227,9 @@
       A: [
         "week-1/monday/CircleArtClass.html",
         "week-1/tuesday/LA2.html",
-        "week-1/tuesday/LA3.html",
-        "week-1/wednesday/LA4.html",
-        "week-1/wednesday/LA5.html",
-        "week-1/tuesday/LA6.html",
-        "week-1/tuesday/LA7.html",
+        "week-1/wednesday/LA3.html",
+        "week-1/wednesday/LA7.html",
         "week-1/thursday/CircleFairlyTale.html",
-        "week-1/friday/LA_Revision1.html",
         "week-1/friday/LA_Game1.html",
         "week-1/friday/LA_Quiz1.html",
         "week-2/tuesday/LA8.html",
@@ -236,7 +238,6 @@
         "week-2/wednesday/LA11.html",
         "week-2/tuesday/LA12.html",
         "week-2/tuesday/LA13.html",
-        "week-2/friday/LA_Revision2.html",
         "week-2/friday/LA_Game2.html",
         "week-2/friday/LA_Quiz2.html",
         "week-3/tuesday/LA14.html",
@@ -261,13 +262,9 @@
       B: [
         "week-1/monday/PentagonArtClass.html",
         "week-1/tuesday/LB2.html",
-        "week-1/tuesday/LB3.html",
-        "week-1/tuesday/LB4.html",
-        "week-1/tuesday/LB5.html",
-        "week-1/wednesday/LB6.html",
+        "week-1/wednesday/LB3.html",
         "week-1/wednesday/LB7.html",
         "week-1/thursday/PentagonFairlyTale.html",
-        "week-1/friday/LB_Revision1.html",
         "week-1/friday/LB_Game1.html",
         "week-1/friday/LB_Quiz1.html",
         "week-2/tuesday/LB8.html",
@@ -301,12 +298,9 @@
       C: [
         "week-1/monday/TangramArtClass.html",
         "week-1/tuesday/LevelC2.html",
-        "week-1/tuesday/LevelC3.html",
-        "week-1/wednesday/LevelC4.html",
-        "week-1/wednesday/LevelC5.html",
-        "week-1/tuesday/LevelC6.html",
-        "week-1/tuesday/LevelC7.html",
-        "week-1/friday/LevelC_Revision1.html",
+        "week-1/wednesday/LevelC3.html",
+        "week-1/wednesday/LevelC7.html",
+        "week-1/thursday/TangramHorseFairlyTale.html",
         "week-1/friday/LevelC_Game1.html",
         "week-1/friday/LevelC_Quiz1.html",
         "week-2/tuesday/LevelC8.html",

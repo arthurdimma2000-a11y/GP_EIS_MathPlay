@@ -243,7 +243,7 @@
 
     const viewBoxWidth = 804;
     const viewBoxHeight = 1109;
-    const correctTarget = { x: 562, y: 804, width: 183, height: 180 }; // small wrong animal at bottom-right
+    const correctTarget = { x: 262, y: 185, width: 324, height: 628 }; // circled center tangram animal
     let recorder = null;
     let recordedChunks = [];
     let drawing = false;
@@ -327,7 +327,7 @@
       const chosenArea = chosen.width * chosen.height;
       const targetArea = correctTarget.width * correctTarget.height;
       const centerInside = chosen.cx >= correctTarget.x && chosen.cx <= correctTarget.x + correctTarget.width && chosen.cy >= correctTarget.y && chosen.cy <= correctTarget.y + correctTarget.height;
-      return centerInside && overlap >= targetArea * 0.35 && chosenArea <= targetArea * 3.4;
+      return centerInside && overlap >= targetArea * 0.18 && chosenArea >= targetArea * 0.22 && chosenArea <= targetArea * 4.8;
     }
 
     async function completePuzzle() {
@@ -425,8 +425,8 @@
 
     clearBtn.addEventListener('click', () => clearCircle());
     checkBtn.addEventListener('click', checkAnswer);
-    nextBtn.addEventListener('click', () => { window.location.href = '../thursday/LevelC_Revision1.html'; });
-    prevBtn.addEventListener('click', () => { window.location.href = 'LevelC6.html'; });
+    nextBtn.addEventListener('click', () => { window.location.href = '../thursday/TangramHorseFairlyTale.html'; });
+    prevBtn.addEventListener('click', () => { window.location.href = 'LevelC3.html'; });
 
     function setRecordLabel(text) {
       recordBtn.innerHTML =
