@@ -43,6 +43,95 @@
       padding:18px;
     }
 
+    #pageContent{
+      width:100%;
+      opacity:0;
+      visibility:hidden;
+      transition:opacity .28s ease;
+    }
+
+    body.intro-complete #pageContent{
+      opacity:1;
+      visibility:visible;
+    }
+
+    #lbIntroVideoOverlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(0,0,0,.82);
+      z-index:9999;
+    }
+
+    #lbIntroVideoOverlay[hidden]{
+      display:none !important;
+    }
+
+    .intro-panel{
+      width:min(920px, 100%);
+      background:rgba(15, 15, 15, .96);
+      border-radius:24px;
+      padding:16px;
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+      border:2px solid rgba(255,255,255,.14);
+    }
+
+    .intro-title{
+      color:#fff4d6;
+      font-size:clamp(1.1rem, 2.4vw, 1.5rem);
+      font-weight:900;
+      text-align:center;
+      margin-bottom:12px;
+    }
+
+    #lbIntroVideo{
+      width:100%;
+      max-height:72vh;
+      border-radius:18px;
+      object-fit:contain;
+      background:#000;
+      display:block;
+    }
+
+    .intro-actions{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .intro-btn{
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:12px 18px;
+      min-width:140px;
+      font-size:.96rem;
+      font-weight:800;
+      color:#fff;
+      box-shadow:0 8px 18px rgba(0,0,0,.28);
+    }
+
+    .intro-btn.sound{
+      background:linear-gradient(180deg, #38bdf8, #0284c7);
+    }
+
+    .intro-btn.skip{
+      background:linear-gradient(180deg, #fb923c, #ea580c);
+    }
+
+    .intro-help{
+      margin-top:10px;
+      text-align:center;
+      color:#fef3c7;
+      font-size:.9rem;
+      font-weight:700;
+    }
+
     .page{
       width:min(100%, 980px);
     }
@@ -86,7 +175,7 @@
       background:#000;
       border-radius:20px;
       overflow:hidden;
-      aspect-ratio:450 / 656; /* matches attached portrait video */
+      aspect-ratio:450 / 656;
       box-shadow:inset 0 0 0 2px rgba(255,255,255,.15);
     }
 
@@ -98,7 +187,6 @@
       background:#000;
     }
 
-    /* Overlay layers */
     .overlay{
       position:absolute;
       inset:0;
@@ -268,84 +356,162 @@
         font-size:.82rem;
         padding:7px 12px;
       }
+
+      .intro-panel{
+        padding:12px;
+        border-radius:18px;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <div class="title-wrap">
-      <h1 class="title">Circle Fairly Tale</h1>
-      <p class="subtitle">Watch, learn, and move easily through the app</p>
+  <div id="lbIntroVideoOverlay">
+    <div class="intro-panel">
+      <div class="intro-title">Circle Fairly Tale Intro</div>
+      <video
+        id="lbIntroVideo"
+        playsinline
+        autoplay
+        muted
+        preload="metadata"
+      >
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1775986043/Circlefairlytale_uofnoy.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="intro-actions">
+        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
+        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
+      </div>
+      <div class="intro-help">If the intro does not play, the story page will open automatically.</div>
     </div>
+  </div>
 
-    <section class="video-card">
-      <div class="video-shell">
-        <!--
-          IMPORTANT:
-          Keep CircleFairlyTale.mp4 in the same folder as this HTML file.
-          If your video is inside another folder, change the src below.
-          Example: src="assets/video/CircleFairlyTale.mp4"
-        -->
-        <video id="storyVideo" controls playsinline preload="metadata">
-          <source src="CircleFairlyTale.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+  <div id="pageContent">
+    <main class="page">
+      <div class="title-wrap">
+        <h1 class="title">Circle Fairly Tale</h1>
+        <p class="subtitle">Watch, learn, and move easily through the app</p>
+      </div>
 
-        <div class="overlay">
-          <!-- Top navigation bar -->
-          <div class="top-bar">
-            <div class="nav-group">
-              <a class="nav-btn home" href="../../../../index.html" aria-label="Go to home page">🏠 Home</a>
-              <a class="nav-btn lessons" href="../monday/CircleArtClass.html" aria-label="Go to Circle Art Class">🎨 Lesson</a>
+      <section class="video-card">
+        <div class="video-shell">
+          <video id="storyVideo" controls playsinline preload="metadata">
+            <source src="CircleFairlyTale.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+
+          <div class="overlay">
+            <div class="top-bar">
+              <div class="nav-group">
+                <a class="nav-btn home" href="../../../../index.html" aria-label="Go to home page">🏠 Home</a>
+                <a class="nav-btn lessons" href="../monday/CircleArtClass.html" aria-label="Go to Circle Art Class">🎨 Lesson</a>
+              </div>
+
+              <div class="nav-group">
+                <button class="nav-btn back" type="button" onclick="goBack()" aria-label="Go back">↩ Back</button>
+              </div>
             </div>
 
-            <div class="nav-group">
-              <button class="nav-btn back" type="button" onclick="goBack()" aria-label="Go back">↩ Back</button>
+            <div class="video-label">📖 Circle Fairly Tale Video</div>
+
+            <div class="side-nav">
+              <a
+                class="round-btn"
+                href="../wednesday/LA7.html"
+                aria-label="Go to previous page"
+                title="Previous Page"
+              >❮</a>
+
+              <a
+                class="round-btn"
+                href="../friday/LA_Game1.html"
+                aria-label="Go to next page"
+                title="Next Page"
+              >❯</a>
             </div>
-          </div>
 
-          <div class="video-label">📖 Circle Fairly Tale Video</div>
-
-          <!-- Side navigation arrows -->
-          <div class="side-nav">
-            <a
-              class="round-btn"
-              href="../wednesday/LA7.html"
-              aria-label="Go to previous page"
-              title="Previous Page"
-            >❮</a>
-
-            <a
-              class="round-btn"
-              href="../friday/LA_Game1.html"
-              aria-label="Go to next page"
-              title="Next Page"
-            >❯</a>
-          </div>
-
-          <!-- Bottom navigation bar -->
-          <div class="bottom-bar">
-            <a class="nav-btn lesson" href="../monday/CircleArtClass.html">Art Class</a>
-            <a class="nav-btn lesson" href="../tuesday/LA2.html">Listening &amp; Speaking</a>
-            <a class="nav-btn lesson" href="../wednesday/LA7.html">Writing &amp; Drawing</a>
-            <a class="nav-btn active" href="CircleFairlyTale.html">Fairly-tale</a>
-            <a class="nav-btn lesson" href="../friday/LA_Game1.html">Activity</a>
+            <div class="bottom-bar">
+              <a class="nav-btn lesson" href="../monday/CircleArtClass.html">Art Class</a>
+              <a class="nav-btn lesson" href="../tuesday/LA2.html">Listening &amp; Speaking</a>
+              <a class="nav-btn lesson" href="../wednesday/LA7.html">Writing &amp; Drawing</a>
+              <a class="nav-btn active" href="CircleFairlyTale.html">Fairly-tale</a>
+              <a class="nav-btn lesson" href="../friday/LA_Game1.html">Activity</a>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-
-   
-  </main>
+      </section>
+    </main>
+  </div>
 
   <script>
+    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1775986043/Circlefairlytale_uofnoy.mp4";
+    const introOverlay = document.getElementById("lbIntroVideoOverlay");
+    const introVideo = document.getElementById("lbIntroVideo");
+    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
+    const skipIntroBtn = document.getElementById("skipIntroBtn");
+    let introFinished = false;
+
+    function revealPageContent() {
+      if (introFinished) return;
+      introFinished = true;
+      document.body.classList.add("intro-complete");
+      if (introOverlay) {
+        introOverlay.hidden = true;
+      }
+      if (introVideo) {
+        try {
+          introVideo.pause();
+        } catch (err) {}
+      }
+    }
+
+    function enableIntroSound() {
+      if (!introVideo) return;
+      introVideo.muted = false;
+      introVideo.volume = 1;
+      introVideo.play().catch(() => {});
+      turnOnSoundBtn.textContent = "Sound On";
+      turnOnSoundBtn.disabled = true;
+    }
+
     function goBack() {
       if (window.history.length > 1) {
         window.history.back();
       } else {
-          window.location.href = "../../../../index.html";
+        window.location.href = "../../../../index.html";
       }
     }
+
+    if (introVideo) {
+      introVideo.src = INTRO_VIDEO_URL;
+      introVideo.load();
+      introVideo.addEventListener("ended", revealPageContent);
+      introVideo.addEventListener("error", revealPageContent);
+      introVideo.addEventListener("stalled", () => {
+        window.setTimeout(() => {
+          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
+            revealPageContent();
+          }
+        }, 1200);
+      });
+      introVideo.play().catch(() => {});
+    } else {
+      revealPageContent();
+    }
+
+    if (turnOnSoundBtn) {
+      turnOnSoundBtn.addEventListener("click", enableIntroSound);
+    }
+
+    if (skipIntroBtn) {
+      skipIntroBtn.addEventListener("click", revealPageContent);
+    }
+
+    window.setTimeout(() => {
+      if (!introFinished && introVideo && introVideo.readyState < 1) {
+        revealPageContent();
+      }
+    }, 4000);
   </script>
 </body>
 </html>

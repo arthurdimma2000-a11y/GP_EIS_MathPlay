@@ -26,6 +26,8 @@ const LOCAL_LAST_RESULT_KEY = "gp_last_activity_result";
 const LOCAL_LOGIN_PING_KEY = "gp_eis_login_ping";
 const STARTED_PAGES = new Set();
 const FINISH_CACHE = new Map();
+const REALTIME_CACHE = new Map();
+let realtimeSyncInstalled = false;
 
 const app = getApps().length ? getApp() : initializeApp(FIREBASE_CONFIG);
 const db = getFirestore(app);
@@ -107,6 +109,138 @@ function defaultPayload(overrides = {}) {
     skills: normalizedSkills,
     ...overrides
   };
+}
+
+function clampPercent(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return null;
+  return Math.max(0, Math.min(100, Math.round(num)));
+}
+
+function parsePercentFromText(value) {
+  const match = String(value || "").match(/(\d{1,3})(?:\.\d+)?\s*%/);
+  return match ? clampPercent(match[1]) : null;
+}
+
+function parseFractionPercent(value) {
+  const match = String(value || "").match(/(\d{1,3})\s*\/\s*(\d{1,3})/);
+  if (!match) return null;
+  const part = Number(match[1]);
+  const total = Number(match[2]);
+  if (!Number.isFinite(part) || !Number.isFinite(total) || total <= 0) return null;
+  return clampPercent((part / total) * 100);
+}
+
+function collectRealtimeScore(documentRef = document) {
+  const scores = [];
+  const push = (value) => {
+    const pct = clampPercent(value);
+    if (pct !== null) scores.push(pct);
+  };
+
+  documentRef.querySelectorAll(
+    [
+      "#scoreText",
+      "#meterText",
+      "#progressText",
+      "#progressPercent",
+      "#correctCount",
+      ".progress-text",
+      ".progress-label",
+      ".score-big",
+      ".trace-progress",
+      "[data-progress-percent]"
+    ].join(",")
+  ).forEach((node) => {
+    const raw = node.textContent || node.getAttribute("data-progress-percent") || "";
+    const pct = parsePercentFromText(raw);
+    if (pct !== null) {
+      push(pct);
+      return;
+    }
+    const fractionPct = parseFractionPercent(raw);
+    if (fractionPct !== null) push(fractionPct);
+  });
+
+  documentRef.querySelectorAll(
+    [
+      "#bar",
+      "#progressFill",
+      "#meterFill",
+      ".progress-fill",
+      ".meter-fill",
+      ".meter > i",
+      ".meter .bar",
+      "[data-progress-fill]"
+    ].join(",")
+  ).forEach((node) => {
+    const raw = (node.style && node.style.width) || node.getAttribute("data-progress-fill") || "";
+    const pct = parsePercentFromText(raw);
+    if (pct !== null) push(pct);
+  });
+
+  return scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : null;
+}
+
+function installRealtimeActivitySync() {
+  if (realtimeSyncInstalled || typeof MutationObserver !== "function" || !document || !document.body) return;
+  realtimeSyncInstalled = true;
+
+  const watchedSelector = [
+    "#scoreText",
+    "#meterText",
+    "#progressText",
+    "#progressPercent",
+    "#correctCount",
+    "#bar",
+    "#progressFill",
+    "#meterFill",
+    ".progress-fill",
+    ".meter-fill",
+    ".meter > i",
+    ".meter .bar",
+    ".progress-text",
+    ".progress-label",
+    ".score-big",
+    ".trace-progress",
+    "[data-progress-percent]",
+    "[data-progress-fill]"
+  ].join(",");
+
+  const scheduleRealtimeSync = (() => {
+    let timer = 0;
+    return function schedule() {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(async () => {
+        timer = 0;
+        const score = collectRealtimeScore(document);
+        if (score === null || !window.GPTrack || typeof window.GPTrack.realtime !== "function") return;
+        try {
+          await window.GPTrack.realtime({
+            score,
+            progress: score,
+            tracing: score,
+            completed: score >= 100
+          });
+        } catch (_) {}
+      }, 180);
+    };
+  })();
+
+  if (document.querySelector(watchedSelector)) {
+    const observer = new MutationObserver(scheduleRealtimeSync);
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["style", "class", "data-progress-percent", "data-progress-fill"]
+    });
+    document.addEventListener("click", scheduleRealtimeSync, true);
+    document.addEventListener("input", scheduleRealtimeSync, true);
+    document.addEventListener("change", scheduleRealtimeSync, true);
+    scheduleRealtimeSync();
+  }
 }
 
 function storeLocalResult(payload) {
@@ -296,16 +430,33 @@ function createGPTrack() {
     },
 
     async realtime(payload = {}) {
-      try {
-        storeLocalResult({
-          ...defaultPayload(payload),
-          ts: Date.now(),
-          realtime: true
-        });
-        return { ok: true };
-      } catch (err) {
-        return { ok: false, error: err };
+      const normalized = defaultPayload({
+        completed: false,
+        ...payload,
+        realtime: true
+      });
+      const realtimeKey = JSON.stringify({
+        pageId: normalized.pageId,
+        activityType: normalized.activityType,
+        score: normalized.score,
+        stars: normalized.stars,
+        completed: normalized.completed
+      });
+      if (REALTIME_CACHE.has(realtimeKey)) {
+        return await REALTIME_CACHE.get(realtimeKey);
       }
+      const pending = (async () => {
+        try {
+          const result = await saveActivityResult(normalized);
+          return result;
+        } catch (err) {
+          return { ok: false, error: err };
+        } finally {
+          REALTIME_CACHE.delete(realtimeKey);
+        }
+      })();
+      REALTIME_CACHE.set(realtimeKey, pending);
+      return await pending;
     }
   };
 }
@@ -317,6 +468,7 @@ if (!window.GPTrack || typeof window.GPTrack.finish !== "function") {
 window.saveActivityResult = saveActivityResult;
 window.markLoginPing = markLoginPing;
 window.getStudentSession = getStudentSession;
+installRealtimeActivitySync();
 
 if (typeof window.finishActivity !== "function") {
   window.finishActivity = async function(overrides = {}) {

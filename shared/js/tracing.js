@@ -1236,7 +1236,9 @@
     doc.body.dataset.gpRealtimeTraceSyncInstalled = "1";
 
     const observed = new WeakSet();
+    const liveInputs = new WeakSet();
     let pendingTimer = 0;
+    let rafPending = 0;
     let lastSavedScore = null;
 
     function parsePercent(value){
@@ -1323,9 +1325,20 @@
       pushPayload(score);
     }
 
-    function scheduleFlush(){
+    function scheduleFlush(urgent){
       if (pendingTimer) global.clearTimeout(pendingTimer);
-      pendingTimer = global.setTimeout(flushProgress, 180);
+      if (urgent) {
+        if (rafPending) return;
+        const raf = global.requestAnimationFrame || function(callback){
+          return global.setTimeout(callback, 32);
+        };
+        rafPending = raf(() => {
+          rafPending = 0;
+          flushProgress();
+        });
+        return;
+      }
+      pendingTimer = global.setTimeout(flushProgress, 90);
     }
 
     function observeNode(node){
@@ -1343,20 +1356,49 @@
       } catch (_err) {}
     }
 
+    function bindLiveInput(node){
+      if (!node || liveInputs.has(node)) return;
+      liveInputs.add(node);
+      const pulse = () => scheduleFlush(true);
+      try { node.addEventListener("pointerdown", pulse, { passive: true }); } catch (_err) {}
+      try { node.addEventListener("pointermove", pulse, { passive: true }); } catch (_err) {}
+      try { node.addEventListener("pointerup", pulse, { passive: true }); } catch (_err) {}
+      try { node.addEventListener("touchstart", pulse, { passive: true }); } catch (_err) {}
+      try { node.addEventListener("touchmove", pulse, { passive: true }); } catch (_err) {}
+      try { node.addEventListener("touchend", pulse, { passive: true }); } catch (_err) {}
+      try { node.addEventListener("input", pulse, { passive: true }); } catch (_err) {}
+    }
+
     function bindProgressWatchers(){
       doc.querySelectorAll(progressSelector).forEach(observeNode);
+    }
+
+    function bindLiveInputWatchers(){
+      doc.querySelectorAll(
+        [
+          traceSelector,
+          'canvas[id*="draw"]',
+          'canvas[id*="poster"]',
+          'svg[id*="trace"]',
+          '[data-trace-canvas]',
+          '[data-trace-layer]',
+          '#drawLayer'
+        ].join(",")
+      ).forEach(bindLiveInput);
     }
 
     try {
       const rootObserver = new MutationObserver(() => {
         bindProgressWatchers();
+        bindLiveInputWatchers();
         scheduleFlush();
       });
       rootObserver.observe(doc.body, { childList: true, subtree: true });
     } catch (_err) {}
 
     bindProgressWatchers();
-    scheduleFlush();
+    bindLiveInputWatchers();
+    scheduleFlush(true);
     global.setTimeout(scheduleFlush, 700);
     global.setTimeout(scheduleFlush, 1800);
     global.addEventListener("beforeunload", flushProgress);

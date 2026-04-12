@@ -35,6 +35,95 @@
       padding: 18px;
     }
 
+    #pageContent {
+      width: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .28s ease;
+    }
+
+    body.intro-complete #pageContent {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #lbIntroVideoOverlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.82);
+      z-index: 9999;
+    }
+
+    #lbIntroVideoOverlay[hidden] {
+      display: none !important;
+    }
+
+    .intro-panel {
+      width: min(920px, 100%);
+      background: rgba(15, 15, 15, .96);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      border: 2px solid rgba(255,255,255,.14);
+    }
+
+    .intro-title {
+      color: #fff4d6;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    #lbIntroVideo {
+      width: 100%;
+      max-height: 72vh;
+      border-radius: 18px;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
+    .intro-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .intro-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 12px 18px;
+      min-width: 140px;
+      font-size: .96rem;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,.28);
+    }
+
+    .intro-btn.sound {
+      background: linear-gradient(180deg, #38bdf8, #0284c7);
+    }
+
+    .intro-btn.skip {
+      background: linear-gradient(180deg, #fb923c, #ea580c);
+    }
+
+    .intro-help {
+      margin-top: 10px;
+      text-align: center;
+      color: #fef3c7;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
     .page-wrap {
       width: 100%;
       max-width: 700px;
@@ -266,51 +355,79 @@
       .bottom-bar .hint {
         font-size: 0.78rem;
       }
+
+      .intro-panel {
+        padding: 12px;
+        border-radius: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="page-wrap">
-    <div class="title-bar">
-      <h1>Circle Art Class</h1>
-    </div>
-
-    <div class="video-shell" id="videoShell">
+  <div id="lbIntroVideoOverlay">
+    <div class="intro-panel">
+      <div class="intro-title">Circle Art Class Intro</div>
       <video
-        id="lessonVideo"
-        controls
+        id="lbIntroVideo"
         playsinline
+        autoplay
+        muted
         preload="metadata"
       >
-        <source src="CircleArtClass.mp4" type="video/mp4" />
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1775986037/Circleartclass_uizezx.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+      <div class="intro-actions">
+        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
+        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
+      </div>
+      <div class="intro-help">If the intro does not play, the lesson page will open automatically.</div>
+    </div>
+  </div>
 
-      <div class="tap-overlay" id="tapOverlay">
-        <div class="tap-card">Tap video to Play / Pause</div>
+  <div id="pageContent">
+    <div class="page-wrap">
+      <div class="title-bar">
+        <h1>Circle Art Class</h1>
       </div>
 
-      <div class="top-nav nav-visible" id="topNav">
-        <div class="top-nav-left">
-          <button class="nav-btn nav-home" id="homeBtn">🏠 Home</button>
-          <button class="nav-btn" id="backBtn">⬅ Back</button>
+      <div class="video-shell" id="videoShell">
+        <video
+          id="lessonVideo"
+          controls
+          playsinline
+          preload="metadata"
+        >
+          <source src="CircleArtClass.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        <div class="tap-overlay" id="tapOverlay">
+          <div class="tap-card">Tap video to Play / Pause</div>
         </div>
 
-        <div class="top-nav-right">
-          <button class="nav-btn" id="replayBtn">⟲ Replay</button>
-          <button class="nav-btn nav-next" id="nextBtn">Next ➜</button>
-          <button class="nav-btn" id="fullscreenBtn">⛶ Full Screen</button>
+        <div class="top-nav nav-visible" id="topNav">
+          <div class="top-nav-left">
+            <button class="nav-btn nav-home" id="homeBtn">🏠 Home</button>
+            <button class="nav-btn" id="backBtn">⬅ Back</button>
+          </div>
+
+          <div class="top-nav-right">
+            <button class="nav-btn" id="replayBtn">⟲ Replay</button>
+            <button class="nav-btn nav-next" id="nextBtn">Next ➜</button>
+            <button class="nav-btn" id="fullscreenBtn">⛶ Full Screen</button>
+          </div>
         </div>
-      </div>
 
-      <div class="side-nav">
-        <button class="side-btn left" id="sideBackBtn" aria-label="Go to previous page">❮</button>
-        <button class="side-btn right" id="sideNextBtn" aria-label="Go to next page">❯</button>
-      </div>
+        <div class="side-nav">
+          <button class="side-btn left" id="sideBackBtn" aria-label="Go to previous page">❮</button>
+          <button class="side-btn right" id="sideNextBtn" aria-label="Go to next page">❯</button>
+        </div>
 
-      <div class="bottom-bar nav-visible" id="bottomBar">
-        <div class="lesson-name">Circle Art Class Video</div>
-        <div class="hint">Use the buttons to move around the app</div>
+        <div class="bottom-bar nav-visible" id="bottomBar">
+          <div class="lesson-name">Circle Art Class Video</div>
+          <div class="hint">Use the buttons to move around the app</div>
+        </div>
       </div>
     </div>
   </div>
@@ -320,6 +437,7 @@
        EDIT THESE PAGE LINKS
        ========================= */
     const VIDEO_SRC = "CircleArtClass.mp4";
+    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1775986037/Circleartclass_uizezx.mp4";
     const HOME_PAGE = "../../../../index.html";
     const PREVIOUS_PAGE = "../../../../index.html";
     const NEXT_PAGE = "../tuesday/LA2.html";
@@ -336,10 +454,30 @@
     const topNav = document.getElementById("topNav");
     const bottomBar = document.getElementById("bottomBar");
     const tapOverlay = document.getElementById("tapOverlay");
+    const introOverlay = document.getElementById("lbIntroVideoOverlay");
+    const introVideo = document.getElementById("lbIntroVideo");
+    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
+    const skipIntroBtn = document.getElementById("skipIntroBtn");
+
+    let introFinished = false;
 
     if (video.querySelector("source")) {
       video.querySelector("source").src = VIDEO_SRC;
       video.load();
+    }
+
+    function revealPageContent() {
+      if (introFinished) return;
+      introFinished = true;
+      document.body.classList.add("intro-complete");
+      if (introOverlay) {
+        introOverlay.hidden = true;
+      }
+      if (introVideo) {
+        try {
+          introVideo.pause();
+        } catch (err) {}
+      }
     }
 
     function goHome() {
@@ -388,6 +526,15 @@
       showTapHint();
     }
 
+    function enableIntroSound() {
+      if (!introVideo) return;
+      introVideo.muted = false;
+      introVideo.volume = 1;
+      introVideo.play().catch(() => {});
+      turnOnSoundBtn.textContent = "Sound On";
+      turnOnSoundBtn.disabled = true;
+    }
+
     let navTimer;
 
     function showNavigation() {
@@ -410,6 +557,37 @@
       setTimeout(() => tapOverlay.classList.remove("show"), 900);
       showNavigation();
     }
+
+    if (introVideo) {
+      introVideo.src = INTRO_VIDEO_URL;
+      introVideo.load();
+      introVideo.addEventListener("ended", revealPageContent);
+      introVideo.addEventListener("error", revealPageContent);
+      introVideo.addEventListener("stalled", () => {
+        window.setTimeout(() => {
+          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
+            revealPageContent();
+          }
+        }, 1200);
+      });
+      introVideo.play().catch(() => {});
+    } else {
+      revealPageContent();
+    }
+
+    if (turnOnSoundBtn) {
+      turnOnSoundBtn.addEventListener("click", enableIntroSound);
+    }
+
+    if (skipIntroBtn) {
+      skipIntroBtn.addEventListener("click", revealPageContent);
+    }
+
+    window.setTimeout(() => {
+      if (!introFinished && introVideo && introVideo.readyState < 1) {
+        revealPageContent();
+      }
+    }, 4000);
 
     homeBtn.addEventListener("click", goHome);
     backBtn.addEventListener("click", goBackPage);

@@ -78,6 +78,26 @@
           console.error("GPTrack.finish error:", err);
           return { ok:false, error:err };
         }
+      },
+
+      async realtime(payload = {}){
+        try{
+          const pageId = payload.pageId || getPageId();
+          const result = await saveActivityResult({
+            pageId,
+            level: payload.level || defaultLevel || inferLevel(pageId),
+            activityType: payload.activityType || defaultActivityType || inferActivityType(pageId),
+            score: typeof payload.score === "number" ? payload.score : defaultScore,
+            stars: typeof payload.stars === "number" ? payload.stars : defaultStars,
+            skills: payload.skills || defaultSkills,
+            completed: typeof payload.completed === "boolean" ? payload.completed : false,
+            realtime: true,
+            ...payload
+          });
+          return result;
+        }catch(err){
+          return { ok:false, error:err };
+        }
       }
     };
 

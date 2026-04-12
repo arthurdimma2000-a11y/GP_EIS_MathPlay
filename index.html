@@ -3266,6 +3266,16 @@
       friday: "Activity"
     };
 
+    function getWeekDayLabel(weekNumber, day){
+      const week = Number(weekNumber) || 0;
+      if (day === "monday") {
+        if (week === 2) return "Gym Class";
+        if (week === 3) return "Science Class";
+        if (week === 4) return "Music Class";
+      }
+      return DAY_LABELS[day] || "";
+    }
+
     const MONTH_HUMAN_IMAGES = [
       "assets/images/roadmap/humans/Aamazing.png",
       "assets/images/roadmap/humans/BabyDog.png",
@@ -5424,7 +5434,7 @@
           if (!accessUnlocked) {
             lessonStackHtml = `<div class="empty-day">Login to reveal lessons.</div>`;
           } else if (!monthHasLessons) {
-            lessonStackHtml = `<div class="empty-day">${DAY_LABELS[day]} plan coming soon.</div>`;
+            lessonStackHtml = `<div class="empty-day">${getWeekDayLabel(weekNo, day)} plan coming soon.</div>`;
           } else if (!grouped[day].length){
             lessonStackHtml = `<div class="empty-day">No lesson listed for this day.</div>`;
           } else {
@@ -5440,7 +5450,7 @@
             <div class="day-tv-head">
               <div>
                 <div class="day-tv-week">Week ${week}</div>
-                <h5 class="day-tv-title">${DAY_LABELS[day]}</h5>
+                <h5 class="day-tv-title">${getWeekDayLabel(weekNo, day)}</h5>
               </div>
               <div class="tv-dots">${dotsHtml}</div>
             </div>
