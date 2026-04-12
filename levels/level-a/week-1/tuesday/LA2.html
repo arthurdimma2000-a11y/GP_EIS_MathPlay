@@ -41,17 +41,6 @@
     padding:10px;
     color:var(--ink);
   }
-  #pageContent{
-    width:100%;
-    opacity:0;
-    visibility:hidden;
-    transition:opacity .28s ease;
-  }
-  body.intro-complete #pageContent{
-    opacity:1;
-    visibility:visible;
-  }
-  body.intro-active .app{ visibility:hidden; }
   .app{
     width:min(960px,100%);
     max-width:960px;
@@ -254,18 +243,23 @@
     position:absolute;
     z-index:4;
   }
+
+  /* moved above boy's head */
   .kid-bubble{
-    right:6%;
-    top:19%;
-    max-width:36%;
+    right:10%;
+    top:41%;
+    max-width:34%;
     align-items:flex-end;
   }
+
+  /* pushed down below baker image */
   .chef-bubble{
-    left:7%;
-    top:45%;
+    left:9%;
+    top:72%;
     max-width:36%;
     align-items:flex-start;
   }
+
   .bubble.sparkle{
     background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
     box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
@@ -424,6 +418,8 @@
       font-size:1.5rem;
       top:79%;
     }
+    .kid-bubble{ right:7%; top:38%; max-width:40%; }
+    .chef-bubble{ left:7%; top:74%; max-width:42%; }
   }
   @media (max-width:520px){
     :root{ --bubble-font:.95rem; }
@@ -472,8 +468,8 @@
       overflow-wrap:normal;
       word-break:normal;
     }
-    .kid-bubble{ right:4%; top:17%; max-width:48%; }
-    .chef-bubble{ left:4%; top:47%; max-width:48%; }
+    .kid-bubble{ right:3%; top:36%; max-width:48%; }
+    .chef-bubble{ left:3%; top:75%; max-width:48%; }
     .controls{
       justify-content:center;
     }
@@ -487,110 +483,83 @@
     100%{transform:translateY(30%) rotate(-6deg);}
   }
 
-  /* Intro Video Overlay Styles */
-
-  .intro-video-container{
-    max-width:90vw;
-    max-height:90vh;
-    position:relative;
-  }
-  .intro-controls{
-    margin-top:20px;
-    display:flex;
-    gap:12px;
-    justify-content:center;
-    flex-wrap:wrap;
-  }
-  .intro-btn{
-    border:none;
-    border-radius:999px;
-    padding:12px 24px;
-    font-size:1rem;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow:0 4px 0 rgba(0,0,0,.25);
-    transition:transform 0.1s;
-  }
-  .intro-btn:active{
-    transform:translateY(2px);
-  }
-  .intro-btn.sound{
-    background:var(--btn-orange);
-    color:#fff;
-  }
-  .intro-btn.skip{
-    background:var(--btn-blue);
-    color:#1f3b6b;
-  }
   #lbIntroVideoOverlay{
     position:fixed;
     inset:0;
-    display:flex;
+    display:none;
     align-items:center;
     justify-content:center;
-    padding:18px;
-    background:rgba(0,0,0,.82);
-    z-index:9999;
-  }
-  #lbIntroVideoOverlay[hidden]{
-    display:none !important;
-  }
-  .intro-panel{
-    width:min(920px,100%);
-    background:rgba(15,15,15,.96);
-    border-radius:24px;
+    background:rgba(0,0,0,.92);
+    z-index:99999;
     padding:16px;
-    box-shadow:0 20px 60px rgba(0,0,0,.45);
-    border:2px solid rgba(255,255,255,.14);
+    flex-direction:column;
+    gap:14px;
   }
-  .intro-title{
-    color:#fff4d6;
-    font-size:clamp(1.1rem,2.4vw,1.5rem);
-    font-weight:900;
-    text-align:center;
-    margin-bottom:12px;
-  }
+  #lbIntroVideoOverlay.active{display:flex;}
+
   #lbIntroVideo{
-    width:100%;
-    max-height:72vh;
-    border-radius:18px;
-    object-fit:contain;
-    background:#000;
+    width:min(92vw,980px);
+    max-height:82vh;
+    height:auto;
     display:block;
+    border-radius:14px;
+    background:#000;
+    box-shadow:0 18px 48px rgba(0,0,0,.45);
   }
-  .intro-help{
-    margin-top:10px;
+
+  .gp-intro-help{
+    color:#fff;
+    font-weight:800;
+    font-size:1rem;
     text-align:center;
-    color:#fef3c7;
-    font-size:.9rem;
-    font-weight:700;
+    text-shadow:0 2px 8px rgba(0,0,0,.45);
+    max-width:min(92vw,760px);
+  }
+
+  .gp-intro-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    justify-content:center;
+  }
+
+  .gp-intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+
+  .gp-intro-btn.play{
+    background:linear-gradient(180deg,#dff7ff,#8fdcff);
+    color:#114a67;
+    display:none;
+  }
+
+  .gp-intro-btn.sound{
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+  }
+
+  .gp-intro-btn.skip{
+    background:linear-gradient(180deg,#ffffff,#e9eef7);
+    color:#304060;
+  }
+</style>
+<style id="gpUnifiedIntroPrehide">
+  #introVideoWrap,.intro-video-wrap{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
   }
 </style>
 </head>
 <body>
-  <!-- Intro Video Overlay -->
-  <div id="lbIntroVideoOverlay">
-    <div class="intro-panel">
-      <div class="intro-title">Circle Intro</div>
-      <video
-        id="lbIntroVideo"
-        playsinline
-        autoplay
-        muted
-        preload="metadata"
-      >
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776006235/Page2Circle_zn6ebl.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <div class="intro-controls">
-        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
-        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
-      </div>
-      <div class="intro-help">If the intro does not play, the lesson page will open automatically.</div>
-    </div>
-  </div>
 
-  <div id="pageContent">
   <div class="app">
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
       <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
@@ -609,7 +578,7 @@
       <div class="tray-hero">
         <div class="tray-caption-center">I am a baker</div>
         <img src="../../../../assets/images/shapes/A2.png" alt="Poster">
-        <div class="circle-reveal" id="circleReveal">It&apos;s a Circle</div>
+        <div class="circle-reveal" id="circleReveal">It&apos;s a Circle!</div>
 
         <div class="row right convo-line">
           <div class="bubble-stack kid-bubble">
@@ -663,67 +632,12 @@
     <div class="conversation-status" id="conversationStatus"></div>
     <div class="footer-note">Tap the microphone to reveal the conversation line by line.</div>
   </div>
-  </div>
-
-  
 
   <script src="../../../../shared/js/storage.js"></script>
   <script src="../../../../shared/js/progress.js"></script>
   <script src="../../../../shared/js/tracing.js"></script>
 
   <script>
-    const introOverlay = document.getElementById("lbIntroVideoOverlay");
-    const introVideo = document.getElementById("lbIntroVideo");
-    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
-    const skipIntroBtn = document.getElementById("skipIntroBtn");
-    let introFinished = false;
-
-    function revealPageContent(){
-      if (introFinished) return;
-      introFinished = true;
-      document.body.classList.add("intro-complete");
-      if (introOverlay) introOverlay.hidden = true;
-      if (introVideo) {
-        try { introVideo.pause(); } catch (_err) {}
-      }
-    }
-
-    function enableIntroSound(){
-      if (!introVideo) return;
-      introVideo.muted = false;
-      introVideo.volume = 1;
-      introVideo.play().catch(() => {});
-      if (turnOnSoundBtn) {
-        turnOnSoundBtn.textContent = "Sound On";
-        turnOnSoundBtn.disabled = true;
-      }
-    }
-
-    if (introVideo) {
-      introVideo.addEventListener("ended", revealPageContent);
-      introVideo.addEventListener("error", revealPageContent);
-      introVideo.addEventListener("stalled", () => {
-        window.setTimeout(() => {
-          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
-            revealPageContent();
-          }
-        }, 1200);
-      });
-      introVideo.play().catch(() => {});
-    } else {
-      revealPageContent();
-    }
-
-    if (turnOnSoundBtn) turnOnSoundBtn.addEventListener("click", enableIntroSound);
-    if (skipIntroBtn) skipIntroBtn.addEventListener("click", revealPageContent);
-    
-    // Fallback timeout to start audio if video takes too long or doesn't load
-    window.setTimeout(() => {
-      if (!introFinished && introVideo && introVideo.readyState < 1) {
-        revealPageContent();
-      }
-    }, 8000);
-
     const clearBtn = document.getElementById("clearBtn");
     const micIconBtn = document.getElementById("micIconBtn");
     const recordBtn = document.getElementById("recordBtn");
@@ -737,7 +651,6 @@
     const lines = Array.from(document.querySelectorAll(".convo-line"));
     const repeatResults = Array.from(document.querySelectorAll(".repeat-result"));
     const starRows = Array.from(document.querySelectorAll(".star-row"));
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
 
     let readToken = 0;
     let currentLineIndex = -1;
@@ -755,9 +668,6 @@
     let micInitialized = false;
     let activitySaved = false;
     let circleTapped = false;
-    let loadIntroStarted = false;
-
-    instructionAudio.preload = "auto";
 
     function hideAllLines(){
       lines.forEach(line => {
@@ -775,134 +685,61 @@
       line.style.display = "flex";
     }
 
-    function getSpeechVoice(role){
-      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
-      const voices = window.speechSynthesis.getVoices() || [];
+    function getVoicesList(){
+      try{
+        return window.speechSynthesis ? window.speechSynthesis.getVoices() || [] : [];
+      }catch(e){
+        return [];
+      }
+    }
+
+    function chooseVoice(role){
+      const voices = getVoicesList();
       if (!voices.length) return null;
 
-      const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || "")));
-      const pool = englishVoices.length ? englishVoices : voices;
-      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
-      const kidName = /(kids?|child|junior|young|ava|aria|ellie|ivy|jenny|libby|nova|grace|olivia|emma)/i;
+      const lower = (s) => String(s || "").toLowerCase();
 
       if (role === "male") {
-        return pool.find((voice) => maleName.test(String(voice.name || ""))) || pool[0] || null;
+        return voices.find(v =>
+          /en/.test(lower(v.lang)) &&
+          (
+            /male|david|mark|tom|daniel|alex|fred|guy|man|google uk english male|microsoft david|microsoft mark|aaron|james/.test(lower(v.name))
+          )
+        ) || voices.find(v => /en/.test(lower(v.lang))) || voices[0];
       }
 
       if (role === "kid") {
-        return pool.find((voice) => kidName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
-          || pool.find((voice) => !maleName.test(String(voice.name || "")))
-          || pool[0]
-          || null;
+        return voices.find(v =>
+          /en/.test(lower(v.lang)) &&
+          (
+            /zira|aria|samantha|female|girl|kid|child|microsoft zira|ava|luna|emma|jenny/.test(lower(v.name))
+          )
+        ) || voices.find(v => /en/.test(lower(v.lang))) || voices[0];
       }
 
-      return pool[0] || null;
+      return voices.find(v => /en/.test(lower(v.lang))) || voices[0];
     }
 
-    function speakLine(text, onend, options){
+    function speakWithRole(text, role, onend){
       if (!("speechSynthesis" in window)) {
         if (onend) onend();
         return;
       }
-      const opts = options || {};
+      try { window.speechSynthesis.cancel(); } catch(e){}
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = typeof opts.rate === "number" ? opts.rate : 0.95;
-      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.1;
-      utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
-      utter.lang = opts.lang || "en-US";
-      const selectedVoice = getSpeechVoice(opts.role);
-      if (selectedVoice) utter.voice = selectedVoice;
+      const voice = chooseVoice(role);
+      if (voice) utter.voice = voice;
+      utter.lang = (voice && voice.lang) ? voice.lang : "en-US";
+      utter.rate = role === "kid" ? 1.02 : 0.94;
+      utter.pitch = role === "kid" ? 1.28 : 0.88;
+      utter.volume = 1;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
     }
 
-    function playInstructionThenDialogue(){
-      if (loadIntroStarted) return;
-      loadIntroStarted = true;
-
-      hideAllLines();
-      setConversationStatus("");
-      if ("speechSynthesis" in window) {
-        try { window.speechSynthesis.cancel(); } catch (_err) {}
-      }
-
-      const steps = [
-        () => {
-          setConversationStatus("I am a baker.");
-          speakLine("I am a baker.", runNextLoadIntroStep, {
-            role: "male",
-            rate: 0.92,
-            pitch: 0.9,
-            volume: 1
-          });
-        },
-        () => {
-          showLine(0);
-          setConversationStatus("What do you make?");
-          speakLine("What do you make?", runNextLoadIntroStep, {
-            role: "kid",
-            rate: 0.98,
-            pitch: 1.35,
-            volume: 1
-          });
-        },
-        () => {
-          showLine(1);
-          setConversationStatus("I make cookies.");
-          speakLine("I make cookies.", runNextLoadIntroStep, {
-            role: "male",
-            rate: 0.92,
-            pitch: 0.9,
-            volume: 1
-          });
-        },
-        () => {
-          circleTapped = true;
-          if (circleReveal) circleReveal.classList.add("show");
-          setConversationStatus("It's a Circle!");
-          speakLine("It's a Circle!", null, {
-            role: "kid",
-            rate: 1,
-            pitch: 1.35,
-            volume: 1
-          });
-        }
-      ];
-
-      let stepIndex = 0;
-      function runNextLoadIntroStep(){
-        const step = steps[stepIndex++];
-        if (step) {
-          window.setTimeout(step, 120);
-        }
-      }
-
-      const startVoices = () => window.setTimeout(runNextLoadIntroStep, 120);
-      const fallbackTimer = window.setTimeout(startVoices, 5200);
-
-      instructionAudio.onended = () => {
-        window.clearTimeout(fallbackTimer);
-        startVoices();
-      };
-      instructionAudio.onerror = () => {
-        window.clearTimeout(fallbackTimer);
-        startVoices();
-      };
-
-      try {
-        instructionAudio.currentTime = 0;
-        const playAttempt = instructionAudio.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {
-            window.clearTimeout(fallbackTimer);
-            startVoices();
-          });
-        }
-      } catch (_err) {
-        window.clearTimeout(fallbackTimer);
-        startVoices();
-      }
+    function speakLine(text, onend){
+      speakWithRole(text, "male", onend);
     }
 
     function highlightLine(index, on){
@@ -949,6 +786,7 @@
         if (bubble) bubble.classList.remove("sparkle");
       });
       setConversationStatus("");
+      try { window.speechSynthesis.cancel(); } catch(e){}
     }
 
     function revealBubblesFromMic(){
@@ -963,10 +801,6 @@
         micInitialized = true;
       }
       currentLineIndex = micStepIndex;
-    }
-
-    function percentMatch(expectedText, saidText){
-      return window.GPTracing.percentWordMatch(expectedText, saidText);
     }
 
     function listenForRepeat(expectedText, onDone){
@@ -987,7 +821,10 @@
       const line = lines[index];
       currentLineIndex = index;
       const bubble = line.querySelector(".bubble");
-      if (bubble) speakLine(bubble.textContent || "");
+      if (bubble) {
+        const role = index === 0 ? "kid" : "male";
+        speakWithRole(bubble.textContent || "", role);
+      }
     }
 
     async function moveToNextMicStep(){
@@ -1014,7 +851,7 @@
           chime.preload = "auto";
           chime.play().catch(() => {});
           setConversationStatus(remark);
-          speakLine(remark);
+          speakWithRole(remark, "kid");
         } else {
           setConversationStatus("");
         }
@@ -1061,7 +898,7 @@
       micBusy = true;
       setConversationStatus("Repeat after me.");
 
-      speakLine("Repeat after me.", () => {
+      speakWithRole("Repeat after me.", "kid", () => {
         listenForRepeat(expectedLines[micStepIndex], (pct, said) => {
           const tryNo = ++attempts[micStepIndex];
 
@@ -1083,7 +920,7 @@
             }
             starsAwarded[micStepIndex] = 0;
             setStars(micStepIndex, 0);
-            speakLine("You did a good Job. Nice try!", () => setTimeout(() => { moveToNextMicStep(); }, 200));
+            speakWithRole("You did a good Job. Nice try!", "kid", () => setTimeout(() => { moveToNextMicStep(); }, 200));
             return;
           }
 
@@ -1094,7 +931,7 @@
             repeatResults[micStepIndex].textContent = "Sorry, try again!";
           }
           setConversationStatus("Sorry, try again!");
-          speakLine("Sorry, try again!");
+          speakWithRole("Sorry, try again!", "kid");
         });
       });
     }
@@ -1102,51 +939,14 @@
     function revealCircleFromGirl(){
       circleTapped = true;
       if (circleReveal) circleReveal.classList.add("show");
-      setConversationStatus("It's a Circle");
-      speakLine("It's a Circle");
+      setConversationStatus("It's a Circle!");
+      speakWithRole("It's a Circle!", "kid");
     }
 
     window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL = true;
 
-    function readAllLines(){
-      if (currentLineIndex === -1) {
-        hideAllLines();
-        readToken += 1;
-        currentLineIndex = 0;
-        repeatNext = true;
-        showAndSpeakLine(currentLineIndex);
-        return;
-      }
-
-      if (repeatNext) {
-        showAndSpeakLine(currentLineIndex);
-        repeatNext = false;
-        return;
-      }
-
-      if (currentLineIndex + 1 < lines.length) {
-        currentLineIndex += 1;
-        repeatNext = true;
-        showAndSpeakLine(currentLineIndex);
-      }
-    }
-
     hideAllLines();
     try { window.__GP_STOP_INTRO_MEDIA && window.__GP_STOP_INTRO_MEDIA(); } catch (_) {}
-    
-    // Start the audio sequence only after intro video ends
-    function startAudioSequenceAfterVideo(){
-      if (!introFinished) return;
-      playInstructionThenDialogue();
-    }
-    
-    if (introVideo) {
-      introVideo.addEventListener("ended", startAudioSequenceAfterVideo, { once: true });
-    } else {
-      window.addEventListener("load", () => {
-        playInstructionThenDialogue();
-      }, { once: true });
-    }
 
     function setRecordLabel(text){
       recordBtn.innerHTML = '<svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">' +

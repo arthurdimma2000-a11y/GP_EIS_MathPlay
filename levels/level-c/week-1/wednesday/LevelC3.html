@@ -221,6 +221,9 @@
     const TRACE_EDGES_PER_BOARD = 3;
     const TOTAL_TRACE_EDGES = boards.length * TRACE_EDGES_PER_BOARD;
     let combinedProgress = 0;
+    let loadIntroStarted = false;
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    instructionAudio.preload = "auto";
 
     function progressMessageFor(score){
       if (score >= 100) return "Fantastic! All the triangles are complete.";
@@ -309,12 +312,67 @@
       window.speechSynthesis.speak(u);
     }
 
+    function speakWarmFemale(text, onend){
+      if (!("speechSynthesis" in window)) {
+        if (onend) onend();
+        return;
+      }
+      stopVoice();
+      const u = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice =
+        voices.find(v => /^en(-|_)?us/i.test(v.lang || "") && /aria|jenny|samantha|ava|female/i.test(v.name || "")) ||
+        voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang || "") && /zira|jenny|samantha|ava|female|woman|girl/i.test(v.name || "")) ||
+        voices.find(v => /jenny|samantha|ava|aria|zira|female|woman|girl/i.test(v.name || ""));
+      if (femaleVoice) u.voice = femaleVoice;
+      u.rate = 0.92;
+      u.pitch = 1.08;
+      u.volume = 1;
+      speaking = true;
+      u.onend = () => { speaking = false; if (onend) onend(); };
+      u.onerror = () => { speaking = false; if (onend) onend(); };
+      window.speechSynthesis.speak(u);
+    }
+
     function speakSequence(lines, index = 0){
       const line = lines[index];
       if (!line) return;
       speakLine(line, () => {
         setTimeout(() => speakSequence(lines, index + 1), 220);
       });
+    }
+
+    function playLoadInstructionSequence(){
+      if (loadIntroStarted) return;
+      loadIntroStarted = true;
+
+      const beginSpeech = () => {
+        speakWarmFemale("Connect the vertices to find the number of sides.");
+      };
+
+      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
+      instructionAudio.onended = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+      instructionAudio.onerror = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+
+      try{
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {
+            window.clearTimeout(fallbackTimer);
+            beginSpeech();
+          });
+        }
+      }catch(_err){
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      }
     }
 
     function setupBoard(board, onComplete){
@@ -538,11 +596,7 @@
 
     window.addEventListener("load", () => {
       redrawBoardsImmediately();
-      speakSequence([
-        "Practice drawing shapes with 0 sides and 3 sides.",
-        "Circles and Ovals.",
-        "Draw triangles by drawing lines to connect the red dots."
-      ]);
+      playLoadInstructionSequence();
     });
 
     const prevBtn = document.getElementById("prevBtn");

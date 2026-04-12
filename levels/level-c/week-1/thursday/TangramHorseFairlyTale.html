@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tangram Horse Fairly Tale</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      background: #000;
+    }
+
+    body {
+      position: relative;
+    }
+
+    #pageContent {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .28s ease;
+    }
+
+    body.intro-complete #pageContent {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #lbIntroVideoOverlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.82);
+      z-index: 9999;
+    }
+
+    #lbIntroVideoOverlay[hidden] {
+      display: none !important;
+    }
+
+    .intro-panel {
+      width: min(920px, 100%);
+      background: rgba(15, 15, 15, .96);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      border: 2px solid rgba(255,255,255,.14);
+    }
+
+    .intro-title {
+      color: #fff4d6;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    #lbIntroVideo {
+      width: 100%;
+      max-height: 72vh;
+      border-radius: 18px;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
+    .intro-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .intro-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 12px 18px;
+      min-width: 140px;
+      font-size: .96rem;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,.28);
+    }
+
+    .intro-btn.sound {
+      background: linear-gradient(180deg, #38bdf8, #0284c7);
+    }
+
+    .intro-btn.skip {
+      background: linear-gradient(180deg, #fb923c, #ea580c);
+    }
+
+    .intro-help {
+      margin-top: 10px;
+      text-align: center;
+      color: #fef3c7;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .page-shell {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(255, 220, 120, 0.15), transparent 30%),
+        linear-gradient(180deg, #081221 0%, #0d1b2f 45%, #101010 100%);
+      overflow: hidden;
+    }
+
+    .video-layer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.82), rgba(0,0,0,0.28));
+    }
+
+    .top-left,
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .title-badge {
+      color: #fff;
+      font-size: clamp(16px, 2vw, 30px);
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      text-align: center;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+    }
+
+    .nav-btn,
+    .control-btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 800;
+      border-radius: 999px;
+      transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.28);
+      user-select: none;
+    }
+
+    .nav-btn:hover,
+    .control-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .nav-btn:active,
+    .control-btn:active {
+      transform: scale(0.97);
+    }
+
+    .nav-btn {
+      padding: 12px 18px;
+      font-size: clamp(13px, 1.1vw, 16px);
+      background: linear-gradient(180deg, #ffb347, #ff8f1f);
+      min-width: 102px;
+    }
+
+    .nav-btn.home {
+      background: linear-gradient(180deg, #38c6ff, #0078d7);
+    }
+
+    .nav-btn.back {
+      background: linear-gradient(180deg, #9b6cff, #6a36d9);
+    }
+
+    .nav-btn.next {
+      background: linear-gradient(180deg, #31d87b, #0ea85b);
+    }
+
+    .bottom-panel {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 35;
+      width: min(95vw, 980px);
+      background: rgba(0,0,0,0.52);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 24px;
+      padding: 14px 16px 12px;
+      backdrop-filter: blur(7px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ffd84d, #ff9f1c);
+      transition: width 0.15s linear;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      padding: 12px 16px;
+      min-width: 115px;
+      font-size: clamp(13px, 1vw, 16px);
+      background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.12));
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .time-chip {
+      position: absolute;
+      right: 16px;
+      top: 78px;
+      z-index: 40;
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    .center-play {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .center-play-btn {
+      pointer-events: auto;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.28);
+      background: rgba(0,0,0,0.42);
+      color: #fff;
+      font-size: 34px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .center-play-btn:hover {
+      transform: scale(1.05);
+      background: rgba(0,0,0,0.62);
+    }
+
+    .video-note {
+      position: absolute;
+      left: 50%;
+      bottom: 118px;
+      transform: translateX(-50%);
+      z-index: 21;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      background: rgba(0,0,0,0.48);
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.13);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .top-left,
+      .top-right {
+        justify-content: center;
+      }
+
+      .title-badge {
+        width: 100%;
+      }
+
+      .time-chip {
+        top: 148px;
+        right: 10px;
+        font-size: 12px;
+      }
+
+      .bottom-panel {
+        width: min(96vw, 96vw);
+        bottom: 10px;
+        padding: 12px;
+      }
+
+      .control-btn {
+        min-width: 96px;
+        padding: 11px 12px;
+      }
+
+      .nav-btn {
+        min-width: 92px;
+        padding: 11px 14px;
+      }
+
+      .video-note {
+        bottom: 125px;
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
+      .center-play-btn {
+        width: 80px;
+        height: 80px;
+        font-size: 28px;
+      }
+
+      .intro-panel {
+        padding: 12px;
+        border-radius: 18px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .title-badge {
+        font-size: 15px;
+        padding: 9px 12px;
+      }
+
+      .nav-btn,
+      .control-btn {
+        font-size: 12px;
+      }
+
+      .video-note {
+        width: calc(100% - 24px);
+        border-radius: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="lbIntroVideoOverlay">
+    <div class="intro-panel">
+      <div class="intro-title">Tangram Horse Fairly Tale Intro</div>
+      <video
+        id="lbIntroVideo"
+        playsinline
+        autoplay
+        muted
+        preload="metadata"
+      >
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776023090/Lctangramfairlytale_gyj1xq.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="intro-actions">
+        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
+        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
+      </div>
+      <div class="intro-help">If the intro does not play, the story page will open automatically.</div>
+    </div>
+  </div>
+
+  <div id="pageContent">
+    <div class="page-shell">
+      <div class="video-layer">
+        <video id="storyVideo" autoplay muted playsinline webkit-playsinline preload="auto">
+          <source src="TangramHorseFairlyTale.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="top-bar">
+        <div class="top-left">
+          <button class="nav-btn home" id="homeBtn">🏠 Home</button>
+          <button class="nav-btn back" id="backBtn">⬅ Back</button>
+        </div>
+
+        <div class="title-badge">Tangram Horse Fairly Tale</div>
+
+        <div class="top-right">
+          <button class="nav-btn next" id="nextBtn">Next ➜</button>
+        </div>
+      </div>
+
+      <div class="time-chip" id="timeDisplay">00:00 / 00:00</div>
+
+      <div class="center-play" id="centerPlayWrap">
+        <button class="center-play-btn" id="centerPlayBtn" aria-label="Play video">▶</button>
+      </div>
+
+      <div class="video-note" id="videoNote">Tap play and enjoy the Tangram Horse story</div>
+
+      <div class="bottom-panel">
+        <div class="progress-wrap">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="controls-row">
+          <button class="control-btn" id="playPauseBtn">⏸ Pause</button>
+          <button class="control-btn" id="restartBtn">⟲ Restart</button>
+          <button class="control-btn" id="muteBtn">🔇 Unmute</button>
+          <button class="control-btn" id="fullscreenBtn">⛶ Full Screen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776023090/Lctangramfairlytale_gyj1xq.mp4";
+    const HOME_PAGE = "index.html";
+    const NEXT_PAGE = "LA1.html";
+
+    const video = document.getElementById("storyVideo");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const muteBtn = document.getElementById("muteBtn");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const progressFill = document.getElementById("progressFill");
+    const timeDisplay = document.getElementById("timeDisplay");
+    const centerPlayWrap = document.getElementById("centerPlayWrap");
+    const centerPlayBtn = document.getElementById("centerPlayBtn");
+    const videoNote = document.getElementById("videoNote");
+    const homeBtn = document.getElementById("homeBtn");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const introOverlay = document.getElementById("lbIntroVideoOverlay");
+    const introVideo = document.getElementById("lbIntroVideo");
+    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
+    const skipIntroBtn = document.getElementById("skipIntroBtn");
+    let introFinished = false;
+
+    function revealPageContent() {
+      if (introFinished) return;
+      introFinished = true;
+      document.body.classList.add("intro-complete");
+      if (introOverlay) {
+        introOverlay.hidden = true;
+      }
+      if (introVideo) {
+        try {
+          introVideo.pause();
+        } catch (err) {}
+      }
+    }
+
+    function enableIntroSound() {
+      if (!introVideo) return;
+      introVideo.muted = false;
+      introVideo.volume = 1;
+      introVideo.play().catch(() => {});
+      turnOnSoundBtn.textContent = "Sound On";
+      turnOnSoundBtn.disabled = true;
+    }
+
+    function formatTime(sec) {
+      if (!isFinite(sec)) return "00:00";
+      const minutes = Math.floor(sec / 60);
+      const seconds = Math.floor(sec % 60);
+      return String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
+    }
+
+    function updateTime() {
+      const current = formatTime(video.currentTime);
+      const total = formatTime(video.duration);
+      timeDisplay.textContent = current + " / " + total;
+
+      const percent = video.duration ? (video.currentTime / video.duration) * 100 : 0;
+      progressFill.style.width = percent + "%";
+    }
+
+    function updatePlayState() {
+      if (video.paused) {
+        playPauseBtn.textContent = "▶ Play";
+        centerPlayWrap.classList.remove("hidden");
+        videoNote.classList.remove("hidden");
+      } else {
+        playPauseBtn.textContent = "⏸ Pause";
+        centerPlayWrap.classList.add("hidden");
+        videoNote.classList.add("hidden");
+      }
+    }
+
+    function updateMuteState() {
+      muteBtn.textContent = video.muted ? "🔇 Unmute" : "🔊 Sound On";
+    }
+
+    async function playVideo() {
+      try {
+        await video.play();
+      } catch (e) {
+        console.log("Autoplay/play blocked:", e);
+      }
+      updatePlayState();
+    }
+
+    function pauseVideo() {
+      video.pause();
+      updatePlayState();
+    }
+
+    async function togglePlayPause() {
+      if (video.paused) {
+        await playVideo();
+      } else {
+        pauseVideo();
+      }
+    }
+
+    async function restartVideo() {
+      video.currentTime = 0;
+      await playVideo();
+    }
+
+    function toggleMute() {
+      video.muted = !video.muted;
+      updateMuteState();
+    }
+
+    async function toggleFullscreen() {
+      const el = document.documentElement;
+      try {
+        if (!document.fullscreenElement) {
+          await el.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch (e) {
+        console.log("Fullscreen not supported:", e);
+      }
+    }
+
+    function goHome() {
+      window.location.href = HOME_PAGE;
+    }
+
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = HOME_PAGE;
+      }
+    }
+
+    function goNext() {
+      window.location.href = NEXT_PAGE;
+    }
+
+    if (introVideo) {
+      introVideo.src = INTRO_VIDEO_URL;
+      introVideo.load();
+      introVideo.addEventListener("ended", revealPageContent);
+      introVideo.addEventListener("error", revealPageContent);
+      introVideo.addEventListener("stalled", () => {
+        window.setTimeout(() => {
+          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
+            revealPageContent();
+          }
+        }, 1200);
+      });
+      introVideo.play().catch(() => {});
+    } else {
+      revealPageContent();
+    }
+
+    if (turnOnSoundBtn) {
+      turnOnSoundBtn.addEventListener("click", enableIntroSound);
+    }
+
+    if (skipIntroBtn) {
+      skipIntroBtn.addEventListener("click", revealPageContent);
+    }
+
+    window.setTimeout(() => {
+      if (!introFinished && introVideo && introVideo.readyState < 1) {
+        revealPageContent();
+      }
+    }, 4000);
+
+    playPauseBtn.addEventListener("click", togglePlayPause);
+    restartBtn.addEventListener("click", restartVideo);
+    muteBtn.addEventListener("click", toggleMute);
+    fullscreenBtn.addEventListener("click", toggleFullscreen);
+    centerPlayBtn.addEventListener("click", togglePlayPause);
+
+    homeBtn.addEventListener("click", goHome);
+    backBtn.addEventListener("click", goBack);
+    nextBtn.addEventListener("click", goNext);
+
+    video.addEventListener("timeupdate", updateTime);
+    video.addEventListener("loadedmetadata", updateTime);
+    video.addEventListener("play", updatePlayState);
+    video.addEventListener("pause", updatePlayState);
+    video.addEventListener("ended", () => {
+      progressFill.style.width = "100%";
+      updatePlayState();
+    });
+
+    video.addEventListener("click", togglePlayPause);
+
+    document.addEventListener("keydown", async (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        await togglePlayPause();
+      } else if (e.key === "ArrowRight") {
+        video.currentTime = Math.min((video.duration || 0), video.currentTime + 5);
+      } else if (e.key === "ArrowLeft") {
+        video.currentTime = Math.max(0, video.currentTime - 5);
+      }
+    });
+
+    updateTime();
+    updateMuteState();
+    updatePlayState();
+
+    window.addEventListener("load", async () => {
+      await playVideo();
+    });
+  </script>
+</body>
+</html>

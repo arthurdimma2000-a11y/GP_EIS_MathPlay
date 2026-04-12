@@ -1890,10 +1890,12 @@
   global.__GP_STOP_INTRO_MEDIA = stopIntroMedia;
   if (global.document) {
     if (isWeek1LessonPage()) {
-      if (global.document.readyState === "loading") {
-        global.document.addEventListener("DOMContentLoaded", suppressWeek1IntroVideos, { once: true });
-      } else {
-        suppressWeek1IntroVideos();
+      if (global.__GP_ALLOW_WEEK1_INTRO !== true) {
+        if (global.document.readyState === "loading") {
+          global.document.addEventListener("DOMContentLoaded", suppressWeek1IntroVideos, { once: true });
+        } else {
+          suppressWeek1IntroVideos();
+        }
       }
     }
     if (global.document.readyState === "loading") {

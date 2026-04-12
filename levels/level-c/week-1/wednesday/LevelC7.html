@@ -240,6 +240,8 @@
     const recordBtn = document.getElementById('recordBtn');
     const recordingPlayback = document.getElementById('recordingPlayback');
     const recordingStatus = document.getElementById('recordingStatus');
+    const instructionAudio = new Audio('../../../../assets/audio/chimes/InstructionAudio.mp3');
+    instructionAudio.preload = 'auto';
 
     const viewBoxWidth = 804;
     const viewBoxHeight = 1109;
@@ -251,13 +253,40 @@
     let draftCircle = null;
     let finalCircle = null;
     let solved = false;
+    let loadIntroStarted = false;
 
-    function speakLine(text) {
-      if (!('speechSynthesis' in window) || !text) return;
-      window.speechSynthesis.cancel();
+    function getSpeechVoice(role) {
+      if (!('speechSynthesis' in window) || typeof window.speechSynthesis.getVoices !== 'function') return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+      const english = voices.filter(v => /^en(-|_)?/i.test(String(v.lang || '')));
+      const pool = english.length ? english : voices;
+      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
+      const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
+      if (role === 'female') {
+        return pool.find(v => femaleName.test(String(v.name || '')) && !maleName.test(String(v.name || '')))
+          || pool.find(v => !maleName.test(String(v.name || '')))
+          || pool[0]
+          || null;
+      }
+      return pool[0] || null;
+    }
+
+    function speakLine(text, options, onend) {
+      if (!('speechSynthesis' in window) || !text) {
+        if (onend) onend();
+        return;
+      }
+      try { window.speechSynthesis.cancel(); } catch (_err) {}
+      const opts = options || {};
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 0.95;
-      utter.pitch = 1.03;
+      const voice = getSpeechVoice(opts.role);
+      if (voice) utter.voice = voice;
+      utter.lang = opts.lang || 'en-US';
+      utter.rate = typeof opts.rate === 'number' ? opts.rate : 0.92;
+      utter.pitch = typeof opts.pitch === 'number' ? opts.pitch : 1.08;
+      utter.onend = () => { if (onend) onend(); };
+      utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
     }
 
@@ -371,6 +400,40 @@
       } catch (_) {}
     }
 
+    function playLoadInstructionSequence() {
+      if (loadIntroStarted) return;
+      loadIntroStarted = true;
+
+      const beginSpeech = () => {
+        setStatus('Find the mistake and circle it.');
+        speakLine('Find the mistake and circle it.', { role: 'female', rate: 0.92, pitch: 1.08 });
+      };
+
+      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
+      instructionAudio.onended = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+      instructionAudio.onerror = () => {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      };
+
+      try {
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === 'function') {
+          playAttempt.catch(() => {
+            window.clearTimeout(fallbackTimer);
+            beginSpeech();
+          });
+        }
+      } catch (_err) {
+        window.clearTimeout(fallbackTimer);
+        beginSpeech();
+      }
+    }
+
     function startDrawing(event) {
       if (solved) return;
       event.preventDefault();
@@ -482,6 +545,7 @@
     }
 
     recordBtn.addEventListener('click', toggleRecord);
+    window.addEventListener('load', playLoadInstructionSequence, { once:true });
   </script>
 
   <script>

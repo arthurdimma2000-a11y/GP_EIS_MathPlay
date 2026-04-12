@@ -49,14 +49,9 @@
     padding:26px 26px 80px;
     transform-origin:top center;
     will-change:transform;
-    opacity:0;
-    visibility:hidden;
-    transition:opacity .28s ease;
-  }
-  
-  body.intro-complete .card{
     opacity:1;
     visibility:visible;
+    transition:opacity .28s ease;
   }
 
   .canvas-title{
@@ -304,108 +299,10 @@
     text-shadow:0 1px 2px rgba(255,255,255,.8);
   }
 
-  /* Intro overlay */
-  .intro-video-container{
-    width:min(92vw,980px);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:14px;
-  }
-  .intro-controls{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    justify-content:center;
-  }
-  .intro-btn{
-    border:none;
-    border-radius:999px;
-    padding:12px 22px;
-    font-size:1rem;
-    font-weight:800;
-    cursor:pointer;
-    box-shadow:0 6px 0 rgba(0,0,0,.22);
-  }
-  .intro-btn.sound{
-    background:linear-gradient(180deg,#fffad7,#ffd86a);
-    color:#8b5a00;
-  }
-  .intro-btn.skip{
-    background:linear-gradient(180deg,#ffffff,#e9eef7);
-    color:#304060;
-  }
-  .intro-help{
-    color:#fff;
-    font-weight:800;
-    font-size:1rem;
-    text-align:center;
-    text-shadow:0 2px 8px rgba(0,0,0,.45);
-  }
-
-  /* Intro video overlay */
-  #lbIntroVideoOverlay{
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-    background:rgba(0,0,0,.88);
-    z-index:9999;
-  }
-  #lbIntroVideoOverlay[hidden]{
-    display:none !important;
-  }
-  .intro-panel{
-    width:min(920px,100%);
-    background:rgba(20,20,20,.98);
-    border-radius:24px;
-    padding:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,.55);
-    border:2px solid rgba(255,255,255,.16);
-  }
-  .intro-title{
-    color:#fff4d6;
-    font-size:clamp(1.2rem,2.6vw,1.6rem);
-    font-weight:900;
-    text-align:center;
-    margin-bottom:14px;
-  }
-  #lbIntroVideo{
-    width:100%;
-    max-height:72vh;
-    border-radius:18px;
-    object-fit:contain;
-    background:#000;
-    display:block;
-  }
 </style>
 </head>
 
 <body>
-  <!-- Intro Video Overlay -->
-  <div id="lbIntroVideoOverlay">
-    <div class="intro-panel">
-      <div class="intro-title">Circle Intro</div>
-      <video
-        id="lbIntroVideo"
-        playsinline
-        autoplay
-        muted
-        preload="metadata"
-      >
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776006235/Page2Circle_zn6ebl.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <div class="intro-controls">
-        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
-        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
-      </div>
-      <div class="intro-help">If the intro does not play, the lesson page will open automatically.</div>
-    </div>
-  </div>
-
   <div class="card">
 
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
@@ -520,142 +417,8 @@
   </div>
 
 <script>
-  // Intro video control - MUST run first
-  const introOverlay = document.getElementById("lbIntroVideoOverlay");
-  const introVideo = document.getElementById("lbIntroVideo");
-  const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
-  const skipIntroBtn = document.getElementById("skipIntroBtn");
-  let introFinished = false;
-
-  // Ensure card stays hidden
-  function hideCard(){
-    const card = document.querySelector('.card');
-    if (card) {
-      card.style.opacity = '0';
-      card.style.visibility = 'hidden';
-      card.style.pointerEvents = 'none';
-    }
-  }
-
-  // Show card when intro is done
-  function showCard(){
-    const card = document.querySelector('.card');
-    if (card) {
-      card.style.opacity = '1';
-      card.style.visibility = 'visible';
-      card.style.pointerEvents = 'auto';
-    }
-  }
-
-  function revealPageContent(){
-    if (introFinished) return;
-    introFinished = true;
-    console.log("[Intro] Video ended, revealing page content");
-    
-    // Hide overlay
-    if (introOverlay) {
-      introOverlay.style.display = 'none';
-      introOverlay.hidden = true;
-    }
-    
-    // Show card
-    showCard();
-    document.body.classList.add("intro-complete");
-    
-    // Stop video
-    if (introVideo) {
-      try { introVideo.pause(); } catch (_err) {}
-    }
-    
-    // Notify other code that intro is done
-    window.dispatchEvent(new Event("gp:intro-end"));
-  }
-
-  function enableIntroSound(){
-    if (!introVideo) return;
-    console.log("[Intro] Enabling sound");
-    introVideo.muted = false;
-    introVideo.volume = 1;
-    introVideo.play().catch(() => {
-      console.error("[Intro] Failed to play video with sound");
-    });
-    if (turnOnSoundBtn) {
-      turnOnSoundBtn.textContent = "Sound On";
-      turnOnSoundBtn.disabled = true;
-    }
-  }
-
-  // Initialize
-  console.log("[Intro] Initializing intro video control");
-  hideCard();
-
-  if (introVideo) {
-    console.log("[Intro] Video element found");
-    
-    // Try to load and play
-    introVideo.addEventListener("loadstart", () => {
-      console.log("[Intro] Video loadstart");
-    });
-    
-    introVideo.addEventListener("canplay", () => {
-      console.log("[Intro] Video canplay, attempting autoplay");
-    });
-    
-    introVideo.addEventListener("playing", () => {
-      console.log("[Intro] Video is playing");
-    });
-    
-    introVideo.addEventListener("ended", () => {
-      console.log("[Intro] Video ended naturally");
-      revealPageContent();
-    });
-    
-    introVideo.addEventListener("error", (e) => {
-      console.error("[Intro] Video error:", e);
-      revealPageContent();
-    });
-    
-    introVideo.addEventListener("stalled", () => {
-      console.log("[Intro] Video stalled");
-      window.setTimeout(() => {
-        if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
-          console.log("[Intro] Video stalled, forcing reveal");
-          revealPageContent();
-        }
-      }, 1500);
-    });
-    
-    // Attempt to play
-    const playPromise = introVideo.play();
-    if (playPromise) {
-      playPromise
-        .then(() => {
-          console.log("[Intro] Video autoplay started successfully");
-        })
-        .catch((error) => {
-          console.error("[Intro] Video autoplay failed:", error);
-          // Autoplay failed, but wait for user interaction via buttons
-        });
-    }
-  } else {
-    console.log("[Intro] No video element found, revealing page immediately");
-    revealPageContent();
-  }
-
-  if (turnOnSoundBtn) {
-    turnOnSoundBtn.addEventListener("click", enableIntroSound);
-  }
-  if (skipIntroBtn) {
-    skipIntroBtn.addEventListener("click", revealPageContent);
-  }
-  
-  // Fallback timeout - force reveal after 12 seconds
-  window.setTimeout(() => {
-    if (!introFinished) {
-      console.log("[Intro] Timeout reached, forcing page reveal");
-      revealPageContent();
-    }
-  }, 12000);
+  const introVideo = null;
+  let introFinished = true;
 </script>
 
 <script>
