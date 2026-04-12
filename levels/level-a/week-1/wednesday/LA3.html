@@ -520,58 +520,142 @@
   </div>
 
 <script>
-  // Intro video control
+  // Intro video control - MUST run first
   const introOverlay = document.getElementById("lbIntroVideoOverlay");
   const introVideo = document.getElementById("lbIntroVideo");
   const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
   const skipIntroBtn = document.getElementById("skipIntroBtn");
   let introFinished = false;
 
+  // Ensure card stays hidden
+  function hideCard(){
+    const card = document.querySelector('.card');
+    if (card) {
+      card.style.opacity = '0';
+      card.style.visibility = 'hidden';
+      card.style.pointerEvents = 'none';
+    }
+  }
+
+  // Show card when intro is done
+  function showCard(){
+    const card = document.querySelector('.card');
+    if (card) {
+      card.style.opacity = '1';
+      card.style.visibility = 'visible';
+      card.style.pointerEvents = 'auto';
+    }
+  }
+
   function revealPageContent(){
     if (introFinished) return;
     introFinished = true;
+    console.log("[Intro] Video ended, revealing page content");
+    
+    // Hide overlay
+    if (introOverlay) {
+      introOverlay.style.display = 'none';
+      introOverlay.hidden = true;
+    }
+    
+    // Show card
+    showCard();
     document.body.classList.add("intro-complete");
-    if (introOverlay) introOverlay.hidden = true;
+    
+    // Stop video
     if (introVideo) {
       try { introVideo.pause(); } catch (_err) {}
     }
+    
+    // Notify other code that intro is done
+    window.dispatchEvent(new Event("gp:intro-end"));
   }
 
   function enableIntroSound(){
     if (!introVideo) return;
+    console.log("[Intro] Enabling sound");
     introVideo.muted = false;
     introVideo.volume = 1;
-    introVideo.play().catch(() => {});
+    introVideo.play().catch(() => {
+      console.error("[Intro] Failed to play video with sound");
+    });
     if (turnOnSoundBtn) {
       turnOnSoundBtn.textContent = "Sound On";
       turnOnSoundBtn.disabled = true;
     }
   }
 
+  // Initialize
+  console.log("[Intro] Initializing intro video control");
+  hideCard();
+
   if (introVideo) {
-    introVideo.addEventListener("ended", revealPageContent);
-    introVideo.addEventListener("error", revealPageContent);
+    console.log("[Intro] Video element found");
+    
+    // Try to load and play
+    introVideo.addEventListener("loadstart", () => {
+      console.log("[Intro] Video loadstart");
+    });
+    
+    introVideo.addEventListener("canplay", () => {
+      console.log("[Intro] Video canplay, attempting autoplay");
+    });
+    
+    introVideo.addEventListener("playing", () => {
+      console.log("[Intro] Video is playing");
+    });
+    
+    introVideo.addEventListener("ended", () => {
+      console.log("[Intro] Video ended naturally");
+      revealPageContent();
+    });
+    
+    introVideo.addEventListener("error", (e) => {
+      console.error("[Intro] Video error:", e);
+      revealPageContent();
+    });
+    
     introVideo.addEventListener("stalled", () => {
+      console.log("[Intro] Video stalled");
       window.setTimeout(() => {
         if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
+          console.log("[Intro] Video stalled, forcing reveal");
           revealPageContent();
         }
-      }, 1200);
+      }, 1500);
     });
-    introVideo.play().catch(() => {});
+    
+    // Attempt to play
+    const playPromise = introVideo.play();
+    if (playPromise) {
+      playPromise
+        .then(() => {
+          console.log("[Intro] Video autoplay started successfully");
+        })
+        .catch((error) => {
+          console.error("[Intro] Video autoplay failed:", error);
+          // Autoplay failed, but wait for user interaction via buttons
+        });
+    }
   } else {
+    console.log("[Intro] No video element found, revealing page immediately");
     revealPageContent();
   }
 
-  if (turnOnSoundBtn) turnOnSoundBtn.addEventListener("click", enableIntroSound);
-  if (skipIntroBtn) skipIntroBtn.addEventListener("click", revealPageContent);
+  if (turnOnSoundBtn) {
+    turnOnSoundBtn.addEventListener("click", enableIntroSound);
+  }
+  if (skipIntroBtn) {
+    skipIntroBtn.addEventListener("click", revealPageContent);
+  }
   
-  // Fallback timeout to ensure page loads if video takes too long
+  // Fallback timeout - force reveal after 12 seconds
   window.setTimeout(() => {
-    if (!introFinished && introVideo && introVideo.readyState < 1) {
+    if (!introFinished) {
+      console.log("[Intro] Timeout reached, forcing page reveal");
       revealPageContent();
     }
-  }, 8000);
+  }, 12000);
 </script>
 
 <script>
@@ -586,24 +670,41 @@
 
 <script>
   function finalizeLessonLayout(){
+    // Only finalize if intro is complete
+    if (!introFinished) {
+      console.log("[Layout] Intro not finished, deferring finalization");
+      return;
+    }
+    
+    console.log("[Layout] Finalizing lesson layout");
     document.body.classList.remove('intro-active');
     document.body.style.overflowY = "auto";
     requestAnimationFrame(() => window.scrollTo(0, 0));
     const card = document.querySelector('.card');
     if (card) card.style.transform = "none";
   }
+  
   window.addEventListener('DOMContentLoaded', () => {
-      finalizeLessonLayout();
+      console.log("[Layout] DOMContentLoaded fired");
+      // Defer finalization if intro is active
+      if (introFinished) {
+        finalizeLessonLayout();
+      } else {
+        // Wait for intro to finish
+        window.addEventListener('gp:intro-end', finalizeLessonLayout, { once: true });
+      }
     }, { once:true });
-    window.addEventListener('gp:intro-end', finalizeLessonLayout, { once:true });
+    
+  window.addEventListener('gp:intro-end', finalizeLessonLayout, { once:true });
 
   function fitCardToViewport(){
-    window.GPTracing.fitElementToViewport('.card', {
+    if (!introFinished) return; // Skip if intro is active
+    window.GPTracing?.fitElementToViewport('.card', {
       minWidth: 320,
       minHeight: 420,
       padding: 8,
       minScale: 0.62,
-      isActive: () => document.body.classList.contains("intro-active")
+      isActive: () => false
     });
   }
   fitCardToViewport();
@@ -905,14 +1006,28 @@
 
   // Start audio sequence only after intro video ends
   function startAudioSequenceAfterVideo(){
-    if (!introFinished) return;
+    console.log("[Audio] Starting audio sequence, introFinished:", introFinished);
+    if (!introFinished) {
+      console.log("[Audio] Intro not finished yet, waiting...");
+      return;
+    }
+    console.log("[Audio] Intro finished, starting audio sequence");
     resetAllMini();
     playLoadInstructionSequence();
   }
   
+  // Listen for intro end event
+  window.addEventListener("gp:intro-end", () => {
+    console.log("[Audio] gp:intro-end event received");
+    setTimeout(startAudioSequenceAfterVideo, 50);
+  }, { once: true });
+  
+  // Also set up video end listener as fallback
   if (introVideo) {
+    console.log("[Audio] Setting up intro video listener for audio sequence");
     introVideo.addEventListener("ended", startAudioSequenceAfterVideo, { once: true });
   } else {
+    console.log("[Audio] No intro video, setting up load listener");
     window.addEventListener("load", () => {
       resetAllMini();
       playLoadInstructionSequence();
