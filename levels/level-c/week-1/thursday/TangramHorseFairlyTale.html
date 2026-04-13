@@ -476,8 +476,9 @@
 
   <script>
     const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776023090/Lctangramfairlytale_gyj1xq.mp4";
-    const HOME_PAGE = "index.html";
-    const NEXT_PAGE = "LA1.html";
+    const HOME_PAGE = "../../../../index.html";
+    const PREVIOUS_PAGE = "../wednesday/LevelC7.html";
+    const NEXT_PAGE = "../friday/LevelC_Game1.html";
 
     const video = document.getElementById("storyVideo");
     const playPauseBtn = document.getElementById("playPauseBtn");
@@ -603,11 +604,7 @@
     }
 
     function goBack() {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        window.location.href = HOME_PAGE;
-      }
+      window.location.href = PREVIOUS_PAGE;
     }
 
     function goNext() {

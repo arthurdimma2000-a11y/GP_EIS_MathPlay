@@ -233,6 +233,8 @@
 
 <div class="toast" id="toast"></div>
 
+<audio id="instructionAudio" src="../../../../assets/audio/chimes/InstructionAudio.mp3" preload="auto" loop></audio>
+
 <script>
 /* ====== Level C tracker payload (localStorage) ====== */
 const TRACK_LEVEL = "C";
@@ -254,10 +256,32 @@ function saveProgress(entry){
 /* ====== Sound + Cheer (no external files) ====== */
 let SOUND_ON = true;
 const soundBtn = document.getElementById("soundBtn");
+const instructionAudio = document.getElementById("instructionAudio");
+const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+chimeAudio.preload = "auto";
 soundBtn.addEventListener("click", ()=>{
   SOUND_ON = !SOUND_ON;
   soundBtn.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+  if (!SOUND_ON) {
+    stopInstructionAudio();
+  }
 });
+
+async function playInstructionAudio(){
+  if(!SOUND_ON || !instructionAudio) return;
+  try{
+    instructionAudio.currentTime = 0;
+    await instructionAudio.play();
+  }catch(err){
+    console.warn("Instruction audio could not autoplay:", err);
+  }
+}
+
+function stopInstructionAudio(){
+  if(!instructionAudio) return;
+  instructionAudio.pause();
+  instructionAudio.currentTime = 0;
+}
 
 function beep(freq=440, ms=120, type="sine", gain=0.06){
   if(!SOUND_ON) return;
@@ -398,9 +422,20 @@ function finish(){
   questionEl.textContent = "🎉 Game Complete!";
   choicesEl.innerHTML = "";
   hintEl.textContent = `You scored ${score} points and earned ${stars} stars!`;
-  chimeSuccess();
-  setTimeout(()=>chimeSuccess(), 320);
-  speak("Fantastic! You finished the game!");
+  stopInstructionAudio();
+  try{
+    chimeAudio.currentTime = 0;
+    const playAttempt = chimeAudio.play();
+    if (playAttempt && typeof playAttempt.finally === "function") {
+      playAttempt.finally(() => {
+        setTimeout(() => speak("weldom you did it!"), 120);
+      });
+    } else {
+      setTimeout(() => speak("weldom you did it!"), 120);
+    }
+  }catch(_err){
+    setTimeout(() => speak("weldom you did it!"), 120);
+  }
   saveProgress({
     level: TRACK_LEVEL,
     page: PAGE_ID,
@@ -418,13 +453,16 @@ function resetAll(){
   questionEl.textContent = "Press Start to begin!";
   choicesEl.innerHTML = "";
   hintEl.textContent = "";
+  stopInstructionAudio();
 }
 
-document.getElementById("startBtn").addEventListener("click", ()=>{
+document.getElementById("startBtn").addEventListener("click", async ()=>{
   if(qIndex===0 && score===0) speak("Let’s play!");
+  await playInstructionAudio();
   nextQ();
 });
 document.getElementById("resetBtn").addEventListener("click", resetAll);
+window.addEventListener("beforeunload", stopInstructionAudio);
 
 setProgress();
 </script>

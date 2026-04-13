@@ -117,6 +117,8 @@
   </div>
 </div>
 
+<audio id="instructionAudio" src="../../../../assets/audio/chimes/InstructionAudio.mp3" preload="auto" loop></audio>
+
 <script>
 /* --- SFX + Tracker --- */
 (function(){
@@ -153,6 +155,9 @@ const scoreEl = document.getElementById("score");
 const livesEl = document.getElementById("lives");
 const timeEl = document.getElementById("time");
 const msg = document.getElementById("msg");
+const instructionAudio = document.getElementById("instructionAudio");
+const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+chimeAudio.preload = "auto";
 
 let running=false, score=0, lives=3, t=30, tick=null, spawner=null;
 
@@ -176,6 +181,32 @@ function svgShape(key){
 
 function setLives(){
   livesEl.textContent = "❤".repeat(lives) + "♡".repeat(Math.max(0,3-lives));
+}
+
+async function playInstructionAudio(){
+  if (!instructionAudio) return;
+  try{
+    instructionAudio.currentTime = 0;
+    await instructionAudio.play();
+  }catch(err){
+    console.warn("Instruction audio could not autoplay:", err);
+  }
+}
+
+function stopInstructionAudio(){
+  if (!instructionAudio) return;
+  instructionAudio.pause();
+  instructionAudio.currentTime = 0;
+}
+
+function speakCompletionLine(text){
+  if (!("speechSynthesis" in window) || !text) return;
+  try { window.speechSynthesis.cancel(); } catch (_err) {}
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "en-US";
+  utter.rate = 0.94;
+  utter.pitch = 1.05;
+  window.speechSynthesis.speak(utter);
 }
 
 function spawn(){
@@ -244,13 +275,14 @@ function moveLoop(){
   requestAnimationFrame(moveLoop);
 }
 
-function startGame(){
+async function startGame(){
   if(running) return;
   running=true; score=0; lives=3; t=30;
   scoreEl.textContent=score; setLives(); timeEl.textContent=t;
   msg.textContent="Go! Catch polygons! ⭐";
   arena.innerHTML="";
   window.__SFX__.chime();
+  await playInstructionAudio();
 
   tick=setInterval(()=>{
     t--; timeEl.textContent=t;
@@ -266,11 +298,26 @@ async function endGame(){
   running=false;
   clearInterval(tick); clearInterval(spawner);
   arena.querySelectorAll(".float").forEach(x=>x.remove());
+  stopInstructionAudio();
 
   const scorePct = Math.max(0, Math.min(100, Math.round((score/300)*100)));
   const stars = scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
 
   msg.textContent = `🎉 Game Over! Score ${score} (≈${scorePct}%). Stars: ${"⭐".repeat(Math.max(1,stars))}`;
+  try{
+    chimeAudio.currentTime = 0;
+    const playAttempt = chimeAudio.play();
+    if (playAttempt && typeof playAttempt.finally === "function") {
+      playAttempt.finally(() => {
+        setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+      });
+    } else {
+      setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+    }
+  }catch(_err){
+    setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+  }
+
   if (window.GPTrack && typeof window.GPTrack.finish === "function") {
     await window.GPTrack.finish({
       pageId: "LB_Game1",
@@ -285,11 +332,12 @@ async function endGame(){
   }
 }
 
-document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("startBtn").addEventListener("click", async ()=>{ await startGame(); });
 document.getElementById("helpBtn").addEventListener("click", ()=>{
   msg.textContent="Polygons have straight sides. Tap triangle/square/pentagon/hexagon/octagon. Avoid circle!";
   window.__SFX__.chime();
 });
+window.addEventListener("beforeunload", stopInstructionAudio);
   </script>
   <script src="./levelbc-runtime-fix.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
@@ -325,4 +373,3 @@ document.getElementById("helpBtn").addEventListener("click", ()=>{
 </script>
 </body>
 </html>
-

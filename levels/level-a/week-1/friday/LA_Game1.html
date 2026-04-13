@@ -1,6 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Level A - Game 1</title>
@@ -9,25 +9,27 @@
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
 <style>
   :root{
-    --bg:#fff7ee;
-    --ink:#1f2937;
-    --muted:#6b7280;
-    --brand:#ff8a5b;
-    --brand2:#3cb7ff;
-    --good:#18b36a;
-    --bad:#ef4444;
-    --shadow:0 18px 40px rgba(0,0,0,.12);
-    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-  }
+    --bg:#fff7ee;
+    --ink:#1f2937;
+    --muted:#6b7280;
+    --brand:#ff8a5b;
+    --brand2:#3cb7ff;
+    --good:#18b36a;
+    --bad:#ef4444;
+    --shadow:0 18px 40px rgba(0,0,0,.12);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
   body{
     display:flex; align-items:center; justify-content:center;
     background:
       radial-gradient(900px 420px at 20% 10%, rgba(255,138,91,.22), transparent 60%),
-      radial-gradient(900px 420px at 85% 25%, rgba(60,183,255,.18), transparent 62%),
-      linear-gradient(180deg, #ffffff 0%, var(--bg) 55%, #fff1e4 100%);
-    padding:16px;
-    color:var(--ink);
+      radial-gradient(900px 420px at 85% 25%, rgba(60,183,255,.18), transparent 62%),
+      linear-gradient(180deg, #ffffff 0%, var(--bg) 55%, #fff1e4 100%);
+    padding:16px;
+    color:var(--ink);
   }
+
   .app{
     width:min(980px,96vw);
     border-radius:22px;
@@ -35,98 +37,105 @@
     overflow:hidden;
     background:linear-gradient(180deg,#fff,#fffdfb);
   }
-  .top{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:8px 8px 2px;
-  }
-  .badge{
-    display:inline-flex; align-items:center; gap:10px;
-    background:linear-gradient(180deg,#ffe7db,#ffffff);
-    border:2px solid rgba(0,0,0,.08);
-    border-radius:999px;
-    padding:8px 12px;
-    font-weight:1000;
-    box-shadow:0 10px 18px rgba(0,0,0,.10);
-  }
-  .badge .dot{
-    width:14px;height:14px;border-radius:50%;
-    background:linear-gradient(180deg,var(--brand),#ff5b2b);
-    box-shadow:0 8px 14px rgba(255,138,91,.35);
-  }
-  .btn{
-    border:none; cursor:pointer;
-    font-weight:1000;
-    border-radius:999px;
-    padding:10px 14px;
-    box-shadow:0 10px 18px rgba(0,0,0,.12);
-    transition:.12s ease;
-  }
-  .btn:active{transform:translateY(2px); box-shadow:0 6px 12px rgba(0,0,0,.18);}
-  .btn.home{background:linear-gradient(180deg,#25d17d,#0ea65c); color:#fff;}
-  .btn.back{background:linear-gradient(180deg,#eaf2ff,#dfeaff); color:#1f3b6b;}
-  .btn.primary{background:linear-gradient(180deg,#ffcc5c,#f4a61c); color:#6a3b00;}
-  .hero{
-    margin:6px 8px 12px;
-    border-radius:18px;
-    padding:14px;
-    background:
-      radial-gradient(420px 220px at 20% 40%, rgba(255,209,120,.45), transparent 60%),
-      radial-gradient(420px 220px at 80% 30%, rgba(188,239,255,.55), transparent 62%),
-      linear-gradient(180deg,#fff7fb,#f3fbff);
-    border:2px dashed rgba(0,0,0,.10);
-  }
-  .hero h1{margin:0; font-size:clamp(1.6rem,3.5vw,2.2rem); color:#c2410c; text-shadow:0 3px 0 rgba(0,0,0,.10);}
-  .hero p{margin:6px 0 0; color:var(--muted); font-weight:900;}
-  .hud{
-    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-    margin:0 8px 10px;
-  }
-  .chip{
-    background:#fff;
-    border:2px solid rgba(0,0,0,.08);
-    border-radius:999px;
-    padding:8px 12px;
-    font-weight:1000;
-    box-shadow:0 10px 18px rgba(0,0,0,.08);
-  }
-  .arena{
-    margin:0 8px;
-    height:420px;
-    border-radius:18px;
-    border:2px solid rgba(0,0,0,.10);
-    background:
-      radial-gradient(12px 12px at 20% 30%, rgba(255,255,255,.9), transparent 60%),
-      radial-gradient(12px 12px at 70% 35%, rgba(255,255,255,.9), transparent 60%),
-      radial-gradient(12px 12px at 40% 70%, rgba(255,255,255,.9), transparent 60%),
-      linear-gradient(180deg,#ffffff,#fff7ee);
-    position:relative;
-    overflow:hidden;
-  }
-  .shape{
-    position:absolute;
-    width:90px;height:90px;
-    display:flex;align-items:center;justify-content:center;
-    font-weight:1100;
-    border-radius:18px;
-    cursor:pointer;
-    user-select:none;
-    box-shadow:0 14px 22px rgba(0,0,0,.12);
-    border:3px solid rgba(0,0,0,.10);
-    transform:translate(-50%,-50%);
-  }
-  .shape:active{transform:translate(-50%,-50%) scale(.96);}
+
+  .top{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:8px 8px 2px;
+  }
+
+  .badge{
+    display:inline-flex; align-items:center; gap:10px;
+    background:linear-gradient(180deg,#ffe7db,#ffffff);
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:999px;
+    padding:8px 12px;
+    font-weight:1000;
+    box-shadow:0 10px 18px rgba(0,0,0,.10);
+  }
+
+  .badge .dot{
+    width:14px;height:14px;border-radius:50%;
+    background:linear-gradient(180deg,var(--brand),#ff5b2b);
+    box-shadow:0 8px 14px rgba(255,138,91,.35);
+  }
+
+  .btn{
+    border:none; cursor:pointer;
+    font-weight:1000;
+    border-radius:999px;
+    padding:10px 14px;
+    box-shadow:0 10px 18px rgba(0,0,0,.12);
+    transition:.12s ease;
+  }
+
+  .btn:active{transform:translateY(2px); box-shadow:0 6px 12px rgba(0,0,0,.18);}
+  .btn.home{background:linear-gradient(180deg,#25d17d,#0ea65c); color:#fff;}
+  .btn.back{background:linear-gradient(180deg,#eaf2ff,#dfeaff); color:#1f3b6b;}
+  .btn.primary{background:linear-gradient(180deg,#ffcc5c,#f4a61c); color:#6a3b00;}
+
+  .hero{
+    margin:6px 8px 12px;
+    border-radius:18px;
+    padding:14px;
+    background:
+      radial-gradient(420px 220px at 20% 40%, rgba(255,209,120,.45), transparent 60%),
+      radial-gradient(420px 220px at 80% 30%, rgba(188,239,255,.55), transparent 62%),
+      linear-gradient(180deg,#fff7fb,#f3fbff);
+    border:2px dashed rgba(0,0,0,.10);
+  }
+
+  .hero h1{margin:0; font-size:clamp(1.6rem,3.5vw,2.2rem); color:#c2410c; text-shadow:0 3px 0 rgba(0,0,0,.10);}
+  .hero p{margin:6px 0 0; color:var(--muted); font-weight:900;}
+
+  .hud{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    margin:0 8px 10px;
+  }
+
+  .chip{
+    background:#fff;
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:999px;
+    padding:8px 12px;
+    font-weight:1000;
+    box-shadow:0 10px 18px rgba(0,0,0,.08);
+  }
+
+  .arena{
+    margin:0 8px;
+    height:420px;
+    border-radius:18px;
+    border:2px solid rgba(0,0,0,.10);
+    background:
+      radial-gradient(12px 12px at 20% 30%, rgba(255,255,255,.9), transparent 60%),
+      radial-gradient(12px 12px at 70% 35%, rgba(255,255,255,.9), transparent 60%),
+      radial-gradient(12px 12px at 40% 70%, rgba(255,255,255,.9), transparent 60%),
+      linear-gradient(180deg,#ffffff,#fff7ee);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .shape{
+    position:absolute;
+    width:90px;height:90px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:1100;
+    border-radius:18px;
+    cursor:pointer;
+    user-select:none;
+    box-shadow:0 14px 22px rgba(0,0,0,.12);
+    border:3px solid rgba(0,0,0,.10);
+    transform:translate(-50%,-50%);
+  }
+
+  .shape:active{transform:translate(-50%,-50%) scale(.96);}
+
   .shape.triangle{
-
     background:linear-gradient(180deg,#34d399,#15803d);
-
     color:#ecfdf5;
-
     box-shadow:0 14px 24px rgba(21,128,61,.28);
-
     border-radius:16px;
-
     clip-path:polygon(50% 8%, 92% 90%, 8% 90%);
-
   }
 
   .shape.circle{
@@ -141,94 +150,124 @@
     color:#fff1f2;
     box-shadow:0 14px 24px rgba(220,38,38,.28);
     border-radius:16px;
-  }
-  .toast{
-    margin:10px 8px 0;
-    text-align:center;
-    font-weight:1000;
-    min-height:1.4em;
-  }
-  .stars{
-    text-align:center;
-    font-size:1.6rem;
-    font-weight:1000;
-    color:#ffd24a;
-    text-shadow:0 2px 0 #b87900, 0 4px 0 #8a5a00, 0 10px 16px rgba(0,0,0,.2);
-    min-height:1.8em;
-  }
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="top">
-    <div class="badge"><span class="dot"></span> Level A · Game 1 🎮</div>
-    <div style="display:flex; gap:10px;">
-      <button class="btn back" id="backBtn">⬅ Back</button>
-      <button class="btn primary" id="nextBtn">Next ➜</button>
+  }
 
+  .toast{
+    margin:10px 8px 0;
+    text-align:center;
+    font-weight:1000;
+    min-height:1.4em;
+  }
+
+  .stars{
+    text-align:center;
+    font-size:1.6rem;
+    font-weight:1000;
+    color:#ffd24a;
+    text-shadow:0 2px 0 #b87900, 0 4px 0 #8a5a00, 0 10px 16px rgba(0,0,0,.2);
+    min-height:1.8em;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge"><span class="dot"></span> Level A · Game 1 🎮</div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn back" id="backBtn">⬅ Back</button>
+      <button class="btn primary" id="nextBtn">Next ➜</button>
       <button class="btn home" id="homeBtn">🏠 Home</button>
-    </div>
-  </div>
-
-  <div class="hero">
-    <h1>Shape Catch! ✨</h1>
-    <p>Tap only the <b>TRIANGLES</b>. Don’t tap the others!</p>
-  </div>
-
-  <div class="hud">
-    <div class="chip">⏱ Time: <span id="time">30</span>s</div>
-    <div class="chip">✅ Correct: <span id="correct">0</span></div>
-    <div class="chip">❌ Wrong: <span id="wrong">0</span></div>
-    <button class="btn primary" id="startBtn">▶ Start</button>
-  </div>
-
-  <div class="arena" id="arena" aria-label="Game Area"></div>
-
-  <div class="stars" id="stars"></div>
-  <div class="toast" id="toast"></div>
-</div>
-
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>Shape Catch! ✨</h1>
+    <p>Tap only the <b>CIRCLES</b>. Don’t tap the others!</p>
+  </div>
+
+  <div class="hud">
+    <div class="chip">⏱ Time: <span id="time">30</span>s</div>
+    <div class="chip">✅ Correct: <span id="correct">0</span></div>
+    <div class="chip">❌ Wrong: <span id="wrong">0</span></div>
+    <button class="btn primary" id="startBtn">▶ Start</button>
+  </div>
+
+  <div class="arena" id="arena" aria-label="Game Area"></div>
+
+  <div class="stars" id="stars"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<audio id="instructionAudio" src="../../../../assets/audio/chimes/InstructionAudio.mp3" preload="auto" loop></audio>
+
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
 <script>
-  function safeSaveActivity(payload){ try{ if (typeof saveActivityResult==="function") saveActivityResult(payload); }catch(e){} }
-  function safeSaveDaily(payload){ try{ if (typeof saveDailySummary==="function") saveDailySummary(payload); }catch(e){} }
-
-  const arena = document.getElementById("arena");
-  const timeEl = document.getElementById("time");
-  const correctEl = document.getElementById("correct");
-  const wrongEl = document.getElementById("wrong");
-  const toastEl = document.getElementById("toast");
-  const starsEl = document.getElementById("stars");
-  const startBtn = document.getElementById("startBtn");
-
-  document.getElementById("homeBtn").onclick = () => location.href="../../../../index.html";
-  document.getElementById("backBtn").onclick = () => location.href="../thursday/CircleFairlyTale.html";
-  document.getElementById("nextBtn").onclick = () => location.href="LA_Quiz1.html";
-
-  let running=false, timer=null, spawnTimer=null;
-  let timeLeft=30, correct=0, wrong=0;
-
-  function rand(min,max){ return Math.random()*(max-min)+min; }
-
-  function spawn(){
-    const types = ["triangle","circle","square"];
-    const type = types[Math.floor(Math.random()*types.length)];
-
-    const el = document.createElement("div");
-    el.className = `shape ${type}`;
-    el.dataset.type = type;
-    el.textContent = type === "triangle" ? "▲" : (type==="circle" ? "●" : "■");
-
-    // random position inside arena
-    const rect = arena.getBoundingClientRect();
-    const x = rand(12, 88);
-    const y = rand(18, 86);
-    el.style.left = x + "%";
-    el.style.top = y + "%";
-
-    // random tint (no hard-coded palette needed here; keep simple)
+  function safeSaveActivity(payload){ try{ if (typeof saveActivityResult === "function") saveActivityResult(payload); }catch(e){} }
+  function safeSaveDaily(payload){ try{ if (typeof saveDailySummary === "function") saveDailySummary(payload); }catch(e){} }
+
+  const arena = document.getElementById("arena");
+  const timeEl = document.getElementById("time");
+  const correctEl = document.getElementById("correct");
+  const wrongEl = document.getElementById("wrong");
+  const toastEl = document.getElementById("toast");
+  const starsEl = document.getElementById("stars");
+  const startBtn = document.getElementById("startBtn");
+  const instructionAudio = document.getElementById("instructionAudio");
+  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+  chimeAudio.preload = "auto";
+
+  document.getElementById("homeBtn").onclick = () => location.href = "../../../../index.html";
+  document.getElementById("backBtn").onclick = () => location.href = "../thursday/CircleFairlyTale.html";
+  document.getElementById("nextBtn").onclick = () => location.href = "LA_Quiz1.html";
+
+  let running = false, timer = null, spawnTimer = null;
+  let timeLeft = 30, correct = 0, wrong = 0;
+
+  function rand(min, max){ return Math.random() * (max - min) + min; }
+
+  async function playInstructionAudio(){
+    if (!instructionAudio) return;
+    try{
+      instructionAudio.currentTime = 0;
+      await instructionAudio.play();
+    }catch(err){
+      console.warn("Instruction audio could not autoplay:", err);
+    }
+  }
+
+  function stopInstructionAudio(){
+    if (!instructionAudio) return;
+    instructionAudio.pause();
+    instructionAudio.currentTime = 0;
+  }
+
+  function speakCompletionLine(text){
+    if (!("speechSynthesis" in window) || !text) return;
+    try { window.speechSynthesis.cancel(); } catch (_err) {}
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.rate = 0.94;
+    utter.pitch = 1.05;
+    if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(utter);
+    window.speechSynthesis.speak(utter);
+  }
+
+  function spawn(){
+    const types = ["triangle", "circle", "square"];
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    const el = document.createElement("div");
+    el.className = `shape ${type}`;
+    el.dataset.type = type;
+    el.textContent = type === "triangle" ? "▲" : (type === "circle" ? "●" : "■");
+
+    const x = rand(12, 88);
+    const y = rand(18, 86);
+    el.style.left = x + "%";
+    el.style.top = y + "%";
+
     if (type === "triangle") {
       el.style.background = "#16a34a";
       el.style.color = "#ecfdf5";
@@ -239,52 +278,64 @@
       el.style.background = "#dc2626";
       el.style.color = "#fff1f2";
     }
-
-    el.addEventListener("click", ()=>{
-      if (!running) return;
-      if (el.dataset.type === "triangle"){
-        correct++;
-        correctEl.textContent = correct;
-        toastEl.textContent = "✅ Great!";
-      }else{
-        wrong++;
-        wrongEl.textContent = wrong;
-        toastEl.textContent = "❌ Oops! Only triangles.";
-      }
-      el.remove();
-    });
-
-    arena.appendChild(el);
-
-    // auto remove after short time
-    setTimeout(()=>{ if (el.isConnected) el.remove(); }, 1600);
-  }
-
+
+    el.addEventListener("click", () => {
+      if (!running) return;
+
+      if (el.dataset.type === "circle") {
+        correct++;
+        correctEl.textContent = correct;
+        toastEl.textContent = "✅ Great! You caught a circle!";
+      } else {
+        wrong++;
+        wrongEl.textContent = wrong;
+        toastEl.textContent = "❌ Oops! Only circles.";
+      }
+
+      el.remove();
+    });
+
+    arena.appendChild(el);
+    setTimeout(() => { if (el.isConnected) el.remove(); }, 1600);
+  }
+
   function endGame(){
-    running=false;
+    running = false;
     clearInterval(timer);
     clearInterval(spawnTimer);
-    timer=null; spawnTimer=null;
-
-    // score rule
-    const score = Math.max(0, correct - wrong);
-    const total = correct + wrong;
-
-    // stars
-    let stars = (score >= 10) ? 3 : (score >= 6 ? 2 : (score >= 3 ? 1 : 0));
-    starsEl.textContent = "★".repeat(stars);
-
-    toastEl.textContent = `Finished! Score: ${score}. Correct: ${correct}, Wrong: ${wrong}.`;
-
-    safeSaveActivity({
-      level:"A", week:1, day:"FRI",
-      activityId:"LA_Game1",
-      skill:"game",
-      score:score,
-      total:30,
-      meta:{ correct, wrong, stars }
-    });
-
+    timer = null;
+    spawnTimer = null;
+    stopInstructionAudio();
+
+    const score = Math.max(0, correct - wrong);
+    let stars = (score >= 10) ? 3 : (score >= 6 ? 2 : (score >= 3 ? 1 : 0));
+
+    starsEl.textContent = "★".repeat(stars);
+    toastEl.textContent = `Finished! Score: ${score}. Correct: ${correct}, Wrong: ${wrong}.`;
+
+    try{
+      chimeAudio.currentTime = 0;
+      const playAttempt = chimeAudio.play();
+      if (playAttempt && typeof playAttempt.finally === "function") {
+        playAttempt.finally(() => {
+          setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+        });
+      } else {
+        setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+      }
+    }catch(_err){
+      setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+    }
+
+    safeSaveActivity({
+      level:"A", week:1, day:"FRI",
+      activityId:"LA_Game1",
+      skill:"game",
+      score:score,
+      total:30,
+      meta:{ correct, wrong, stars }
+    });
+
     safeSaveDaily({
       level:"A", week:1, day:"FRI",
       completed:true,
@@ -308,31 +359,36 @@
       });
     }
   }
-
-  function startGame(){
-    // reset
-    running=true;
-    timeLeft=30; correct=0; wrong=0;
-    timeEl.textContent=timeLeft;
-    correctEl.textContent=correct;
-    wrongEl.textContent=wrong;
-    toastEl.textContent="";
-    starsEl.textContent="";
-    arena.innerHTML="";
-
-    timer = setInterval(()=>{
-      timeLeft--;
-      timeEl.textContent=timeLeft;
-      if (timeLeft<=0) endGame();
-    }, 1000);
-
-    spawnTimer = setInterval(spawn, 420);
-  }
-
-  startBtn.onclick = ()=>{
+
+  async function startGame(){
+    running = true;
+    timeLeft = 30;
+    correct = 0;
+    wrong = 0;
+    timeEl.textContent = timeLeft;
+    correctEl.textContent = correct;
+    wrongEl.textContent = wrong;
+    toastEl.textContent = "";
+    starsEl.textContent = "";
+    arena.innerHTML = "";
+
+    await playInstructionAudio();
+
+    timer = setInterval(() => {
+      timeLeft--;
+      timeEl.textContent = timeLeft;
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+
+    spawnTimer = setInterval(spawn, 420);
+  }
+
+  startBtn.onclick = async () => {
     if (running) return;
-    startGame();
+    await startGame();
   };
+
+  window.addEventListener("beforeunload", stopInstructionAudio);
 </script>
 <script src="../../../../activity-standardizer.js"></script>
 <script type="module">
@@ -352,8 +408,8 @@
       speaking: 0,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -442,9 +498,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -452,12 +508,11 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
 </script>
 </body>
 </html>
-
