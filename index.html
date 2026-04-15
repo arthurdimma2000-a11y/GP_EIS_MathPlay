@@ -2174,9 +2174,63 @@
       }
     }
   </style>
+
+  <style id="gpAudioGuideEnhancements">
+    .audio-toggle-btn{
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 13000;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 800;
+      background: linear-gradient(180deg,#ffffff,#eef3ff);
+      color: #23314c;
+      box-shadow: 0 8px 18px rgba(0,0,0,.16);
+      cursor: pointer;
+    }
+    .gp-guide-layer{position:fixed;inset:0;pointer-events:none;z-index:12500;}
+    .gp-guide-finger{position:absolute;width:64px;height:64px;display:grid;place-items:center;font-size:42px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.22));animation:gpFingerBounce 1.1s ease-in-out infinite;transform-origin:top center;user-select:none;}
+    @keyframes gpFingerBounce{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(10px) rotate(6deg)}}
+    .gp-guide-bubble{position:absolute;max-width:260px;background:linear-gradient(180deg,#fffefc,#fff4db);color:#5f3a00;border:3px solid #ffd37a;border-radius:18px;padding:10px 12px;font-weight:800;font-size:14px;line-height:1.25;box-shadow:0 12px 24px rgba(0,0,0,.16)}
+    .gp-guide-bubble::after{content:"";position:absolute;left:20px;bottom:-12px;width:20px;height:20px;background:#fff4db;border-right:3px solid #ffd37a;border-bottom:3px solid #ffd37a;transform:rotate(45deg)}
+    .kid-sticker{position:absolute;z-index:2;pointer-events:none;opacity:.96;filter:drop-shadow(0 10px 16px rgba(0,0,0,.14));animation:kidFloat 3.8s ease-in-out infinite}
+    .kid-sticker.small{width:68px}.kid-sticker.medium{width:92px}.kid-sticker.large{width:116px}
+    @keyframes kidFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .kid-cloud{position:absolute;background:rgba(255,255,255,.86);border-radius:999px;box-shadow:0 10px 18px rgba(0,0,0,.08);pointer-events:none;z-index:1}
+    .kid-cloud::before,.kid-cloud::after{content:"";position:absolute;background:inherit;border-radius:999px}
+    .kid-cloud::before{width:36px;height:36px;left:12px;top:-12px}
+    .kid-cloud::after{width:52px;height:52px;right:14px;top:-18px}
+    .kid-cloud.c1{width:108px;height:40px;top:20px;right:200px}.kid-cloud.c2{width:92px;height:34px;top:96px;right:60px}.kid-cloud.c3{width:110px;height:38px;top:26px;left:38px}
+    .hero,.welcome-box,.section-card{position:relative;overflow:hidden}
+    .guide-glow{box-shadow:0 0 0 4px rgba(255,204,102,.4),0 0 0 10px rgba(255,204,102,.16),0 12px 22px rgba(0,0,0,.14)!important;border-radius:20px!important;transition:box-shadow .18s ease}
+    @media (max-width:700px){.gp-guide-finger{width:52px;height:52px;font-size:34px}.gp-guide-bubble{max-width:220px;font-size:13px}.audio-toggle-btn{top:10px;right:10px;padding:9px 12px;font-size:13px}}
+  </style>
+
+
+<style>
+.month-card.month-open .month-chip{background:linear-gradient(180deg,#dbf9e7,#bcf0d1);color:#0c5a35}
+.month-card.month-locked .month-chip{background:linear-gradient(180deg,#ffe2e2,#ffc9c9);color:#7a1f1f}
+</style>
 </head>
 
-<body>
+<body data-page-type="welcome">
+<button
+  type="button"
+  data-audio-toggle
+  class="audio-toggle-btn"
+  aria-label="Toggle sound"
+>
+  🔊 Sound On
+</button>
+
+<div class="gp-guide-layer" id="gpGuideLayer" aria-hidden="true">
+  <div class="gp-guide-finger hidden" id="gpGuideFinger">👇</div>
+  <div class="gp-guide-bubble hidden" id="gpGuideBubble"></div>
+</div>
+
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
@@ -3267,12 +3321,6 @@
     };
 
     function getWeekDayLabel(weekNumber, day){
-      const week = Number(weekNumber) || 0;
-      if (day === "monday") {
-        if (week === 2) return "Gym & Math Class";
-        if (week === 3) return "Science & Math Class";
-        if (week === 4) return "Music & Math Class";
-      }
       return DAY_LABELS[day] || "";
     }
 
@@ -5171,6 +5219,11 @@
         safePlay("warning");
         return;
       }
+      if (!isMonthAutoUnlocked(month)) {
+        FX.toast(`Month ${month} is still locked. It will unlock automatically at the appropriate time.`, "🔒");
+        safePlay("warning");
+        return;
+      }
       const sessionLevel = getActiveStudentLevel();
       if (sessionLevel && sessionLevel !== selectedLevel) {
         selectedLevel = sessionLevel;
@@ -5180,7 +5233,7 @@
       renderQuickLinks();
       showPanel("panel-links");
       safePlay("soft");
-      if (month !== 1) FX.toast(`Month ${month} weeks are ready for future lesson planning.`, "📅");
+      FX.toast(`Month ${month} opened. Weeks 1 to ${getUnlockedWeeksForMonth(month)} are available now.`, "📅");
     }, true);
     monthRoadmapGrid?.addEventListener("keydown", (e) => {
       const card = e.target.closest(".month-card.month-clickable[data-month]");
@@ -5370,14 +5423,36 @@
       return plan;
     }
 
+    function getCurrentCalendarMonth(){
+      const now = new Date();
+      return Math.max(1, Math.min(12, now.getMonth() + 1));
+    }
+
+    function getCurrentCalendarWeekOfMonth(){
+      const now = new Date();
+      const day = now.getDate();
+      return Math.max(1, Math.min(4, Math.ceil(day / 7)));
+    }
+
+    function getUnlockedWeeksForMonth(month){
+      const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
+      return safeMonth === 1 ? 1 : 0;
+    }
+
+    function isMonthAutoUnlocked(month){
+      return getUnlockedWeeksForMonth(month) > 0;
+    }
+
     function renderMonthRoadmap(){
       if (!monthRoadmapGrid) return;
       const canOpenMonths = hasAppAccess();
       let html = "";
       for (let month = 1; month <= 12; month += 1) {
+        const autoUnlocked = isMonthAutoUnlocked(month);
+        const statusText = autoUnlocked ? `Open to Week ${getUnlockedWeeksForMonth(month)}` : "Locked";
         html += `
           <article
-            class="month-card ${month === selectedMonth ? "active-month" : "future-month"} month-clickable"
+            class="month-card ${month === selectedMonth ? "active-month" : "future-month"} month-clickable ${autoUnlocked ? "month-open" : "month-locked"}"
             data-month="${month}"
             tabindex="0"
             role="button"
@@ -5385,6 +5460,7 @@
           >
             <div class="month-head month-simple">
               <h4 class="month-title">Month ${month}</h4>
+              <span class="month-chip">${statusText}</span>
             </div>
             <div class="month-body month-body-simple">
               <div class="month-figure">
@@ -5400,18 +5476,18 @@
     function renderQuickLinks(){
       const conf = APP_CONFIG[selectedLevel] || APP_CONFIG.A;
       const animalPlan = buildAnimalPlanForLevel(selectedLevel);
-      const monthHasLessons = selectedMonth === 1;
       const accessUnlocked = hasStudentLessonAccess();
       const sessionLevel = getActiveStudentLevel() || selectedLevel;
-      const firstWeekFiles = monthHasLessons ? weekFiles(sessionLevel, 1) : [];
-      const progress = getProgressSnapshot();
+      const autoUnlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
+      const monthOpen = autoUnlockedWeeks > 0;
+      const firstWeekFiles = weekFiles(sessionLevel, 1) || [];
       let html = "";
 
       firstWeekFiles.slice(0, 3).forEach(prefetchAppFile);
 
         for(let week = 1; week <= 4; week++){
-          const unlocked = accessUnlocked && monthHasLessons && week <= (progress[sessionLevel]?.openWeeks || 1);
-        const files = monthHasLessons ? weekFiles(sessionLevel, week) : [];
+          const unlocked = accessUnlocked && monthOpen && week <= autoUnlockedWeeks;
+        const files = weekFiles(sessionLevel, week) || [];
         const grouped = groupFilesByDay(files);
         const weekStyle = WEEK_STYLE_MAP[week] || "red";
         const weekHumanImage = getWeekHumanImage(selectedMonth, week);
@@ -5433,8 +5509,8 @@
 
           if (!accessUnlocked) {
             lessonStackHtml = `<div class="empty-day">Login to reveal lessons.</div>`;
-          } else if (!monthHasLessons) {
-            lessonStackHtml = `<div class="empty-day">${getWeekDayLabel(weekNo, day)} plan coming soon.</div>`;
+          } else if (!monthOpen) {
+            lessonStackHtml = `<div class="empty-day">Month ${selectedMonth} is still locked. It will open automatically at the right time.</div>`;
           } else if (!grouped[day].length){
             lessonStackHtml = `<div class="empty-day">No lesson listed for this day.</div>`;
           } else {
@@ -5450,7 +5526,7 @@
             <div class="day-tv-head">
               <div>
                 <div class="day-tv-week">Week ${week}</div>
-                <h5 class="day-tv-title">${getWeekDayLabel(weekNo, day)}</h5>
+                <h5 class="day-tv-title">${getWeekDayLabel(week, day)}</h5>
               </div>
               <div class="tv-dots">${dotsHtml}</div>
             </div>
@@ -6338,6 +6414,102 @@
       return String(next).padStart(3, "0");
     }
 
+    function getPendingStudentSyncQueue(){
+      try {
+        return JSON.parse(localStorage.getItem("gp_pending_student_sync_queue") || "[]");
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function setPendingStudentSyncQueue(items){
+      try {
+        localStorage.setItem("gp_pending_student_sync_queue", JSON.stringify(dedupeStudents(Array.isArray(items) ? items : [])));
+      } catch (_) {}
+    }
+
+    function addPendingStudentSyncQueue(items){
+      const merged = dedupeStudents(getPendingStudentSyncQueue().concat(Array.isArray(items) ? items : []));
+      setPendingStudentSyncQueue(merged);
+      return merged;
+    }
+
+    function getTeacherUnsyncedStudents(teacher){
+      const teacherEmail = normalizeEmail(teacher && teacher.email);
+      return dedupeStudents(
+        getAllKnownStudents().filter((student) => {
+          if (!student || student.cloudSynced) return false;
+          if (!teacherEmail) return true;
+          return normalizeEmail(student.teacherEmail) === teacherEmail;
+        })
+      );
+    }
+
+    async function directSaveStudentsToCloud(studentsToSync){
+      const teacher = getTeacherSession();
+      if (!teacher || !teacher.email) {
+        return { ok:false, reason:"Teacher session is required.", syncedStudentIds:[] };
+      }
+
+      const payloadStudents = dedupeStudents(Array.isArray(studentsToSync) ? studentsToSync : [])
+        .filter(Boolean)
+        .map((student) => ({
+          classId: normalizeClassId(student.classId || ""),
+          studentId: canonicalStudentId(student.studentId || ""),
+          pin: String(student.pin || "").trim(),
+          level: String(student.level || "").trim().toUpperCase(),
+          teacherEmail: normalizeEmail(student.teacherEmail || teacher.email || ""),
+          teacherName: String(student.teacherName || teacher.name || "").trim(),
+          displayName: String(student.displayName || "").trim(),
+          createdAt: student.createdAt || new Date().toISOString()
+        }))
+        .filter((student) => student.classId && student.studentId && student.pin && student.level && student.teacherEmail);
+
+      if (!payloadStudents.length) {
+        return { ok:false, reason:"No valid student records were available to sync.", syncedStudentIds:[] };
+      }
+
+      try {
+        const res = await fetch("/.netlify/functions/save-students", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            students: payloadStudents,
+            teacherEmail: normalizeEmail(teacher.email || ""),
+            teacherName: String(teacher.name || "").trim(),
+            teacherId: String(teacher.id || "").trim()
+          })
+        });
+
+        let data = null;
+        try { data = await res.json(); } catch (_) {}
+
+        if (!res.ok || !data || data.ok === false || data.success === false) {
+          return {
+            ok: false,
+            reason: (data && (data.details || data.error || data.message)) || `Cloud save failed (${res.status}).`,
+            syncedStudentIds: []
+          };
+        }
+
+        const syncedIds = Array.isArray(data.syncedStudentIds) && data.syncedStudentIds.length
+          ? data.syncedStudentIds.map((id) => canonicalStudentId(id))
+          : payloadStudents.map((student) => canonicalStudentId(student.studentId));
+
+        return {
+          ok: true,
+          reason: "",
+          syncedStudentIds: syncedIds
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          reason: error && error.message ? error.message : "Could not reach the cloud save service.",
+          syncedStudentIds: []
+        };
+      }
+    }
+
     async function syncStudentsToCloud(studentsToSync){
       const teacher = getTeacherSession();
       if (!teacher || !teacher.email) {
@@ -6345,41 +6517,55 @@
       }
 
       const authSync = await getAuthSync().catch(() => null);
-      if (!authSync || typeof authSync.saveStudents !== "function") {
-        return { ok: false, reason: "Cloud sync is not available right now." };
+      if (authSync && typeof authSync.saveStudents === "function") {
+        const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
+        const liveTeacherPassword =
+          (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
+          (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
+        const teacherPassword =
+          (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
+          liveTeacherPassword;
+
+        try {
+          const result = await authSync.saveStudents(studentsToSync, {
+            email: teacher.email,
+            password: teacherPassword,
+            name: teacher.name,
+            uid: teacher.id || ""
+          });
+          if (result && result.ok) {
+            return {
+              ok: true,
+              reason: "",
+              syncedStudentIds: Array.isArray(result.syncedStudentIds) ? result.syncedStudentIds : [],
+              queuedCount: Number(result.queuedCount || 0)
+            };
+          }
+        } catch (_) {}
       }
 
-      const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
-      const liveTeacherPassword =
-        (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
-        (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
-      const teacherPassword =
-        (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
-        liveTeacherPassword;
-
-      const result = await authSync.saveStudents(studentsToSync, {
-          email: teacher.email,
-          password: teacherPassword,
-          name: teacher.name,
-          uid: teacher.id || ""
-        });
+      const fallback = await directSaveStudentsToCloud(studentsToSync);
       return {
-        ok: !!result?.ok,
-        reason: result?.message || result?.reason || "",
-        syncedStudentIds: Array.isArray(result?.syncedStudentIds) ? result.syncedStudentIds : [],
-        queuedCount: Number(result?.queuedCount || 0)
+        ok: !!fallback.ok,
+        reason: fallback.reason || "",
+        syncedStudentIds: Array.isArray(fallback.syncedStudentIds) ? fallback.syncedStudentIds : [],
+        queuedCount: 0
       };
     }
 
     async function queueStudentsForCloudSync(studentsToQueue){
       const teacher = getTeacherSession();
       const authSync = await getAuthSync().catch(() => null);
-      if (!authSync || typeof authSync.queuePendingStudents !== "function") return null;
-      return authSync.queuePendingStudents(studentsToQueue, {
-        email: teacher?.email || "",
-        name: teacher?.name || "",
-        uid: teacher?.id || ""
-      });
+      if (authSync && typeof authSync.queuePendingStudents === "function") {
+        try {
+          return await authSync.queuePendingStudents(studentsToQueue, {
+            email: teacher?.email || "",
+            name: teacher?.name || "",
+            uid: teacher?.id || ""
+          });
+        } catch (_) {}
+      }
+      return addPendingStudentSyncQueue(studentsToQueue);
     }
 
     async function processPendingStudentSync(source = "background", options = {}){
@@ -6387,36 +6573,77 @@
       const teacher = getTeacherSession();
       if (!teacher || !teacher.email) return { ok: false, reason: "Teacher session is required." };
 
-      const authSync = await getAuthSync().catch(() => null);
-      if (!authSync || typeof authSync.processPendingStudentSync !== "function") {
-        return { ok: false, reason: "Cloud student sync is not available right now." };
-      }
+      pendingStudentSyncPromise = (async () => {
+        const authSync = await getAuthSync().catch(() => null);
 
-      const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
-      const liveTeacherPassword =
-        (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
-        (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
-      const teacherPassword =
-        (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
-        liveTeacherPassword;
+        if (authSync && typeof authSync.processPendingStudentSync === "function") {
+          const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
+          const liveTeacherPassword =
+            (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
+            (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
+          const teacherPassword =
+            (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
+            liveTeacherPassword;
 
-      pendingStudentSyncPromise = authSync.processPendingStudentSync({
-        email: teacher.email,
-        password: teacherPassword,
-        name: teacher.name,
-        uid: teacher.id || ""
-      }).then((result) => {
-        const syncedIds = Array.isArray(result?.syncedStudentIds) ? result.syncedStudentIds : [];
-        if (syncedIds.length) {
-          markStudentsCloudSynced(syncedIds);
-          if (!options.quiet && teacherGeneratorStatus) {
-            teacherGeneratorStatus.innerHTML = `<span class="ok">${syncedIds.length} student record(s) synced to cloud successfully.</span>`;
-          }
-        } else if (!result?.ok && !options.quiet && teacherGeneratorStatus && result?.reason) {
-          teacherGeneratorStatus.innerHTML = `<span class="danger">${result.reason}</span>`;
+          try {
+            const result = await authSync.processPendingStudentSync({
+              email: teacher.email,
+              password: teacherPassword,
+              name: teacher.name,
+              uid: teacher.id || ""
+            });
+
+            const syncedIds = Array.isArray(result?.syncedStudentIds) ? result.syncedStudentIds : [];
+            if (result?.ok || syncedIds.length) {
+              if (syncedIds.length) {
+                markStudentsCloudSynced(syncedIds);
+                setPendingStudentSyncQueue(
+                  getPendingStudentSyncQueue().filter((student) => !syncedIds.includes(canonicalStudentId(student.studentId)))
+                );
+                if (!options.quiet && teacherGeneratorStatus) {
+                  teacherGeneratorStatus.innerHTML = `<span class="ok">${syncedIds.length} student record(s) synced to cloud successfully.</span>`;
+                }
+              }
+              return {
+                ok: !!result?.ok || syncedIds.length > 0,
+                reason: "",
+                syncedStudentIds: syncedIds
+              };
+            }
+          } catch (_) {}
         }
-        return result;
-      }).finally(() => {
+
+        const pendingQueue = dedupeStudents(
+          getPendingStudentSyncQueue().concat(getTeacherUnsyncedStudents(teacher))
+        );
+        const fallback = await directSaveStudentsToCloud(pendingQueue);
+        if (fallback.ok) {
+          const syncedIds = Array.isArray(fallback.syncedStudentIds) ? fallback.syncedStudentIds : [];
+          if (syncedIds.length) {
+            markStudentsCloudSynced(syncedIds);
+          }
+          setPendingStudentSyncQueue(
+            getPendingStudentSyncQueue().filter((student) => !syncedIds.includes(canonicalStudentId(student.studentId)))
+          );
+          if (!options.quiet && teacherGeneratorStatus) {
+            teacherGeneratorStatus.innerHTML = `<span class="ok">${syncedIds.length || pendingQueue.length} student record(s) synced to cloud successfully.</span>`;
+          }
+          return {
+            ok: true,
+            reason: "",
+            syncedStudentIds: syncedIds
+          };
+        }
+
+        if (!options.quiet && teacherGeneratorStatus && fallback.reason) {
+          teacherGeneratorStatus.innerHTML = `<span class="danger">${fallback.reason}</span>`;
+        }
+        return {
+          ok: false,
+          reason: fallback.reason || "Cloud student sync failed.",
+          syncedStudentIds: []
+        };
+      })().finally(() => {
         pendingStudentSyncPromise = null;
       });
 
@@ -6517,6 +6744,7 @@
       latestGeneratedStudents = combinedStudents.slice();
       setRecentGeneratedStudents(combinedStudents);
       setLocalStudents(combinedStudents);
+      addPendingStudentSyncQueue(newStudents);
       renderStudentTable(combinedStudents);
 
       if (newStudents[0]) {
@@ -6535,7 +6763,7 @@
         const cloudSaved = !!syncResult.ok;
 
         if (!cloudSaved) {
-          teacherGeneratorStatus.innerHTML = `<span class="danger">${newStudents.length} Student ID(s) were generated on this device only. Cloud sync failed, so they will not work on other devices yet. Please check internet, login again as Teacher, and use Retry sync.</span>`;
+          teacherGeneratorStatus.innerHTML = `<span class="danger">${newStudents.length} Student ID(s) were generated on this device only. Cloud sync failed, so they will not work on other devices yet. ${syncResult.reason ? escapeHtml(syncResult.reason) : "Please check the save-students Netlify function and try again."}</span>`;
           safePlay("warning");
           FX.toast("Cloud sync failed. IDs are local only.", "⚠️", 4200);
           renderStudentTable(getAllKnownStudents());
@@ -6845,5 +7073,8 @@
     showPanel("panel-home");
   </script>
   <script type="module" src="shared/js/auth-sync-shared.js"></script>
+
+<script src="shared/audio-manager.js"></script>
+<script src="shared/js/index-guide.js"></script>
 </body>
 </html>                                                                                                                                                                 

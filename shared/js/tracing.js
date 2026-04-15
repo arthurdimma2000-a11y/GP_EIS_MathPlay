@@ -722,6 +722,7 @@
     let visited = [];
     let visitedCount = 0;
     let completionNotified = false;
+    let resizeObserver = null;
 
     function updateProgress(rawPercent){
       lastRawPercent = Math.max(0, Math.min(100, Math.round(rawPercent)));
@@ -882,10 +883,24 @@
     global.addEventListener("blur", endDraw);
     global.addEventListener("resize", resize);
 
-    if ("ResizeObserver" in global) {
-      const resizeObserver = new ResizeObserver(() => resize());
+    if ("ResizeObserver" in global && canvas.parentElement) {
+      resizeObserver = new ResizeObserver(() => resize());
       resizeObserver.observe(canvas.parentElement);
     }
+
+    function teardown(){
+      global.removeEventListener("blur", endDraw);
+      global.removeEventListener("resize", resize);
+      global.removeEventListener("pagehide", teardown);
+      global.removeEventListener("beforeunload", teardown);
+      if (resizeObserver) {
+        try { resizeObserver.disconnect(); } catch (_err) {}
+        resizeObserver = null;
+      }
+    }
+
+    global.addEventListener("pagehide", teardown, { once:true });
+    global.addEventListener("beforeunload", teardown, { once:true });
 
     resize();
 
@@ -938,6 +953,7 @@
     let visitedCount = 0;
     let lastRawPercent = 0;
     let completionNotified = false;
+    let resizeObserver = null;
 
     function buildSamples(groups, width, height){
       const result = [];
@@ -1103,10 +1119,23 @@
     canvas.addEventListener("pointercancel", endDraw);
 
     if ("ResizeObserver" in global && canvas.parentElement) {
-      const resizeObserver = new ResizeObserver(() => resize());
+      resizeObserver = new ResizeObserver(() => resize());
       resizeObserver.observe(canvas.parentElement);
     }
     global.addEventListener("resize", resize);
+
+    function teardown(){
+      global.removeEventListener("resize", resize);
+      global.removeEventListener("pagehide", teardown);
+      global.removeEventListener("beforeunload", teardown);
+      if (resizeObserver) {
+        try { resizeObserver.disconnect(); } catch (_err) {}
+        resizeObserver = null;
+      }
+    }
+
+    global.addEventListener("pagehide", teardown, { once:true });
+    global.addEventListener("beforeunload", teardown, { once:true });
 
     resize();
 

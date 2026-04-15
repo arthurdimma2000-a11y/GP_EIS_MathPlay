@@ -404,7 +404,7 @@
 
     <div class="footerNav">
       <a class="btn ghost" href="LA_Game1.html">◀ Prev</a>
-      <button class="btn is-disabled" id="nextBtn" type="button" aria-disabled="true">Next ➜</button>
+      <button class="btn is-disabled" id="nextBtn" type="button" aria-disabled="true">Home ➜</button>
     </div>
   </div>
 </div>
@@ -420,7 +420,7 @@
   const TRACK = { level:"A" };
   const LS_KEY = "gp_kids_progress_v1";
   const PAGE_ID = "LA_Quiz1";
-  const NEXT_PAGE_URL = "../../week-2/tuesday/LA8.html";
+  const NEXT_PAGE_URL = "../../../../index.html";
 
   let soundOn = true;
   let stars = 0;
@@ -555,13 +555,48 @@
     o.stop(now + 0.2);
   }
 
+  function getFemaleVoice(){
+    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+        || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+  }
+
+  function speakText(text){
+    if(!soundOn) return Promise.resolve();
+    if(!("speechSynthesis" in window)) return Promise.resolve();
+    return new Promise(resolve => {
+      try{ speechSynthesis.cancel(); } catch(_){ }
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = 0.95;
+      u.pitch = 1.25;
+      u.volume = 1;
+      const female = getFemaleVoice();
+      if(female) u.voice = female;
+      u.onend = resolve;
+      u.onerror = resolve;
+      speechSynthesis.speak(u);
+    });
+  }
+
+  async function announceQuestionTwice(question, options){
+    const lines = [question, `Choices are ${options.join(", ")}.`];
+    for(let pass = 0; pass < 2; pass++){
+      for(const line of lines){
+        await speakText(line);
+      }
+    }
+  }
+
   function cheer(text){
     if(!soundOn) return;
     try{
       const u = new SpeechSynthesisUtterance(text);
-      u.rate = 0.9;
-      u.pitch = 1.2;
+      u.rate = 1.1;
+      u.pitch = 1.65;
       u.volume = 1;
+      const female = getFemaleVoice();
+      if(female) u.voice = female;
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     }catch(e){}
@@ -593,7 +628,7 @@
   }
 
   function renderQuestion(){
-    questionLocked = false;
+    questionLocked = true;
     setNextEnabled(false);
 
     const q = questions[currentQuestion];
@@ -608,6 +643,7 @@
       btn.type = "button";
       btn.dataset.v = String(value);
       btn.textContent = String(value);
+      btn.disabled = true;
       btn.addEventListener("click", (e) => handleAnswer(e, btn, value));
       answersEl.appendChild(btn);
     });
@@ -615,7 +651,8 @@
     updateProgressDots();
     updateScoreUi();
     msgEl.textContent = "Choose the correct answer to win a star ⭐";
-    nextBtn.textContent = currentQuestion === questions.length - 1 ? "Finish ➜" : "Next ➜";
+    nextBtn.textContent = currentQuestion === questions.length - 1 ? "Home ➜" : "Next ➜";
+    readCurrentQuestion();
   }
 
   async function saveResultSnapshot(isCompleted){
@@ -681,7 +718,21 @@
     await saveResultSnapshot(currentQuestion === questions.length - 1);
 
     if(currentQuestion === questions.length - 1){
-      nextBtn.textContent = "Finish ➜";
+      nextBtn.textContent = "Home ➜";
+      try{
+        const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+        chimeAudio.preload = "auto";
+        const playAttempt = chimeAudio.play();
+        if (playAttempt && typeof playAttempt.finally === "function") {
+          playAttempt.finally(() => {
+            setTimeout(() => cheer("Amazing! You finished the quiz!"), 120);
+          });
+        } else {
+          setTimeout(() => cheer("Amazing! You finished the quiz!"), 120);
+        }
+      }catch(_){
+        setTimeout(() => cheer("Amazing! You finished the quiz!"), 120);
+      }
       playBigCheer();
       msgEl.textContent = `Wonderful! You finished the quiz with ${correctCount} correct answers.`;
     }else{
@@ -693,7 +744,10 @@
 
   function readCurrentQuestion(){
     const q = questions[currentQuestion];
-    cheer(q.voice);
+    announceQuestionTwice(q.voice, q.answers.map(String)).then(() => {
+      questionLocked = false;
+      document.querySelectorAll(".ans").forEach(x => x.disabled = false);
+    });
   }
 
   function goNext(){

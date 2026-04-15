@@ -165,7 +165,7 @@
   <div class="page">
     <div class="poster-wrap" id="posterWrap">
       <img class="poster-img" id="posterImage" src="../../../../assets/images/shapes/LevelC3.png" alt="Shape Sides poster">
-      <div class="draw-instruction show">Draw Triangles by drawing lines to connect the red dots.</div>
+      <div class="draw-instruction show">Draw Triangles by drawing lines to connect the red dots. Then fill in the number of vertices in the boxes below.</div>
 
       <canvas class="draw-layer tri-1" id="tri1"></canvas>
       <canvas class="draw-layer tri-2" id="tri2"></canvas>
@@ -337,7 +337,7 @@
     function speakSequence(lines, index = 0){
       const line = lines[index];
       if (!line) return;
-      speakLine(line, () => {
+      speakWarmFemale(line, () => {
         setTimeout(() => speakSequence(lines, index + 1), 220);
       });
     }
@@ -347,7 +347,10 @@
       loadIntroStarted = true;
 
       const beginSpeech = () => {
-        speakWarmFemale("Connect the vertices to find the number of sides.");
+        speakSequence([
+          "Draw Triangles by drawing lines to connect the red dots.",
+          "Then fill in the number of vertices in the boxes below."
+        ]);
       };
 
       const fallbackTimer = window.setTimeout(beginSpeech, 5200);
@@ -597,6 +600,18 @@
     window.addEventListener("load", () => {
       redrawBoardsImmediately();
       playLoadInstructionSequence();
+    });
+
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted || document.visibilityState === "visible") {
+        redrawBoardsImmediately();
+      }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        redrawBoardsImmediately();
+      }
     });
 
     const prevBtn = document.getElementById("prevBtn");

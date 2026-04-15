@@ -156,7 +156,7 @@ const livesEl = document.getElementById("lives");
 const timeEl = document.getElementById("time");
 const msg = document.getElementById("msg");
 const instructionAudio = document.getElementById("instructionAudio");
-const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
 chimeAudio.preload = "auto";
 
 let running=false, score=0, lives=3, t=30, tick=null, spawner=null;
@@ -199,13 +199,47 @@ function stopInstructionAudio(){
   instructionAudio.currentTime = 0;
 }
 
+function getFemaleVoice(){
+  const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+      || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+}
+
+function speakText(text){
+  if(!("speechSynthesis" in window) || !text) return Promise.resolve();
+  return new Promise(resolve => {
+    try{ window.speechSynthesis.cancel(); } catch(_){ }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 1.05;
+    u.pitch = 1.55;
+    u.volume = 1;
+    const female = getFemaleVoice();
+    if(female) u.voice = female;
+    u.onend = resolve;
+    u.onerror = resolve;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+async function announceInstructionTwice(question, options){
+  const lines = [question, `Choices are ${options.join(", ")}.`];
+  for (let pass = 0; pass < 2; pass++) {
+    for (const line of lines) {
+      await speakText(line);
+    }
+  }
+}
+
 function speakCompletionLine(text){
   if (!("speechSynthesis" in window) || !text) return;
   try { window.speechSynthesis.cancel(); } catch (_err) {}
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = "en-US";
-  utter.rate = 0.94;
-  utter.pitch = 1.05;
+  utter.rate = 1.15;
+  utter.pitch = 1.55;
+  const female = getFemaleVoice();
+  if(female) utter.voice = female;
   window.speechSynthesis.speak(utter);
 }
 
@@ -309,13 +343,13 @@ async function endGame(){
     const playAttempt = chimeAudio.play();
     if (playAttempt && typeof playAttempt.finally === "function") {
       playAttempt.finally(() => {
-        setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+        setTimeout(() => speakCompletionLine("Well done! You did it!"), 120);
       });
     } else {
-      setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+      setTimeout(() => speakCompletionLine("Well done! You did it!"), 120);
     }
   }catch(_err){
-    setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+    setTimeout(() => speakCompletionLine("Well done! You did it!"), 120);
   }
 
   if (window.GPTrack && typeof window.GPTrack.finish === "function") {
@@ -332,7 +366,11 @@ async function endGame(){
   }
 }
 
-document.getElementById("startBtn").addEventListener("click", async ()=>{ await startGame(); });
+document.getElementById("startBtn").addEventListener("click", async ()=>{
+  if (running) return;
+  await announceInstructionTwice("Listen carefully: catch only the polygons and avoid the circle.", ["Triangle","Square","Pentagon","Hexagon","Octagon"]);
+  await startGame();
+});
 document.getElementById("helpBtn").addEventListener("click", ()=>{
   msg.textContent="Polygons have straight sides. Tap triangle/square/pentagon/hexagon/octagon. Avoid circle!";
   window.__SFX__.chime();

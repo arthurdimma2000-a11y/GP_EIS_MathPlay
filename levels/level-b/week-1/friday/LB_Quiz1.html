@@ -31,7 +31,7 @@
     <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Quiz 1 • Names</span></div>
     <div style="display:flex; gap:10px; flex-wrap:wrap">
       <a class="btn" href="LB_Game1.html">⬅ Back</a>
-      <a class="btn next" href="../../week-2/tuesday/LB8.html">Next ▶</a>
+      <a class="btn next" href="../../../../index.html">Home ▶</a>
     </div>
   </div>
 
@@ -67,6 +67,46 @@
     o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
   function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
   function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+  function getFemaleVoice(){
+    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+        || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+  }
+  function speakText(text){
+    return new Promise(resolve => {
+      try{ speechSynthesis.cancel(); } catch(_){ }
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = 1.05;
+      u.pitch = 1.55;
+      u.volume = 1;
+      const female = getFemaleVoice();
+      if(female) u.voice = female;
+      u.onend = resolve;
+      u.onerror = resolve;
+      speechSynthesis.speak(u);
+    });
+  }
+  async function announceQuestionTwice(question, options){
+    const lines = [question, `Choices are ${options.join(", ")}.`];
+    for(let pass = 0; pass < 2; pass++){
+      for(const line of lines){
+        await speakText(line);
+      }
+    }
+  }
+  function speakCheer(text){
+    if(!("speechSynthesis" in window) || !text) return;
+    try{ speechSynthesis.cancel(); } catch(_){ }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 1.15;
+    u.pitch = 1.65;
+    u.volume = 1;
+    const female = getFemaleVoice();
+    if(female) u.voice = female;
+    speechSynthesis.speak(u);
+  }
   function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
   function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
   window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
@@ -100,6 +140,7 @@ function render(item){
                 box-shadow:0 18px 38px rgba(0,0,0,.14);">
       <svg viewBox="0 0 120 120" width="170" height="170" fill="white" opacity="0.95">${item.svg}</svg>
     </div>`;
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
 }
 
 function nextQ(){
@@ -108,15 +149,33 @@ function nextQ(){
   const item = deck[Math.floor(Math.random()*deck.length)];
   render(item);
   shapeBox.dataset.ans=item.name;
-  locked=false;
+  locked=true;
   msg.textContent=`Question ${idx+1}/${total}: What is the name?`;
   window.__SFX__.chime();
+  announceQuestionTwice("What is the name of this shape?", ["Pentagon","Hexagon","Octagon"]).then(() => {
+    locked = false;
+    document.querySelectorAll('.opt').forEach(b => b.disabled = false);
+  });
 }
 
 function finish(){
   const scorePct = Math.round((correct/total)*100);
   const stars = scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
   msg.textContent = `🎉 Quiz Finished! Correct ${correct}/${total} (≈${scorePct}%). Stars: ${"⭐".repeat(Math.max(1,stars))}`;
+  try{
+    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+    chimeAudio.preload = "auto";
+    const playAttempt = chimeAudio.play();
+    if (playAttempt && typeof playAttempt.finally === "function") {
+      playAttempt.finally(() => {
+        setTimeout(() => speakCheer("Amazing! You finished the quiz!"), 120);
+      });
+    } else {
+      setTimeout(() => speakCheer("Amazing! You finished the quiz!"), 120);
+    }
+  }catch(_){
+    setTimeout(() => speakCheer("Amazing! You finished the quiz!"), 120);
+  }
   if (window.GPTrack && typeof window.GPTrack.finish === "function") {
     window.GPTrack.finish({
       pageId: "LB_Quiz1",
@@ -182,4 +241,3 @@ document.querySelectorAll(".opt").forEach(b=>{
 </script>
 </body>
 </html>
-

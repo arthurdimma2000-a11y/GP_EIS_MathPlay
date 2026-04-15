@@ -257,8 +257,7 @@ function saveProgress(entry){
 let SOUND_ON = true;
 const soundBtn = document.getElementById("soundBtn");
 const instructionAudio = document.getElementById("instructionAudio");
-const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
-chimeAudio.preload = "auto";
+
 soundBtn.addEventListener("click", ()=>{
   SOUND_ON = !SOUND_ON;
   soundBtn.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
@@ -305,13 +304,52 @@ function buzzWrong(){
   beep(180,140,"square",0.05);
   setTimeout(()=>beep(140,160,"square",0.05),160);
 }
+function getFemaleVoice(){
+  const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+      || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+}
+
 function speak(text){
   if(!SOUND_ON) return;
   if(!("speechSynthesis" in window)) return;
   const u = new SpeechSynthesisUtterance(text);
-  u.rate = 1.02; u.pitch = 1.12; u.volume = 1;
+  u.rate = 1.05;
+  u.pitch = 1.35;
+  u.volume = 1;
+  const female = getFemaleVoice();
+  if(female) u.voice = female;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(u);
+}
+
+function speakText(text){
+  if(!SOUND_ON) return Promise.resolve();
+  if(!("speechSynthesis" in window)) return Promise.resolve();
+  return new Promise(resolve => {
+    try{ window.speechSynthesis.cancel(); } catch (_err) {}
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 1.05;
+    u.pitch = 1.35;
+    u.volume = 1;
+    const female = getFemaleVoice();
+    if(female) u.voice = female;
+    u.onend = resolve;
+    u.onerror = resolve;
+    window.speechSynthesis.speak(u);
+  });
+}
+
+async function announceQuestionTwice(question, options){
+  const lines = [question, `Choices are ${options.join(", ")}.`];
+  for (let pass = 0; pass < 2; pass++) {
+    for (const line of lines) {
+      await speakText(line);
+    }
+  }
+  locked = false;
+  choicesEl.querySelectorAll("button").forEach(b => b.disabled = false);
 }
 
 /* ====== Game logic ====== */
@@ -325,6 +363,9 @@ const barEl = document.getElementById("bar");
 const modePill = document.getElementById("modePill");
 const hintEl = document.getElementById("hint");
 const toast = document.getElementById("toast");
+
+const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+chimeAudio.preload = "auto";
 
 let qIndex=0, score=0, stars=0, locked=false;
 
@@ -361,13 +402,14 @@ function buildChoices(correct){
     const b = document.createElement("button");
     b.className = "choice";
     b.textContent = v;
+    b.disabled = true;
     b.addEventListener("click", ()=>pick(v,b,correct));
     choicesEl.appendChild(b);
   });
 }
 
-function nextQ(){
-  locked=false;
+async function nextQ(){
+  locked = true;
   if(qIndex>=Q_TOTAL){
     finish();
     return;
@@ -387,6 +429,8 @@ function nextQ(){
   questionEl.textContent = pickVar.q;
   hintEl.textContent = "Hint: " + pickVar.hint;
   buildChoices(pickVar.a);
+  const options = Array.from(choicesEl.querySelectorAll("button")).map(b => b.textContent);
+  await announceQuestionTwice(questionEl.textContent, options);
 }
 
 function pick(val, btn, correct){
@@ -428,13 +472,13 @@ function finish(){
     const playAttempt = chimeAudio.play();
     if (playAttempt && typeof playAttempt.finally === "function") {
       playAttempt.finally(() => {
-        setTimeout(() => speak("weldom you did it!"), 120);
+        setTimeout(() => speak("Well done! You did it!"), 120);
       });
     } else {
-      setTimeout(() => speak("weldom you did it!"), 120);
+      setTimeout(() => speak("Well done! You did it!"), 120);
     }
   }catch(_err){
-    setTimeout(() => speak("weldom you did it!"), 120);
+    setTimeout(() => speak("Well done! You did it!"), 120);
   }
   saveProgress({
     level: TRACK_LEVEL,
@@ -459,7 +503,7 @@ function resetAll(){
 document.getElementById("startBtn").addEventListener("click", async ()=>{
   if(qIndex===0 && score===0) speak("Let’s play!");
   await playInstructionAudio();
-  nextQ();
+  await nextQ();
 });
 document.getElementById("resetBtn").addEventListener("click", resetAll);
 window.addEventListener("beforeunload", stopInstructionAudio);

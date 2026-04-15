@@ -100,7 +100,7 @@
       <a class="btn" href="LevelC_Game1.html">⬅ Back</a>
       <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
       <button class="btn primary" id="startBtn" type="button">▶ Start</button>
-      <a class="btn primary" href="../../week-2/tuesday/LevelC8.html">Next ➜</a>
+      <a class="btn primary" href="../../../../index.html">Home ➜</a>
     </div>
   </div>
 
@@ -180,8 +180,60 @@ function speak(text){
   if(!("speechSynthesis" in window)) return;
   const u = new SpeechSynthesisUtterance(text);
   u.rate=1.02; u.pitch=1.12; u.volume=1;
+  const female = getFemaleVoice();
+  if(female) u.voice = female;
   speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
+
+function getFemaleVoice(){
+  const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+      || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+}
+
+function speakText(text){
+  if(!SOUND_ON) return Promise.resolve();
+  if(!("speechSynthesis" in window)) return Promise.resolve();
+  return new Promise(resolve => {
+    try{ speechSynthesis.cancel(); } catch(_){ }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 1.05;
+    u.pitch = 1.35;
+    u.volume = 1;
+    const female = getFemaleVoice();
+    if(female) u.voice = female;
+    u.onend = resolve;
+    u.onerror = resolve;
+    speechSynthesis.speak(u);
+  });
+}
+
+function speakCheer(text){
+  if(!SOUND_ON) return;
+  if(!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = 1.15;
+  u.pitch = 1.65;
+  u.volume = 1;
+  const female = getFemaleVoice();
+  if(female) u.voice = female;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+async function announceQuestionTwice(question, options){
+  const lines = [question, `Choices are ${options.join(", ")}.`];
+  for(let pass = 0; pass < 2; pass++){
+    for(const line of lines){
+      await speakText(line);
+    }
+  }
+}
+
+const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+chimeAudio.preload = "auto";
 const toast=document.getElementById("toast");
 function toastShow(msg){
   toast.textContent=msg; toast.style.display="block";
@@ -250,13 +302,14 @@ function makeChoices(correct){
     const b=document.createElement("button");
     b.className="choice";
     b.textContent=v;
+    b.disabled = true;
     b.addEventListener("click", ()=>pick(v,b,correct));
     choicesEl.appendChild(b);
   });
 }
 
 function nextQ(){
-  locked=false;
+  locked=true;
   if(idx>=TOTAL){ finish(); return; }
   const s = shapes[Math.floor(Math.random()*shapes.length)];
   const askVertices = Math.random() < 0.45;
@@ -264,6 +317,11 @@ function nextQ(){
   hintEl.textContent = "Hint: Count the corners (dots)!";
   visualEl.innerHTML = s.svg;
   makeChoices(s.sides);
+  const options = Array.from(choicesEl.querySelectorAll("button")).map(b => b.textContent);
+  announceQuestionTwice(questionEl.textContent, options).then(() => {
+    locked = false;
+    choicesEl.querySelectorAll("button").forEach(b => b.disabled = false);
+  });
 }
 
 function pick(val, btn, correct){
@@ -295,7 +353,19 @@ function finish(){
   choicesEl.innerHTML="";
   hintEl.textContent=`You scored ${score} points and earned ${stars} stars!`;
   chimeSuccess(); setTimeout(chimeSuccess, 240);
-  speak("Fantastic! Quiz complete!");
+  try{
+    chimeAudio.currentTime = 0;
+    const playAttempt = chimeAudio.play();
+    if (playAttempt && typeof playAttempt.finally === "function") {
+      playAttempt.finally(() => {
+        setTimeout(() => speakCheer("Amazing! Quiz complete!"), 120);
+      });
+    } else {
+      setTimeout(() => speakCheer("Amazing! Quiz complete!"), 120);
+    }
+  }catch(_){
+    setTimeout(() => speakCheer("Amazing! Quiz complete!"), 120);
+  }
   toastShow("Saved to Progress Report ✅");
   saveProgress({
     level:TRACK_LEVEL,

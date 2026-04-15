@@ -215,7 +215,7 @@
   const starsEl = document.getElementById("stars");
   const startBtn = document.getElementById("startBtn");
   const instructionAudio = document.getElementById("instructionAudio");
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
   chimeAudio.preload = "auto";
 
   document.getElementById("homeBtn").onclick = () => location.href = "../../../../index.html";
@@ -243,15 +243,48 @@
     instructionAudio.currentTime = 0;
   }
 
+  function getFemaleVoice(){
+    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+        || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+  }
+
   function speakCompletionLine(text){
     if (!("speechSynthesis" in window) || !text) return;
     try { window.speechSynthesis.cancel(); } catch (_err) {}
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "en-US";
-    utter.rate = 0.94;
-    utter.pitch = 1.05;
-    if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(utter);
+    utter.rate = 1.15;
+    utter.pitch = 1.55;
+    const female = getFemaleVoice();
+    if(female) utter.voice = female;
     window.speechSynthesis.speak(utter);
+  }
+
+  async function speakText(text){
+    if (!("speechSynthesis" in window) || !text) return Promise.resolve();
+    return new Promise(resolve => {
+      try{ window.speechSynthesis.cancel(); } catch(_){ }
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = 1.05;
+      u.pitch = 1.55;
+      u.volume = 1;
+      const female = getFemaleVoice();
+      if(female) u.voice = female;
+      u.onend = resolve;
+      u.onerror = resolve;
+      window.speechSynthesis.speak(u);
+    });
+  }
+
+  async function announceInstructionTwice(question, options){
+    const lines = [question, `Choices are ${options.join(", ")}.`];
+    for (let pass = 0; pass < 2; pass++) {
+      for (const line of lines) {
+        await speakText(line);
+      }
+    }
   }
 
   function spawn(){
@@ -318,13 +351,13 @@
       const playAttempt = chimeAudio.play();
       if (playAttempt && typeof playAttempt.finally === "function") {
         playAttempt.finally(() => {
-          setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+          setTimeout(() => speakCompletionLine("Well done! You did it!"), 120);
         });
       } else {
-        setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+        setTimeout(() => speakCompletionLine("Well done! You did it!"), 120);
       }
     }catch(_err){
-      setTimeout(() => speakCompletionLine("weldom you did it!"), 120);
+      setTimeout(() => speakCompletionLine("Well done! You did it!"), 120);
     }
 
     safeSaveActivity({
@@ -385,6 +418,7 @@
 
   startBtn.onclick = async () => {
     if (running) return;
+    await announceInstructionTwice("Listen carefully: tap only the circles and avoid the triangles and squares.", ["Triangle","Circle","Square"]);
     await startGame();
   };
 
