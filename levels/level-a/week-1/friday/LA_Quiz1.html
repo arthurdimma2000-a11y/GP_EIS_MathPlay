@@ -592,8 +592,8 @@
     if(!soundOn) return;
     try{
       const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.1;
-      u.pitch = 1.65;
+      u.rate = 1.2;
+      u.pitch = 2.0;
       u.volume = 1;
       const female = getFemaleVoice();
       if(female) u.voice = female;

@@ -6451,33 +6451,42 @@
         return { ok:false, reason:"Teacher session is required.", syncedStudentIds:[] };
       }
 
+      const endpoint = new URL("/.netlify/functions/save-students", window.location.origin).toString();
+
       const payloadStudents = dedupeStudents(Array.isArray(studentsToSync) ? studentsToSync : [])
         .filter(Boolean)
         .map((student) => ({
           classId: normalizeClassId(student.classId || ""),
-          studentId: canonicalStudentId(student.studentId || ""),
+          studentId: normalizeStudentId(student.studentId || ""),
           pin: String(student.pin || "").trim(),
           level: String(student.level || "").trim().toUpperCase(),
+          teacherUid: String(student.teacherUid || teacher.id || teacher.uid || "").trim(),
           teacherEmail: normalizeEmail(student.teacherEmail || teacher.email || ""),
           teacherName: String(student.teacherName || teacher.name || "").trim(),
-          displayName: String(student.displayName || "").trim(),
-          createdAt: student.createdAt || new Date().toISOString()
+          displayName: String(student.displayName || student.name || "").trim(),
+          createdAt: student.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }))
-        .filter((student) => student.classId && student.studentId && student.pin && student.level && student.teacherEmail);
+        .filter((student) => student.classId && student.studentId && student.pin && student.level);
 
       if (!payloadStudents.length) {
         return { ok:false, reason:"No valid student records were available to sync.", syncedStudentIds:[] };
       }
 
       try {
-        const res = await fetch("/.netlify/functions/save-students", {
+        const res = await fetch(endpoint, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
           body: JSON.stringify({
-            students: payloadStudents,
-            teacherEmail: normalizeEmail(teacher.email || ""),
-            teacherName: String(teacher.name || "").trim(),
-            teacherId: String(teacher.id || "").trim()
+            teacherContext: {
+              uid: String(teacher.id || teacher.uid || "").trim(),
+              name: String(teacher.name || "").trim(),
+              email: normalizeEmail(teacher.email || "")
+            },
+            students: payloadStudents
           })
         });
 
@@ -6513,35 +6522,7 @@
     async function syncStudentsToCloud(studentsToSync){
       const teacher = getTeacherSession();
       if (!teacher || !teacher.email) {
-        return { ok: false, reason: "Teacher session is required." };
-      }
-
-      const authSync = await getAuthSync().catch(() => null);
-      if (authSync && typeof authSync.saveStudents === "function") {
-        const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
-        const liveTeacherPassword =
-          (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
-          (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
-        const teacherPassword =
-          (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
-          liveTeacherPassword;
-
-        try {
-          const result = await authSync.saveStudents(studentsToSync, {
-            email: teacher.email,
-            password: teacherPassword,
-            name: teacher.name,
-            uid: teacher.id || ""
-          });
-          if (result && result.ok) {
-            return {
-              ok: true,
-              reason: "",
-              syncedStudentIds: Array.isArray(result.syncedStudentIds) ? result.syncedStudentIds : [],
-              queuedCount: Number(result.queuedCount || 0)
-            };
-          }
-        } catch (_) {}
+        return { ok: false, reason: "Teacher session is required.", syncedStudentIds: [], queuedCount: 0 };
       }
 
       const fallback = await directSaveStudentsToCloud(studentsToSync);
@@ -6554,68 +6535,25 @@
     }
 
     async function queueStudentsForCloudSync(studentsToQueue){
-      const teacher = getTeacherSession();
-      const authSync = await getAuthSync().catch(() => null);
-      if (authSync && typeof authSync.queuePendingStudents === "function") {
-        try {
-          return await authSync.queuePendingStudents(studentsToQueue, {
-            email: teacher?.email || "",
-            name: teacher?.name || "",
-            uid: teacher?.id || ""
-          });
-        } catch (_) {}
-      }
-      return addPendingStudentSyncQueue(studentsToQueue);
+      return addPendingStudentSyncQueue(Array.isArray(studentsToQueue) ? studentsToQueue : []);
     }
 
     async function processPendingStudentSync(source = "background", options = {}){
       if (pendingStudentSyncPromise) return pendingStudentSyncPromise;
       const teacher = getTeacherSession();
-      if (!teacher || !teacher.email) return { ok: false, reason: "Teacher session is required." };
+      if (!teacher || !teacher.email) {
+        return { ok: false, reason: "Teacher session is required.", syncedStudentIds: [] };
+      }
 
       pendingStudentSyncPromise = (async () => {
-        const authSync = await getAuthSync().catch(() => null);
-
-        if (authSync && typeof authSync.processPendingStudentSync === "function") {
-          const rememberedTeacher = getRememberedCredential("teacher", teacher.email);
-          const liveTeacherPassword =
-            (teacherLoginPassword && teacherLoginPassword.value ? teacherLoginPassword.value.trim() : "") ||
-            (teacherSignupPassword && teacherSignupPassword.value ? teacherSignupPassword.value.trim() : "");
-          const teacherPassword =
-            (rememberedTeacher && rememberedTeacher.password ? rememberedTeacher.password : "") ||
-            liveTeacherPassword;
-
-          try {
-            const result = await authSync.processPendingStudentSync({
-              email: teacher.email,
-              password: teacherPassword,
-              name: teacher.name,
-              uid: teacher.id || ""
-            });
-
-            const syncedIds = Array.isArray(result?.syncedStudentIds) ? result.syncedStudentIds : [];
-            if (result?.ok || syncedIds.length) {
-              if (syncedIds.length) {
-                markStudentsCloudSynced(syncedIds);
-                setPendingStudentSyncQueue(
-                  getPendingStudentSyncQueue().filter((student) => !syncedIds.includes(canonicalStudentId(student.studentId)))
-                );
-                if (!options.quiet && teacherGeneratorStatus) {
-                  teacherGeneratorStatus.innerHTML = `<span class="ok">${syncedIds.length} student record(s) synced to cloud successfully.</span>`;
-                }
-              }
-              return {
-                ok: !!result?.ok || syncedIds.length > 0,
-                reason: "",
-                syncedStudentIds: syncedIds
-              };
-            }
-          } catch (_) {}
-        }
-
         const pendingQueue = dedupeStudents(
           getPendingStudentSyncQueue().concat(getTeacherUnsyncedStudents(teacher))
         );
+
+        if (!pendingQueue.length) {
+          return { ok: true, reason: "", syncedStudentIds: [] };
+        }
+
         const fallback = await directSaveStudentsToCloud(pendingQueue);
         if (fallback.ok) {
           const syncedIds = Array.isArray(fallback.syncedStudentIds) ? fallback.syncedStudentIds : [];
@@ -6636,7 +6574,7 @@
         }
 
         if (!options.quiet && teacherGeneratorStatus && fallback.reason) {
-          teacherGeneratorStatus.innerHTML = `<span class="danger">${fallback.reason}</span>`;
+          teacherGeneratorStatus.innerHTML = `<span class="danger">${escapeHtml(fallback.reason)}</span>`;
         }
         return {
           ok: false,
@@ -6665,7 +6603,7 @@
       const syncedStudents = dedupeStudents(
         getAllKnownStudents().map((student) => (
           syncedStudentIds.has(canonicalStudentId(student.studentId))
-            ? { ...student, cloudSynced: true }
+            ? { ...student, cloudSynced: true, syncError: "" }
             : student
         ))
       );
@@ -6689,7 +6627,7 @@
       await queueStudentsForCloudSync([targetStudent]);
       const result = await processPendingStudentSync("retry", { quiet:false });
       if (!result.ok) {
-        teacherGeneratorStatus.innerHTML = `<span class="danger">${targetStudent.studentId} is still local only. ${result.reason || "Cloud sync failed."}</span>`;
+        teacherGeneratorStatus.innerHTML = `<span class="danger">${targetStudent.studentId} is still local only. ${escapeHtml(result.reason || "Cloud sync failed.")}</span>`;
         safePlay("warning");
         FX.toast(`${targetStudent.studentId} sync failed.`, "⚠️", 3200);
         renderStudentTable(getAllKnownStudents());
@@ -6733,6 +6671,7 @@
           pin: randomPin(),
           level,
           cloudSynced: false,
+          teacherUid: String(teacher.id || teacher.uid || "").trim(),
           teacherEmail: teacher.email,
           teacherName: teacher.name,
           displayName: `${level} Student ${serial}`,
@@ -6756,26 +6695,30 @@
       }
 
       teacherGeneratorStatus.innerHTML = `<span class="muted">${newStudents.length} Student ID(s) generated. They are now visible in the Teacher Student List. Syncing them to cloud...</span>`;
-      await queueStudentsForCloudSync(newStudents);
 
-      window.setTimeout(async () => {
-        const syncResult = await processPendingStudentSync("generate", { quiet:false });
-        const cloudSaved = !!syncResult.ok;
+      const syncResult = await syncStudentsToCloud(newStudents);
+      const cloudSaved = !!syncResult.ok;
 
-        if (!cloudSaved) {
-          teacherGeneratorStatus.innerHTML = `<span class="danger">${newStudents.length} Student ID(s) were generated on this device only. Cloud sync failed, so they will not work on other devices yet. ${syncResult.reason ? escapeHtml(syncResult.reason) : "Please check the save-students Netlify function and try again."}</span>`;
-          safePlay("warning");
-          FX.toast("Cloud sync failed. IDs are local only.", "⚠️", 4200);
-          renderStudentTable(getAllKnownStudents());
-          return;
-        }
+      if (!cloudSaved) {
+        teacherGeneratorStatus.innerHTML = `<span class="danger">${newStudents.length} Student ID(s) were generated on this device only. Cloud sync failed, so they will not work on other devices yet. ${escapeHtml(syncResult.reason ? syncResult.reason : "Please check the save-students Netlify function and try again.")}</span>`;
+        safePlay("warning");
+        FX.toast("Cloud sync failed. IDs are local only.", "⚠️", 4200);
+        renderStudentTable(getAllKnownStudents());
+        return;
+      }
 
-        markStudentsCloudSynced(syncResult.syncedStudentIds && syncResult.syncedStudentIds.length ? syncResult.syncedStudentIds : newStudents.map((student) => student.studentId));
-        teacherGeneratorStatus.innerHTML = `<span class="ok">${newStudents.length} Student ID(s) created and saved to cloud successfully. Students can now login on other devices.</span>`;
-        safePlay("success");
-        setTimeout(() => safePlay("cheer"), 100);
-        FX.toast(`${newStudents.length} Student ID(s) saved for cross-device use.`, "🪪", 3200);
-      }, 0);
+      const idsToMark = syncResult.syncedStudentIds && syncResult.syncedStudentIds.length
+        ? syncResult.syncedStudentIds
+        : newStudents.map((student) => student.studentId);
+
+      markStudentsCloudSynced(idsToMark);
+      setPendingStudentSyncQueue(
+        getPendingStudentSyncQueue().filter((student) => !idsToMark.includes(canonicalStudentId(student.studentId)))
+      );
+      teacherGeneratorStatus.innerHTML = `<span class="ok">${newStudents.length} Student ID(s) created and saved to cloud successfully. Students can now login on other devices.</span>`;
+      safePlay("success");
+      setTimeout(() => safePlay("cheer"), 100);
+      FX.toast(`${newStudents.length} Student ID(s) saved for cross-device use.`, "🪪", 3200);
     }
 
     function renderStudentTable(studentList){

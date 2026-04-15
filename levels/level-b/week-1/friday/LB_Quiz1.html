@@ -5,24 +5,161 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Level B • Quiz 1 — Polygon Names</title>
 <style>
-  :root{--bg1:#fff4b8;--bg2:#c7f7ff;--bg3:#ffd1f3;--ink:#1f2430;--card:#fff;
-    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;}
+  :root{
+    --bg1:#fff4b8;
+    --bg2:#c7f7ff;
+    --bg3:#ffd1f3;
+    --ink:#1f2430;
+    --card:#ffffff;
+    --good:#22c55e;
+    --oops:#ff8fab;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
   *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));padding:18px}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+    padding:18px;
+  }
   .app{width:min(980px,98vw)}
-  .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-  .badge{background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 12px 28px rgba(0,0,0,.10);font-weight:1000;display:flex;gap:10px;align-items:center}
-  .btn{border:0;cursor:pointer;font-weight:1000;border-radius:14px;padding:12px 14px;background:#fff;color:var(--ink);box-shadow:0 10px 22px rgba(0,0,0,.12);text-decoration:none;display:inline-flex;gap:8px;align-items:center}
+  .top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .badge{
+    background:#fff;
+    border-radius:999px;
+    padding:10px 14px;
+    box-shadow:0 12px 28px rgba(0,0,0,.10);
+    font-weight:1000;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .btn{
+    border:0;
+    cursor:pointer;
+    font-weight:1000;
+    border-radius:16px;
+    padding:12px 16px;
+    background:#fff;
+    color:var(--ink);
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+    text-decoration:none;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+  }
   .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#0b1b10}
   .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7);color:#06121d}
-  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
-  .title{font-size:26px;font-weight:1000;margin:6px 0 6px}
-  .subtitle{margin:0 0 12px;opacity:.85}
-  .q{border-radius:18px;padding:12px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);margin-top:10px}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .opt{border:0;cursor:pointer;font-weight:1000;border-radius:16px;padding:12px 14px;background:#fff;box-shadow:0 10px 22px rgba(0,0,0,.12)}
-  .opt:active{transform:translateY(1px)}
-  .msg{margin-top:12px;border-radius:16px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
+  .btn.speak{background:linear-gradient(180deg,#ffd166,#ffb703);color:#3a2a00}
+  .card{
+    background:var(--card);
+    border-radius:26px;
+    padding:16px;
+    box-shadow:0 16px 44px rgba(0,0,0,.12);
+  }
+  .title{
+    font-size:30px;
+    font-weight:1000;
+    margin:6px 0 6px;
+    text-align:center;
+  }
+  .subtitle{
+    margin:0 0 14px;
+    opacity:.9;
+    text-align:center;
+    font-size:18px;
+  }
+  .progress{
+    margin:0 auto 14px;
+    width:min(460px,95%);
+    height:18px;
+    background:#eef7ff;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+  }
+  .bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#63e6be,#4dabf7,#f15bb5);
+    transition:width .35s ease;
+  }
+  .q{
+    border-radius:22px;
+    padding:14px;
+    background:linear-gradient(180deg,#fff,#f7fbff);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    margin-top:10px;
+  }
+  .shapeWrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:240px;
+  }
+  .row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .answers{
+    justify-content:center;
+    margin-top:12px;
+  }
+  .opt{
+    border:0;
+    cursor:pointer;
+    font-weight:1000;
+    border-radius:20px;
+    padding:16px 18px;
+    min-width:160px;
+    font-size:22px;
+    background:#fff;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  }
+  .opt:hover:not(:disabled){transform:translateY(-2px)}
+  .opt:active:not(:disabled){transform:translateY(1px)}
+  .opt:disabled{cursor:not-allowed;opacity:.65}
+  .msg{
+    margin-top:12px;
+    border-radius:18px;
+    padding:12px 14px;
+    background:#fff;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    font-weight:1000;
+    font-size:20px;
+    text-align:center;
+    min-height:56px;
+  }
+  .msg.good{background:#ecfdf3}
+  .msg.oops{background:#fff1f2}
+  .controls{
+    justify-content:center;
+    margin-top:12px;
+  }
+  .stars{
+    text-align:center;
+    font-size:28px;
+    margin-top:6px;
+  }
+  .hint{
+    text-align:center;
+    font-size:16px;
+    opacity:.8;
+    margin-top:8px;
+  }
 </style>
 </head>
 <body>
@@ -37,145 +174,266 @@
 
   <div class="card">
     <div class="title">What is this shape?</div>
-    <p class="subtitle">Choose the correct name. (Pentagon / Hexagon / Octagon)</p>
+    <p class="subtitle">Listen, look, and tap the correct answer.</p>
+
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="stars" id="stars">⭐ 0</div>
 
     <div class="q">
-      <div id="shapeBox" style="display:flex;justify-content:center;align-items:center;height:220px"></div>
-      <div class="row" style="justify-content:center;margin-top:10px">
+      <div class="shapeWrap" id="shapeBox"></div>
+
+      <div class="row answers">
         <button class="opt" data-name="Pentagon">Pentagon</button>
         <button class="opt" data-name="Hexagon">Hexagon</button>
         <button class="opt" data-name="Octagon">Octagon</button>
       </div>
+
+      <div class="hint">Tap the yellow button to hear the question again.</div>
     </div>
 
-    <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="nextQ">➡ Next Question</button>
+    <div class="row controls">
+      <button class="btn primary" id="startBtn">🎉 Start Quiz</button>
+      <button class="btn speak" id="repeatBtn">🔊 Repeat Question</button>
       <button class="btn" id="finish">🏁 Finish</button>
     </div>
 
-    <div class="msg" id="msg">Press “Next Question” to begin ⭐</div>
+    <div class="msg" id="msg">Press “Start Quiz” to begin ⭐</div>
   </div>
 </div>
 
 <script>
-/* --- SFX + Tracker --- */
-(function(){
-  const STORE_KEY="gpeis_progress_v1";
-  let audioCtx=null;
-  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function beep(f,t,g=0.05,type="triangle"){ const c=ctx(),o=c.createOscillator(),ga=c.createGain();
-    o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
-  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
-  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
-  function getFemaleVoice(){
-    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-    return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
-        || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
-  }
-  function speakText(text){
-    return new Promise(resolve => {
-      try{ speechSynthesis.cancel(); } catch(_){ }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US";
-      u.rate = 1.05;
-      u.pitch = 1.55;
-      u.volume = 1;
-      const female = getFemaleVoice();
-      if(female) u.voice = female;
-      u.onend = resolve;
-      u.onerror = resolve;
-      speechSynthesis.speak(u);
-    });
-  }
-  async function announceQuestionTwice(question, options){
-    const lines = [question, `Choices are ${options.join(", ")}.`];
-    for(let pass = 0; pass < 2; pass++){
-      for(const line of lines){
-        await speakText(line);
-      }
+/* ----------------- sounds ----------------- */
+let audioCtx = null;
+function getCtx(){
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq, dur, gain = 0.05, type = "triangle"){
+  try{
+    const c = getCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g);
+    g.connect(c.destination);
+    o.start();
+    o.stop(c.currentTime + dur);
+  }catch(e){}
+}
+function chime(){
+  beep(880, .08, .05);
+  setTimeout(() => beep(1175, .10, .05), 90);
+  setTimeout(() => beep(1568, .12, .05), 200);
+}
+function cheer(){
+  beep(523, .09, .05, "sine");
+  setTimeout(() => beep(659, .09, .05, "sine"), 80);
+  setTimeout(() => beep(784, .11, .05, "sine"), 160);
+  setTimeout(() => beep(988, .14, .05, "sine"), 260);
+}
+
+/* ----------------- speech ----------------- */
+function getFemaleVoice(){
+  const voices = window.speechSynthesis?.getVoices?.() || [];
+  return voices.find(v =>
+    /^en(-|_)?(us|gb|au|ca)/i.test(v.lang || "") &&
+    /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || "")
+  ) || voices.find(v =>
+    /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || "")
+  ) || null;
+}
+
+function speakText(text, opts = {}){
+  return new Promise(resolve => {
+    if(!("speechSynthesis" in window)){
+      resolve();
+      return;
     }
-  }
-  function speakCheer(text){
-    if(!("speechSynthesis" in window) || !text) return;
-    try{ speechSynthesis.cancel(); } catch(_){ }
+    try { speechSynthesis.cancel(); } catch(e) {}
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "en-US";
-    u.rate = 1.15;
-    u.pitch = 1.65;
+    u.rate = opts.rate ?? 1.0;
+    u.pitch = opts.pitch ?? 1.35;
     u.volume = 1;
     const female = getFemaleVoice();
     if(female) u.voice = female;
+    u.onend = () => resolve();
+    u.onerror = () => resolve();
     speechSynthesis.speak(u);
-  }
-  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
-  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
-  window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
-    const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
-    const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
-    const a=acts[activityId];
-    a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
-    a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
-    db[level].updatedAt=new Date().toISOString(); save(db);
-    chime(); if(stars>=3||score>=85) cheer();
-    return a;
-  }};
-  window.__SFX__={chime,cheer};
-})();
-
-const shapeBox=document.getElementById("shapeBox");
-const msg=document.getElementById("msg");
-
-const deck=[
-  {name:"Pentagon", v:5, color:"#9b5de5", svg:`<path d="M60 18 L 98 44 L 84 92 L 36 92 L 22 44 Z"/>`},
-  {name:"Hexagon", v:6, color:"#00bbf9", svg:`<path d="M60 18 L 95 38 L 95 82 L 60 102 L 25 82 L 25 38 Z"/>`},
-  {name:"Octagon", v:8, color:"#f15bb5", svg:`<path d="M44 18 L 76 18 L 98 40 L 98 80 L 76 102 L 44 102 L 22 80 L 22 40 Z"/>`},
-];
-
-let idx=-1, correct=0, total=6, locked=true;
-
-function render(item){
-  shapeBox.innerHTML = `
-    <div style="width:240px;height:240px;border-radius:30px;display:flex;align-items:center;justify-content:center;
-                background:linear-gradient(180deg, ${item.color}, #ffffff);
-                box-shadow:0 18px 38px rgba(0,0,0,.14);">
-      <svg viewBox="0 0 120 120" width="170" height="170" fill="white" opacity="0.95">${item.svg}</svg>
-    </div>`;
-  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
-}
-
-function nextQ(){
-  idx++;
-  if(idx>=total){ finish(); return; }
-  const item = deck[Math.floor(Math.random()*deck.length)];
-  render(item);
-  shapeBox.dataset.ans=item.name;
-  locked=true;
-  msg.textContent=`Question ${idx+1}/${total}: What is the name?`;
-  window.__SFX__.chime();
-  announceQuestionTwice("What is the name of this shape?", ["Pentagon","Hexagon","Octagon"]).then(() => {
-    locked = false;
-    document.querySelectorAll('.opt').forEach(b => b.disabled = false);
   });
 }
 
-function finish(){
-  const scorePct = Math.round((correct/total)*100);
-  const stars = scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
-  msg.textContent = `🎉 Quiz Finished! Correct ${correct}/${total} (≈${scorePct}%). Stars: ${"⭐".repeat(Math.max(1,stars))}`;
-  try{
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-    chimeAudio.preload = "auto";
-    const playAttempt = chimeAudio.play();
-    if (playAttempt && typeof playAttempt.finally === "function") {
-      playAttempt.finally(() => {
-        setTimeout(() => speakCheer("Amazing! You finished the quiz!"), 120);
-      });
-    } else {
-      setTimeout(() => speakCheer("Amazing! You finished the quiz!"), 120);
-    }
-  }catch(_){
-    setTimeout(() => speakCheer("Amazing! You finished the quiz!"), 120);
+async function speakQuestion(item){
+  const lines = [
+    "Look carefully.",
+    "What is this shape?",
+    "Tap the correct answer.",
+    "Your choices are Pentagon, Hexagon, and Octagon."
+  ];
+  for(const line of lines){
+    await speakText(line, { rate: 0.95, pitch: 1.45 });
   }
+}
+
+async function speakResult(ok, ans){
+  if(ok){
+    await speakText("Great job! That is correct!", { rate: 1.02, pitch: 1.55 });
+  }else{
+    await speakText(`Nice try. The correct answer is ${ans}.`, { rate: 0.98, pitch: 1.4 });
+  }
+}
+
+/* ----------------- tracker ----------------- */
+(function(){
+  const STORE_KEY="gpeis_progress_v1";
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};} }
+  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  window.__LegacyTrack__ = {
+    complete({level,activityId,score=0,stars=0}){
+      const db=load();
+      db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
+      const acts=db[level].activities;
+      acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
+      const a=acts[activityId];
+      a.attempts++;
+      a.lastScore=score;
+      a.lastStars=stars;
+      a.completed=true;
+      a.lastAt=new Date().toISOString();
+      a.bestScore=Math.max(a.bestScore||0,score);
+      a.bestStars=Math.max(a.bestStars||0,stars);
+      db[level].updatedAt=new Date().toISOString();
+      save(db);
+      return a;
+    }
+  };
+})();
+
+/* ----------------- quiz ----------------- */
+const shapeBox = document.getElementById("shapeBox");
+const msg = document.getElementById("msg");
+const bar = document.getElementById("bar");
+const starsEl = document.getElementById("stars");
+const startBtn = document.getElementById("startBtn");
+const repeatBtn = document.getElementById("repeatBtn");
+const finishBtn = document.getElementById("finish");
+const optionButtons = [...document.querySelectorAll(".opt")];
+
+const deck = [
+  {name:"Pentagon", color:"#9b5de5", svg:`<path d="M60 18 L98 44 L84 92 L36 92 L22 44 Z"/>`},
+  {name:"Hexagon",  color:"#00bbf9", svg:`<path d="M60 18 L95 38 L95 82 L60 102 L25 82 L25 38 Z"/>`},
+  {name:"Octagon",  color:"#f15bb5", svg:`<path d="M44 18 L76 18 L98 40 L98 80 L76 102 L44 102 L22 80 L22 40 Z"/>`}
+];
+
+let questions = [];
+let currentIndex = -1;
+let currentItem = null;
+let correct = 0;
+let total = 6;
+let answeringLocked = true;
+let quizStarted = false;
+
+function makeQuestions(){
+  const arr = [];
+  for(let i = 0; i < total; i++){
+    arr.push(deck[Math.floor(Math.random() * deck.length)]);
+  }
+  return arr;
+}
+
+function setMessage(text, type = ""){
+  msg.className = "msg" + (type ? " " + type : "");
+  msg.textContent = text;
+}
+
+function setOptionsEnabled(enabled){
+  optionButtons.forEach(btn => btn.disabled = !enabled);
+}
+
+function updateProgress(){
+  const done = Math.max(0, currentIndex);
+  const pct = Math.round((done / total) * 100);
+  bar.style.width = pct + "%";
+  starsEl.textContent = "⭐ " + correct;
+}
+
+function renderShape(item){
+  shapeBox.innerHTML = `
+    <div style="width:250px;height:250px;border-radius:34px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg, ${item.color}, #ffffff);
+      box-shadow:0 18px 38px rgba(0,0,0,.14);">
+      <svg viewBox="0 0 120 120" width="180" height="180" fill="white" opacity="0.96">
+        ${item.svg}
+      </svg>
+    </div>
+  `;
+}
+
+async function askCurrentQuestion(){
+  if(!currentItem) return;
+  answeringLocked = true;
+  setOptionsEnabled(false);
+  setMessage(`Question ${currentIndex + 1} of ${total}. Listen carefully...`);
+  renderShape(currentItem);
+  chime();
+  await speakQuestion(currentItem);
+  answeringLocked = false;
+  setOptionsEnabled(true);
+  setMessage(`Question ${currentIndex + 1} of ${total}. Tap the correct answer.`);
+}
+
+async function nextQuestion(){
+  currentIndex++;
+  updateProgress();
+
+  if(currentIndex >= total){
+    finishQuiz();
+    return;
+  }
+
+  currentItem = questions[currentIndex];
+  await askCurrentQuestion();
+}
+
+async function handleAnswer(choice){
+  if(answeringLocked || !currentItem) return;
+
+  answeringLocked = true;
+  setOptionsEnabled(false);
+
+  const isCorrect = choice === currentItem.name;
+
+  if(isCorrect){
+    correct++;
+    starsEl.textContent = "⭐ " + correct;
+    setMessage("✅ Correct! Great job!", "good");
+    cheer();
+  } else {
+    setMessage(`❌ Nice try! It is ${currentItem.name}.`, "oops");
+    chime();
+  }
+
+  await speakResult(isCorrect, currentItem.name);
+  setTimeout(() => {
+    nextQuestion();
+  }, 500);
+}
+
+function finishQuiz(){
+  const scorePct = Math.round((correct / total) * 100);
+  const stars = scorePct >= 90 ? 3 : scorePct >= 70 ? 2 : scorePct >= 50 ? 1 : 0;
+
+  answeringLocked = true;
+  setOptionsEnabled(false);
+  bar.style.width = "100%";
+
+  setMessage(`🎉 Quiz Finished! You got ${correct} out of ${total}. Score: ${scorePct}%.`, "good");
+  cheer();
+
+  speakText("Amazing! You finished the quiz! Well done!", { rate: 1.03, pitch: 1.55 });
+
   if (window.GPTrack && typeof window.GPTrack.finish === "function") {
     window.GPTrack.finish({
       pageId: "LB_Quiz1",
@@ -186,58 +444,61 @@ function finish(){
       skills: { reading: 1, writing: 0, speaking: 0, listening: 1 }
     }).catch(() => {});
   } else if (window.__LegacyTrack__) {
-    window.__LegacyTrack__.complete({ level:"B", activityId:"LB_Quiz1", score:scorePct, stars });
+    window.__LegacyTrack__.complete({
+      level: "B",
+      activityId: "LB_Quiz1",
+      score: scorePct,
+      stars
+    });
   }
-  locked=true;
-  window.__SFX__.cheer();
 }
 
-document.getElementById("nextQ").addEventListener("click", nextQ);
-document.getElementById("finish").addEventListener("click", finish);
+async function startQuiz(){
+  quizStarted = true;
+  correct = 0;
+  currentIndex = -1;
+  currentItem = null;
+  questions = makeQuestions();
+  starsEl.textContent = "⭐ 0";
+  bar.style.width = "0%";
+  setMessage("Let’s begin!");
+  startBtn.textContent = "🔄 Restart Quiz";
+  await speakText("Welcome! Let us start the shape quiz!", { rate: 0.96, pitch: 1.5 });
+  nextQuestion();
+}
 
-document.querySelectorAll(".opt").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    if(locked) return;
-    locked=true;
-    const pick=b.dataset.name;
-    const ans=shapeBox.dataset.ans;
-    if(pick===ans){ correct++; msg.textContent="✅ Correct!"; window.__SFX__.cheer(); }
-    else{ msg.textContent=`❌ Not quite. It is ${ans}.`; window.__SFX__.chime(); }
-    setTimeout(()=>{ locked=false; nextQ(); }, 650);
-  });
+/* ----------------- events ----------------- */
+startBtn.addEventListener("click", startQuiz);
+
+repeatBtn.addEventListener("click", async () => {
+  if(!quizStarted || !currentItem) return;
+  await askCurrentQuestion();
 });
-  </script>
-  <script src="./levelbc-runtime-fix.js"></script>
+
+finishBtn.addEventListener("click", finishQuiz);
+
+optionButtons.forEach(btn => {
+  btn.addEventListener("click", () => handleAnswer(btn.dataset.name));
+});
+
+/* load voices for some browsers */
+window.speechSynthesis?.getVoices?.();
+window.speechSynthesis?.addEventListener?.("voiceschanged", () => {
+  window.speechSynthesis.getVoices();
+});
+
+setOptionsEnabled(false);
+</script>
+
+<script src="./levelbc-runtime-fix.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 <script type="module" src="./progress-tracker.js"></script>
 <script>
-  window.addEventListener("load", () => {
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    GPTrack.start(pageFile || document.title || "Activity");
-  });
-
-  async function finishActivity(overrides = {}){
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
-      ? "A"
-      : (/^(LB|LevelB)/i.test(pageFile))
-        ? "B"
-        : (/^(LC|LevelC)/i.test(pageFile))
-          ? "C"
-          : null;
-
-    await GPTrack.finish({
-      pageId: pageFile || document.title || "Activity",
-      level: inferredLevel,
-      activityType: "activity",
-      score: null,
-      stars: 0,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
-      ...overrides
-    });
-  }
+window.addEventListener("load", () => {
+  if (!window.GPTrack) return;
+  const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+  GPTrack.start(pageFile || document.title || "Activity");
+});
 </script>
 </body>
 </html>
