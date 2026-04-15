@@ -412,6 +412,14 @@ function createGPTrack() {
         try {
           const result = await saveActivityResult(normalized);
           console.log("GPTrack finish:", result);
+          // Play chime on completion of quiz or game
+          if (normalized.activityType === "quiz" || normalized.activityType === "game") {
+            try {
+              const chimeAudio = new Audio("/assets/audio/chimes/chime.mp3");
+              chimeAudio.volume = 0.7;
+              chimeAudio.play().catch(() => {});
+            } catch (_) {}
+          }
           return result;
         } catch (err) {
           console.error("GPTrack.finish error:", err);
