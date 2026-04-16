@@ -229,7 +229,7 @@
       const steps = [
         () => {
           conversationStatus.textContent = "I eat a piece of cake.";
-          speak("I eat a piece of cake.", { role: "female", rate: 0.92, pitch: 1.08 }, runNextStep);
+          speak("I eat a piece of cake.", { role: "female", rate: 0.75, pitch: 1.5 }, runNextStep);
         },
         () => {
           bubbleLeft.textContent = "Don’t eat alone.";
@@ -241,11 +241,11 @@
           bubbleRight.textContent = "Let’s eat together.";
           bubbleRight.classList.add('show');
           conversationStatus.textContent = "Let’s eat together.";
-          speak("Let’s eat together.", { role: "female", rate: 0.95, pitch: 1.08 }, runNextStep);
+          speak("Let's eat together.", { role: "female", rate: 0.75, pitch: 1.5 }, runNextStep);
         },
         () => {
           conversationStatus.textContent = "The cake has 0 sides and 3 vertices.";
-          speak("The cake has 0 sides and 3 vertices.", { role: "female", rate: 0.92, pitch: 1.08 });
+          speak("The cake has 0 sides and 3 vertices.", { role: "female", rate: 0.75, pitch: 1.5 });
         }
       ];
 

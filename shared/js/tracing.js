@@ -123,10 +123,10 @@
         utterance.lang = "en-US";
       }
       if (typeof utterance.rate !== "number" || utterance.rate >= 0.98 || utterance.rate < 0.88) {
-        utterance.rate = 0.92;
+        utterance.rate = 0.8;
       }
       if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.1) {
-        utterance.pitch = 1.34;
+        utterance.pitch = 1.5;
       }
       utterance.volume = 1;
     } catch (_err) {}
@@ -1696,8 +1696,8 @@
       }
       const opts = options || {};
       speakText(normalizedText, {
-        rate: typeof opts.rate === "number" ? opts.rate : 0.88,
-        pitch: typeof opts.pitch === "number" ? opts.pitch : 1.38,
+        rate: typeof opts.rate === "number" ? opts.rate : 0.8,
+        pitch: typeof opts.pitch === "number" ? opts.pitch : 1.5,
         volume: typeof opts.volume === "number" ? opts.volume : 1,
         onEnd: () => { if (onend) onend(); },
         onError: () => { if (onend) onend(); }

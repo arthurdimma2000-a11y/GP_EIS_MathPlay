@@ -279,7 +279,7 @@ async function speakQuestion(item){
 
 async function speakResult(ok, ans){
   if(ok){
-    await speakText("Great job! That is correct!", { rate: 1.02, pitch: 1.55 });
+    await speakText("Great job! That is correct!", { rate: 0.75, pitch: 1.5 });
   }else{
     await speakText(`Nice try. The correct answer is ${ans}.`, { rate: 0.98, pitch: 1.4 });
   }
@@ -432,7 +432,7 @@ function finishQuiz(){
   setMessage(`🎉 Quiz Finished! You got ${correct} out of ${total}. Score: ${scorePct}%.`, "good");
   cheer();
 
-  speakText("Amazing! You finished the quiz! Well done!", { rate: 1.03, pitch: 1.55 });
+  speakText("Amazing! You finished the quiz! Well done!", { rate: 0.75, pitch: 1.5 });
 
   if (window.GPTrack && typeof window.GPTrack.finish === "function") {
     window.GPTrack.finish({
