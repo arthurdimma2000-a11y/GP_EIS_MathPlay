@@ -409,7 +409,7 @@
           hitVertices += 1;
           hitCountEl.textContent = String(hitVertices);
           setToast("Nice! ⭐");
-          playSfx("chime.mp3.mp3", 880);
+          playSfx("chime.mp3", 880);
 
           // if card complete
           const allDots = card.querySelectorAll(".vDot");
@@ -485,7 +485,7 @@
       safeDaily({ level:"B", page:"LB_Revision2", done:true, percent:pct, date: new Date().toISOString().slice(0,10) });
 
       setToast(passed ? "Saved! 🎉 Go next!" : "Saved! Try again for more stars ⭐");
-      playSfx(passed ? "cheer.mp3" : "chime.mp3.mp3", passed ? 520 : 740);
+      playSfx(passed ? "cheer.mp3" : "chime.mp3", passed ? 520 : 740);
       flashConfetti();
     }
 

@@ -1,6 +1,9 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,181 +12,344 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Trace the number 1 ??Circle Bear Cake</title>
-<style>
-  :root{
-    --sky:#bfe9fb;
-    --panel:#ffffff;
-    --ink:#3b3b3b;
-    --blue:#3aa7e8;
-    --soft-blue:#e6f2ff;
-    --num-blue:#e4f0ff;
-    --dash:#4c6ca6;
-    --shadow:0 20px 40px rgba(0,0,0,.08);
-    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-  }
-  *{box-sizing:border-box;}
-
-  body{
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:var(--sky);
-    padding:18px;
-  }
-  .card{
-    width:min(980px,96vw);
-    background:var(--panel);
-    border-radius:18px;
-    padding:26px 26px 32px;
-    position:relative;
-    box-shadow:var(--shadow);
-    overflow:hidden;
-  }
-  .page-title{
-    text-align:center;
-    font-size:3rem;
-    font-weight:800;
-    color:var(--ink);
-    margin:0 0 6px;
-  }
-
-  /* header bar */
-  .header-pill{
-    background:var(--blue);
-    color:#fff;
-    font-size:1.05rem;
-    font-weight:700;
-    border-radius:999px;
-    padding:10px 22px;
-    display:inline-flex;
-    align-items:center;
-    max-width:100%;
-  }
-  .dot-row{
-    position:absolute;
-    right:90px;
-    top:20px;
-    display:flex;
-    gap:14px;
-  }
-  .dot{
-    width:18px;
-    height:18px;
-    border-radius:50%;
-    background:#bfe8fb;
-    box-shadow:inset 0 0 0 4px #fff;
-  }
-  .subline{
-    margin-top:12px;
-    text-align:center;
-    color:var(--ink);
-    font-size:1.1rem;
-    font-weight:700;
-  }
-
-  .question{
-    margin-top:18px;
-    text-align:center;
-    color:var(--ink);
-    font-size:2.2rem;
-    line-height:1.3;
-    font-weight:700;
-    transform:translateY(-15%);
-  }
-  .convo{
-    margin-top:10px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .convo-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .convo-row.center{
-    justify-content:center;
-  }
-  .convo-row.right{
-    justify-content:flex-end;
-  }
-  .convo-avatar{
-    width:64px;
-    height:64px;
-    border-radius:50%;
-    background:#fff;
-    border:3px solid #fff;
-    box-shadow:0 4px 10px rgba(0,0,0,.1);
-    object-fit:cover;
-  }
-  .convo-bubble{
-    padding:10px 14px;
-    border-radius:16px;
-    font-size:1.1rem;
-    font-weight:700;
-    position:relative;
-    max-width:520px;
-  }
-  .convo-baker{
-    background:#fde3c4;
-  }
-  .convo-kid{
-    background:#d8ebff;
-  }
-  .convo-baker::after{
-    content:"";
-    position:absolute;
-    left:-6px;
-    top:16px;
-    border-width:8px 8px 8px 0;
-    border-style:solid;
-    border-color:transparent #fde3c4 transparent transparent;
-  }
-  .convo-kid::after{
-    content:"";
-    position:absolute;
-    right:-6px;
-    top:16px;
-    border-width:8px 0 8px 8px;
-    border-style:solid;
-    border-color:transparent transparent transparent #d8ebff;
-  }
-  .convo-bear{
-    width:100%;
-    height:auto;
-    display:block;
-    pointer-events:none;
-  }
+</style>
+
+<meta charset="utf-8" />
+
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+
+<title>Trace the number 1 ??Circle Bear Cake</title>
+
+<style>
+
+  :root{
+
+    --sky:#bfe9fb;
+
+    --panel:#ffffff;
+
+    --ink:#3b3b3b;
+
+    --blue:#3aa7e8;
+
+    --soft-blue:#e6f2ff;
+
+    --num-blue:#e4f0ff;
+
+    --dash:#4c6ca6;
+
+    --shadow:0 20px 40px rgba(0,0,0,.08);
+
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+
+  }
+
+  *{box-sizing:border-box;}
+
+
+
+  body{
+
+    margin:0;
+
+    min-height:100vh;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:var(--sky);
+
+    padding:18px;
+
+  }
+
+  .card{
+
+    width:min(980px,96vw);
+
+    background:var(--panel);
+
+    border-radius:18px;
+
+    padding:26px 26px 32px;
+
+    position:relative;
+
+    box-shadow:var(--shadow);
+
+    overflow:hidden;
+
+  }
+
+  .page-title{
+
+    text-align:center;
+
+    font-size:3rem;
+
+    font-weight:800;
+
+    color:var(--ink);
+
+    margin:0 0 6px;
+
+  }
+
+
+
+  /* header bar */
+
+  .header-pill{
+
+    background:var(--blue);
+
+    color:#fff;
+
+    font-size:1.05rem;
+
+    font-weight:700;
+
+    border-radius:999px;
+
+    padding:10px 22px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    max-width:100%;
+
+  }
+
+  .dot-row{
+
+    position:absolute;
+
+    right:90px;
+
+    top:20px;
+
+    display:flex;
+
+    gap:14px;
+
+  }
+
+  .dot{
+
+    width:18px;
+
+    height:18px;
+
+    border-radius:50%;
+
+    background:#bfe8fb;
+
+    box-shadow:inset 0 0 0 4px #fff;
+
+  }
+
+  .subline{
+
+    margin-top:12px;
+
+    text-align:center;
+
+    color:var(--ink);
+
+    font-size:1.1rem;
+
+    font-weight:700;
+
+  }
+
+
+
+  .question{
+
+    margin-top:18px;
+
+    text-align:center;
+
+    color:var(--ink);
+
+    font-size:2.2rem;
+
+    line-height:1.3;
+
+    font-weight:700;
+
+    transform:translateY(-15%);
+
+  }
+
+  .convo{
+
+    margin-top:10px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+  }
+
+  .convo-row{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+  }
+
+  .convo-row.center{
+
+    justify-content:center;
+
+  }
+
+  .convo-row.right{
+
+    justify-content:flex-end;
+
+  }
+
+  .convo-avatar{
+
+    width:64px;
+
+    height:64px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    border:3px solid #fff;
+
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+
+    object-fit:cover;
+
+  }
+
+  .convo-bubble{
+
+    padding:10px 14px;
+
+    border-radius:16px;
+
+    font-size:1.1rem;
+
+    font-weight:700;
+
+    position:relative;
+
+    max-width:520px;
+
+  }
+
+  .convo-baker{
+
+    background:#fde3c4;
+
+  }
+
+  .convo-kid{
+
+    background:#d8ebff;
+
+  }
+
+  .convo-baker::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:-6px;
+
+    top:16px;
+
+    border-width:8px 8px 8px 0;
+
+    border-style:solid;
+
+    border-color:transparent #fde3c4 transparent transparent;
+
+  }
+
+  .convo-kid::after{
+
+    content:"";
+
+    position:absolute;
+
+    right:-6px;
+
+    top:16px;
+
+    border-width:8px 0 8px 8px;
+
+    border-style:solid;
+
+    border-color:transparent transparent transparent #d8ebff;
+
+  }
+
+  .convo-bear{
+
+    width:100%;
+
+    height:auto;
+
+    display:block;
+
+    pointer-events:none;
+
+  }
+
   .poster-area{
     position:relative;
     width:min(900px,100%);
     margin:10px auto 0;
     display:block;
   }
-  .trace-layer{
-    position:absolute;
-    inset:0;
-    pointer-events:auto;
-    z-index:5;
-  }
+  .trace-layer{
+
+    position:absolute;
+
+    inset:0;
+
+    pointer-events:auto;
+
+    z-index:5;
+
+  }
+
   .trace-grid{
     position:absolute;
     left:30%;
     top:30%;
     width:65%;
     height:62%;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    grid-template-rows:repeat(3,1fr);
-    gap:2%;
-    pointer-events:auto;
-  }
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    grid-template-rows:repeat(3,1fr);
+
+    gap:2%;
+
+    pointer-events:auto;
+
+  }
+
   .trace-canvas{
     position:relative;
     width:100%;
@@ -194,296 +360,576 @@
     background:transparent;
     display:block;
   }
-  .bubble-left{
-    position:absolute;
-    left:15%;
-    top:17%;
-    z-index:2;
-    pointer-events:none;
-  }
+  .bubble-left{
+
+    position:absolute;
+
+    left:15%;
+
+    top:17%;
+
+    z-index:2;
+
+    pointer-events:none;
+
+  }
+
   .bubble-right{
     position:absolute;
     right:8%;
     top:33%;
     z-index:2;
   }
-  .bubble-right.convo-baker::after{
-    left:auto;
-    right:-6px;
-    border-width:8px 0 8px 8px;
-    border-color:transparent transparent transparent #fde3c4;
-  }
-  .bubble-left.convo-kid::after{
-    right:auto;
-    left:-6px;
-    border-width:8px 8px 8px 0;
-    border-color:transparent #d8ebff transparent transparent;
-  }
-  .answer-line{
-    margin-top:8px;
-    text-align:center;
-    font-size:1.6rem;
-    font-weight:700;
-    color:var(--ink);
-    min-height:1.6em;
-  }
-  .girl-sentence{
-    margin-top:10px;
-    text-align:center;
-    font-size:1.5rem;
-    font-weight:700;
-    color:var(--ink);
-    min-height:3.2em;
-    transform:translateY(-15%);
-  }
-  .headline-line{
-    opacity:0;
-    transform:translateY(6px);
-    transition:opacity .18s ease, transform .18s ease;
-  }
-  .headline-line.show{
-    opacity:1;
-    transform:translateY(0);
-  }
-  .circle-red{
-    color:#d62828;
-  }
-  .spark{
-    position:fixed;
-    width:22px;
-    height:14px;
-    border-radius:50% 50% 45% 45%;
-    background:radial-gradient(circle, #fff 0 30%, #ffe35a 55%, rgba(255,235,122,0) 72%);
-    box-shadow:
-      0 0 14px rgba(255,240,160,1),
-      0 0 26px rgba(255,210,80,.95),
-      0 0 42px rgba(255,170,40,.9);
-    pointer-events:none;
-    z-index:9999;
-    animation:sparkFly 1.2s ease-out forwards;
-  }
-  .spark::before,
-  .spark::after{
-    content:"";
-    position:absolute;
-    top:50%;
-    width:18px;
-    height:6px;
-    border-radius:50% 50% 0 0;
-    background:linear-gradient(180deg, rgba(255,235,122,.95), rgba(255,235,122,0));
-    transform:translateY(-50%) rotate(10deg);
-    box-shadow:0 0 8px rgba(255,220,120,.85);
-  }
-  .spark::before{
-    left:-8px;
-    transform:translateY(-50%) rotate(-22deg);
-  }
-  .spark::after{
-    right:-8px;
-    transform:translateY(-50%) rotate(22deg);
-  }
-  @keyframes sparkFly{
-    0%{ transform:translate(0,0) scale(.95); opacity:1; }
-    70%{ transform:translate(calc(var(--dx) * .7), calc(var(--dy) * .7)) scale(1.08); opacity:.95; }
-    100%{ transform:translate(var(--dx), var(--dy)) scale(1.1); opacity:0; }
-  }
-
-  .main-row{
-    margin-top:18px;
-    display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    gap:32px;
-    align-items:center;
-    justify-items:stretch;
-  }
-  .feedback-line{
-    grid-column:1 / -1;
-    text-align:center;
-    font-size:1.6rem;
-    font-weight:700;
-    color:#2e8b57;
-    min-height:1.6em;
-  }
-
-  /* BEAR (left) */
-  .bear-wrap{
-    display:flex;
-    justify-content:flex-start;
-  }
-  .bear-svg{
-    width:min(450px,78vw);
-    height:auto;
-    display:block;
-  }
-
-  .controls{
-    margin-top:12px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    font-size:.9rem;
-  }
-  .controls-row{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:16px;
-    flex-wrap:wrap;
-  }
-  .progress-wrap{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-  }
-  .progress-bar{
-    width:min(520px,92%);
-    height:12px;
-    border-radius:999px;
-    background:#e7efff;
-    overflow:hidden;
-    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
-  }
-  .progress-fill{
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,#3cc4ff,#7dffb3);
-    transition:width .15s ease-out;
-  }
-  .progress-text{
-    font-size:.9rem;
-    font-weight:700;
-    color:#3b3b3b;
-  }
-  button{
-    border:none;
-    border-radius:999px;
-    padding:7px 18px;
-    font-size:.85rem;
-    font-weight:700;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    background:linear-gradient(180deg,#fffad7,#ffd86a);
-    color:#8b5a00;
-    box-shadow:0 4px 0 rgba(0,0,0,.2);
-    transition:transform .08s ease, box-shadow .08s ease;
-  }
-  button:active{
-    transform:translateY(2px) scale(.98);
-    box-shadow:0 1px 0 rgba(0,0,0,.2);
-  }
-
-  .mascot-spot{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-  }
-  .mascot-spot img{
-    width:86px;
-    height:86px;
-    border-radius:24px;
-    object-fit:cover;
-    box-shadow:0 6px 14px rgba(0,0,0,.25);
-    border:4px solid #ffe3f7;
-    background:#ffd6f2;
-  }
-  .mascot-hint{
-    font-size:1rem;
-    font-weight:700;
-    color:#d62828;
-    text-align:center;
-  }
-  .button-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    justify-content:center;
-  }
-
-  @media (max-width:780px){
-    body{padding:12px;}
-    .card{padding:18px 16px 28px;}
-    .header-pill{font-size:.95rem;}
-    .question{font-size:1.6rem;}
-    .main-row{
-      grid-template-columns:minmax(0,1fr);
-      gap:18px;
-    }
-    .mascot-spot img{width:76px;height:76px;}
-  }
-      .home-btn{
-    position:absolute;
-    right:10px;
-    top:6px;
-    width:72px;
-    height:72px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    background:transparent;
-    border:none;
-    padding:0;
-    text-decoration:none;
-    z-index:25;
-    transform-origin:top center;
-    animation:homeSwing 2.4s ease-in-out infinite;
-  }
-  .home-btn img{
-    width:72px;
-    height:72px;
-    display:block;
-    filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));
-  }
-  @keyframes homeSwing{
-    0%{transform:rotate(-6deg);}
-    50%{transform:rotate(8deg);}
-    100%{transform:rotate(-6deg);}
-  }
-</style>
-</head>
-<body>
+  .bubble-right.convo-baker::after{
+
+    left:auto;
+
+    right:-6px;
+
+    border-width:8px 0 8px 8px;
+
+    border-color:transparent transparent transparent #fde3c4;
+
+  }
+
+  .bubble-left.convo-kid::after{
+
+    right:auto;
+
+    left:-6px;
+
+    border-width:8px 8px 8px 0;
+
+    border-color:transparent #d8ebff transparent transparent;
+
+  }
+
+  .answer-line{
+
+    margin-top:8px;
+
+    text-align:center;
+
+    font-size:1.6rem;
+
+    font-weight:700;
+
+    color:var(--ink);
+
+    min-height:1.6em;
+
+  }
+
+  .girl-sentence{
+
+    margin-top:10px;
+
+    text-align:center;
+
+    font-size:1.5rem;
+
+    font-weight:700;
+
+    color:var(--ink);
+
+    min-height:3.2em;
+
+    transform:translateY(-15%);
+
+  }
+
+  .headline-line{
+
+    opacity:0;
+
+    transform:translateY(6px);
+
+    transition:opacity .18s ease, transform .18s ease;
+
+  }
+
+  .headline-line.show{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+  }
+
+  .circle-red{
+
+    color:#d62828;
+
+  }
+
+  .spark{
+
+    position:fixed;
+
+    width:22px;
+
+    height:14px;
+
+    border-radius:50% 50% 45% 45%;
+
+    background:radial-gradient(circle, #fff 0 30%, #ffe35a 55%, rgba(255,235,122,0) 72%);
+
+    box-shadow:
+
+      0 0 14px rgba(255,240,160,1),
+
+      0 0 26px rgba(255,210,80,.95),
+
+      0 0 42px rgba(255,170,40,.9);
+
+    pointer-events:none;
+
+    z-index:9999;
+
+    animation:sparkFly 1.2s ease-out forwards;
+
+  }
+
+  .spark::before,
+
+  .spark::after{
+
+    content:"";
+
+    position:absolute;
+
+    top:50%;
+
+    width:18px;
+
+    height:6px;
+
+    border-radius:50% 50% 0 0;
+
+    background:linear-gradient(180deg, rgba(255,235,122,.95), rgba(255,235,122,0));
+
+    transform:translateY(-50%) rotate(10deg);
+
+    box-shadow:0 0 8px rgba(255,220,120,.85);
+
+  }
+
+  .spark::before{
+
+    left:-8px;
+
+    transform:translateY(-50%) rotate(-22deg);
+
+  }
+
+  .spark::after{
+
+    right:-8px;
+
+    transform:translateY(-50%) rotate(22deg);
+
+  }
+
+  @keyframes sparkFly{
+
+    0%{ transform:translate(0,0) scale(.95); opacity:1; }
+
+    70%{ transform:translate(calc(var(--dx) * .7), calc(var(--dy) * .7)) scale(1.08); opacity:.95; }
+
+    100%{ transform:translate(var(--dx), var(--dy)) scale(1.1); opacity:0; }
+
+  }
+
+
+
+  .main-row{
+
+    margin-top:18px;
+
+    display:grid;
+
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+
+    gap:32px;
+
+    align-items:center;
+
+    justify-items:stretch;
+
+  }
+
+  .feedback-line{
+
+    grid-column:1 / -1;
+
+    text-align:center;
+
+    font-size:1.6rem;
+
+    font-weight:700;
+
+    color:#2e8b57;
+
+    min-height:1.6em;
+
+  }
+
+
+
+  /* BEAR (left) */
+
+  .bear-wrap{
+
+    display:flex;
+
+    justify-content:flex-start;
+
+  }
+
+  .bear-svg{
+
+    width:min(450px,78vw);
+
+    height:auto;
+
+    display:block;
+
+  }
+
+
+
+  .controls{
+
+    margin-top:12px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    font-size:.9rem;
+
+  }
+
+  .controls-row{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:16px;
+
+    flex-wrap:wrap;
+
+  }
+
+  .progress-wrap{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:6px;
+
+  }
+
+  .progress-bar{
+
+    width:min(520px,92%);
+
+    height:12px;
+
+    border-radius:999px;
+
+    background:#e7efff;
+
+    overflow:hidden;
+
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
+
+  }
+
+  .progress-fill{
+
+    height:100%;
+
+    width:0%;
+
+    background:linear-gradient(90deg,#3cc4ff,#7dffb3);
+
+    transition:width .15s ease-out;
+
+  }
+
+  .progress-text{
+
+    font-size:.9rem;
+
+    font-weight:700;
+
+    color:#3b3b3b;
+
+  }
+
+  button{
+
+    border:none;
+
+    border-radius:999px;
+
+    padding:7px 18px;
+
+    font-size:.85rem;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+
+    color:#8b5a00;
+
+    box-shadow:0 4px 0 rgba(0,0,0,.2);
+
+    transition:transform .08s ease, box-shadow .08s ease;
+
+  }
+
+  button:active{
+
+    transform:translateY(2px) scale(.98);
+
+    box-shadow:0 1px 0 rgba(0,0,0,.2);
+
+  }
+
+
+
+  .mascot-spot{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:6px;
+
+  }
+
+  .mascot-spot img{
+
+    width:86px;
+
+    height:86px;
+
+    border-radius:24px;
+
+    object-fit:cover;
+
+    box-shadow:0 6px 14px rgba(0,0,0,.25);
+
+    border:4px solid #ffe3f7;
+
+    background:#ffd6f2;
+
+  }
+
+  .mascot-hint{
+
+    font-size:1rem;
+
+    font-weight:700;
+
+    color:#d62828;
+
+    text-align:center;
+
+  }
+
+  .button-row{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:8px;
+
+    justify-content:center;
+
+  }
+
+
+
+  @media (max-width:780px){
+
+    body{padding:12px;}
+
+    .card{padding:18px 16px 28px;}
+
+    .header-pill{font-size:.95rem;}
+
+    .question{font-size:1.6rem;}
+
+    .main-row{
+
+      grid-template-columns:minmax(0,1fr);
+
+      gap:18px;
+
+    }
+
+    .mascot-spot img{width:76px;height:76px;}
+
+  }
+
+      .home-btn{
+
+    position:absolute;
+
+    right:10px;
+
+    top:6px;
+
+    width:72px;
+
+    height:72px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:transparent;
+
+    border:none;
+
+    padding:0;
+
+    text-decoration:none;
+
+    z-index:25;
+
+    transform-origin:top center;
+
+    animation:homeSwing 2.4s ease-in-out infinite;
+
+  }
+
+  .home-btn img{
+
+    width:72px;
+
+    height:72px;
+
+    display:block;
+
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));
+
+  }
+
+  @keyframes homeSwing{
+
+    0%{transform:rotate(-6deg);}
+
+    50%{transform:rotate(8deg);}
+
+    100%{transform:rotate(-6deg);}
+
+  }
+
+</style>
+
+</head>
+
+<body>
+
 <div class="card">            <a class="home-btn" href="../../../../index.html" aria-label="Home">
       <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
-    </a>
-  <!-- header -->
-  <div class="dot-row" aria-hidden="true">
-    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-  </div>
-
-  <!-- question -->
-  <div class="poster-area">
-    <img class="convo-bear" src="A13.png" alt="Numbers poster">
+    </a>
+
+  <!-- header -->
+
+  <div class="dot-row" aria-hidden="true">
+
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+
+  </div>
+
+
+
+  <!-- question -->
+
+  <div class="poster-area">
+
+    <img class="convo-bear" src="A13.png" alt="Numbers poster">
+
     <div class="convo-bubble convo-kid bubble-right" id="kidLine" hidden>Let&#39;s write numbers.</div>
-    <div class="trace-layer">
-      <div class="trace-grid">
-        <canvas class="trace-canvas" id="trace1a"></canvas>
-        <canvas class="trace-canvas" id="trace1b"></canvas>
-        <canvas class="trace-canvas" id="trace1c"></canvas>
-        <canvas class="trace-canvas" id="trace2a"></canvas>
-        <canvas class="trace-canvas" id="trace2b"></canvas>
-        <canvas class="trace-canvas" id="trace2c"></canvas>
-        <canvas class="trace-canvas" id="trace3a"></canvas>
-        <canvas class="trace-canvas" id="trace3b"></canvas>
-        <canvas class="trace-canvas" id="trace3c"></canvas>
-      </div>
-    </div>
-  </div>
-  <div class="question"></div>
-  <div class="girl-sentence" id="girlSentence"></div>
-
-  <div class="controls">
-    <div class="progress-wrap">
-      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-    <div class="controls-row">
-      <div class="mascot-spot">
+    <div class="trace-layer">
+
+      <div class="trace-grid">
+
+        <canvas class="trace-canvas" id="trace1a"></canvas>
+
+        <canvas class="trace-canvas" id="trace1b"></canvas>
+
+        <canvas class="trace-canvas" id="trace1c"></canvas>
+
+        <canvas class="trace-canvas" id="trace2a"></canvas>
+
+        <canvas class="trace-canvas" id="trace2b"></canvas>
+
+        <canvas class="trace-canvas" id="trace2c"></canvas>
+
+        <canvas class="trace-canvas" id="trace3a"></canvas>
+
+        <canvas class="trace-canvas" id="trace3b"></canvas>
+
+        <canvas class="trace-canvas" id="trace3c"></canvas>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="question"></div>
+
+  <div class="girl-sentence" id="girlSentence"></div>
+
+
+
+  <div class="controls">
+
+    <div class="progress-wrap">
+
+      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
+
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    </div>
+
+    <div class="controls-row">
+
+      <div class="mascot-spot">
+
         <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Circle helper girl" id="girlBtn" class="tap-girl">
-        <div class="mascot-hint">Tap the girl</div>
-      </div>
+        <div class="mascot-hint">Tap the girl</div>
+
+      </div>
+
       <div class="button-row">
         <button id="prevBtn"><- Previous page</button>
         <button id="nextBtn">Next page -></button>
@@ -495,147 +941,273 @@
     </div>
   </div>
 </div>
-
+
+
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
 <script>
-    const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const girlBtn = document.getElementById('girlBtn');
-  const kidLine = document.getElementById('kidLine');
-  const girlSentenceEl = document.getElementById('girlSentence');
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
-  chimeAudio.preload = "auto";
-  chimeAudio.volume = 1;
-  let audioUnlocked = false;
-
-  function playChime(){
-    unlockAudio();
-    try{
-      const sound = chimeAudio.cloneNode(true);
-      sound.currentTime = 0;
-      const playPromise = sound.play();
-      if (playPromise && typeof playPromise.catch === "function") {
-        playPromise.catch(() => {});
-      }
-    }catch(e){}
-  }
-
-  function unlockAudio(){
-    if (audioUnlocked) return;
-    audioUnlocked = true;
-    try{
-      chimeAudio.muted = true;
-      const p = chimeAudio.play();
-      if (p && typeof p.then === "function") {
-        p.then(() => {
-          chimeAudio.pause();
-          chimeAudio.currentTime = 0;
-          chimeAudio.muted = false;
-        }).catch(() => {
-          chimeAudio.muted = false;
-        });
-      } else {
-        chimeAudio.pause();
-        chimeAudio.currentTime = 0;
-        chimeAudio.muted = false;
-      }
-    }catch(e){
-      chimeAudio.muted = false;
-    }
-  }
-
-  function speak(text, onend){
-    if(!("speechSynthesis" in window)) return;
-    const u = new SpeechSynthesisUtterance(text);
-    const voices = window.speechSynthesis.getVoices();
-    const childVoice = voices.find(v =>
-      /child|kid|girl|boy/i.test(v.name) || /en-US/i.test(v.lang)
-    );
-    if(childVoice) u.voice = childVoice;
-    u.rate = 1.0;
-    u.pitch = 1.1;
-    u.onend = () => { if (onend) onend(); };
-    u.onerror = () => { if (onend) onend(); };
-    window.speechSynthesis.speak(u);
-  }
-
+    const prevBtn = document.getElementById('prevBtn');
+
+  const nextBtn = document.getElementById('nextBtn');
+
+  const clearBtn = document.getElementById('clearBtn');
+
+  const girlBtn = document.getElementById('girlBtn');
+
+  const kidLine = document.getElementById('kidLine');
+
+  const girlSentenceEl = document.getElementById('girlSentence');
+
+  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+  chimeAudio.preload = "auto";
+
+  chimeAudio.volume = 1;
+
+  let audioUnlocked = false;
+
+
+
+  function playChime(){
+
+    unlockAudio();
+
+    try{
+
+      const sound = chimeAudio.cloneNode(true);
+
+      sound.currentTime = 0;
+
+      const playPromise = sound.play();
+
+      if (playPromise && typeof playPromise.catch === "function") {
+
+        playPromise.catch(() => {});
+
+      }
+
+    }catch(e){}
+
+  }
+
+
+
+  function unlockAudio(){
+
+    if (audioUnlocked) return;
+
+    audioUnlocked = true;
+
+    try{
+
+      chimeAudio.muted = true;
+
+      const p = chimeAudio.play();
+
+      if (p && typeof p.then === "function") {
+
+        p.then(() => {
+
+          chimeAudio.pause();
+
+          chimeAudio.currentTime = 0;
+
+          chimeAudio.muted = false;
+
+        }).catch(() => {
+
+          chimeAudio.muted = false;
+
+        });
+
+      } else {
+
+        chimeAudio.pause();
+
+        chimeAudio.currentTime = 0;
+
+        chimeAudio.muted = false;
+
+      }
+
+    }catch(e){
+
+      chimeAudio.muted = false;
+
+    }
+
+  }
+
+
+
+  function speak(text, onend){
+
+    if(!("speechSynthesis" in window)) return;
+
+    const u = new SpeechSynthesisUtterance(text);
+
+    const voices = window.speechSynthesis.getVoices();
+
+    const childVoice = voices.find(v =>
+
+      /child|kid|girl|boy/i.test(v.name) || /en-US/i.test(v.lang)
+
+    );
+
+    if(childVoice) u.voice = childVoice;
+
+    u.rate = 1.0;
+
+    u.pitch = 1.1;
+
+    u.onend = () => { if (onend) onend(); };
+
+    u.onerror = () => { if (onend) onend(); };
+
+    window.speechSynthesis.speak(u);
+
+  }
+
+
+
   prevBtn.addEventListener('click', () => {
     window.location.href = "LA_Game3.html";
   });
   nextBtn.addEventListener('click', () => {
     window.location.href = "../../week-4/tuesday/LA20.html";
   });
-
-  const sentenceLines = [
-    {
-      text: "Let's write numbers, 1, 2, 3",
-      html: "Let\u2019s write numbers, <span class=\"circle-red\">1</span>, <span class=\"circle-red\">2</span>, <span class=\"circle-red\">3</span>"
-    }
-  ];
-  let sentenceToken = 0;
-
-  function showSpark(){
-    const girlRect = girlBtn.getBoundingClientRect();
-    const targetRect = girlSentenceEl.getBoundingClientRect();
-    const startX = girlRect.left + girlRect.width / 2;
-    const startY = girlRect.top + girlRect.height / 2;
-    const endX = targetRect.left + targetRect.width / 2;
-    const endY = targetRect.top + targetRect.height / 2;
-    const dx = endX - startX;
-    const dy = endY - startY;
-
-    const spark = document.createElement("div");
-    spark.className = "spark";
-    spark.style.left = startX + "px";
-    spark.style.top = startY + "px";
-    spark.style.setProperty("--dx", dx + "px");
-    spark.style.setProperty("--dy", dy + "px");
-    document.body.appendChild(spark);
-    spark.addEventListener("animationend", () => spark.remove());
-
-    const spark2 = document.createElement("div");
-    spark2.className = "spark";
-    spark2.style.left = (startX + 10) + "px";
-    spark2.style.top = (startY - 4) + "px";
-    spark2.style.setProperty("--dx", (dx + 10) + "px");
-    spark2.style.setProperty("--dy", (dy - 4) + "px");
-    spark2.style.animationDelay = "0.18s";
-    spark2.style.transform = "scale(0.75)";
-    document.body.appendChild(spark2);
-    spark2.addEventListener("animationend", () => spark2.remove());
-  }
-
-  function revealSentenceLine(index, token){
-    if (token !== sentenceToken) return;
-    if (index >= sentenceLines.length) return;
-    const lineEl = girlSentenceEl.querySelector(`[data-line="${index}"]`);
-    if (!lineEl) return;
-    lineEl.classList.add("show");
-    speak(sentenceLines[index].text, () => {
-      setTimeout(() => revealSentenceLine(index + 1, token), 180);
-    });
-  }
-
-  girlBtn.addEventListener('click', () => {
-    unlockAudio();
-    sentenceToken += 1;
-    const token = sentenceToken;
-    girlSentenceEl.innerHTML = sentenceLines
-      .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
-      .join("");
+
+
+  const sentenceLines = [
+
+    {
+
+      text: "Let's write numbers, 1, 2, 3",
+
+      html: "Let\u2019s write numbers, <span class=\"circle-red\">1</span>, <span class=\"circle-red\">2</span>, <span class=\"circle-red\">3</span>"
+
+    }
+
+  ];
+
+  let sentenceToken = 0;
+
+
+
+  function showSpark(){
+
+    const girlRect = girlBtn.getBoundingClientRect();
+
+    const targetRect = girlSentenceEl.getBoundingClientRect();
+
+    const startX = girlRect.left + girlRect.width / 2;
+
+    const startY = girlRect.top + girlRect.height / 2;
+
+    const endX = targetRect.left + targetRect.width / 2;
+
+    const endY = targetRect.top + targetRect.height / 2;
+
+    const dx = endX - startX;
+
+    const dy = endY - startY;
+
+
+
+    const spark = document.createElement("div");
+
+    spark.className = "spark";
+
+    spark.style.left = startX + "px";
+
+    spark.style.top = startY + "px";
+
+    spark.style.setProperty("--dx", dx + "px");
+
+    spark.style.setProperty("--dy", dy + "px");
+
+    document.body.appendChild(spark);
+
+    spark.addEventListener("animationend", () => spark.remove());
+
+
+
+    const spark2 = document.createElement("div");
+
+    spark2.className = "spark";
+
+    spark2.style.left = (startX + 10) + "px";
+
+    spark2.style.top = (startY - 4) + "px";
+
+    spark2.style.setProperty("--dx", (dx + 10) + "px");
+
+    spark2.style.setProperty("--dy", (dy - 4) + "px");
+
+    spark2.style.animationDelay = "0.18s";
+
+    spark2.style.transform = "scale(0.75)";
+
+    document.body.appendChild(spark2);
+
+    spark2.addEventListener("animationend", () => spark2.remove());
+
+  }
+
+
+
+  function revealSentenceLine(index, token){
+
+    if (token !== sentenceToken) return;
+
+    if (index >= sentenceLines.length) return;
+
+    const lineEl = girlSentenceEl.querySelector(`[data-line="${index}"]`);
+
+    if (!lineEl) return;
+
+    lineEl.classList.add("show");
+
+    speak(sentenceLines[index].text, () => {
+
+      setTimeout(() => revealSentenceLine(index + 1, token), 180);
+
+    });
+
+  }
+
+
+
+  girlBtn.addEventListener('click', () => {
+
+    unlockAudio();
+
+    sentenceToken += 1;
+
+    const token = sentenceToken;
+
+    girlSentenceEl.innerHTML = sentenceLines
+
+      .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
+
+      .join("");
+
     showSpark();
     playChime();
     setTimeout(() => revealSentenceLine(0, token), 220);
   });
-
-  const progressPercentEl = document.getElementById('progressPercent');
-  const progressFillEl = document.getElementById('progressFill');
-  const tracePercents = new Array(9).fill(0);
-  const traceResets = [];
-  let traceCelebrated = false;
+
+
+  const progressPercentEl = document.getElementById('progressPercent');
+
+  const progressFillEl = document.getElementById('progressFill');
+
+  const tracePercents = new Array(9).fill(0);
+
+  const traceResets = [];
+
+  let traceCelebrated = false;
+
   let lastTraceSound = 0;
   let realtimeSaveTimer = null;
 
@@ -653,24 +1225,39 @@
       }).catch(() => {});
     }, 250);
   }
-
+
+
   function updateTotal(){
-    const raw = tracePercents.reduce((a,b)=>a+b,0) / tracePercents.length;
-    const allDone = tracePercents.every(p => p >= 90);
-    const total = Math.round(raw);
-    progressPercentEl.textContent = total + "%";
+    const raw = tracePercents.reduce((a,b)=>a+b,0) / tracePercents.length;
+
+    const allDone = tracePercents.every(p => p >= 90);
+
+    const total = Math.round(raw);
+
+    progressPercentEl.textContent = total + "%";
+
     progressFillEl.style.width = total + "%";
     scheduleRealtimeTraceSave(total);
-    if(allDone && !traceCelebrated){
-      traceCelebrated = true;
-      playChime();
-      speak("Wow! great job!");
-    }
-    if(!allDone){
-      traceCelebrated = false;
-    }
-  }
-
+    if(allDone && !traceCelebrated){
+
+      traceCelebrated = true;
+
+      playChime();
+
+      speak("Wow! great job!");
+
+    }
+
+    if(!allDone){
+
+      traceCelebrated = false;
+
+    }
+
+  }
+
+
+
   const posterImg = document.querySelector('.poster-area img');
   function setupTrace(canvasId, points, index){
     const reset = window.GPTracing.createPathTracePad({
@@ -696,53 +1283,96 @@
       updateTotal();
     });
   }
-
-  function playTraceTick(){
-    try{
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if(!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = 880;
-      gain.gain.value = 0.06;
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.05);
-      osc.onended = () => ctx.close();
-    }catch(e){}
-  }
-
-  clearBtn.addEventListener('click', () => {
-    traceResets.forEach(fn => fn());
-  });
-
-  const traceConfigs = [
-    { id:"trace1a", type:"1" }, { id:"trace1b", type:"1" }, { id:"trace1c", type:"1" },
-    { id:"trace2a", type:"2" }, { id:"trace2b", type:"2" }, { id:"trace2c", type:"2" },
-    { id:"trace3a", type:"3" }, { id:"trace3b", type:"3" }, { id:"trace3c", type:"3" }
-  ];
+
+
+  function playTraceTick(){
+
+    try{
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+
+      if(!AudioCtx) return;
+
+      const ctx = new AudioCtx();
+
+      const osc = ctx.createOscillator();
+
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+
+      osc.frequency.value = 880;
+
+      gain.gain.value = 0.06;
+
+      osc.connect(gain);
+
+      gain.connect(ctx.destination);
+
+      osc.start();
+
+      osc.stop(ctx.currentTime + 0.05);
+
+      osc.onended = () => ctx.close();
+
+    }catch(e){}
+
+  }
+
+
+
+  clearBtn.addEventListener('click', () => {
+
+    traceResets.forEach(fn => fn());
+
+  });
+
+
+
+  const traceConfigs = [
+
+    { id:"trace1a", type:"1" }, { id:"trace1b", type:"1" }, { id:"trace1c", type:"1" },
+
+    { id:"trace2a", type:"2" }, { id:"trace2b", type:"2" }, { id:"trace2c", type:"2" },
+
+    { id:"trace3a", type:"3" }, { id:"trace3b", type:"3" }, { id:"trace3c", type:"3" }
+
+  ];
+
   traceConfigs.forEach((cfg, idx) => {
     setupTrace(cfg.id, window.GPTracing.getDigitTraceGroups(cfg.type), idx);
   });
-</script>
-<script>
-  (function(){
-    const homeBtn = document.querySelector('.home-btn');
-    if(!homeBtn) return;
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
-    chime.preload = "auto";
-    homeBtn.addEventListener('click', () => {
-      try{
-        chime.currentTime = 0;
-        const p = chime.play();
-        if (p && typeof p.catch === "function") p.catch(() => {});
-      }catch(e){}
-    });
-  })();
-</script>
+</script>
+
+<script>
+
+  (function(){
+
+    const homeBtn = document.querySelector('.home-btn');
+
+    if(!homeBtn) return;
+
+    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+    chime.preload = "auto";
+
+    homeBtn.addEventListener('click', () => {
+
+      try{
+
+        chime.currentTime = 0;
+
+        const p = chime.play();
+
+        if (p && typeof p.catch === "function") p.catch(() => {});
+
+      }catch(e){}
+
+    });
+
+  })();
+
+</script>
+
 <script src="../../../../activity-standardizer.js"></script>
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
@@ -760,8 +1390,10 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
+
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -864,11 +1496,16 @@
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+
 </script>
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 </body>
-</html>
-
-
-
+</html>
+
+
+
+
+
+
+

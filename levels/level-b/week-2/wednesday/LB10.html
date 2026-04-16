@@ -1,6 +1,9 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,7 +12,8 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Level A_Literacy Math: Repeat and Record Week 1</title>
@@ -18,28 +22,46 @@
   <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
 
   <style>
-    :root{
-      --ink:#2d2d2d;
-      --bg:#e4f6df;
-      --card:#f9f4ff;
-      --border:#d9b9f0;
-      --accent:#6c4bbf;
-      --bubble-kid:#d8ebff;
-      --bubble-baker:#fde3c4;
-      --btn-yellow:#f6da7b;
-      --btn-orange:#ff8a5b;
-      --btn-blue:#dfeaff;
-      --shadow:0 10px 24px rgba(0,0,0,.08);
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-    }
+    :root{
+
+      --ink:#2d2d2d;
+
+      --bg:#e4f6df;
+
+      --card:#f9f4ff;
+
+      --border:#d9b9f0;
+
+      --accent:#6c4bbf;
+
+      --bubble-kid:#d8ebff;
+
+      --bubble-baker:#fde3c4;
+
+      --btn-yellow:#f6da7b;
+
+      --btn-orange:#ff8a5b;
+
+      --btn-blue:#dfeaff;
+
+      --shadow:0 10px 24px rgba(0,0,0,.08);
+
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+
+    }
+
     body{
       display:flex;
       align-items:center;
       justify-content:center;
-      background:var(--bg);
-      padding:16px;
-      color:var(--ink);
-    }
+      background:var(--bg);
+
+      padding:16px;
+
+      color:var(--ink);
+
+    }
+
     .app{
       width:min(940px,96vw);
       border-radius:16px;
@@ -50,95 +72,172 @@
       top:8px;
       z-index:5;
     }
-    .board{
-      border:2px dashed var(--border);
-      border-radius:16px;
-      padding:12px;
-      background:
-        radial-gradient(circle at 18% 20%, rgba(255,185,210,.35) 0 52px, transparent 54px),
-        radial-gradient(circle at 82% 22%, rgba(210,240,255,.4) 0 58px, transparent 60px),
-        radial-gradient(circle at 30% 80%, rgba(255,225,150,.35) 0 56px, transparent 58px),
-        radial-gradient(circle at 72% 78%, rgba(190,255,210,.35) 0 54px, transparent 56px),
-        linear-gradient(180deg,#fff7fb 0%, #f6f7ff 50%, #fff5e8 100%);
-      min-height:360px;
-      position:relative;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
-    }
-    .tray-hero{
-      display:flex;
-      justify-content:center;
-      margin:6px 0 8px;
-      width:100%;
-    }
-    .tray-hero img{
-      width:min(676px,92%);
-      height:auto;
-      object-fit:contain;
-      display:block;
-      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-      cursor:pointer;
-    }
+    .board{
+
+      border:2px dashed var(--border);
+
+      border-radius:16px;
+
+      padding:12px;
+
+      background:
+
+        radial-gradient(circle at 18% 20%, rgba(255,185,210,.35) 0 52px, transparent 54px),
+
+        radial-gradient(circle at 82% 22%, rgba(210,240,255,.4) 0 58px, transparent 60px),
+
+        radial-gradient(circle at 30% 80%, rgba(255,225,150,.35) 0 56px, transparent 58px),
+
+        radial-gradient(circle at 72% 78%, rgba(190,255,210,.35) 0 54px, transparent 56px),
+
+        linear-gradient(180deg,#fff7fb 0%, #f6f7ff 50%, #fff5e8 100%);
+
+      min-height:360px;
+
+      position:relative;
+
+      display:flex;
+
+      flex-direction:column;
+
+      align-items:center;
+
+      gap:10px;
+
+    }
+
+    .tray-hero{
+
+      display:flex;
+
+      justify-content:center;
+
+      margin:6px 0 8px;
+
+      width:100%;
+
+    }
+
+    .tray-hero img{
+
+      width:min(676px,92%);
+
+      height:auto;
+
+      object-fit:contain;
+
+      display:block;
+
+      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
+
+      cursor:pointer;
+
+    }
+
     .designer-text{
       position:absolute;
       left:50%;
       top:76%;
       transform:translateX(-50%);
       font-size:2.42rem;
-      font-weight:800;
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-      color:#2d2d2d;
-      text-align:center;
-      opacity:0;
-      transition:opacity .25s ease, transform .25s ease;
-      z-index:2;
-      white-space:nowrap;
-    }
-    .highlight-red{
-      color:#d62828;
-    }
-    .highlight-blue{
-      color:#1d5fd6;
-    }
-    .designer-text.show{
-      opacity:1;
-    }
+      font-weight:800;
+
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+
+      color:#2d2d2d;
+
+      text-align:center;
+
+      opacity:0;
+
+      transition:opacity .25s ease, transform .25s ease;
+
+      z-index:2;
+
+      white-space:nowrap;
+
+    }
+
+    .highlight-red{
+
+      color:#d62828;
+
+    }
+
+    .highlight-blue{
+
+      color:#1d5fd6;
+
+    }
+
+    .designer-text.show{
+
+      opacity:1;
+
+    }
+
     .designer-sub{
       position:absolute;
       left:50%;
       top:82%;
       transform:translateX(-50%);
       font-size:2.31rem;
-      font-weight:900;
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-      color:#2d2d2d;
-      text-align:center;
-      opacity:0;
-      transition:opacity .25s ease, transform .25s ease;
-      z-index:2;
-    }
-    .designer-sub.show{
-      opacity:1;
-    }
-    .row{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin:10px 0;
-      width:100%;
-      justify-content:flex-start;
-      z-index:2;
-    }
-    .convo-line{
-      display:none !important;
-      position:absolute;
-      transform:translateY(-30%);
-    }
-    .convo-line.show{
-      display:flex !important;
-    }
+      font-weight:900;
+
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+
+      color:#2d2d2d;
+
+      text-align:center;
+
+      opacity:0;
+
+      transition:opacity .25s ease, transform .25s ease;
+
+      z-index:2;
+
+    }
+
+    .designer-sub.show{
+
+      opacity:1;
+
+    }
+
+    .row{
+
+      display:flex;
+
+      align-items:center;
+
+      gap:10px;
+
+      margin:10px 0;
+
+      width:100%;
+
+      justify-content:flex-start;
+
+      z-index:2;
+
+    }
+
+    .convo-line{
+
+      display:none !important;
+
+      position:absolute;
+
+      transform:translateY(-30%);
+
+    }
+
+    .convo-line.show{
+
+      display:flex !important;
+
+    }
+
     .line1{
       left:39%;
       top:19%;
@@ -147,99 +246,192 @@
       right:53%;
       top:28%;
     }
-    .row.right{
-      justify-content:flex-end;
-    }
-    .avatar{
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      background:#fff;
-      border:3px solid #fff;
-      box-shadow:0 4px 10px rgba(0,0,0,.1);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:10px;
-      color:#777;
-      overflow:hidden;
-    }
-    .avatar img{
-      width:100%;
-      height:100%;
-      border-radius:50%;
-      object-fit:cover;
-      display:block;
-    }
-    .name-tag{
-      font-size:.75rem;
-      font-weight:700;
-      text-transform:uppercase;
-      color:#666;
-      margin-top:4px;
-      text-align:center;
-    }
-    .bubble{
-      padding:10px 14px;
-      border-radius:16px;
-      position:relative;
-      font-size:1rem;
-      max-width:min(560px,70vw);
-      line-height:1.25;
-    }
-    .bubble-stack{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      align-items:flex-start;
-    }
-    .row.right .bubble-stack{
-      align-items:flex-end;
-    }
-    .repeat-result{
-      margin-top:4px;
-      font-size:.95rem;
-      font-weight:700;
-      color:#2f9f5f;
-    }
-    .star-row{
-      display:flex;
-      gap:6px;
-      margin-top:4px;
-      font-weight:900;
-      font-size:1.2rem;
-      color:#ffd24a;
-      text-shadow:
-        0 2px 0 #b87900,
-        0 4px 0 #8a5a00,
-        0 8px 14px rgba(0,0,0,.28);
-    }
-    .cookie-row{
-      display:flex;
-      justify-content:center;
-      gap:18px;
-      margin:12px 0;
-    }
-    .cookie-row.hidden{
-      display:none;
-    }
-    .cookie-row img{
-      width:min(220px,40vw);
-      height:auto;
-      display:block;
-      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-    }
-    .bubble.kid{background:var(--bubble-kid);}
-    .bubble.baker{background:var(--bubble-baker);}
-    .bubble.sparkle{
-      background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
-      box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
-      animation: sparklePulse 1.2s ease-in-out infinite;
-    }
-    @keyframes sparklePulse{
-      0%,100%{filter:brightness(1);}
-      50%{filter:brightness(1.12);}
-    }
+    .row.right{
+
+      justify-content:flex-end;
+
+    }
+
+    .avatar{
+
+      width:56px;
+
+      height:56px;
+
+      border-radius:50%;
+
+      background:#fff;
+
+      border:3px solid #fff;
+
+      box-shadow:0 4px 10px rgba(0,0,0,.1);
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:center;
+
+      font-size:10px;
+
+      color:#777;
+
+      overflow:hidden;
+
+    }
+
+    .avatar img{
+
+      width:100%;
+
+      height:100%;
+
+      border-radius:50%;
+
+      object-fit:cover;
+
+      display:block;
+
+    }
+
+    .name-tag{
+
+      font-size:.75rem;
+
+      font-weight:700;
+
+      text-transform:uppercase;
+
+      color:#666;
+
+      margin-top:4px;
+
+      text-align:center;
+
+    }
+
+    .bubble{
+
+      padding:10px 14px;
+
+      border-radius:16px;
+
+      position:relative;
+
+      font-size:1rem;
+
+      max-width:min(560px,70vw);
+
+      line-height:1.25;
+
+    }
+
+    .bubble-stack{
+
+      display:flex;
+
+      flex-direction:column;
+
+      gap:6px;
+
+      align-items:flex-start;
+
+    }
+
+    .row.right .bubble-stack{
+
+      align-items:flex-end;
+
+    }
+
+    .repeat-result{
+
+      margin-top:4px;
+
+      font-size:.95rem;
+
+      font-weight:700;
+
+      color:#2f9f5f;
+
+    }
+
+    .star-row{
+
+      display:flex;
+
+      gap:6px;
+
+      margin-top:4px;
+
+      font-weight:900;
+
+      font-size:1.2rem;
+
+      color:#ffd24a;
+
+      text-shadow:
+
+        0 2px 0 #b87900,
+
+        0 4px 0 #8a5a00,
+
+        0 8px 14px rgba(0,0,0,.28);
+
+    }
+
+    .cookie-row{
+
+      display:flex;
+
+      justify-content:center;
+
+      gap:18px;
+
+      margin:12px 0;
+
+    }
+
+    .cookie-row.hidden{
+
+      display:none;
+
+    }
+
+    .cookie-row img{
+
+      width:min(220px,40vw);
+
+      height:auto;
+
+      display:block;
+
+      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
+
+    }
+
+    .bubble.kid{background:var(--bubble-kid);}
+
+    .bubble.baker{background:var(--bubble-baker);}
+
+    .bubble.sparkle{
+
+      background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
+
+      box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
+
+      animation: sparklePulse 1.2s ease-in-out infinite;
+
+    }
+
+    @keyframes sparklePulse{
+
+      0%,100%{filter:brightness(1);}
+
+      50%{filter:brightness(1.12);}
+
+    }
+
     .bubble.kid::after{
       content:"";
       position:absolute;
@@ -258,106 +450,201 @@
       border-style:solid;
       border-color:transparent transparent transparent var(--bubble-baker);
     }
-    .controls{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      flex-wrap:wrap;
-      z-index:3;
-      background:rgba(255,255,255,.92);
-      padding:4px 6px;
-      border-radius:16px;
-      box-shadow:0 8px 16px rgba(0,0,0,.18);
-      width:fit-content;
-      max-width:100%;
-      justify-content:center;
-      margin-top:2px;
-    }
-    .btn{
-      border:none;
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:.9rem;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 4px 0 rgba(0,0,0,.15);
-    }
-    .btn.prev{background:var(--btn-orange);color:#fff;}
-    .btn.next{background:var(--btn-orange);color:#fff;}
-    .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
-    .btn.read{background:var(--btn-orange);color:#fff;}
-    .btn.mic{
-      background:var(--btn-orange);
-      color:#fff;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-    }
-    .record-icon{
-      width:16px;
-      height:16px;
-      display:inline-block;
-      vertical-align:middle;
-    }
-    .record-icon path{
-      stroke:#fff;
-    }
+    .controls{
+
+      display:flex;
+
+      align-items:center;
+
+      gap:6px;
+
+      flex-wrap:wrap;
+
+      z-index:3;
+
+      background:rgba(255,255,255,.92);
+
+      padding:4px 6px;
+
+      border-radius:16px;
+
+      box-shadow:0 8px 16px rgba(0,0,0,.18);
+
+      width:fit-content;
+
+      max-width:100%;
+
+      justify-content:center;
+
+      margin-top:2px;
+
+    }
+
+    .btn{
+
+      border:none;
+
+      border-radius:999px;
+
+      padding:8px 12px;
+
+      font-size:.9rem;
+
+      font-weight:700;
+
+      cursor:pointer;
+
+      box-shadow:0 4px 0 rgba(0,0,0,.15);
+
+    }
+
+    .btn.prev{background:var(--btn-orange);color:#fff;}
+
+    .btn.next{background:var(--btn-orange);color:#fff;}
+
+    .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
+
+    .btn.read{background:var(--btn-orange);color:#fff;}
+
+    .btn.mic{
+
+      background:var(--btn-orange);
+
+      color:#fff;
+
+      display:inline-flex;
+
+      align-items:center;
+
+      gap:8px;
+
+    }
+
+    .record-icon{
+
+      width:16px;
+
+      height:16px;
+
+      display:inline-block;
+
+      vertical-align:middle;
+
+    }
+
+    .record-icon path{
+
+      stroke:#fff;
+
+    }
+
     .mic-icon-btn img{
         width:32px;
         height:32px;
         filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
       }
-    .recording{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .recording audio{
-      height:28px;
-    }
-    .recording-status{
-      font-size:.85rem;
-      color:#555;
-    }
-    .conversation-status{
-      font-size:.95rem;
-      font-weight:800;
-      color:#6c4bbf;
-      min-height:1.2em;
-    }
-    .girl-spot{
-      position:absolute;
-      left:18px;
-      top:60px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-      z-index:3;
-    }
-    .girl-spot img{
-      width:72px;
-      height:72px;
-      border-radius:18px;
-      object-fit:cover;
-      box-shadow:0 6px 14px rgba(0,0,0,.25);
-      border:4px solid #ffe3f7;
-      background:#ffd6f2;
-      cursor:pointer;
-    }
-    .girl-hint{
-      font-size:.9rem;
-      font-weight:800;
-      color:#d62828;
-      text-align:center;
-    }
-    @media (max-width:780px){
-      .row{gap:8px;}
-      .avatar{width:48px;height:48px;}
-      .bubble{font-size:.95rem;}
-    }
-  </style>
+    .recording{
+
+      display:inline-flex;
+
+      align-items:center;
+
+      gap:10px;
+
+      flex-wrap:wrap;
+
+    }
+
+    .recording audio{
+
+      height:28px;
+
+    }
+
+    .recording-status{
+
+      font-size:.85rem;
+
+      color:#555;
+
+    }
+
+    .conversation-status{
+
+      font-size:.95rem;
+
+      font-weight:800;
+
+      color:#6c4bbf;
+
+      min-height:1.2em;
+
+    }
+
+    .girl-spot{
+
+      position:absolute;
+
+      left:18px;
+
+      top:60px;
+
+      display:flex;
+
+      flex-direction:column;
+
+      align-items:center;
+
+      gap:6px;
+
+      z-index:3;
+
+    }
+
+    .girl-spot img{
+
+      width:72px;
+
+      height:72px;
+
+      border-radius:18px;
+
+      object-fit:cover;
+
+      box-shadow:0 6px 14px rgba(0,0,0,.25);
+
+      border:4px solid #ffe3f7;
+
+      background:#ffd6f2;
+
+      cursor:pointer;
+
+    }
+
+    .girl-hint{
+
+      font-size:.9rem;
+
+      font-weight:800;
+
+      color:#d62828;
+
+      text-align:center;
+
+    }
+
+    @media (max-width:780px){
+
+      .row{gap:8px;}
+
+      .avatar{width:48px;height:48px;}
+
+      .bubble{font-size:.95rem;}
+
+    }
+
+  </style>
+
 <style id="lbIntroVideoOverlayStyles">
   #lbIntroVideoOverlay{
     position:fixed;
@@ -418,23 +705,32 @@
     justify-content:center;
   }
 </style>
-</head>
+</head>
+
 <body>
 
-  <div class="app">
+  <div class="app">
+
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
       <img src="../../../../assets/images/shapes/Home1.png" alt="Home">
-    </a>
-    <div class="board" id="board">
-      <div class="tray-hero">
+    </a>
+
+    <div class="board" id="board">
+
+      <div class="tray-hero">
+
         <img src="../../../../assets/images/shapes/NewGame.png" alt="Vertices board" id="designImage">
-      </div>
+      </div>
+
       <div class="designer-text" id="designerText">How many <span class="highlight-red">squares</span> are there?</div>
       <div class="designer-sub" id="designerSub">There are <span class="highlight-red">8 squares</span>.</div>
-      <div class="girl-spot" aria-label="Tap the girl">
+      <div class="girl-spot" aria-label="Tap the girl">
+
         <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Girl helper" id="girlBtn" class="tap-girl">
-        <div class="girl-hint">Tap the girl</div>
-      </div>
+        <div class="girl-hint">Tap the girl</div>
+
+      </div>
+
       <div class="row convo-line line1">
         <div class="bubble-stack">
           <div class="bubble baker">I like games. Can I play it?</div>
@@ -442,7 +738,8 @@
           <div class="star-row" data-line="0"></div>
         </div>
       </div>
-
+
+
       <div class="row right convo-line line2">
         <div class="bubble-stack">
           <div class="bubble kid">Yes, okay!</div>
@@ -450,33 +747,59 @@
           <div class="star-row" data-line="1"></div>
         </div>
       </div>
-
-      <div class="conversation-status" id="conversationStatus"></div>
-
-      <div class="controls">
-        <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
-        <button class="btn next" id="nextBtn">Next page &#8594;</button>
-        <button class="btn stop" id="clearBtn" type="button">Clear</button>
-        <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+
+
+      <div class="conversation-status" id="conversationStatus"></div>
+
+
+
+      <div class="controls">
+
+        <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
+
+        <button class="btn next" id="nextBtn">Next page &#8594;</button>
+
+        <button class="btn stop" id="clearBtn" type="button">Clear</button>
+
+        <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+
           <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
-        </button>
-        <button class="btn read" id="recordBtn">
-          <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
-            <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z"
-                  fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-            <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-            <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-            <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-          </svg>
-          Record
-        </button>
-        <div class="recording">
-          <audio id="recordingPlayback" controls></audio>
-        </div>
-      </div>
-    </div>
-  </div>
-
+        </button>
+
+        <button class="btn read" id="recordBtn">
+
+          <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
+
+            <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z"
+
+                  fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+
+            <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+
+            <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+
+            <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+
+          </svg>
+
+          Record
+
+        </button>
+
+        <div class="recording">
+
+          <audio id="recordingPlayback" controls></audio>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
   <script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
@@ -497,8 +820,10 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
+
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -601,16 +926,26 @@
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+
 </script>
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 </body>
-</html>
-
-
-
-
-
-
-
-
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

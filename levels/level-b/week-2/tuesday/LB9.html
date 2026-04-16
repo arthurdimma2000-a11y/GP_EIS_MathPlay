@@ -551,7 +551,7 @@
 <script>
   let chime = null;
   try{
-    chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chime.preload = "auto";
     chime.volume = 0.9;
   }catch(e){}
@@ -1172,8 +1172,10 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
+
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -1276,8 +1278,10 @@
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+
 </script>
 <script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
-</html>
+</html>
+

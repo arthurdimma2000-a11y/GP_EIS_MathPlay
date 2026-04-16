@@ -467,7 +467,8 @@
   <script src="../../../../shared/js/tracing.js"></script>
   <script src="../../../../activity-standardizer.js"></script>
 
-  <script>    const micIconBtn = document.getElementById("micIconBtn");
+  <script>
+    const micIconBtn = document.getElementById("micIconBtn");
     const traceClearBtn = document.getElementById("traceClearBtn");
     const conversationStatus = document.getElementById("conversationStatus");
     const designImage = document.getElementById("designImage");
@@ -480,7 +481,7 @@
     const repeatResults = Array.from(document.querySelectorAll(".repeat-result"));
     const starRows = Array.from(document.querySelectorAll(".star-row"));
 
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chimeAudio.preload = "auto";
     const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
     instructionAudio.preload = "auto";
@@ -499,6 +500,9 @@
     let traceProgressStarted = false;
     let traceCelebrated = false;
     let traceEncouraged = false;
+    let traceMilestone25 = false;
+    let traceMilestone50 = false;
+    let traceMilestone75 = false;
     let loadIntroStarted = false;
 
     function hideAllLines(){
@@ -595,7 +599,8 @@
       const bubble = line.querySelector(".bubble");
       const text = bubble ? bubble.textContent.trim() : "";
       speakLine(text);
-    }
+    }
+
     // Legacy local mic flow removed; shared LA2/LB3 protocol owns mic click.
 
 
@@ -648,6 +653,9 @@
           traceProgressStarted = false;
           traceCelebrated = false;
           traceEncouraged = false;
+          traceMilestone25 = false;
+          traceMilestone50 = false;
+          traceMilestone75 = false;
           if (typeof reset === "function") reset();
           updateTraceProgress(0, false);
         };
@@ -663,6 +671,55 @@
     function clearTrace(){
       if (typeof window.__gpSharedTraceReset === "function") {
         window.__gpSharedTraceReset();
+      }
+    }
+
+    function updateTraceProgress(pct, started) {
+      if (!traceProgressUi) return;
+      const rounded = Math.round(pct);
+      if (traceProgressUi.textEl) traceProgressUi.textEl.textContent = rounded + "%";
+      if (traceProgressUi.fillEl) traceProgressUi.fillEl.style.width = rounded + "%";
+
+      // Milestone celebrations
+      if (rounded >= 25 && !traceMilestone25 && started) {
+        traceMilestone25 = true;
+        try {
+          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+          chime.play().catch(() => {});
+        } catch(e) {}
+        speakLine("Good start!", null, { role: "female", rate: 0.9, pitch: 1.2 });
+      }
+      if (rounded >= 50 && !traceMilestone50 && started) {
+        traceMilestone50 = true;
+        try {
+          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+          chime.play().catch(() => {});
+        } catch(e) {}
+        speakLine("Keep going!", null, { role: "female", rate: 0.9, pitch: 1.2 });
+      }
+      if (rounded >= 75 && !traceMilestone75 && started) {
+        traceMilestone75 = true;
+        try {
+          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+          chime.play().catch(() => {});
+        } catch(e) {}
+        speakLine("Almost done!", null, { role: "female", rate: 0.9, pitch: 1.2 });
+      }
+
+      if (rounded >= 95 && !traceCelebrated && started) {
+        traceCelebrated = true;
+        try {
+          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+          chime.play().catch(() => {});
+        } catch(e) {}
+        speakLine("Excellent work!", null, { role: "female", rate: 0.9, pitch: 1.2 });
+      }
+
+      if (rounded < 25) {
+        traceMilestone25 = false;
+        traceMilestone50 = false;
+        traceMilestone75 = false;
+        traceCelebrated = false;
       }
     }
 
@@ -798,7 +855,7 @@
       const homeBtn = document.querySelector('.home-btn');
       if(!homeBtn) return;
 
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
 
       homeBtn.addEventListener('click', () => {

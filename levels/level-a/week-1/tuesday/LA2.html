@@ -927,7 +927,7 @@
             "Great Try! keep it up!!!"
           ];
           const remark = remarks[Math.floor(Math.random() * remarks.length)];
-          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
           chime.preload = "auto";
           chime.play().catch(() => {});
           setConversationStatus(remark);
@@ -1168,7 +1168,7 @@
     (function(){
       const homeBtn = document.querySelector('.home-btn');
       if(!homeBtn) return;
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
 
       homeBtn.addEventListener('click', async (e) => {

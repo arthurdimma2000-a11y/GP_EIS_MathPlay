@@ -603,9 +603,9 @@ if (typeof window.stopTypingSound !== "function") {
 
   const chimeAudio = new Audio();
   chimeAudio.preload = "auto";
-  chimeAudio.src = "../../../../assets/audio/chimes/chime.mp3.mp3";
+  chimeAudio.src = "../../../../assets/audio/chimes/chime.mp3";
   chimeAudio.addEventListener("error", () => {
-    try { chimeAudio.src = "../../../../assets/audio/chimes/chime.mp3.mp3"; } catch(e){}
+    try { chimeAudio.src = "../../../../assets/audio/chimes/chime.mp3"; } catch(e){}
   }, { once:true });
 
   const traceBoxes = {

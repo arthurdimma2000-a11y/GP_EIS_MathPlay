@@ -432,7 +432,7 @@
             correct += 1;
             correctEl.textContent = String(correct);
             setToast("Correct! ⭐");
-            playSfx("chime.mp3.mp3", 880);
+            playSfx("chime.mp3", 880);
 
             if (correct === total){
               setToast("ALL DONE! 🎉 Fantastic sorting!");
@@ -441,7 +441,7 @@
             }
           }else{
             setToast("Oops… try a different box 😊");
-            playSfx("chime.mp3.mp3", 420);
+            playSfx("chime.mp3", 420);
           }
         });
       });
@@ -478,7 +478,7 @@
       safeDaily({ level:"B", page:"LB_Revision3", done:true, percent:pct, date:new Date().toISOString().slice(0,10) });
 
       setToast(passed ? "Saved! 🎉 Go next!" : "Saved! Try again for more stars ⭐");
-      playSfx(passed ? "cheer.mp3" : "chime.mp3.mp3", passed ? 520 : 740);
+      playSfx(passed ? "cheer.mp3" : "chime.mp3", passed ? 520 : 740);
       flashConfetti();
     }
 

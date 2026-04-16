@@ -600,7 +600,7 @@
     const repeatResults = [bakerRepeat, kidRepeat];
     const starRows = [bakerStars, kidStars];
 
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chimeAudio.preload = "auto";
     chimeAudio.volume = 1;
     const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
@@ -625,9 +625,10 @@
     const progressFillEl = document.getElementById('progressFill');
     const tracePercents = [0,0,0];
     const traceResets = [];
-    let traceCelebrated = false;
-    let traceCompletedNotified = false;
-    let lastTraceSound = 0;
+    let traceEncouraged = false;
+    let traceMilestone25 = false;
+    let traceMilestone50 = false;
+    let traceMilestone75 = false;
     let traceSetupDone = false;
 
     function unlockAudio(){
@@ -747,7 +748,7 @@
       loadIntroStarted = true;
 
       const beginSpeech = () => {
-        speak("A real Tangram animal should use all seven pieces. Circle the animal that is wrong, then tap Check Answer. Find the mistake and circle it.");
+        speak("Trace the numbers 1, 2, and 3. Follow the dotted lines carefully to practice your writing.");
       };
 
       const fallbackTimer = window.setTimeout(beginSpeech, 5200);
@@ -991,9 +992,29 @@
         }
       }
 
+      // Milestone celebrations
+      if (total >= 25 && !traceMilestone25) {
+        traceMilestone25 = true;
+        playChime();
+        speak("Good start!");
+      }
+      if (total >= 50 && !traceMilestone50) {
+        traceMilestone50 = true;
+        playChime();
+        speak("Keep going!");
+      }
+      if (total >= 75 && !traceMilestone75) {
+        traceMilestone75 = true;
+        playChime();
+        speak("Almost done!");
+      }
+
       if(!allDone){
         traceCelebrated = false;
         traceCompletedNotified = false;
+        traceMilestone25 = false;
+        traceMilestone50 = false;
+        traceMilestone75 = false;
       }
     }
 
@@ -1142,6 +1163,9 @@
       tracePercents[2] = 0;
       traceCelebrated = false;
       traceCompletedNotified = false;
+      traceMilestone25 = false;
+      traceMilestone50 = false;
+      traceMilestone75 = false;
       updateTotal();
     }
 
@@ -1215,7 +1239,7 @@
       const homeBtn = document.querySelector('.home-btn');
       if(!homeBtn) return;
 
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
 
       homeBtn.addEventListener('click', () => {

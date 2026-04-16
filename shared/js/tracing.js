@@ -934,7 +934,7 @@
       const lineWidth = opts.lineWidth || 12;
       const threshold = typeof opts.threshold === "number"
         ? opts.threshold
-        : Math.max(18, Math.round(lineWidth * 2.4));
+        : Math.max(24, Math.round(lineWidth * 3.2));
     const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 94;
     const getMessage = typeof opts.getMessage === "function" ? opts.getMessage : null;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
