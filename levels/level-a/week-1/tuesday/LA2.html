@@ -754,8 +754,8 @@
       const voice = chooseVoice(role);
       if (voice) utter.voice = voice;
       utter.lang = (voice && voice.lang) ? voice.lang : "en-US";
-      utter.rate = role === "kid" ? 1.06 : 0.95;
-      utter.pitch = role === "kid" ? 1.52 : 0.9;
+      utter.rate = role === "kid" ? 0.75 : 0.95;
+      utter.pitch = role === "kid" ? 1.5 : 0.9;
       utter.volume = 1;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };

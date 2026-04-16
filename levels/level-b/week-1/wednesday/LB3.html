@@ -874,8 +874,8 @@
       const voice = getSpeechVoice(opts.role);
       if (voice) utter.voice = voice;
       utter.lang = opts.lang || "en-US";
-      utter.rate = typeof opts.rate === "number" ? opts.rate : 0.94;
-      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.08;
+      utter.rate = typeof opts.rate === "number" ? opts.rate : (opts.role === "female" ? 0.75 : 0.94);
+      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : (opts.role === "female" ? 1.5 : 1.08);
       utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
       utter.onend = () => { if (typeof onend === "function") onend(); };
       utter.onerror = () => { if (typeof onend === "function") onend(); };
@@ -895,8 +895,8 @@
           if (statusText) statusText.textContent = "Look at the Pentagons.";
           speakLine("Look at the Pentagons.", runNextStep, {
             role: "female",
-            rate: 0.9,
-            pitch: 1.08,
+            rate: 0.75,
+            pitch: 1.5,
             volume: 1
           });
         },

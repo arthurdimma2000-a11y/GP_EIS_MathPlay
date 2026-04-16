@@ -734,8 +734,9 @@
       } else {
         u.lang = "en-US";
       }
-      u.rate = 0.94;
-      u.pitch = 1.08;
+      u.rate = 0.75;
+      u.pitch = 1.5;
+      u.volume = 1;
       u.onend = () => { if (typeof onend === "function") onend(); };
       u.onerror = () => { if (typeof onend === "function") onend(); };
       window.speechSynthesis.speak(u);

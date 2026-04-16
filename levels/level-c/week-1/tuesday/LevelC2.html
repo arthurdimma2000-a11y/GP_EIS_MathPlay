@@ -201,8 +201,8 @@
       const voice = getSpeechVoice(opts.role);
       if (voice) u.voice = voice;
       u.lang = opts.lang || "en-US";
-      u.rate = typeof opts.rate === "number" ? opts.rate : 0.94;
-      u.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.08;
+      u.rate = typeof opts.rate === "number" ? opts.rate : (opts.role === "female" ? 0.75 : 0.94);
+      u.pitch = typeof opts.pitch === "number" ? opts.pitch : (opts.role === "female" ? 1.5 : 1.08);
       u.volume = 1.0;
       u.onend = () => { if (onend) onend(); };
       u.onerror = () => { if (onend) onend(); };
