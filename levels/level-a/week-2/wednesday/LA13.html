@@ -1,0 +1,1439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
+    font-size:clamp(13px,1.9vw,19px) !important;
+    line-height:1.24 !important;
+    max-width:min(52vw,420px) !important;
+    white-space:nowrap !important;
+    word-break:normal !important;
+    overflow-wrap:normal !important;
+  }
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
+      font-size:clamp(13px,3.6vw,17px) !important;
+      max-width:min(62vw,280px) !important;
+      line-height:1.2 !important;
+      white-space:nowrap !important;
+      word-break:normal !important;
+      overflow-wrap:normal !important;
+    }
+  }
+</style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA13</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
+<style>
+  :root{
+    --ink:#2d2d2d;
+    --bg:#bfe9fb;
+    --border:#b7dff5;
+    --accent:#3aa7e8;
+    --bubble-kid:#d8ebff;
+    --bubble-baker:#fde3c4;
+    --btn-yellow:#f6da7b;
+    --btn-orange:#ff8a5b;
+    --btn-blue:#dfeaff;
+    --shadow:0 10px 24px rgba(0,0,0,.08);
+    --bubble-font:1.05rem;
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
+  body{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    background:var(--bg);
+    padding:10px;
+    color:var(--ink);
+  }
+
+  .app{
+    width:min(960px,100%);
+    max-width:960px;
+    border-radius:16px;
+    padding:12px 12px 8px;
+    position:relative;
+  }
+
+  .home-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    animation:homeSwingLA13 2.4s ease-in-out infinite;
+    text-decoration:none;
+    margin-bottom:8px;
+  }
+  .home-btn img{
+    width:58px;
+    height:auto;
+    display:block;
+  }
+  @keyframes homeSwingLA13{
+    0%{transform:translateY(30%) rotate(-6deg);}
+    50%{transform:translateY(30%) rotate(8deg);}
+    100%{transform:translateY(30%) rotate(-6deg);}
+  }
+
+  .board{
+    border:2px dashed var(--border);
+    border-radius:16px;
+    padding:10px;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,209,229,.30) 0 60px, transparent 65px),
+      radial-gradient(circle at 85% 25%, rgba(255,236,180,.35) 0 70px, transparent 75px),
+      radial-gradient(circle at 35% 80%, rgba(210,244,255,.35) 0 80px, transparent 85px),
+      radial-gradient(circle at 80% 75%, rgba(214,255,220,.35) 0 70px, transparent 75px),
+      linear-gradient(180deg, #fafdff 0%, #f4fbff 48%, #fffaf0 100%);
+    min-height:360px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .board-sky{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .sparkle-dot{
+    position:absolute;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:rgba(255,255,255,.85);
+    box-shadow:0 6px 10px rgba(0,0,0,.12);
+  }
+  .sparkle-dot.s1{left:20%;top:22%;}
+  .sparkle-dot.s2{left:70%;top:32%;}
+  .sparkle-dot.s3{left:35%;top:62%;}
+  .sparkle-dot.s4{left:82%;top:60%;}
+
+  .tray-hero{
+    display:flex;
+    justify-content:center;
+    margin:2px 0 6px;
+    position:relative;
+    z-index:1;
+    overflow:visible;
+  }
+
+  .tray-hero img{
+    width:min(820px,90vw);
+    height:auto;
+    display:block;
+    filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
+    transform:translateY(0%);
+    pointer-events:none;
+  }
+
+  .row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:18px 0;
+    position:relative;
+    z-index:1;
+  }
+
+  .convo-line{
+    display:none;
+    position:relative;
+    margin:10px 0;
+    pointer-events:none;
+  }
+
+  .convo-line.show{
+    display:flex;
+  }
+
+  .row.right{
+    justify-content:flex-end;
+  }
+
+  .bubble{
+    padding:10px 14px;
+    border-radius:16px;
+    position:relative;
+    font-size:var(--bubble-font);
+    white-space:nowrap;
+    max-width:420px;
+    box-shadow:0 8px 16px rgba(0,0,0,.16);
+    overflow-wrap:normal;
+    word-break:normal;
+  }
+
+  .bubble-stack{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    align-items:flex-start;
+  }
+
+  .row.right .bubble-stack{
+    align-items:flex-end;
+  }
+
+  .bubble.kid{ background:var(--bubble-kid); }
+  .bubble.baker{ background:var(--bubble-baker); }
+
+  .chef-bubble{
+    align-items:flex-start;
+  }
+
+  .kid-bubble{
+    align-items:flex-end;
+  }
+
+  .convo-line .bubble-stack{
+    position:relative;
+    z-index:4;
+  }
+
+  .bubble.kid::after{
+    content:"";
+    position:absolute;
+    right:-6px;
+    top:14px;
+    border-width:8px 0 8px 8px;
+    border-style:solid;
+    border-color:transparent transparent transparent var(--bubble-kid);
+  }
+
+  .bubble.baker::after{
+    content:"";
+    position:absolute;
+    left:-6px;
+    top:14px;
+    border-width:8px 8px 8px 0;
+    border-style:solid;
+    border-color:transparent var(--bubble-baker) transparent transparent;
+  }
+
+  .bubble.sparkle{
+    background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
+    box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
+    animation: sparklePulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes sparklePulse{
+    0%,100%{filter:brightness(1);}
+    50%{filter:brightness(1.12);}
+  }
+
+  .repeat-result{
+    margin-top:4px;
+    font-size:2.1rem !important;
+    line-height:1.1;
+    font-weight:900;
+    color:#2f9f5f;
+    min-height:1.1em;
+  }
+
+  .star-row{
+    display:flex;
+    gap:6px;
+    margin-top:4px;
+    font-weight:900;
+    font-size:2.35rem !important;
+    line-height:1;
+    color:#ffd24a;
+    text-shadow:
+      0 2px 0 #b87900,
+      0 4px 0 #8a5a00,
+      0 8px 14px rgba(0,0,0,.28);
+    min-height:1.2em;
+  }
+
+  .question{
+    margin-top:14px;
+    text-align:center;
+    color:var(--ink);
+    font-size:2rem;
+    line-height:1.3;
+    font-weight:700;
+    min-height:1.2em;
+  }
+
+  .girl-sentence{
+    margin-top:10px;
+    text-align:center;
+    font-size:1.5rem;
+    font-weight:700;
+    color:var(--ink);
+    min-height:3.2em;
+  }
+
+  .circle-red{ color:#d62828; }
+
+  .trace-layer{
+    position:absolute;
+    inset:0;
+    pointer-events:auto;
+    z-index:5;
+  }
+
+  .trace-grid{
+    position:absolute;
+    left:30%;
+    top:29.5%;
+    width:64%;
+    height:61.5%;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr);
+    gap:2%;
+    pointer-events:auto;
+  }
+
+  .trace-canvas{
+    position:relative;
+    width:100%;
+    height:100%;
+    pointer-events:auto;
+    touch-action:none;
+    z-index:6;
+    background:transparent;
+    display:block;
+    border-radius:10px;
+  }
+
+  .controls{
+    margin-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    font-size:.9rem;
+  }
+
+  .progress-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+
+  .progress-bar{
+    width:min(520px,92%);
+    height:12px;
+    border-radius:999px;
+    background:#e7efff;
+    overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#3cc4ff,#7dffb3);
+    transition:width .15s ease-out;
+  }
+
+  .progress-text{
+    font-size:.9rem;
+    font-weight:700;
+    color:#3b3b3b;
+  }
+
+  .controls-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+
+  .mascot-spot{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#fff;
+    border:2px solid #e8e0ff;
+    border-radius:14px;
+    padding:6px 10px;
+    box-shadow:0 8px 16px rgba(0,0,0,.12);
+  }
+
+  .tap-girl{
+    width:44px;
+    height:44px;
+    border-radius:12px;
+    object-fit:cover;
+    cursor:pointer;
+    display:block;
+  }
+
+  .mascot-hint{
+    font-size:.95rem;
+    font-weight:800;
+    color:#2f9f5f;
+    white-space:nowrap;
+  }
+
+  .button-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:10px 16px;
+    font-size:.95rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+  }
+
+  .btn.prev{background:#f8f0c7;color:#9c7b2f;}
+  .btn.next{background:var(--btn-yellow);color:#8b5a00;}
+  .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
+
+  .mic-icon-btn{
+    border:none;
+    border-radius:999px;
+    padding:8px 12px;
+    background:var(--btn-orange);
+    color:#fff;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .mic-icon-btn img{
+    width:38px;
+    height:38px;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
+    display:block;
+  }
+
+  .conversation-status{
+    margin-top:8px;
+    font-size:.95rem;
+    font-weight:800;
+    color:#6c4bbf;
+    min-height:1.2em;
+    text-align:center;
+  }
+
+  .headline-line{
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity .22s ease, transform .22s ease;
+  }
+
+  .headline-line.show{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  .spark{
+    position:fixed;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:9998;
+    background:radial-gradient(circle,#fff799 0%,#ffd24a 48%,rgba(255,210,74,0) 72%);
+    box-shadow:0 0 18px rgba(255,210,74,.95);
+    animation:sparkFly .8s ease forwards;
+  }
+
+  @keyframes sparkFly{
+    0%{transform:translate(0,0) scale(.75);opacity:0;}
+    15%{opacity:1;}
+    100%{transform:translate(var(--dx),var(--dy)) scale(1.2);opacity:0;}
+  }
+
+  .la8-guide-pointer{
+    position:fixed;
+    z-index:999999;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    pointer-events:none;
+    transform:translate(-14px,-10px);
+  }
+  .la8-guide-pointer.is-mic{
+    transform:translate(-10px,-10px);
+  }
+  .la8-guide-finger{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:38px;
+    height:38px;
+    border-radius:999px;
+    background:#fff6cc;
+    color:#d97706;
+    font-size:1.25rem;
+    box-shadow:0 6px 14px rgba(0,0,0,.16);
+    animation:la8GuideBounce 1.05s ease-in-out infinite;
+  }
+  .la8-guide-label{
+    padding:6px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.95);
+    color:#7c2d12;
+    font-size:.86rem;
+    font-weight:900;
+    box-shadow:0 6px 14px rgba(0,0,0,.12);
+    white-space:nowrap;
+  }
+  @keyframes la8GuideBounce{
+    0%,100%{ transform:translate(0,0); }
+    50%{ transform:translate(-8px,-4px); }
+  }
+
+  @media (max-width:780px){
+    :root{ --bubble-font:1.15rem; }
+    .question{font-size:1.5rem;}
+    .girl-sentence{font-size:1.15rem;}
+    .app{padding:12px 12px 10px;border-radius:12px;}
+    .board{padding:12px;min-height:unset;}
+    .tray-hero img{width:100%;}
+  }
+
+  @media (max-width:520px){
+    :root{ --bubble-font:.95rem; }
+    body{
+      align-items:flex-start;
+      padding:10px;
+    }
+    .app{
+      width:100%;
+      padding:12px 12px 10px;
+      border-radius:12px;
+    }
+    .board{
+      padding:12px;
+      min-height:unset;
+    }
+    .tray-hero img{
+      width:100%;
+    }
+    .bubble{
+      padding:8px 10px;
+      max-width:min(62vw,280px);
+      white-space:nowrap;
+      overflow-wrap:normal;
+      word-break:normal;
+    }
+    .kid-bubble{ right:4%; top:60%; max-width:46%; }
+    .chef-bubble{ left:4%; top:19%; max-width:46%; }
+    .trace-grid{
+      left:30%;
+      top:29.5%;
+      width:64%;
+      height:61.5%;
+      gap:1.5%;
+    }
+  }
+</style>
+</head>
+
+<body>
+  <div class="app">
+    <a class="home-btn" href="../../../../index.html" aria-label="Home">
+      <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
+    </a>
+
+    <div class="board">
+      <div class="board-sky" aria-hidden="true">
+        <div class="sparkle-dot s1"></div>
+        <div class="sparkle-dot s2"></div>
+        <div class="sparkle-dot s3"></div>
+        <div class="sparkle-dot s4"></div>
+      </div>
+
+      <div class="tray-hero">
+        <img src="../../../../assets/images/shapes/A13.png" alt="Numbers poster">
+
+        <div class="trace-layer">
+          <div class="trace-grid">
+            <canvas class="trace-canvas" id="trace1a"></canvas>
+            <canvas class="trace-canvas" id="trace1b"></canvas>
+            <canvas class="trace-canvas" id="trace1c"></canvas>
+
+            <canvas class="trace-canvas" id="trace2a"></canvas>
+            <canvas class="trace-canvas" id="trace2b"></canvas>
+            <canvas class="trace-canvas" id="trace2c"></canvas>
+
+            <canvas class="trace-canvas" id="trace3a"></canvas>
+            <canvas class="trace-canvas" id="trace3b"></canvas>
+            <canvas class="trace-canvas" id="trace3c"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="row convo-line">
+        <div class="bubble-stack chef-bubble">
+          <div class="bubble baker">Let’s write numbers.</div>
+          <div class="repeat-result" data-line="0"></div>
+          <div class="star-row" data-line="0"></div>
+        </div>
+      </div>
+
+      <div class="row right convo-line">
+        <div class="bubble-stack kid-bubble">
+          <div class="bubble kid">One, two, three!</div>
+          <div class="repeat-result" data-line="1"></div>
+          <div class="star-row" data-line="1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="question"></div>
+    <div class="girl-sentence" id="girlSentence"></div>
+
+    <div class="controls">
+      <div class="progress-wrap">
+        <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <div class="controls-row">
+        <div class="mascot-spot">
+          <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Circle helper girl" id="girlBtn" class="tap-girl">
+          <div class="mascot-hint">Tap the girl</div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
+          <button class="btn next" id="nextBtn">Next page &#8594;</button>
+          <button class="btn stop" id="clearBtn" type="button">Clear</button>
+          <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+            <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="conversation-status" id="conversationStatus"></div>
+  </div>
+
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+
+<script>
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const girlBtn = document.getElementById("girlBtn");
+  const micIconBtn = document.getElementById("micIconBtn");
+  const girlSentenceEl = document.getElementById("girlSentence");
+  const conversationStatus = document.getElementById("conversationStatus");
+  const homeBtn = document.querySelector(".home-btn");
+
+  const lines = Array.from(document.querySelectorAll(".convo-line"));
+  const repeatResults = Array.from(document.querySelectorAll(".repeat-result"));
+  const starRows = Array.from(document.querySelectorAll(".star-row"));
+
+  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+  chimeAudio.preload = "auto";
+  chimeAudio.volume = 1;
+  const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+  instructionAudio.preload = "auto";
+
+  let startupPlayed = false;
+
+  function playInstructionBed(onDone){
+    const fallbackTimer = window.setTimeout(() => {
+      if (onDone) onDone();
+    }, 5200);
+
+    instructionAudio.onended = () => {
+      window.clearTimeout(fallbackTimer);
+      if (onDone) onDone();
+    };
+    instructionAudio.onerror = () => {
+      window.clearTimeout(fallbackTimer);
+      if (onDone) onDone();
+    };
+
+    try{
+      instructionAudio.currentTime = 0;
+      const playAttempt = instructionAudio.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {
+          window.clearTimeout(fallbackTimer);
+          if (onDone) onDone();
+        });
+      }
+    }catch(_err){
+      window.clearTimeout(fallbackTimer);
+      if (onDone) onDone();
+    }
+  }
+
+  function runStartupInstruction(){
+    if (startupPlayed) return;
+    startupPlayed = true;
+    playInstructionBed(() => {
+      speakWithRole("Let's write numbers. 1! 2! 3!", "female", () => {
+        pointTo(girlBtn);
+      });
+    });
+  }
+
+  const expectedLines = ["Let’s write numbers.", "One, two, three!"];
+  const attempts = [0, 0];
+  const starsAwarded = [0, 0];
+  const maxAttempts = 3;
+
+  function stopLessonMediaAudio(){
+    document.querySelectorAll("video, audio").forEach((media) => {
+      if (media === chimeAudio) return;
+      try {
+        media.pause();
+        media.muted = true;
+      } catch(e){}
+    });
+  }
+
+  function unlockAudio(){
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    try{
+      chimeAudio.muted = true;
+      const p = chimeAudio.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => {
+          chimeAudio.pause();
+          chimeAudio.currentTime = 0;
+          chimeAudio.muted = false;
+        }).catch(() => {
+          chimeAudio.muted = false;
+        });
+      } else {
+        chimeAudio.pause();
+        chimeAudio.currentTime = 0;
+        chimeAudio.muted = false;
+      }
+    }catch(e){
+      chimeAudio.muted = false;
+    }
+  }
+
+  function playChime(){
+    unlockAudio();
+    try{
+      const sound = chimeAudio.cloneNode(true);
+      sound.currentTime = 0;
+      const playPromise = sound.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    }catch(e){}
+  }
+
+  function getVoicesList(){
+    try{
+      return window.speechSynthesis ? window.speechSynthesis.getVoices() || [] : [];
+    }catch(_err){
+      return [];
+    }
+  }
+
+  function maleNamePattern(){
+    return /(male|david|mark|tom|daniel|alex|fred|guy|man|boy|aaron|james|matthew|george)/i;
+  }
+
+  function chooseVoice(role){
+    const voices = getVoicesList();
+    if (!voices.length) return null;
+    const lower = (s) => String(s || "").toLowerCase();
+
+    if (role === "male") {
+      return voices.find(v =>
+        /en/.test(lower(v.lang)) &&
+        /male|david|mark|tom|daniel|alex|fred|guy|man|aaron|james|matthew|george/.test(lower(v.name))
+      ) || voices.find(v => /en/.test(lower(v.lang))) || voices[0];
+    }
+
+    if (role === "kid") {
+      return voices.find(v =>
+        /en-us|en_us|en/.test(lower(v.lang)) &&
+        /ava|aria|samantha|jenny|zira|female|girl|kid|child|allison|emma|ivy|olivia|libby|ellie/.test(lower(v.name)) &&
+        !maleNamePattern().test(lower(v.name))
+      ) || voices.find(v => /en-us|en_us/.test(lower(v.lang)) && !maleNamePattern().test(lower(v.name))) || voices.find(v => /en/.test(lower(v.lang))) || voices[0];
+    }
+
+    return voices.find(v =>
+      /en-us|en_us|en/.test(lower(v.lang)) &&
+      /aria|ava|samantha|jenny|zira|allison|emma|ellie|libby|olivia|ivy|female/.test(lower(v.name)) &&
+      !maleNamePattern().test(lower(v.name))
+    ) || voices.find(v => /en-us|en_us/.test(lower(v.lang)) && !maleNamePattern().test(lower(v.name))) || voices.find(v => /en/.test(lower(v.lang))) || voices[0];
+  }
+
+  function speakWithRole(text, role, onend){
+    if (!("speechSynthesis" in window)) {
+      if (onend) onend();
+      return;
+    }
+
+    try { window.speechSynthesis.cancel(); } catch(_err){}
+    const utter = new SpeechSynthesisUtterance(text);
+    const voice = chooseVoice(role);
+    if (voice) utter.voice = voice;
+    utter.lang = (voice && voice.lang) ? voice.lang : "en-US";
+    utter.rate = role === "kid" ? 1.1 : (role === "male" ? 0.95 : 1.0);
+    utter.pitch = role === "kid" ? 1.7 : (role === "male" ? 0.9 : 1.4);
+    utter.volume = 1;
+    utter.onend = () => { if (onend) onend(); };
+    utter.onerror = () => { if (onend) onend(); };
+    window.speechSynthesis.speak(utter);
+  }
+
+  function speakLine(text, onend, role){
+    speakWithRole(text, role || "female", onend);
+  }
+
+  function hideAllLines(){
+    lines.forEach(line => {
+      line.classList.remove("show");
+      line.hidden = true;
+      line.style.display = "none";
+    });
+  }
+
+  function showLine(index){
+    const line = lines[index];
+    if (!line) return;
+    line.hidden = false;
+    line.classList.add("show");
+    line.style.display = "flex";
+  }
+
+  function highlightLine(index, on){
+    const line = lines[index];
+    if (!line) return;
+    const bubble = line.querySelector(".bubble");
+    if (!bubble) return;
+    bubble.classList.toggle("sparkle", on);
+  }
+
+  function setStars(index, count){
+    const row = starRows[index];
+    if (!row) return;
+    row.innerHTML = new Array(count).fill("&#9733;").join("");
+  }
+
+  function setConversationStatus(text){
+    if (!conversationStatus) return;
+    conversationStatus.textContent = text || "";
+  }
+
+  function clearConversationState(){
+    hideAllLines();
+    currentLineIndex = -1;
+    readToken += 1;
+    repeatNext = false;
+    attempts[0] = 0;
+    attempts[1] = 0;
+    starsAwarded[0] = 0;
+    starsAwarded[1] = 0;
+    micStepIndex = 0;
+    micPhase = "reveal";
+    micBusy = false;
+    micDone = false;
+    micInitialized = false;
+    repeatResults.forEach(el => { if (el) el.textContent = ""; });
+    starRows.forEach(el => { if (el) el.textContent = ""; });
+    lines.forEach(line => {
+      const bubble = line.querySelector(".bubble");
+      if (bubble) bubble.classList.remove("sparkle");
+    });
+    setConversationStatus("");
+  }
+
+  function listenForRepeat(expectedText, onDone){
+    window.GPTracing.listenForRepeat(expectedText, onDone);
+  }
+
+  function showAndSpeakLine(index){
+    if (index < 0 || index >= lines.length) return;
+    showLine(index);
+    const line = lines[index];
+    currentLineIndex = index;
+    const bubble = line.querySelector(".bubble");
+    if (bubble) speakLine(bubble.textContent || "");
+  }
+
+  function revealBubblesFromMic(){
+    micIconBtn.dataset.gpMicSeqBound = "1";
+    if (!micInitialized) {
+      if (lines[0]) showLine(0);
+      if (lines[1]) {
+        lines[1].hidden = true;
+        lines[1].classList.remove("show");
+        lines[1].style.display = "none";
+      }
+      micInitialized = true;
+    }
+    currentLineIndex = micStepIndex;
+  }
+
+  async function moveToNextMicStep(){
+    highlightLine(micStepIndex, false);
+    micStepIndex += 1;
+    micPhase = "reveal";
+    micBusy = false;
+
+    if (micStepIndex >= expectedLines.length) {
+      micDone = true;
+
+      const totalStars = starsAwarded[0] + starsAwarded[1];
+      const maxStars = expectedLines.length * 3;
+      const score = Math.round((totalStars / maxStars) * 100);
+
+      if (totalStars > 0) {
+        const remarks = [
+          "Wow! You are super smart!",
+          "Amazing Job",
+          "Great Try! keep it up!!!"
+        ];
+        const remark = remarks[Math.floor(Math.random() * remarks.length)];
+        playChime();
+        setConversationStatus(remark);
+        speakLine(remark);
+      } else {
+        setConversationStatus("");
+      }
+
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        activitySaved = true;
+        await window.finishAndSave({
+          pageId: "LA13",
+          level: "A",
+          activityType: "speaking",
+          score,
+          stars: Math.min(5, Math.max(1, Math.round(totalStars / 2))),
+          skills: {
+            reading: girlTapped ? 1 : 0,
+            writing: 0,
+            speaking: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0,
+            listening: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0
+          }
+        });
+      }
+      hideGuidePointer();
+      return;
+    }
+
+    showAndSpeakLine(micStepIndex);
+    setConversationStatus(expectedLines[micStepIndex]);
+    micPhase = "repeat";
+  }
+
+  async function runMicStepFlow(){
+    unlockAudio();
+    if (window.GPTracing?.prepareMicSupport) {
+      await window.GPTracing.prepareMicSupport().catch(() => {});
+    }
+    if (micDone || micBusy) return;
+    if (!micInitialized) revealBubblesFromMic();
+
+    if (micPhase === "reveal") {
+      showAndSpeakLine(micStepIndex);
+      setConversationStatus(expectedLines[micStepIndex]);
+      micPhase = "repeat";
+      return;
+    }
+
+    highlightLine(micStepIndex, true);
+    micBusy = true;
+    pointTo(micIconBtn);
+    setConversationStatus("Repeat after me.");
+
+    speakLine("Repeat after me.", () => {
+      listenForRepeat(expectedLines[micStepIndex], (pct, said) => {
+        const tryNo = ++attempts[micStepIndex];
+
+        if (pct >= 50) {
+          if (repeatResults[micStepIndex]) {
+            repeatResults[micStepIndex].style.color = "#2f9f5f";
+            repeatResults[micStepIndex].textContent = (said || expectedLines[micStepIndex]).trim();
+          }
+          starsAwarded[micStepIndex] = window.GPTracing.rewardStars(tryNo);
+          setStars(micStepIndex, starsAwarded[micStepIndex]);
+          setTimeout(() => { moveToNextMicStep(); }, 220);
+          return;
+        }
+
+        if (tryNo >= maxAttempts) {
+          if (repeatResults[micStepIndex]) {
+            repeatResults[micStepIndex].style.color = "#c62828";
+            repeatResults[micStepIndex].textContent = "You did a good Job. Nice try!";
+          }
+          starsAwarded[micStepIndex] = 0;
+          setStars(micStepIndex, 0);
+          speakLine("You did a good Job. Nice try!", () => setTimeout(() => { moveToNextMicStep(); }, 200));
+          return;
+        }
+
+        micBusy = false;
+        micPhase = "repeat";
+        if (repeatResults[micStepIndex]) {
+          repeatResults[micStepIndex].style.color = "#c62828";
+          repeatResults[micStepIndex].textContent = "Sorry, try again!";
+        }
+        setConversationStatus("Sorry, try again!");
+        speakLine("Sorry, try again!");
+      });
+    });
+  }
+
+  const sentenceLines = [
+    {
+      text: "Let's count numbers.",
+      html: "Let&rsquo;s count numbers."
+    }
+  ];
+  let sentenceToken = 0;
+
+  let guidePointer = null;
+  let pointerTarget = null;
+  let pointerQueued = false;
+
+  function ensureGuidePointer(){
+    if (guidePointer && document.body.contains(guidePointer)) return guidePointer;
+    guidePointer = document.createElement("div");
+    guidePointer.className = "la8-guide-pointer";
+    guidePointer.innerHTML = '<div class="la8-guide-finger">👉</div><div class="la8-guide-label">Tap the girl</div>';
+    document.body.appendChild(guidePointer);
+    return guidePointer;
+  }
+
+  function positionGuidePointer(){
+    if (!pointerTarget || !pointerTarget.getBoundingClientRect) return;
+    const pointer = ensureGuidePointer();
+    const rect = pointerTarget.getBoundingClientRect();
+    const label = pointer.querySelector(".la8-guide-label");
+    const isMic = pointerTarget === micIconBtn;
+    pointer.classList.toggle("is-mic", isMic);
+    if (label) label.textContent = isMic ? "Click the Mic icon" : "Tap the girl";
+    pointer.style.left = Math.max(8, rect.left - 10) + "px";
+    pointer.style.top = Math.max(8, rect.top - 18) + "px";
+  }
+
+  function queueGuidePointer(){
+    if (pointerQueued) return;
+    pointerQueued = true;
+    requestAnimationFrame(() => {
+      pointerQueued = false;
+      positionGuidePointer();
+    });
+  }
+
+  function pointTo(target){
+    if (!target) return;
+    pointerTarget = target;
+    positionGuidePointer();
+  }
+
+  function hideGuidePointer(){
+    if (!guidePointer) return;
+    guidePointer.remove();
+    guidePointer = null;
+    pointerTarget = null;
+  }
+
+  function showSpark(){
+    const girlRect = girlBtn.getBoundingClientRect();
+    const targetRect = girlSentenceEl.getBoundingClientRect();
+    const startX = girlRect.left + girlRect.width / 2;
+    const startY = girlRect.top + girlRect.height / 2;
+    const endX = targetRect.left + targetRect.width / 2;
+    const endY = targetRect.top + targetRect.height / 2;
+    const dx = endX - startX;
+    const dy = endY - startY;
+
+    const spark = document.createElement("div");
+    spark.className = "spark";
+    spark.style.left = startX + "px";
+    spark.style.top = startY + "px";
+    spark.style.setProperty("--dx", dx + "px");
+    spark.style.setProperty("--dy", dy + "px");
+    document.body.appendChild(spark);
+    spark.addEventListener("animationend", () => spark.remove());
+
+    const spark2 = document.createElement("div");
+    spark2.className = "spark";
+    spark2.style.left = (startX + 10) + "px";
+    spark2.style.top = (startY - 4) + "px";
+    spark2.style.setProperty("--dx", (dx + 10) + "px");
+    spark2.style.setProperty("--dy", (dy - 4) + "px");
+    spark2.style.animationDelay = "0.18s";
+    spark2.style.transform = "scale(0.75)";
+    document.body.appendChild(spark2);
+    spark2.addEventListener("animationend", () => spark2.remove());
+  }
+
+  function revealSentenceLine(index, token){
+    if (token !== sentenceToken) return;
+    if (index >= sentenceLines.length) return;
+    const lineEl = girlSentenceEl.querySelector(`[data-line="${index}"]`);
+    if (!lineEl) return;
+    lineEl.classList.add("show");
+    speakLine(sentenceLines[index].text, () => {
+      setTimeout(() => revealSentenceLine(index + 1, token), 180);
+    });
+  }
+
+  girlBtn.addEventListener("click", (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+    unlockAudio();
+    girlTapped = true;
+    sentenceToken += 1;
+    const token = sentenceToken;
+
+    girlSentenceEl.innerHTML = sentenceLines
+      .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
+      .join("");
+
+    showSpark();
+    playChime();
+    setTimeout(() => revealSentenceLine(0, token), 220);
+    pointTo(micIconBtn);
+  });
+
+  const progressPercentEl = document.getElementById("progressPercent");
+  const progressFillEl = document.getElementById("progressFill");
+  const tracePercents = new Array(9).fill(0);
+  const traceResets = [];
+  let traceCelebrated = false;
+  let lastTraceSound = 0;
+  let realtimeSaveTimer = null;
+
+  function scheduleRealtimeTraceSave(score){
+    if (typeof window.finishAndSave !== "function") return;
+    if (realtimeSaveTimer) window.clearTimeout(realtimeSaveTimer);
+    realtimeSaveTimer = window.setTimeout(() => {
+      window.finishAndSave({
+        pageId: "LA13",
+        level: "A",
+        activityType: "lesson",
+        score: Math.max(0, Math.min(100, Math.round(score))),
+        tracing: Math.max(0, Math.min(100, Math.round(score))),
+        stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
+      }).catch(() => {});
+    }, 250);
+  }
+
+  function updateTotal(){
+    const raw = tracePercents.reduce((a,b)=>a+b,0) / tracePercents.length;
+    const allDone = tracePercents.every(p => p >= 90);
+    const total = Math.round(raw);
+
+    progressPercentEl.textContent = total + "%";
+    progressFillEl.style.width = total + "%";
+    scheduleRealtimeTraceSave(total);
+
+    if(allDone && !traceCelebrated){
+      traceCelebrated = true;
+      playChime();
+      speakLine("Wow! great job!");
+    }
+    if(!allDone){
+      traceCelebrated = false;
+    }
+  }
+
+  const posterImg = document.querySelector(".tray-hero img");
+
+  function setupTrace(canvasId, points, index){
+    const reset = window.GPTracing.createPathTracePad({
+      canvasId,
+      getPoints: () => points,
+      lineWidth: 13,
+      threshold: 26,
+      posterImg,
+      onProgress(pct){
+        tracePercents[index] = pct;
+        updateTotal();
+      },
+      onTick(){
+        const now = performance.now();
+        if (now - lastTraceSound > 120) {
+          lastTraceSound = now;
+          playTraceTick();
+        }
+      }
+    });
+
+    traceResets.push(() => {
+      if (typeof reset === "function") reset();
+      tracePercents[index] = 0;
+      updateTotal();
+    });
+  }
+
+  function playTraceTick(){
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = 880;
+      gain.gain.value = 0.06;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.05);
+      osc.onended = () => ctx.close();
+    }catch(e){}
+  }
+
+  clearBtn.addEventListener("click", () => {
+    traceResets.forEach(fn => fn());
+    clearConversationState();
+  });
+
+  const traceConfigs = [
+    { id:"trace1a", type:"1" }, { id:"trace1b", type:"1" }, { id:"trace1c", type:"1" },
+    { id:"trace2a", type:"2" }, { id:"trace2b", type:"2" }, { id:"trace2c", type:"2" },
+    { id:"trace3a", type:"3" }, { id:"trace3b", type:"3" }, { id:"trace3c", type:"3" }
+  ];
+
+  traceConfigs.forEach((cfg, idx) => {
+    setupTrace(cfg.id, window.GPTracing.getDigitTraceGroups(cfg.type), idx);
+  });
+
+  if (micIconBtn) {
+    micIconBtn.addEventListener("click", (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+      runMicStepFlow();
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener("click", async () => {
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        await window.finishAndSave({
+          pageId: "LA13",
+          level: "A",
+          activityType: "lesson",
+          score: Math.max(10, Math.round(tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length)),
+          stars: tracePercents.every(p => p >= 90) ? 3 : 1,
+          skills: {
+            reading: girlTapped ? 1 : 0,
+            writing: tracePercents.every(p => p >= 70) ? 3 : 1,
+            speaking: micDone ? 1 : 0,
+            listening: micDone ? 1 : 0
+          }
+        });
+        activitySaved = true;
+      }
+      window.location.href = "LA12.html";
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", async () => {
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        await window.finishAndSave({
+          pageId: "LA13",
+          level: "A",
+          activityType: "lesson",
+          score: Math.max(10, Math.round(tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length)),
+          stars: tracePercents.every(p => p >= 90) ? 3 : 1,
+          skills: {
+            reading: girlTapped ? 1 : 0,
+            writing: tracePercents.every(p => p >= 70) ? 3 : 1,
+            speaking: micDone ? 1 : 0,
+            listening: micDone ? 1 : 0
+          }
+        });
+        activitySaved = true;
+      }
+      window.location.href = "../thursday/LA_Revision2.html";
+    });
+  }
+
+  if (homeBtn) {
+    homeBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      try{
+        playChime();
+      }catch(_){}
+
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        await window.finishAndSave({
+          pageId: "LA13",
+          level: "A",
+          activityType: "lesson",
+          score: Math.max(10, Math.round(tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length)),
+          stars: tracePercents.every(p => p >= 90) ? 3 : 1,
+          skills: {
+            reading: girlTapped ? 1 : 0,
+            writing: tracePercents.every(p => p >= 70) ? 3 : 1,
+            speaking: micDone ? 1 : 0,
+            listening: micDone ? 1 : 0
+          }
+        });
+        activitySaved = true;
+      }
+
+      window.location.href = homeBtn.getAttribute("href") || "../../../../index.html";
+    });
+  }
+
+  hideAllLines();
+  updateTotal();
+  runStartupInstruction();
+</script>
+
+<script src="../../../../activity-standardizer.js"></script>
+
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA13",
+    defaultLevel: "A",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+
+    saveLocalActivityFallback(fullPayload);
+
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
