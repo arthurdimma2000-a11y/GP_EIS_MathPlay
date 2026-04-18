@@ -123,10 +123,10 @@
         utterance.lang = "en-US";
       }
       if (typeof utterance.rate !== "number" || utterance.rate >= 0.98 || utterance.rate < 0.88) {
-        utterance.rate = 0.8;
+        utterance.rate = 0.92;
       }
       if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.1) {
-        utterance.pitch = 1.5;
+        utterance.pitch = 1.34;
       }
       utterance.volume = 1;
     } catch (_err) {}
@@ -934,7 +934,7 @@
       const lineWidth = opts.lineWidth || 12;
       const threshold = typeof opts.threshold === "number"
         ? opts.threshold
-        : Math.max(24, Math.round(lineWidth * 3.2));
+        : Math.max(18, Math.round(lineWidth * 2.4));
     const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 94;
     const getMessage = typeof opts.getMessage === "function" ? opts.getMessage : null;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
@@ -1696,8 +1696,8 @@
       }
       const opts = options || {};
       speakText(normalizedText, {
-        rate: typeof opts.rate === "number" ? opts.rate : 0.8,
-        pitch: typeof opts.pitch === "number" ? opts.pitch : 1.5,
+        rate: typeof opts.rate === "number" ? opts.rate : 0.88,
+        pitch: typeof opts.pitch === "number" ? opts.pitch : 1.38,
         volume: typeof opts.volume === "number" ? opts.volume : 1,
         onEnd: () => { if (onend) onend(); },
         onError: () => { if (onend) onend(); }

@@ -684,6 +684,24 @@
       }
     }
 
+    function playTraceTick(){
+      try{
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!AudioCtx) return;
+        const a = new AudioCtx();
+        const osc = a.createOscillator();
+        const gain = a.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.value = 0.06;
+        osc.connect(gain);
+        gain.connect(a.destination);
+        osc.start();
+        osc.stop(a.currentTime + 0.05);
+        osc.onended = () => a.close();
+      }catch(e){}
+    }
+
     function markVisited(group, point){
       const pts = samples[group];
       const seen = visited[group];
@@ -698,6 +716,10 @@
         }
       }
       if (!changed) return;
+
+      // Play tracing sound when dots are connected
+      playTraceTick();
+
       const covered = seen.reduce((sum, value) => sum + (value ? 1 : 0), 0);
       progress[group] = Math.max(progress[group], Math.round((covered / Math.max(1, pts.length)) * 100));
       updateUi(group);
@@ -874,8 +896,8 @@
       const voice = getSpeechVoice(opts.role);
       if (voice) utter.voice = voice;
       utter.lang = opts.lang || "en-US";
-      utter.rate = typeof opts.rate === "number" ? opts.rate : (opts.role === "female" ? 0.75 : 0.94);
-      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : (opts.role === "female" ? 1.5 : 1.08);
+      utter.rate = typeof opts.rate === "number" ? opts.rate : 0.94;
+      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.08;
       utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
       utter.onend = () => { if (typeof onend === "function") onend(); };
       utter.onerror = () => { if (typeof onend === "function") onend(); };
@@ -895,8 +917,8 @@
           if (statusText) statusText.textContent = "Look at the Pentagons.";
           speakLine("Look at the Pentagons.", runNextStep, {
             role: "female",
-            rate: 0.75,
-            pitch: 1.5,
+            rate: 0.9,
+            pitch: 1.08,
             volume: 1
           });
         },

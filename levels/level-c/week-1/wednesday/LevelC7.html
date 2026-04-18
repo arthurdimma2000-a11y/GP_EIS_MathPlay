@@ -283,8 +283,8 @@
       const voice = getSpeechVoice(opts.role);
       if (voice) utter.voice = voice;
       utter.lang = opts.lang || 'en-US';
-      utter.rate = typeof opts.rate === 'number' ? opts.rate : (opts.role === 'female' ? 0.75 : 0.92);
-      utter.pitch = typeof opts.pitch === 'number' ? opts.pitch : (opts.role === 'female' ? 1.5 : 1.08);
+      utter.rate = typeof opts.rate === 'number' ? opts.rate : 0.92;
+      utter.pitch = typeof opts.pitch === 'number' ? opts.pitch : 1.08;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
@@ -368,7 +368,7 @@
       }
       setStatus('Amazing job! You circled the wrong tangram animal.', true);
       try {
-        const chime = new Audio('../../../../assets/audio/chimes/chime.mp3');
+        const chime = new Audio('../../../../assets/audio/chimes/chime.mp3.mp3');
         chime.preload = 'auto';
         chime.play().catch(() => {});
       } catch (_) {}
@@ -406,7 +406,7 @@
 
       const beginSpeech = () => {
         setStatus('Find the mistake and circle it.');
-        speakLine('Find the mistake and circle it.', { role: 'female', rate: 0.75, pitch: 1.5 });
+        speakLine('Find the mistake and circle it.', { role: 'female', rate: 0.92, pitch: 1.08 });
       };
 
       const fallbackTimer = window.setTimeout(beginSpeech, 5200);
@@ -552,7 +552,7 @@
     (function(){
       const homeBtn = document.querySelector('.home-btn');
       if(!homeBtn) return;
-      const chime = new Audio('../../../../assets/audio/chimes/chime.mp3');
+      const chime = new Audio('../../../../assets/audio/chimes/chime.mp3.mp3');
       chime.preload = 'auto';
       homeBtn.addEventListener('click', () => {
         try{

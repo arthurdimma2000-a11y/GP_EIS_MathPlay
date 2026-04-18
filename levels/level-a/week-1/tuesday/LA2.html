@@ -38,10 +38,7 @@
     align-items:flex-start;
     justify-content:center;
     background:var(--bg);
-    padding:10px;
-    color:var(--ink);
-  }
-  .app{
+      .app{
     width:min(960px,100%);
     max-width:960px;
     border-radius:16px;
@@ -234,20 +231,7 @@
   .convo-line{
     position:absolute;
     inset:0;
-    pointer-events:none;
-    z-index:3;
-    margin:0;
-    overflow:visible;
-  }
-  .convo-line .bubble-stack{
-    position:absolute;
-    z-index:4;
-  }
-
-  /* moved above boy's head */
-  .kid-bubble{
-    right:10%;
-    top:37%;
+    pointer-events:n    top:37%;
     max-width:34%;
     align-items:flex-end;
   }
@@ -605,8 +589,7 @@
           </div>
         </div>
 
-        <div class="row convo-line">
-          <div class="bubble-stack chef-bubble">
+        <div class=bble">
             <div class="bubble baker">I make cookies.</div>
             <div class="repeat-result" data-line="1"></div>
             <div class="star-row" data-line="1"></div>
@@ -617,6 +600,7 @@
 
     <div class="controls">
       <div class="mascot-spot">
+        <div class="tap-pointer" aria-hidden="true">👉</div>
         <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="tapGirl" class="tap-girl">
         <div class="mascot-hint">Tap the girl</div>
       </div>
@@ -754,8 +738,8 @@
       const voice = chooseVoice(role);
       if (voice) utter.voice = voice;
       utter.lang = (voice && voice.lang) ? voice.lang : "en-US";
-      utter.rate = role === "kid" ? 0.75 : 0.95;
-      utter.pitch = role === "kid" ? 1.5 : 0.9;
+      utter.rate = role === "kid" ? 1.06 : 0.95;
+      utter.pitch = role === "kid" ? 1.52 : 0.9;
       utter.volume = 1;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
@@ -927,7 +911,7 @@
             "Great Try! keep it up!!!"
           ];
           const remark = remarks[Math.floor(Math.random() * remarks.length)];
-          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
           chime.preload = "auto";
           chime.play().catch(() => {});
           setConversationStatus(remark);
@@ -1145,7 +1129,7 @@
           });
           activitySaved = true;
         }
-        window.location.href = "../monday/CircleArtClass.html";
+        window.location.href = "../../../../index.html";
       });
     }
 
@@ -1168,7 +1152,7 @@
     (function(){
       const homeBtn = document.querySelector('.home-btn');
       if(!homeBtn) return;
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
       chime.preload = "auto";
 
       homeBtn.addEventListener('click', async (e) => {
@@ -1311,6 +1295,130 @@
 
     window.finishAndSave = finishAndSave;
   </script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
+</body>
+</html>
+
+      video.addEventListener("loadedmetadata", () => {
+        tryAutoplayMuted();
+      }, { once:true });
+
+      window.addEventListener("load", () => {
+        if (!revealed && video.readyState >= 1) {
+          tryAutoplayMuted();
+        }
+      }, { once:true });
+    })();
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = function(){};
+    }
+  </script>
+</body>
+</html>
+        }catch(err){
+          help.textContent = "Unable to start the intro video.";
+          setTimeout(revealLesson, 900);
+        }
+      });
+
+      soundBtn.addEventListener("click", playWithSound);
+      skipBtn.addEventListener("click", revealLesson);
+      video.addEventListener("ended", revealLesson, { once:true });
+      video.addEventListener("error", () => {
+        help.textContent = "Intro video failed to load. Opening page now.";
+        setTimeout(revealLesson, 800);
+      }, { once:true });
+
+      video.addEventListener("playing", () => {
+        help.textContent = video.muted
+          ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
+          : 'Sound is on. Tap "Skip Intro" to continue.';
+      });
+
+      video.addEventListener("loadedmetadata", () => {
+        tryAutoplayMuted();
+      }, { once:true });
+
+      window.addEventListener("load", () => {
+        if (!revealed && video.readyState >= 1) {
+          tryAutoplayMuted();
+        }
+      }, { once:true });
+    })();
+  </script>
+</body>
+</html>= {
+        ...(store[meta.pageId] || {}),
+        ...entry
+      };
+      setActivityStore(store);
+      try{
+        localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+      }catch(e){}
+      return store[meta.pageId];
+    }
+
+    async function finishAndSave(payload){
+      const session = getStudentSession() || {};
+      const fullPayload = {
+        ...(payload || {}),
+        classId: (payload && payload.classId) || session.classId || null,
+        studentId: (payload && payload.studentId) || session.studentId || null,
+        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+      };
+    
+      saveLocalActivityFallback(fullPayload);
+    
+      if (typeof window.finishActivity === "function") {
+        try{
+          await window.finishActivity(fullPayload);
+        }catch(err){
+          console.warn("finishActivity failed, local fallback already saved:", err);
+        }
+      }
+    
+      return fullPayload;
+    }
+
+    window.finishAndSave = finishAndSave;
+
+    
+</script>
+</body>
+</html>
+     window.setTimeout(() => {
+        if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
+          revealLessonAfterIntro();
+        }
+      }, 1200);
+    });
+
+    window.setTimeout(() => {
+      if (!introFinished && introVideo.readyState < 1) {
+        revealLessonAfterIntro();
+      }
+    }, 8000);
+
+    tapGirl.addEventListener("click", revealCircle);
+    micBtn.addEventListener("click", replayLessonSequence);
+    clearBtn.addEventListener("click", resetLessonState);
+    prevBtn.addEventListener("click", () => { window.location.href = "../../../../index.html"; });
+    nextBtn.addEventListener("click", () => { window.location.href = "../wednesday/LA3.html"; });
+
+    window.addEventListener("load", () => {
+      introVideo.muted = true;
+      introVideo.play().catch(() => {
+        window.setTimeout(revealLessonAfterIntro, 3000);
+      });
+    }, { once: true });
+  </script>
+ && pageContent){
+    pageContent.style.opacity = "1";
+    pageContent.style.visibility = "visible";
+    pageContent.style.display = "block";
+  }
+});
+</script>
+
 </body>
 </html>

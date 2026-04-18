@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Vertices • Week 2 • Square & Hexagon</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#262626;
+    --red:#ff3b5b;
+    --pink:#f3a5ad;
+    --pink2:#ffb9c0;
+    --line:#8d8d8d;
+    --squareDot:#e63a45;
+    --hexDot:#1672c6;
+    --good:#2fbf71;
+    --warn:#ff8a3d;
+    --gridLight:rgba(42,168,255,.20);
+    --shadow:0 18px 45px rgba(0,0,0,.14);
+    font-family:"Baloo 2", system-ui, -apple-system, Segoe UI, Arial;
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+  }
+
+  body{
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    padding:18px;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,.88), transparent 60%),
+      radial-gradient(900px 700px at 90% 18%, rgba(255,255,255,.72), transparent 55%),
+      linear-gradient(135deg, #d6fbff 0%, #ffe7c7 30%, #e7dcff 65%, #dfffe2 100%);
+  }
+
+  .sheet{
+    width:min(980px, 96vw);
+    background:rgba(255,255,255,.92);
+    border-radius:30px;
+    box-shadow:var(--shadow);
+    position:relative;
+    padding:18px 18px 74px;
+    overflow:hidden;
+  }
+
+  .sheet:before{
+    content:"";
+    position:absolute; inset:14px;
+    border-radius:24px;
+    border:10px solid rgba(72,126,201,.92);
+    box-shadow: inset 0 0 0 4px rgba(255,255,255,.78);
+    pointer-events:none;
+  }
+
+  .paper{
+    position:absolute; inset:28px;
+    border-radius:20px;
+    background:
+      repeating-linear-gradient(0deg, rgba(94,112,161,.16) 0 1px, transparent 1px 22px),
+      repeating-linear-gradient(90deg, rgba(94,112,161,.16) 0 1px, transparent 1px 22px);
+    opacity:.85;
+    pointer-events:none;
+  }
+
+  .title{
+    margin:0;
+    text-align:center;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size: clamp(50px, 6vw, 88px);
+    line-height:1;
+    color:#fff;
+    letter-spacing:.6px;
+    text-shadow:0 8px 0 rgba(70,126,202,.18), 0 3px 0 rgba(0,0,0,.05);
+    -webkit-text-stroke:14px rgba(86,132,203,.96);
+    paint-order:stroke fill;
+    position:relative;
+    z-index:3;
+  }
+
+  .week{
+    position:absolute;
+    right:32px;
+    top:108px;
+    z-index:3;
+    padding:8px 12px;
+    border-radius:14px;
+    background:rgba(255,255,255,.96);
+    border:2px solid rgba(86,132,203,.95);
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:18px;
+    box-shadow:0 10px 16px rgba(0,0,0,.10);
+  }
+
+  .instruction-note{
+    position:absolute;
+    top:140px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:3;
+    padding:12px 16px;
+    border-radius:14px;
+    background:rgba(255,59,91,.95);
+    color:#fff;
+    border:2px solid rgba(255,255,255,.8);
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:24px;
+    box-shadow:0 10px 16px rgba(0,0,0,.15);
+    opacity:0;
+    transform:translateX(-50%) translateY(-10px);
+    transition:opacity .3s ease, transform .3s ease;
+    pointer-events:none;
+    text-align:center;
+    white-space:nowrap;
+    max-width:none;
+  }
+
+  .instruction-note.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  .teacher{
+    position:absolute;
+    left:16px;
+    top:126px;
+    z-index:3;
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,.18));
+  }
+  .teacher img{
+    width:155px;
+    height:auto;
+    display:block;
+  }
+
+  .topicRow{
+    position:relative;
+    z-index:2;
+    margin:140px auto 0;
+    width:min(860px, 92%);
+    background:linear-gradient(180deg, var(--pink2), var(--pink));
+    border-radius:8px 8px 0 0;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    align-items:center;
+    text-align:center;
+    color:#fff;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    font-size:44px;
+    padding:16px 10px;
+    box-shadow:0 12px 18px rgba(0,0,0,.12);
+  }
+
+  .board{
+    position:relative;
+    z-index:2;
+    margin:0 auto;
+    width:min(860px, 92%);
+    background:rgba(255,255,255,.95);
+    border:3px solid rgba(255,120,140,.55);
+    border-top:none;
+    border-radius:0 0 10px 10px;
+    overflow:hidden;
+    box-shadow:0 14px 18px rgba(0,0,0,.10);
+    touch-action:none;
+    user-select:none;
+  }
+
+  .board svg{
+    display:block;
+    width:100%;
+    height:auto;
+    touch-action:none;
+    background:
+      repeating-linear-gradient(0deg, var(--gridLight) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, var(--gridLight) 0 1px, transparent 1px 28px),
+      #fff;
+  }
+
+  #traceCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+
+  .cross{ stroke:rgba(255,120,140,.75); stroke-width:4; }
+  .borderIn{ stroke:rgba(255,120,140,.55); stroke-width:4; fill:none; }
+
+  .guideLine{
+    stroke:rgba(120,120,120,.75);
+    stroke-width:4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    fill:none;
+    stroke-dasharray:10 8;
+  }
+
+  .traceHit{
+    stroke:transparent;
+    stroke-width:34;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    fill:none;
+    pointer-events:stroke;
+    cursor:crosshair;
+  }
+
+  .vDotStatic{
+    filter: drop-shadow(0 6px 6px rgba(0,0,0,.18));
+  }
+
+  .trace-panel{
+    position:relative;
+    z-index:3;
+    margin:12px auto 0;
+    width:min(860px, 92%);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .progress-row{
+    display:flex;
+    gap:16px;
+  }
+
+  .progress-wrap{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .progress-message{
+    font-size:1.08rem;
+    font-weight:900;
+    text-align:center;
+    min-height:1.2em;
+  }
+
+  .sq{ color:#d62828; }
+  .hex{ color:#1672c6; }
+
+  .progress-label{
+    font-size:.95rem;
+    text-align:center;
+    font-weight:900;
+  }
+
+  .progress-bar{
+    width:100%;
+    height:14px;
+    border-radius:999px;
+    background:#e7efff;
+    overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#3cc4ff,#7dffb3);
+    transition:width .12s linear;
+  }
+
+  .hint-note{
+    text-align:center;
+    font-weight:900;
+    color:#6a4b00;
+    font-size:14px;
+  }
+
+  .controls{
+    position:relative;
+    z-index:3;
+    margin:12px auto 0;
+    width:min(860px, 92%);
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .pill{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+
+  button{
+    border:none;
+    border-radius:999px;
+    padding:10px 16px;
+    font-size:15px;
+    font-weight:900;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:linear-gradient(180deg,#fffad7,#ffd86a);
+    color:#8b5a00;
+    box-shadow:0 5px 0 rgba(0,0,0,.20);
+    transition:transform .08s ease, box-shadow .08s ease;
+    user-select:none;
+  }
+
+  button:active{
+    transform:translateY(2px) scale(.99);
+    box-shadow:0 2px 0 rgba(0,0,0,.20);
+  }
+
+  .toggle{
+    background:linear-gradient(180deg,#eafff5,#b6ffd9);
+    color:#0a6b3b;
+  }
+
+  .status{
+    background:rgba(255,255,255,.95);
+    border:2px solid rgba(0,0,0,.08);
+    border-radius:16px;
+    padding:10px 14px;
+    box-shadow:0 10px 16px rgba(0,0,0,.12);
+    font-weight:900;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    max-width:360px;
+  }
+
+  .status .dot{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:var(--good);
+    box-shadow:0 0 0 4px rgba(47,191,113,.18);
+  }
+
+  .girl-inline{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+
+  .girl-inline img{
+    width:64px;
+    height:64px;
+    border-radius:16px;
+    object-fit:cover;
+    border:4px solid #ffe3f7;
+    background:#ffd6f2;
+    box-shadow:0 6px 12px rgba(0,0,0,.18);
+    cursor:pointer;
+  }
+
+  .girl-inline span{
+    font-size:14px;
+    font-weight:900;
+    color:#d62828;
+    text-align:center;
+  }
+
+  .pageno{
+    position:absolute;
+    right:22px;
+    bottom:18px;
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:rgba(0,0,0,.86);
+    color:#fff;
+    display:grid;
+    place-items:center;
+    font-family:"Nunito","Baloo 2",system-ui,Arial;
+    font-weight:900;
+    z-index:4;
+  }
+
+  @media (max-width:780px){
+    .teacher{
+      transform:scale(.88);
+      transform-origin:left top;
+    }
+    .topicRow{
+      font-size:34px;
+      margin-top:128px;
+    }
+    .progress-row{
+      flex-direction:column;
+    }
+    .status{
+      max-width:none;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="sheet" role="application" aria-label="Vertices Week 2 Square and Hexagon practice">
+  <div class="paper" aria-hidden="true"></div>
+
+  <h1 class="title">Vertices</h1>
+  <div class="week">Week 2</div>
+  <div class="instruction-note" id="instructionNote">Connect the vertices to find the number of sides</div>
+
+  <div class="teacher" aria-hidden="true">
+    <img src="OrangeHeadWoman.png" alt="">
+  </div>
+
+  <div class="topicRow">
+    <div>Square</div>
+    <div>Hexagon</div>
+  </div>
+
+  <div class="board" id="board" aria-label="Trace the square and hexagon by connecting the dots">
+    <svg id="boardSvg" viewBox="0 0 860 620" aria-label="Square and Hexagon tracing board">
+      <rect x="8" y="8" width="844" height="604" class="borderIn"></rect>
+      <line x1="430" y1="8" x2="430" y2="612" class="cross"></line>
+      <line x1="8" y1="310" x2="852" y2="310" class="cross"></line>
+
+      <g id="gridV"></g>
+      <g id="gridH"></g>
+      <g id="shapes"></g>
+    </svg>
+    <canvas id="traceCanvas"></canvas>
+  </div>
+
+  <div class="trace-panel">
+    <div class="progress-row">
+      <div class="progress-wrap">
+        <div class="progress-message sq" id="progressMessageSq"></div>
+        <div class="progress-label">Square trace: <span id="progressPercentSq">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFillSq"></div></div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-message hex" id="progressMessageHex"></div>
+        <div class="progress-label">Hexagon trace: <span id="progressPercentHex">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFillHex"></div></div>
+      </div>
+    </div>
+
+    <div class="hint-note">Only the dots show by default. Trace the invisible sides by joining the dots. Turn Guide ON if you need help.</div>
+  </div>
+
+  <div class="controls">
+    <div class="pill">
+      <button id="prevBtn" type="button">Previous</button>
+      <button id="nextBtn" type="button">Next</button>
+      <button id="resetBtn" type="button">↺ Reset</button>
+      <button id="guideBtn" class="toggle" type="button">Guide: <span id="guideLabel">OFF</span></button>
+      <button id="checkBtn" type="button">✓ Check</button>
+
+      <div class="girl-inline">
+        <img src="EyeglassGirl.png" alt="Tap the girl" id="tapGirl">
+        <span>Tap the girl</span>
+      </div>
+    </div>
+
+    <div class="status" aria-live="polite">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Trace the invisible square and hexagon sides by connecting the dots.</span>
+    </div>
+  </div>
+
+  <div class="pageno" aria-hidden="true">9</div>
+</div>
+
+<script src="traceSound.js"></script>
+<script src="typingSound.js"></script>
+<script src="./levelbc-runtime-fix.js"></script>
+<script src="./activity-standardizer.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+
+<script>
+(function(){
+  const svg = document.getElementById("boardSvg");
+  const board = document.getElementById("board");
+  const gridV = document.getElementById("gridV");
+  const gridH = document.getElementById("gridH");
+  const shapesRoot = document.getElementById("shapes");
+  const traceCanvas = document.getElementById("traceCanvas");
+
+  const resetBtn = document.getElementById("resetBtn");
+  const checkBtn = document.getElementById("checkBtn");
+  const tapGirl = document.getElementById("tapGirl");
+  const guideBtn = document.getElementById("guideBtn");
+  const guideLabel = document.getElementById("guideLabel");
+  const statusText = document.getElementById("statusText");
+  const statusDot = document.getElementById("statusDot");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  const progressPercentSq = document.getElementById("progressPercentSq");
+  const progressFillSq = document.getElementById("progressFillSq");
+  const progressMessageSq = document.getElementById("progressMessageSq");
+  const progressPercentHex = document.getElementById("progressPercentHex");
+  const progressFillHex = document.getElementById("progressFillHex");
+  const progressMessageHex = document.getElementById("progressMessageHex");
+
+  if (!svg || !board || !gridV || !gridH || !shapesRoot || !traceCanvas) return;
+
+  const ctx = traceCanvas.getContext("2d");
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const W = 860;
+  const H = 620;
+  const GRID = 28;
+  const threshold = 22;
+  const threshold2 = threshold * threshold;
+
+  const samples = { sq: [], hex: [] };
+  const visited = { sq: [], hex: [] };
+  const progress = { sq: 0, hex: 0 };
+  const celebrated = { sq: false, hex: false };
+
+  let activeGroup = null;
+  let lastPoint = null;
+  let showGuide = false;
+  let introStarted = false;
+  let audioContext = null;
+
+  function getAudioContext(){
+    if (!audioContext) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        audioContext = new AudioCtx();
+      }
+    }
+    if (audioContext && audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    return audioContext;
+  }
+
+  function playTraceTick(){
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const duration = 0.05;
+      const start = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(920, start);
+      osc.frequency.exponentialRampToValueAtTime(640, start + duration);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.linearRampToValueAtTime(0.08, start + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + duration);
+    } catch (_err) {}
+  }
+
+  function playCelebration(){
+    try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_e){}
+    try{ new Audio('../../../../assets/audio/sfx-cheer.mp3').play().catch(()=>{}); }catch(_e){}
+  }
+
+  const squarePoints = [
+    { x: 148, y: 84  },
+    { x: 322, y: 84  },
+    { x: 322, y: 258 },
+    { x: 148, y: 258 }
+  ];
+
+  const hexagonPoints = [
+    { x: 540, y: 110 },
+    { x: 708, y: 110 },
+    { x: 796, y: 193 },
+    { x: 708, y: 282 },
+    { x: 540, y: 282 },
+    { x: 452, y: 193 }
+  ];
+
+  const squareBottom = squarePoints.map((pt) => ({ x: pt.x, y: pt.y + 310 }));
+  const hexagonBottom = hexagonPoints.map((pt) => ({ x: pt.x, y: pt.y + 310 }));
+
+  function setStatus(text, good){
+    if (statusText) statusText.textContent = text || "";
+    if (!statusDot) return;
+    statusDot.style.background = good ? "var(--good)" : "var(--warn)";
+    statusDot.style.boxShadow = good
+      ? "0 0 0 4px rgba(47,191,113,.18)"
+      : "0 0 0 4px rgba(255,138,61,.20)";
+  }
+
+  function createNode(tag, attrs){
+    const node = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs || {}).forEach(([key, value]) => node.setAttribute(key, value));
+    return node;
+  }
+
+  function polyString(points){
+    return points.map((pt) => `${pt.x},${pt.y}`).join(" ");
+  }
+
+  function lineSamples(a, b, spacing){
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const steps = Math.max(1, Math.ceil(dist / (spacing || 6)));
+    const out = [];
+    for (let i = 0; i <= steps; i += 1) {
+      const t = i / steps;
+      out.push({ x: a.x + dx * t, y: a.y + dy * t });
+    }
+    return out;
+  }
+
+  function polygonSamples(points){
+    const out = [];
+    for (let i = 0; i < points.length; i += 1) {
+      out.push(...lineSamples(points[i], points[(i + 1) % points.length], 5));
+    }
+    return out;
+  }
+
+  function buildGrid(){
+    gridV.innerHTML = "";
+    gridH.innerHTML = "";
+    for (let x = 0; x <= W; x += GRID) {
+      if (x === 0 || x === W || x === 430) continue;
+      const line = createNode("line", {
+        x1: x, y1: 0, x2: x, y2: H,
+        stroke: "rgba(42,168,255,0.20)",
+        "stroke-width": x % (GRID * 5) === 0 ? 1.5 : 1
+      });
+      gridV.appendChild(line);
+    }
+    for (let y = 0; y <= H; y += GRID) {
+      if (y === 0 || y === H || y === 310) continue;
+      const line = createNode("line", {
+        x1: 0, y1: y, x2: W, y2: y,
+        stroke: "rgba(42,168,255,0.20)",
+        "stroke-width": y % (GRID * 5) === 0 ? 1.5 : 1
+      });
+      gridH.appendChild(line);
+    }
+  }
+
+  function addPolygon(points, opts){
+    if (showGuide) {
+      const guide = createNode("polygon", {
+        points: polyString(points),
+        class: "guideLine"
+      });
+      shapesRoot.appendChild(guide);
+    }
+
+    points.forEach((pt) => {
+      const dot = createNode("circle", {
+        cx: pt.x,
+        cy: pt.y,
+        r: opts.dotRadius || 10,
+        fill: opts.dotFill,
+        class: "vDotStatic"
+      });
+      shapesRoot.appendChild(dot);
+    });
+
+    if (opts.hitGroup) {
+      const hit = createNode("polygon", {
+        points: polyString(points),
+        class: "traceHit",
+        "data-group": opts.hitGroup
+      });
+      shapesRoot.appendChild(hit);
+    }
+  }
+
+  function resizeCanvas(){
+    const rect = board.getBoundingClientRect();
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    traceCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+    traceCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+    traceCanvas.style.width = rect.width + "px";
+    traceCanvas.style.height = rect.height + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    clearCanvas();
+  }
+
+  function clearCanvas(){
+    const rect = board.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+  }
+
+  function getSvgPoint(evt){
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: (evt.clientX - rect.left) * (W / rect.width),
+      y: (evt.clientY - rect.top) * (H / rect.height)
+    };
+  }
+
+  function getCanvasPoint(evt){
+    const rect = board.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+
+  function updateUi(group){
+    const pct = progress[group];
+    if (group === "sq") {
+      if (progressPercentSq) progressPercentSq.textContent = pct + "%";
+      if (progressFillSq) progressFillSq.style.width = pct + "%";
+    } else {
+      if (progressPercentHex) progressPercentHex.textContent = pct + "%";
+      if (progressFillHex) progressFillHex.style.width = pct + "%";
+    }
+    if (pct >= 100 && !celebrated[group]) {
+      celebrated[group] = true;
+      playCelebration();
+    }
+  }
+
+  function markVisited(group, point){
+    const pts = samples[group];
+    const seen = visited[group];
+    let changed = false;
+
+    for (let i = 0; i < pts.length; i += 1) {
+      if (seen[i]) continue;
+      const dx = point.x - pts[i].x;
+      const dy = point.y - pts[i].y;
+      if ((dx * dx) + (dy * dy) <= threshold2) {
+        seen[i] = true;
+        changed = true;
+      }
+    }
+
+    if (!changed) return;
+
+    // Play tracing sound when dots are connected
+    playTraceTick();
+
+    const covered = seen.reduce((sum, value) => sum + (value ? 1 : 0), 0);
+    progress[group] = Math.max(progress[group], Math.round((covered / Math.max(1, pts.length)) * 100));
+    updateUi(group);
+  }
+
+  function drawSegment(from, to, group){
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.strokeStyle = group === "sq" ? "#e63a45" : "#1672c6";
+    ctx.lineWidth = 8;
+    ctx.stroke();
+  }
+
+  function startTrace(evt, group){
+    evt.preventDefault();
+    activeGroup = group;
+    lastPoint = getCanvasPoint(evt);
+    const svgPoint = getSvgPoint(evt);
+    markVisited(group, svgPoint);
+    setStatus(group === "sq" ? "Trace the square by joining the red dots." : "Trace the hexagon by joining the blue dots.", true);
+  }
+
+  function moveTrace(evt){
+    if (!activeGroup) return;
+    evt.preventDefault();
+    const nextCanvas = getCanvasPoint(evt);
+    const nextSvg = getSvgPoint(evt);
+
+    if (lastPoint) drawSegment(lastPoint, nextCanvas, activeGroup);
+    lastPoint = nextCanvas;
+    markVisited(activeGroup, nextSvg);
+  }
+
+  function stopTrace(){
+    activeGroup = null;
+    lastPoint = null;
+  }
+
+  function resetProgress(){
+    visited.sq = new Array(samples.sq.length).fill(false);
+    visited.hex = new Array(samples.hex.length).fill(false);
+    progress.sq = 0;
+    progress.hex = 0;
+    clearCanvas();
+    updateUi("sq");
+    updateUi("hex");
+
+    if (progressMessageSq) progressMessageSq.textContent = "";
+    if (progressMessageHex) progressMessageHex.textContent = "";
+
+    setStatus("Trace the invisible square and hexagon sides by connecting the dots.", true);
+  }
+
+  function checkProgress(){
+    const squareDone = progress.sq >= 90;
+    const hexDone = progress.hex >= 90;
+
+    if (progressMessageSq) {
+      progressMessageSq.textContent = squareDone ? "Great square tracing!" : "Keep tracing the square.";
+    }
+
+    if (progressMessageHex) {
+      progressMessageHex.textContent = hexDone ? "Great hexagon tracing!" : "Keep tracing the hexagon.";
+    }
+
+    setStatus(
+      squareDone && hexDone
+        ? "Excellent work. You traced both shapes."
+        : "Keep going until both progress bars are high.",
+      squareDone && hexDone
+    );
+  }
+
+  function renderBoard(){
+    shapesRoot.innerHTML = "";
+    buildGrid();
+
+    addPolygon(squarePoints, {
+      dotFill: "#e63a45",
+      hitGroup: "sq"
+    });
+
+    addPolygon(hexagonPoints, {
+      dotFill: "#1672c6",
+      hitGroup: "hex"
+    });
+
+    addPolygon(squareBottom, {
+      dotFill: "#e63a45",
+      hitGroup: "sq"
+    });
+
+    addPolygon(hexagonBottom, {
+      dotFill: "#1672c6",
+      hitGroup: "hex"
+    });
+
+    samples.sq = [
+      ...polygonSamples(squarePoints),
+      ...polygonSamples(squareBottom)
+    ];
+
+    samples.hex = [
+      ...polygonSamples(hexagonPoints),
+      ...polygonSamples(hexagonBottom)
+    ];
+
+    resetProgress();
+  }
+
+  function getSpeechVoice(role){
+    if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+
+    const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || "")));
+    const pool = englishVoices.length ? englishVoices : voices;
+
+    const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
+    const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
+    const kidName = /(kids?|child|junior|young|ava|aria|allison|ellie|libby|olivia|emma|ivy|jenny|nova|grace)/i;
+
+    if (role === "girl") {
+      return pool.find((voice) => kidName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+        || pool.find((voice) => femaleName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+        || pool.find((voice) => !maleName.test(String(voice.name || "")))
+        || pool[0]
+        || null;
+    }
+
+    if (role === "female") {
+      return pool.find((voice) => femaleName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+        || pool.find((voice) => !maleName.test(String(voice.name || "")))
+        || pool[0]
+        || null;
+    }
+
+    return pool[0] || null;
+  }
+
+  function speakLine(text, onend, options){
+    if (!("speechSynthesis" in window)) {
+      if (typeof onend === "function") onend();
+      return;
+    }
+
+    try { window.speechSynthesis.cancel(); } catch (_err) {}
+
+    const opts = options || {};
+    const utter = new SpeechSynthesisUtterance(text || "");
+    const voice = getSpeechVoice(opts.role);
+    if (voice) utter.voice = voice;
+    utter.lang = opts.lang || "en-US";
+    utter.rate = typeof opts.rate === "number" ? opts.rate : 0.94;
+    utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.08;
+    utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
+    utter.onend = () => { if (typeof onend === "function") onend(); };
+    utter.onerror = () => { if (typeof onend === "function") onend(); };
+    window.speechSynthesis.speak(utter);
+  }
+
+  function playGirlHelp(){
+    setStatus("Listen carefully.", true);
+
+    speakLine("A square has 4 vertices. A hexagon has 6 vertices. Trace the shapes by connecting the dots.", null, {
+      role: "girl",
+      rate: 0.98,
+      pitch: 1.22,
+      volume: 1
+    });
+  }
+
+  function playLoadInstructionSequence(){
+    if (introStarted) return;
+    introStarted = true;
+
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    instructionAudio.preload = "auto";
+
+    setStatus("Listen carefully.", true);
+
+    const beginSpeech = () => {
+      // Show the instruction note
+      const instructionNote = document.getElementById('instructionNote');
+      if (instructionNote) {
+        instructionNote.classList.add('show');
+      }
+
+      speakLine("Connect the red dots to trace the square. Connect the blue dots to trace the hexagon.", null, {
+        role: "female",
+        rate: 0.92,
+        pitch: 1.08,
+        volume: 1
+      });
+    };
+
+    const fallbackTimer = window.setTimeout(beginSpeech, 5200);
+
+    instructionAudio.onended = () => {
+      window.clearTimeout(fallbackTimer);
+      beginSpeech();
+    };
+
+    instructionAudio.onerror = () => {
+      window.clearTimeout(fallbackTimer);
+      beginSpeech();
+    };
+
+    try {
+      instructionAudio.currentTime = 0;
+      const playAttempt = instructionAudio.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {
+          window.clearTimeout(fallbackTimer);
+          beginSpeech();
+        });
+      }
+    } catch (_err) {
+      window.clearTimeout(fallbackTimer);
+      beginSpeech();
+    }
+  }
+
+  svg.addEventListener("pointerdown", (evt) => {
+    const hit = evt.target && evt.target.closest ? evt.target.closest(".traceHit") : null;
+    if (!hit) return;
+    startTrace(evt, hit.getAttribute("data-group"));
+  });
+
+  window.addEventListener("pointermove", moveTrace, { passive:false });
+  window.addEventListener("pointerup", stopTrace);
+  window.addEventListener("pointercancel", stopTrace);
+
+  resetBtn && resetBtn.addEventListener("click", resetProgress);
+  checkBtn && checkBtn.addEventListener("click", checkProgress);
+
+  guideBtn && guideBtn.addEventListener("click", () => {
+    showGuide = !showGuide;
+    if (guideLabel) guideLabel.textContent = showGuide ? "ON" : "OFF";
+    renderBoard();
+    setStatus(showGuide ? "Guide lines are ON." : "Guide lines are OFF.", true);
+  });
+
+  tapGirl && tapGirl.addEventListener("click", playGirlHelp);
+
+  prevBtn && prevBtn.addEventListener("click", () => {
+    window.location.href = "LevelC8.html";
+  });
+
+  nextBtn && nextBtn.addEventListener("click", () => {
+    window.location.href = "LevelC10.html";
+  });
+
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("load", playLoadInstructionSequence, { once:true });
+
+  resizeCanvas();
+  renderBoard();
+})();
+</script>
+
+<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
+</body>
+</html>

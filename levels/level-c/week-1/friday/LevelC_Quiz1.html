@@ -179,7 +179,7 @@ function speak(text){
   if(!SOUND_ON) return;
   if(!("speechSynthesis" in window)) return;
   const u = new SpeechSynthesisUtterance(text);
-  u.rate=0.75; u.pitch=1.5; u.volume=1;
+  u.rate=1.02; u.pitch=1.12; u.volume=1;
   const female = getFemaleVoice();
   if(female) u.voice = female;
   speechSynthesis.cancel(); speechSynthesis.speak(u);
@@ -198,8 +198,8 @@ function speakText(text){
     try{ speechSynthesis.cancel(); } catch(_){ }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "en-US";
-    u.rate = 1.2;
-    u.pitch = 2.0;
+    u.rate = 1.05;
+    u.pitch = 1.35;
     u.volume = 1;
     const female = getFemaleVoice();
     if(female) u.voice = female;
@@ -214,8 +214,8 @@ function speakCheer(text){
   if(!("speechSynthesis" in window)) return;
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  u.rate = 1.2;
-  u.pitch = 2.0;
+  u.rate = 1.15;
+  u.pitch = 1.65;
   u.volume = 1;
   const female = getFemaleVoice();
   if(female) u.voice = female;

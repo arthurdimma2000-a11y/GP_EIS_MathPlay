@@ -201,8 +201,8 @@
       const voice = getSpeechVoice(opts.role);
       if (voice) u.voice = voice;
       u.lang = opts.lang || "en-US";
-      u.rate = typeof opts.rate === "number" ? opts.rate : (opts.role === "female" ? 0.75 : 0.94);
-      u.pitch = typeof opts.pitch === "number" ? opts.pitch : (opts.role === "female" ? 1.5 : 1.08);
+      u.rate = typeof opts.rate === "number" ? opts.rate : 0.94;
+      u.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.08;
       u.volume = 1.0;
       u.onend = () => { if (onend) onend(); };
       u.onerror = () => { if (onend) onend(); };
@@ -229,7 +229,7 @@
       const steps = [
         () => {
           conversationStatus.textContent = "I eat a piece of cake.";
-          speak("I eat a piece of cake.", { role: "female", rate: 0.75, pitch: 1.5 }, runNextStep);
+          speak("I eat a piece of cake.", { role: "female", rate: 0.92, pitch: 1.08 }, runNextStep);
         },
         () => {
           bubbleLeft.textContent = "Don’t eat alone.";
@@ -241,11 +241,11 @@
           bubbleRight.textContent = "Let’s eat together.";
           bubbleRight.classList.add('show');
           conversationStatus.textContent = "Let’s eat together.";
-          speak("Let's eat together.", { role: "female", rate: 0.75, pitch: 1.5 }, runNextStep);
+          speak("Let’s eat together.", { role: "female", rate: 0.95, pitch: 1.08 }, runNextStep);
         },
         () => {
           conversationStatus.textContent = "The cake has 0 sides and 3 vertices.";
-          speak("The cake has 0 sides and 3 vertices.", { role: "female", rate: 0.75, pitch: 1.5 });
+          speak("The cake has 0 sides and 3 vertices.", { role: "female", rate: 0.92, pitch: 1.08 });
         }
       ];
 

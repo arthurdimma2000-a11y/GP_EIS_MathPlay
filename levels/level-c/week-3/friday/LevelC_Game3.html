@@ -216,7 +216,7 @@ function speak(text){
   if(!SOUND_ON) return;
   if(!("speechSynthesis" in window)) return;
   const u = new SpeechSynthesisUtterance(text);
-  u.rate=0.75; u.pitch=1.5; u.volume=1;
+  u.rate=1.02; u.pitch=1.12; u.volume=1;
   speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
 const toast=document.getElementById("toast");

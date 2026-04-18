@@ -73,8 +73,8 @@
                 utterance.lang = "en-US";
               }
             }
-            if (typeof utterance.rate !== "number" || utterance.rate >= 0.98 || utterance.rate < 0.88) utterance.rate = 0.8;
-            if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.1) utterance.pitch = 1.5;
+            if (typeof utterance.rate !== "number" || utterance.rate >= 0.98 || utterance.rate < 0.88) utterance.rate = 0.92;
+            if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.1) utterance.pitch = 1.34;
             utterance.volume = 1;
           }
         } catch (_) {}
@@ -126,6 +126,35 @@
   }
 
   window.__GP_STOP_INTRO_MEDIA = stopIntroMedia;
+
+  function suppressWeek2LessonIntroVideos() {
+    if (!isLevelLessonPage()) return;
+    if (inferWeekFromPage() !== 2) return;
+
+    stopIntroMedia();
+
+    const html = document.documentElement;
+    const body = document.body;
+    if (html) html.classList.remove("lesson-intro-video-pending");
+    if (body) body.classList.remove("intro-active");
+
+    [
+      "#gpAutoIntroOverlay",
+      "#introVideoWrap",
+      ".intro-video-wrap",
+      "#lbIntroVideoOverlay",
+      "#gpIntroVideoOverlay"
+    ].forEach((selector) => {
+      document.querySelectorAll(selector).forEach((node) => {
+        try { node.classList.remove("active"); } catch (_) {}
+        try { node.style.display = "none"; } catch (_) {}
+        try { node.style.visibility = "hidden"; } catch (_) {}
+        try { node.style.opacity = "0"; } catch (_) {}
+        try { node.style.pointerEvents = "none"; } catch (_) {}
+        try { node.remove(); } catch (_) {}
+      });
+    });
+  }
 
   function looksLikeTrackedNav(el) {
     const label = [
@@ -812,8 +841,8 @@
       try {
         if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
           window.GPTracing.speakText(text, {
-          rate: 0.8,
-          pitch: 1.5,
+          rate: 0.88,
+          pitch: 1.38,
             volume: 1,
             onEnd: done,
             onError: done
@@ -821,8 +850,8 @@
           return;
         }
         const utter = new SpeechSynthesisUtterance(" " + String(text).replace(/\s+/g, " ").trim());
-      utter.rate = 0.8;
-      utter.pitch = 1.5;
+      utter.rate = 0.88;
+      utter.pitch = 1.38;
       utter.volume = 1;
       utter.onend = () => { if (done) done(); };
       utter.onerror = () => { if (done) done(); };
@@ -1188,27 +1217,15 @@
     });
   }
 
-  function initSpeakInstructionsForQuizGame() {
-    const pageType = inferActivityType();
-    if (pageType !== "quiz" && pageType !== "game") return;
-    const selectors = [
-      ".hero p", ".hero .sub", ".panel .head .sub", ".box p", ".instructions", "[data-instructions]"
-    ];
-    let instructionText = "";
-    selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        const text = String(el.textContent || "").trim();
-        if (text && text.length > 10 && text.length < 200) {
-          instructionText += text + ". ";
-        }
-      });
+  function initHomeButtonRouting() {
+    const candidates = Array.from(document.querySelectorAll(
+      ".home-btn,#homeBtn,.btn-home,a[aria-label*='home' i],button[aria-label*='home' i],[data-home],[title*='home' i]"
+    )).filter((el) => {
+      if (!el) return false;
+      const text = String(el.textContent || "").trim();
+      const label = String(el.getAttribute("aria-label") || el.getAttribute("title") || "");
+      return /home/i.test(text) || /home/i.test(label) || el.classList.contains("home-btn") || el.id === "homeBtn" || el.hasAttribute("data-home");
     });
-    if (instructionText) {
-      window.setTimeout(() => {
-        speakMicPrompt(instructionText.trim(), () => {});
-      }, 1000);
-    }
-  }
 
     candidates.forEach((button) => {
       if (button.dataset.gpHomeBound === "1") return;
@@ -1520,19 +1537,19 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initExpectedLessonNavigation, { once: true });
+    document.addEventListener("DOMContentLoaded", suppressWeek2LessonIntroVideos, { once: true });
     document.addEventListener("DOMContentLoaded", initAutoIntroVideo, { once: true });
     document.addEventListener("DOMContentLoaded", initUnifiedMicProtocol, { once: true });
     document.addEventListener("DOMContentLoaded", initGenericTraceCanvasAudio, { once: true });
     document.addEventListener("DOMContentLoaded", initHomeButtonRouting, { once: true });
-    document.addEventListener("DOMContentLoaded", initSpeakInstructionsForQuizGame, { once: true });
     document.addEventListener("DOMContentLoaded", suppressLegacyLevelBGirlHelper, { once: true });
   } else {
     initExpectedLessonNavigation();
+    suppressWeek2LessonIntroVideos();
     initAutoIntroVideo();
     initUnifiedMicProtocol();
     initGenericTraceCanvasAudio();
     initHomeButtonRouting();
-    initSpeakInstructionsForQuizGame();
     suppressLegacyLevelBGirlHelper();
   }
 })();

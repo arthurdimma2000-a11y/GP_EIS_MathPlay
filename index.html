@@ -2213,6 +2213,76 @@
 <style>
 .month-card.month-open .month-chip{background:linear-gradient(180deg,#dbf9e7,#bcf0d1);color:#0c5a35}
 .month-card.month-locked .month-chip{background:linear-gradient(180deg,#ffe2e2,#ffc9c9);color:#7a1f1f}
+
+<style id="gpMonthWeekWindowEnhancements">
+  .learning-stage-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .guide-note{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:linear-gradient(180deg,#fff8d9,#ffeeb3);
+    color:#6a4700;
+    box-shadow:var(--pill);
+    font-weight:900;
+  }
+  .learning-window{
+    display:block;
+    animation:fadeIn .16s ease;
+  }
+  .learning-window.hidden-window{
+    display:none !important;
+  }
+  .week-window-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .week-window-copy h3{
+    margin:0 0 6px;
+    font-size:1.4rem;
+    color:#203151;
+  }
+  .week-window-copy p{
+    margin:0;
+    color:#5f6576;
+    font-weight:800;
+    line-height:1.32;
+  }
+  .month-card.current-marker{
+    outline:3px solid rgba(255, 167, 56, .38);
+    outline-offset:-3px;
+  }
+  .month-card.locked-month{
+    opacity:.92;
+  }
+  .month-card.locked-month .month-figure{
+    filter:saturate(.7);
+  }
+  .week-card.current-week-card{
+    outline:3px solid rgba(123,182,255,.28);
+    outline-offset:0;
+  }
+  .fast-nav-target{
+    will-change:transform,opacity;
+  }
+  @media (max-width:700px){
+    .learning-stage-toolbar,
+    .week-window-head{
+      align-items:stretch;
+    }
+  }
 </style>
 </head>
 
@@ -2243,10 +2313,12 @@
 
       <div class="top-actions">
         <button class="btn btn-soft" id="goHomeTop">Home</button>
-        <button class="btn btn-pink" id="signupTopBtn">Signup</button>
-        <button class="btn btn-gold" id="demoUnlockBtn">Demo Progress</button>
-        <button class="btn btn-soft" id="logoutBtn">Logout</button>
-        <button class="btn btn-primary" id="installBtn" onclick="installPWA()">Install App</button>
+        <button class="btn btn-primary" id="topStartLearningBtn">Start Learning</button>
+        <button class="btn btn-orange" id="topQuickLinksBtn">Quick Links</button>
+        <button class="btn btn-pink" id="signupTopBtn">Login / Signup</button>
+        <button class="btn btn-purple" id="topPortalsBtn">Portals</button>
+        <button class="btn btn-soft hidden" id="logoutBtn">Logout</button>
+        <button class="btn btn-gold" id="installBtn" onclick="installPWA()">Install App</button>
       </div>
     </div>
   </header>
@@ -2292,21 +2364,16 @@
           <div class="bar"><div class="fill" id="tracingFill"></div></div>
         </div>
       </div>
-
-      <div class="side-nav">
-        <button class="side-link active" data-panel="panel-home">Home</button>
-        <button class="side-link" data-panel="panel-levels">Levels</button>
-        <button class="side-link" data-panel="panel-login">Login / Signup</button>
-        <button class="side-link" data-panel="panel-links">Quick Links</button>
-        <button class="side-link" data-panel="panel-portals">Portals</button>
-      </div>
-
       <div class="mini-launcher">
-        <h3>Quick Start</h3>
+        <h3>Learning Path</h3>
         <div class="stack">
-          <button class="btn btn-primary" id="sidebarStartBtn">Start Learning</button>
+          <div class="side-link active" style="cursor:default;">1. Home Dashboard</div>
+          <div class="side-link" style="cursor:default;">2. Start Learning to choose Level A, Level B or Level C</div>
+          <div class="side-link" style="cursor:default;">3. Open a month from Month 1 to Month 12</div>
+          <div class="side-link" style="cursor:default;">4. Open a week, then login to unlock the lessons</div>
+        </div>
+        <div class="stack" style="margin-top:12px;">
           <button class="btn btn-soft" id="sidebarContinueBtn">Continue</button>
-          <button class="btn btn-pink" id="sidebarFirstLessonBtn">First Lesson</button>
         </div>
       </div>
     </aside>
@@ -2319,10 +2386,10 @@
             <p>A bright and professional learning home for students, parents, teachers and admins.</p>
 
             <div class="hero-actions">
-              <button class="btn btn-primary" id="heroStartBtn">Start Learning</button>
-              <button class="btn btn-soft" id="heroContinueBtn">Continue</button>
-              <button class="btn btn-pink" id="heroLoginBtn">Login / Signup</button>
-              <button class="btn btn-gold" id="heroInstallBtn" onclick="installPWA()">Install App</button>
+              <span class="badge">Choose a level hero</span>
+              <span class="badge">Press Start Learning</span>
+              <span class="badge">Open Month 1 to Month 12</span>
+              <span class="badge">Login when a week is opened</span>
             </div>
           </div>
 
@@ -2349,14 +2416,6 @@
         </div>
       </section>
 
-      <div class="tabs" role="tablist" aria-label="Main Navigation">
-        <button class="tab" role="tab" aria-selected="true" data-panel="panel-home">HOME</button>
-        <button class="tab" role="tab" aria-selected="false" data-panel="panel-levels">LEVELS</button>
-        <button class="tab" role="tab" aria-selected="false" data-panel="panel-login">LOGIN / SIGNUP</button>
-        <button class="tab" role="tab" aria-selected="false" data-panel="panel-links">QUICK LINKS</button>
-        <button class="tab" role="tab" aria-selected="false" data-panel="panel-portals">PORTALS</button>
-      </div>
-
       <section class="panel active" id="panel-home">
         <div class="section-card">
           <div class="section-head">
@@ -2373,9 +2432,10 @@
               <p>Select a level, sign in, continue from the last lesson, or open your reports and dashboards.</p>
 
               <div class="row">
-                <button class="btn btn-primary" onclick="showPanel('panel-levels')">Choose Level</button>
-                <button class="btn btn-orange" onclick="showPanel('panel-links')">Open Lessons</button>
-                <button class="btn btn-purple" onclick="showPanel('panel-login')">Open Login / Signup</button>
+                <span class="badge">Choose a level first</span>
+                <span class="badge">Then press Start Learning</span>
+                <span class="badge">Months open before lessons</span>
+                <span class="badge">Students login when a week is opened</span>
               </div>
             </div>
 
@@ -2418,7 +2478,7 @@
           <div class="section-head">
             <div>
               <h2>Level Selection</h2>
-              <p>Select the learning path.</p>
+              <p>Select a level hero first, then press Start Learning to open the Month 1 to Month 12 window.</p>
             </div>
             <div class="badge" id="selectedLevelBadge">Selected Level: A</div>
           </div>
@@ -2439,8 +2499,8 @@
                   <span id="levelAWeeks">1</span>
                 </div>
                 <div class="level-actions">
-                  <button id="selectLevelABtn" type="button" onclick="selectLevel('A')">Select A</button>
-                  <button id="openFirstLevelABtn" type="button" onclick="openFirstMappedLesson('A')">Open First Lesson</button>
+                  <button id="selectLevelABtn" type="button">Select A</button>
+                  <button id="openFirstLevelABtn" type="button">Start Learning</button>
                 </div>
               </div>
             </article>
@@ -2460,8 +2520,8 @@
                   <span id="levelBWeeks">1</span>
                 </div>
                 <div class="level-actions">
-                  <button id="selectLevelBBtn" type="button" onclick="selectLevel('B')">Select B</button>
-                  <button id="openFirstLevelBBtn" type="button" onclick="openFirstMappedLesson('B')">Open First Lesson</button>
+                  <button id="selectLevelBBtn" type="button">Select B</button>
+                  <button id="openFirstLevelBBtn" type="button">Start Learning</button>
                 </div>
               </div>
             </article>
@@ -2481,19 +2541,11 @@
                   <span id="levelCWeeks">1</span>
                 </div>
                 <div class="level-actions">
-                  <button id="selectLevelCBtn" type="button" onclick="selectLevel('C')">Select C</button>
-                  <button id="openFirstLevelCBtn" type="button" onclick="openFirstMappedLesson('C')">Open First Lesson</button>
+                  <button id="selectLevelCBtn" type="button">Select C</button>
+                  <button id="openFirstLevelCBtn" type="button">Start Learning</button>
                 </div>
               </div>
               </article>
-            </div>
-
-            <div class="month-roadmap-wrap">
-              <div class="month-roadmap-intro">
-                <h3>12-Month Learning Roadmap</h3>
-                <p>Month 1 now contains the complete Week 1 to Week 4 structure for Level A, Level B, and Level C. Months 2 to 12 are prepared as future plans with human-character visuals. Activity images for Art Class, Listening &amp; Speaking, Writing &amp; Drawing, Fairly-tale, and Activity will be added later inside each week layout.</p>
-              </div>
-              <div class="month-roadmap-grid" id="monthRoadmapGrid"></div>
             </div>
           </div>
         </section>
@@ -2863,16 +2915,40 @@
       </section>
 
       <section class="panel" id="panel-links">
-        <div class="section-card">
+        <div class="section-card fast-nav-target" id="learningStageCard">
           <div class="section-head">
             <div>
-              <h2>Quick Links</h2>
-              <p>Open unlocked lessons quickly by week and day.</p>
+              <h2>Months &amp; Weeks</h2>
+              <p>Tap a month to open the Weeks window. The previous window hides automatically so the next step stays clear and fast.</p>
             </div>
-            <div class="badge" id="quickLevelText">Quick Links for Level A</div>
+            <div class="badge" id="quickLevelText">Level A • Months Window</div>
           </div>
 
-          <div class="quick-grid" id="quickGrid"></div>
+          <div class="learning-stage-toolbar">
+            <button class="btn btn-soft hidden" id="backToMonthsBtn" type="button">← Back to Months</button>
+            <div class="guide-note" id="autoGuideSign">👇 Pointing Guide Active • 🔊 Audio Guide Active</div>
+          </div>
+
+          <div class="learning-window" id="monthWindowView">
+            <div class="month-roadmap-wrap">
+              <div class="month-roadmap-intro">
+                <h3>Months Window</h3>
+                <p>Open months automatically follow the current Korea month. Previous months stay open, future months stay locked until their month arrives.</p>
+              </div>
+              <div class="month-roadmap-grid" id="monthRoadmapGrid"></div>
+            </div>
+          </div>
+
+          <div class="learning-window hidden-window" id="weekWindowView">
+            <div class="week-window-head">
+              <div class="week-window-copy">
+                <h3 id="weekWindowTitle">Month 1 • Weeks Window</h3>
+                <p id="weekWindowIntroText">Week 1 to Week 4 are shown here. Only current and previous weeks open automatically.</p>
+              </div>
+              <div class="badge" id="weekWindowStatusBadge">Open Weeks: 1</div>
+            </div>
+            <div class="quick-grid" id="quickGrid"></div>
+          </div>
         </div>
       </section>
 
@@ -2942,9 +3018,6 @@
 
       <div class="chips" id="lessonChips"></div>
 
-      <div class="row" style="margin-top:14px;justify-content:flex-end;">
-        <button class="btn btn-primary" id="openFirstLessonBtn">Open First Lesson</button>
-      </div>
     </div>
   </div>
 
@@ -3386,12 +3459,13 @@
     let selectedLevel = storageGetItem(STORAGE_KEYS.level) || "A";
     let selectedRole = storageGetItem(STORAGE_KEYS.role) || "student";
     let selectedMonth = 1;
+    let learningStageView = "months";
     let latestGeneratedStudents = [];
     let modalFiles = [];
 
     const tabs = Array.from(document.querySelectorAll(".tab"));
     const panels = Array.from(document.querySelectorAll(".panel"));
-    const sideLinks = Array.from(document.querySelectorAll(".side-link"));
+    const sideLinks = Array.from(document.querySelectorAll(".side-link[data-panel]"));
     const FAST_PREFETCH_FILES = new Set();
     const renderCache = {
       monthRoadmapKey: "",
@@ -3415,6 +3489,15 @@
     const quickLevelText = document.getElementById("quickLevelText");
     const quickGrid = document.getElementById("quickGrid");
     const monthRoadmapGrid = document.getElementById("monthRoadmapGrid");
+    const monthWindowView = document.getElementById("monthWindowView");
+    const weekWindowView = document.getElementById("weekWindowView");
+    const backToMonthsBtn = document.getElementById("backToMonthsBtn");
+    const weekWindowTitle = document.getElementById("weekWindowTitle");
+    const weekWindowIntroText = document.getElementById("weekWindowIntroText");
+    const weekWindowStatusBadge = document.getElementById("weekWindowStatusBadge");
+    const audioToggleButton = document.querySelector("[data-audio-toggle]");
+    const guideFinger = document.getElementById("gpGuideFinger");
+    const guideBubble = document.getElementById("gpGuideBubble");
 
     const sidebarAvatar = document.getElementById("sidebarAvatar");
     const sidebarLevelTitle = document.getElementById("sidebarLevelTitle");
@@ -3450,7 +3533,6 @@
     const lessonChips = document.getElementById("lessonChips");
     const lessonModalTitle = document.getElementById("lessonModalTitle");
     const lessonModalSub = document.getElementById("lessonModalSub");
-    const openFirstLessonBtn = document.getElementById("openFirstLessonBtn");
 
     const highlightVideoModal = document.getElementById("highlightVideoModal");
     const highlightVideoTitle = document.getElementById("highlightVideoTitle");
@@ -4837,6 +4919,7 @@
       });
 
       safePlay("click");
+      window.requestAnimationFrame(() => updateGuideHint());
     }
 
     tabs.forEach(tab => tab.addEventListener("click", () => showPanel(tab.dataset.panel)));
@@ -4951,11 +5034,11 @@
       }
 
       selectedLevelBadge.textContent = "Selected Level: " + selectedLevel;
-      quickLevelText.textContent = `Quick Links for ${conf.label} • Month ${selectedMonth}`;
+      updateQuickLevelHeading();
       sidebarAvatar.src = conf.avatar;
       sidebarLevelTitle.textContent = conf.label + " Selected";
       sidebarLevelSub.textContent = conf.subtitle;
-      sidebarMonth.textContent = "Month 1";
+      sidebarMonth.textContent = `Month ${selectedMonth}`;
       sidebarRoleBadge.textContent = "Role: " + getRoleLabel();
 
       homeSelectedBadge.textContent = conf.label + " • " + getRoleLabel();
@@ -4996,7 +5079,7 @@
         }, 0);
       }
 
-        signupTopBtn.textContent = hasActiveLogin ? "Login" : "Signup";
+        signupTopBtn.textContent = hasActiveLogin ? "Login / Signup" : "Login / Signup";
         signupTopBtn.classList.toggle("hidden", hasActiveLogin);
         logoutBtn.classList.toggle("hidden", !hasActiveLogin);
       }
@@ -5039,9 +5122,23 @@
         studentLevelInput.value = level;
       }
       scheduleSyncLevelUI();
+      showPanel("panel-levels");
+      safePlay("soft");
+      FX.toast(`${APP_CONFIG[level].label} selected. Press Start Learning to open the months window.`, "🎯");
+    }
+
+    function startLearningForLevel(level){
+      selectedLevel = level;
+      selectedMonth = Math.max(1, Math.min(12, getCurrentCalendarMonth()));
+      if (studentLevelInput && studentLevelInput.dataset.userSelected !== "1") {
+        studentLevelInput.value = level;
+      }
+      scheduleSyncLevelUI();
+      setLearningStageView("months");
       showPanel("panel-links");
       safePlay("soft");
-      FX.toast(`${APP_CONFIG[level].label} selected.`, "📚");
+      FX.toast(`${APP_CONFIG[level].label} is ready. Choose a month to continue.`, "🚀");
+      speakAnnouncement(`${APP_CONFIG[level].label} selected. Choose a month to continue.`);
     }
 
     function hasAppAccess(){
@@ -5212,28 +5309,7 @@
       e.preventDefault();
       e.stopPropagation();
       const month = Number(card.dataset.month || "1");
-      if (!hasStudentLessonAccess()) {
-        showPanel("panel-login");
-        studentLoginStatus.innerHTML = `<span class="danger">Students must login first before opening Months and Weeks.</span>`;
-        FX.toast("Student login required.", "🔐");
-        safePlay("warning");
-        return;
-      }
-      if (!isMonthAutoUnlocked(month)) {
-        FX.toast(`Month ${month} is still locked. It will unlock automatically at the appropriate time.`, "🔒");
-        safePlay("warning");
-        return;
-      }
-      const sessionLevel = getActiveStudentLevel();
-      if (sessionLevel && sessionLevel !== selectedLevel) {
-        selectedLevel = sessionLevel;
-      }
-      selectedMonth = month;
-      renderMonthRoadmap();
-      renderQuickLinks();
-      showPanel("panel-links");
-      safePlay("soft");
-      FX.toast(`Month ${month} opened. Weeks 1 to ${getUnlockedWeeksForMonth(month)} are available now.`, "📅");
+      openMonthWeeksWindow(month);
     }, true);
     monthRoadmapGrid?.addEventListener("keydown", (e) => {
       const card = e.target.closest(".month-card.month-clickable[data-month]");
@@ -5243,6 +5319,13 @@
       card.click();
     });
 
+    if (backToMonthsBtn) {
+      backToMonthsBtn.addEventListener("click", () => {
+        showMonthsWindow();
+        speakAnnouncement("Months window opened.");
+      });
+    }
+
     quickGrid.addEventListener("click", (e) => {
       const btn = e.target.closest(".day-lesson-btn[data-file]");
       if (btn) {
@@ -5251,29 +5334,22 @@
         gotoFile(btn.dataset.file);
         return;
       }
-      const openFirst = e.target.closest("button[data-action='open-week-first'][data-file]");
-      if (openFirst && !openFirst.disabled) {
-        e.preventDefault();
-        e.stopPropagation();
-        gotoFile(openFirst.dataset.file);
-        return;
-      }
       const openWeek = e.target.closest("button[data-action='open-week-lessons'][data-week]");
       if (openWeek && !openWeek.disabled) {
         e.preventDefault();
         e.stopPropagation();
+        const week = Number(openWeek.dataset.week || "0");
         const sessionLevel = getActiveStudentLevel();
         if (!hasStudentLessonAccess() || !sessionLevel) {
           showPanel("panel-login");
-          studentLoginStatus.innerHTML = `<span class="danger">Students must login first before opening lesson pages.</span>`;
+          studentLoginStatus.innerHTML = `<span class="danger">Please login as a student to open Month ${selectedMonth} • Week ${week} lessons.</span>`;
           safePlay("warning");
           FX.toast("Student login required.", "🔐");
           return;
         }
-        const week = Number(openWeek.dataset.week || "0");
         if (selectedLevel !== sessionLevel) selectedLevel = sessionLevel;
         const files = weekFiles(sessionLevel, week);
-        showLessonChooser(`${APP_CONFIG[sessionLevel].label} • Week ${week}`, "Choose a lesson", files);
+        showLessonChooser(`${APP_CONFIG[sessionLevel].label} • Month ${selectedMonth} • Week ${week}`, "Choose a lesson", files);
       }
     }, true);
 
@@ -5296,10 +5372,6 @@
         btn.addEventListener("focus", () => prefetchMediaFile(conf.src), { passive:true, once:true });
       }
       btn.addEventListener("click", () => openHighlightVideo(btn.dataset.highlightVideo));
-    });
-
-    openFirstLessonBtn.addEventListener("click", () => {
-      if (modalFiles.length) gotoFile(modalFiles[0]);
     });
 
     function weekFiles(level, week){
@@ -5423,40 +5495,129 @@
       return plan;
     }
 
+    function getKoreaDateParts(){
+      try{
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "Asia/Seoul",
+          year: "numeric",
+          month: "numeric",
+          day: "numeric"
+        }).formatToParts(new Date());
+        const bag = {};
+        parts.forEach((part) => {
+          if (part.type === "year" || part.type === "month" || part.type === "day") {
+            bag[part.type] = Number(part.value);
+          }
+        });
+        return {
+          year: bag.year || new Date().getFullYear(),
+          month: bag.month || (new Date().getMonth() + 1),
+          day: bag.day || new Date().getDate()
+        };
+      }catch(_){
+        const now = new Date();
+        return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
+      }
+    }
+
     function getCurrentCalendarMonth(){
-      const now = new Date();
-      return Math.max(1, Math.min(12, now.getMonth() + 1));
+      return Math.max(1, Math.min(12, getKoreaDateParts().month));
     }
 
     function getCurrentCalendarWeekOfMonth(){
-      const now = new Date();
-      const day = now.getDate();
+      const day = Math.max(1, Math.min(31, getKoreaDateParts().day));
       return Math.max(1, Math.min(4, Math.ceil(day / 7)));
     }
 
     function getUnlockedWeeksForMonth(month){
       const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
-      return safeMonth === 1 ? 1 : 0;
+      const currentMonth = getCurrentCalendarMonth();
+      const currentWeek = getCurrentCalendarWeekOfMonth();
+      if (safeMonth < currentMonth) return 4;
+      if (safeMonth === currentMonth) return currentWeek;
+      return 0;
     }
 
     function isMonthAutoUnlocked(month){
-      return getUnlockedWeeksForMonth(month) > 0;
+      const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
+      return safeMonth <= getCurrentCalendarMonth();
+    }
+
+    function updateQuickLevelHeading(){
+      const conf = APP_CONFIG[selectedLevel] || APP_CONFIG.A;
+      if (!quickLevelText) return;
+      quickLevelText.textContent = learningStageView === "weeks"
+        ? `${conf.label} • Month ${selectedMonth} • Weeks Window`
+        : `${conf.label} • Months Window`;
+    }
+
+    function setLearningStageView(view){
+      learningStageView = view === "weeks" ? "weeks" : "months";
+      if (monthWindowView) monthWindowView.classList.toggle("hidden-window", learningStageView !== "months");
+      if (weekWindowView) weekWindowView.classList.toggle("hidden-window", learningStageView !== "weeks");
+      if (backToMonthsBtn) backToMonthsBtn.classList.toggle("hidden", learningStageView !== "weeks");
+      updateQuickLevelHeading();
+      updateWeekWindowCopy();
+      window.requestAnimationFrame(() => updateGuideHint());
+    }
+
+    function updateWeekWindowCopy(){
+      if (weekWindowTitle) {
+        weekWindowTitle.textContent = `Month ${selectedMonth} • Weeks Window`;
+      }
+      if (weekWindowIntroText) {
+        const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
+        const monthIsOpen = isMonthAutoUnlocked(selectedMonth);
+        weekWindowIntroText.textContent = monthIsOpen
+          ? `Week 1 to Week 4 are shown here. Weeks 1 to ${Math.max(1, unlockedWeeks)} are open automatically right now.`
+          : `This month is still locked. It will open automatically when its month begins in Korea time.`;
+      }
+      if (weekWindowStatusBadge) {
+        const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
+        weekWindowStatusBadge.textContent = isMonthAutoUnlocked(selectedMonth)
+          ? `Open Weeks: ${unlockedWeeks}`
+          : `Month ${selectedMonth} Locked`;
+      }
+    }
+
+    function openMonthWeeksWindow(month){
+      selectedMonth = Math.max(1, Math.min(12, Number(month) || 1));
+      renderQuickLinks();
+      setLearningStageView("weeks");
+      showPanel("panel-links");
+      safePlay("soft");
+      if (isMonthAutoUnlocked(selectedMonth)) {
+        FX.toast(`Month ${selectedMonth} opened. Tap any open week to continue.`, "📅");
+        speakAnnouncement(`Month ${selectedMonth} opened. Choose a week.`);
+      } else {
+        FX.toast(`Month ${selectedMonth} is locked for now. It will open automatically later.`, "🔒");
+        speakAnnouncement(`Month ${selectedMonth} is locked for now.`);
+      }
+    }
+
+    function showMonthsWindow(){
+      renderMonthRoadmap();
+      setLearningStageView("months");
+      showPanel("panel-links");
+      safePlay("soft");
     }
 
     function renderMonthRoadmap(){
       if (!monthRoadmapGrid) return;
-      const canOpenMonths = hasAppAccess();
+      const currentMonth = getCurrentCalendarMonth();
       let html = "";
       for (let month = 1; month <= 12; month += 1) {
         const autoUnlocked = isMonthAutoUnlocked(month);
-        const statusText = autoUnlocked ? `Open to Week ${getUnlockedWeeksForMonth(month)}` : "Locked";
+        const unlockedWeeks = getUnlockedWeeksForMonth(month);
+        const isCurrentMonth = month === currentMonth;
+        const statusText = autoUnlocked ? `Open to Week ${unlockedWeeks}` : "Locked";
         html += `
           <article
-            class="month-card ${month === selectedMonth ? "active-month" : "future-month"} month-clickable ${autoUnlocked ? "month-open" : "month-locked"}"
+            class="month-card ${month === selectedMonth ? "active-month" : "future-month"} month-clickable ${autoUnlocked ? "month-open" : "month-locked locked-month"} ${isCurrentMonth ? "current-marker" : ""}"
             data-month="${month}"
             tabindex="0"
             role="button"
-            aria-label="${canOpenMonths ? `Open Month ${month} weeks` : `Login required before opening Month ${month}`}"
+            aria-label="${autoUnlocked ? `Open Month ${month} weeks` : `Month ${month} is locked until its calendar month begins`}"
           >
             <div class="month-head month-simple">
               <h4 class="month-title">Month ${month}</h4>
@@ -5480,17 +5641,23 @@
       const sessionLevel = getActiveStudentLevel() || selectedLevel;
       const autoUnlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
       const monthOpen = autoUnlockedWeeks > 0;
+      const currentMonth = getCurrentCalendarMonth();
+      const currentWeek = getCurrentCalendarWeekOfMonth();
       const firstWeekFiles = weekFiles(sessionLevel, 1) || [];
       let html = "";
 
+      updateWeekWindowCopy();
       firstWeekFiles.slice(0, 3).forEach(prefetchAppFile);
 
-        for(let week = 1; week <= 4; week++){
-          const unlocked = accessUnlocked && monthOpen && week <= autoUnlockedWeeks;
+      for (let week = 1; week <= 4; week += 1) {
         const files = weekFiles(sessionLevel, week) || [];
         const grouped = groupFilesByDay(files);
         const weekStyle = WEEK_STYLE_MAP[week] || "red";
         const weekHumanImage = getWeekHumanImage(selectedMonth, week);
+        const weekHasLessons = files.length > 0;
+        const weekOpenNow = monthOpen && week <= autoUnlockedWeeks;
+        const weekActionEnabled = weekHasLessons && monthOpen;
+        const isCurrentWeekCard = selectedMonth === currentMonth && week === currentWeek;
         let daysHtml = `
         <div class="week-label-tv ${weekStyle}">
           <div class="week-label-copy">
@@ -5501,21 +5668,22 @@
             <img src="${weekHumanImage}" alt="Week ${week} character" loading="lazy" decoding="async">
           </div>
         </div>`;
+
         DAY_ORDER.forEach(day => {
           const dotCount = week === 4 ? 6 : 3;
           const dotsHtml = new Array(dotCount).fill("<span></span>").join("");
           const animalPath = animalPlan[week]?.[day];
           let lessonStackHtml = "";
 
-          if (!accessUnlocked) {
-            lessonStackHtml = `<div class="empty-day">Login to reveal lessons.</div>`;
-          } else if (!monthOpen) {
-            lessonStackHtml = `<div class="empty-day">Month ${selectedMonth} is still locked. It will open automatically at the right time.</div>`;
-          } else if (!grouped[day].length){
+          if (!monthOpen) {
+            lessonStackHtml = `<div class="empty-day">This month is planned for later. Week lessons will unlock automatically at the right time.</div>`;
+          } else if (!grouped[day].length) {
             lessonStackHtml = `<div class="empty-day">No lesson listed for this day.</div>`;
+          } else if (!accessUnlocked) {
+            lessonStackHtml = `<div class="empty-day">Open this week, then login to reveal the lesson buttons.</div>`;
           } else {
             lessonStackHtml = grouped[day].map((file) => `
-              <button class="day-lesson-btn" type="button" ${unlocked ? "" : "disabled"} data-file="${file}">
+              <button class="day-lesson-btn" type="button" ${weekOpenNow ? "" : "disabled"} data-file="${file}">
                 ${getLessonDisplayName(file)}
               </button>
             `).join("");
@@ -5538,34 +5706,43 @@
             </div>
           </div>`;
         });
+
+        const lockText = !weekHasLessons
+          ? `Coming Soon`
+          : !weekOpenNow
+          ? `Week ${week} Locked`
+          : accessUnlocked
+          ? `Week ${week} Open`
+          : `Login Required`;
+
+        const actionText = !weekHasLessons
+          ? `Coming Soon`
+          : !weekOpenNow
+          ? `Week Locked`
+          : accessUnlocked
+          ? `Open Week Lessons`
+          : `Login to Open Week Lessons`;
+
         html += `
-        <article class="week-card">
+        <article class="week-card ${isCurrentWeekCard ? "current-week-card" : ""}">
           <div class="week-top">
             <div>
               <div class="quick-chip">${conf.label}</div>
               <h4 class="week-title">Month ${selectedMonth} • Week ${week}</h4>
             </div>
-            <div class="lock-pill ${unlocked ? "open" : "locked"}">
-              ${!accessUnlocked
-                ? "Login Required"
-                : monthHasLessons
-                ? (unlocked ? `Week ${week} Open` : `Week ${week} Locked`)
-                : `Planned Week ${week}`}
-            </div>
+            <div class="lock-pill ${weekOpenNow && accessUnlocked ? "open" : "locked"}">${lockText}</div>
           </div>
           <div class="week-format-grid">${daysHtml}</div>
           <div class="row">
-            <button class="btn ${unlocked ? "btn-primary" : "btn-soft"}" data-week="${week}" data-action="open-week-lessons" ${!accessUnlocked || !monthHasLessons || !unlocked ? "disabled" : ""}>
-              ${!accessUnlocked ? "Login Required" : monthHasLessons ? (unlocked ? "Open Week Lessons" : "Week Locked") : "Week Plan"}
-            </button>
-            <button class="btn btn-soft" data-week="${week}" data-action="open-week-first" ${files[0] ? `data-file="${files[0]}"` : ""} ${!accessUnlocked || !monthHasLessons || !unlocked || !files.length ? "disabled" : ""}>
-              ${!accessUnlocked ? "Login Required" : monthHasLessons ? "Open First Lesson in Week" : "Coming Soon"}
+            <button class="btn ${weekOpenNow && accessUnlocked ? "btn-primary" : "btn-soft"}" data-week="${week}" data-action="open-week-lessons" ${weekActionEnabled ? "" : "disabled"}>
+              ${actionText}
             </button>
           </div>
         </article>`;
       }
+
       quickGrid.innerHTML = html;
-      quickGrid.querySelectorAll(".day-lesson-btn[data-file], button[data-action='open-week-first'][data-file]").forEach((btn) => {
+      quickGrid.querySelectorAll(".day-lesson-btn[data-file]").forEach((btn) => {
         const file = btn.dataset.file;
         if (!file) return;
         btn.addEventListener("pointerenter", () => prefetchAppFile(file), { passive:true, once:true });
@@ -5713,6 +5890,170 @@
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
       } catch (_) {}
+    }
+
+    const AudioGuide = (() => {
+      let audioCtx = null;
+      let timer = 0;
+      let enabled = storageGetItem("gpeis_audio_pref") !== "off";
+
+      function ensureCtx(){
+        if (!enabled) return null;
+        if (!audioCtx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return null;
+          audioCtx = new AudioCtx();
+        }
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function scheduleTone(freq, start, duration, type="triangle", gain=0.008){
+        const c = ensureCtx();
+        if (!c) return;
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        g.gain.value = 0.0001;
+        osc.connect(g);
+        g.connect(c.destination);
+        const t = c.currentTime + start;
+        osc.start(t);
+        g.gain.exponentialRampToValueAtTime(gain, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+        osc.stop(t + duration + 0.04);
+      }
+
+      function scheduleLoop(){
+        if (!enabled) return;
+        const c = ensureCtx();
+        if (!c) return;
+        const melody = [523.25, 659.25, 783.99, 659.25, 698.46, 880.00, 783.99, 659.25];
+        melody.forEach((freq, index) => {
+          const start = index * 0.42;
+          scheduleTone(freq, start, 0.28, "triangle", 0.0068);
+          if (index % 2 === 0) scheduleTone(freq / 2, start, 0.34, "sine", 0.0038);
+        });
+      }
+
+      function start(){
+        enabled = true;
+        storageSetItem("gpeis_audio_pref", "on");
+        updateAudioGuideButton();
+        scheduleLoop();
+        window.clearInterval(timer);
+        timer = window.setInterval(scheduleLoop, 3600);
+      }
+
+      function stop(){
+        enabled = false;
+        storageSetItem("gpeis_audio_pref", "off");
+        window.clearInterval(timer);
+        timer = 0;
+        updateAudioGuideButton();
+        if (audioCtx && audioCtx.state !== "closed") {
+          audioCtx.suspend().catch(() => {});
+        }
+      }
+
+      function toggle(){
+        if (enabled) {
+          stop();
+        } else {
+          start();
+          speakAnnouncement("Audio guide is on.");
+        }
+      }
+
+      function primeFromGesture(){
+        if (!enabled) {
+          updateAudioGuideButton();
+          return;
+        }
+        const c = ensureCtx();
+        if (!c) return;
+        if (!timer) start();
+      }
+
+      function isOn(){
+        return enabled;
+      }
+
+      return { start, stop, toggle, primeFromGesture, isOn };
+    })();
+
+    function updateAudioGuideButton(){
+      if (!audioToggleButton) return;
+      audioToggleButton.textContent = AudioGuide.isOn() ? "🔊 Audio Guide On" : "🔇 Audio Guide Off";
+      audioToggleButton.setAttribute("aria-pressed", AudioGuide.isOn() ? "true" : "false");
+    }
+
+    function positionGuideElements(target, message){
+      if (!target || !guideFinger || !guideBubble) return;
+      const rect = target.getBoundingClientRect();
+      const fingerLeft = Math.max(8, rect.left + Math.min(rect.width * 0.5, 80));
+      const fingerTop = Math.max(8, rect.top - 34);
+      guideFinger.style.left = `${fingerLeft}px`;
+      guideFinger.style.top = `${fingerTop}px`;
+      guideFinger.classList.remove("hidden");
+
+      guideBubble.textContent = message;
+      guideBubble.style.left = `${Math.max(8, rect.left)}px`;
+      guideBubble.style.top = `${Math.max(8, rect.top - 92)}px`;
+      guideBubble.classList.remove("hidden");
+    }
+
+    function hideGuideHint(){
+      if (guideFinger) guideFinger.classList.add("hidden");
+      if (guideBubble) guideBubble.classList.add("hidden");
+      document.querySelectorAll(".guide-glow").forEach((el) => el.classList.remove("guide-glow"));
+    }
+
+    function showGuideHint(target, message){
+      hideGuideHint();
+      if (!target) return;
+      target.classList.add("guide-glow");
+      positionGuideElements(target, message);
+    }
+
+    function updateGuideHint(){
+      const homePanel = document.getElementById("panel-home");
+      const levelsPanel = document.getElementById("panel-levels");
+      const linksPanel = document.getElementById("panel-links");
+      const loginPanel = document.getElementById("panel-login");
+
+      if (homePanel && homePanel.classList.contains("active")) {
+        const target = document.getElementById("topStartLearningBtn") || document.querySelector('[data-panel="panel-levels"]');
+        showGuideHint(target, "Tap Start Learning");
+        return;
+      }
+
+      if (levelsPanel && levelsPanel.classList.contains("active")) {
+        const target = document.getElementById(`openFirstLevel${selectedLevel}Btn`) || document.getElementById("openFirstLevelABtn");
+        showGuideHint(target, "Tap Start Learning");
+        return;
+      }
+
+      if (linksPanel && linksPanel.classList.contains("active")) {
+        if (learningStageView === "months") {
+          const target = document.querySelector(".month-card.month-open");
+          showGuideHint(target, "Tap an open month");
+        } else {
+          const target = document.querySelector(".week-card .btn[data-action='open-week-lessons']:not([disabled])");
+          showGuideHint(target, hasStudentLessonAccess() ? "Tap an open week" : "Tap a week, then login");
+        }
+        return;
+      }
+
+      if (loginPanel && loginPanel.classList.contains("active")) {
+        showGuideHint(studentLoginBtn, "Login here");
+        return;
+      }
+
+      hideGuideHint();
     }
 
     function formatAuthError(roleLabel, error){
@@ -5893,8 +6234,10 @@
         : "";
       studentLoginStatus.innerHTML = `<span class="ok">Login successful for ${matchedStudent.studentId || studentId}.${classHint}</span>`;
       syncLevelUI();
+      setLearningStageView("weeks");
       showPanel("panel-links");
       safePlay("success");
+      speakAnnouncement(`Welcome ${matchedStudent.name || matchedStudent.studentId}. Your lessons are ready.`);
       setTimeout(() => safePlay("cheer"), 140);
       FX.toast(`Welcome ${matchedStudent.displayName || matchedStudent.name || studentId}!`, "🎉", 3200);
       speakAnnouncement(buildLoginGreeting(matchedStudent.displayName || matchedStudent.name || studentId));
@@ -6838,30 +7181,44 @@
       FX.toast("Logged out successfully.", "👋");
     }
 
-    document.getElementById("goHomeTop").addEventListener("click", () => showPanel("panel-home"));
-    document.getElementById("signupTopBtn").addEventListener("click", () => {
+    const goHomeTopBtn = document.getElementById("goHomeTop");
+    const signupTopButton = document.getElementById("signupTopBtn");
+    const logoutButton = document.getElementById("logoutBtn");
+    const topStartLearningBtn = document.getElementById("topStartLearningBtn");
+    const topQuickLinksBtn = document.getElementById("topQuickLinksBtn");
+    const topPortalsBtn = document.getElementById("topPortalsBtn");
+    const sidebarContinueButton = document.getElementById("sidebarContinueBtn");
+
+    updateAudioGuideButton();
+    ["pointerdown", "keydown", "touchstart"].forEach((eventName) => {
+      document.addEventListener(eventName, () => AudioGuide.primeFromGesture(), { passive:true, once:true });
+    });
+    if (audioToggleButton) {
+      audioToggleButton.addEventListener("click", () => AudioGuide.toggle());
+    }
+
+    if (goHomeTopBtn) goHomeTopBtn.addEventListener("click", () => showPanel("panel-home"));
+    if (signupTopButton) signupTopButton.addEventListener("click", () => {
       showPanel("panel-login");
       showAuthSubpanel("teacher-auth");
     });
-    document.getElementById("demoUnlockBtn").addEventListener("click", unlockDemoProgress);
-    document.getElementById("logoutBtn").addEventListener("click", logoutUser);
-
-    document.getElementById("heroStartBtn").addEventListener("click", () => showPanel("panel-levels"));
-    document.getElementById("heroContinueBtn").addEventListener("click", continueLearning);
-    document.getElementById("heroLoginBtn").addEventListener("click", () => showPanel("panel-login"));
-    document.getElementById("heroStartBtn").addEventListener("pointerdown", warmNavigationTargets, { passive:true });
-    document.getElementById("heroContinueBtn").addEventListener("pointerdown", warmNavigationTargets, { passive:true });
-    document.getElementById("heroLoginBtn").addEventListener("pointerdown", () => {
-      ensureLoginPanelReady();
-      warmAuthSync();
-    }, { passive:true });
-
-    document.getElementById("sidebarStartBtn").addEventListener("click", () => showPanel("panel-levels"));
-    document.getElementById("sidebarContinueBtn").addEventListener("click", continueLearning);
-    document.getElementById("sidebarFirstLessonBtn").addEventListener("click", () => openFirstMappedLesson(selectedLevel));
-    document.getElementById("sidebarStartBtn").addEventListener("pointerdown", warmNavigationTargets, { passive:true });
-    document.getElementById("sidebarContinueBtn").addEventListener("pointerdown", warmNavigationTargets, { passive:true });
-    document.getElementById("sidebarFirstLessonBtn").addEventListener("pointerdown", warmNavigationTargets, { passive:true });
+    if (logoutButton) logoutButton.addEventListener("click", logoutUser);
+    if (topStartLearningBtn) {
+      topStartLearningBtn.addEventListener("click", () => showPanel("panel-levels"));
+      topStartLearningBtn.addEventListener("pointerdown", warmNavigationTargets, { passive:true });
+    }
+    if (topQuickLinksBtn) {
+      topQuickLinksBtn.addEventListener("click", () => {
+        setLearningStageView("months");
+        showPanel("panel-links");
+      });
+      topQuickLinksBtn.addEventListener("pointerdown", warmNavigationTargets, { passive:true });
+    }
+    if (topPortalsBtn) topPortalsBtn.addEventListener("click", () => showPanel("panel-portals"));
+    if (sidebarContinueButton) {
+      sidebarContinueButton.addEventListener("click", continueLearning);
+      sidebarContinueButton.addEventListener("pointerdown", warmNavigationTargets, { passive:true });
+    }
 
     fillDemoStudentBtn.addEventListener("click", fillDemoStudent);
     studentLoginBtn.addEventListener("click", handleStudentLogin);
@@ -6874,9 +7231,9 @@
       ["selectLevelABtn", () => selectLevel("A")],
       ["selectLevelBBtn", () => selectLevel("B")],
       ["selectLevelCBtn", () => selectLevel("C")],
-      ["openFirstLevelABtn", () => openFirstMappedLesson("A")],
-      ["openFirstLevelBBtn", () => openFirstMappedLesson("B")],
-      ["openFirstLevelCBtn", () => openFirstMappedLesson("C")]
+      ["openFirstLevelABtn", () => startLearningForLevel("A")],
+      ["openFirstLevelBBtn", () => startLearningForLevel("B")],
+      ["openFirstLevelCBtn", () => startLearningForLevel("C")]
     ].forEach(([id, handler]) => {
       const btn = document.getElementById(id);
       if (!btn) return;
@@ -7013,7 +7370,9 @@
     renderPartnerSchoolUI();
     loadPartnerSchoolsFromCloud({ quiet:true });
     syncLevelUI();
+    setLearningStageView("months");
     showPanel("panel-home");
+    window.setTimeout(() => updateGuideHint(), 180);
   </script>
   <script type="module" src="shared/js/auth-sync-shared.js"></script>
 

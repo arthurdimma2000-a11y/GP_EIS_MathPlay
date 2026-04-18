@@ -1,11 +1,604 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <style id="gpLessonPrehide">
-    .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-    .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-    .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-  </style>
 
-  </body>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C8 - Quadrangles and Pentagons</title>
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<style>
+  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--shadow:0 20px 40px rgba(0,0,0,.08);}
+  body{display:flex;align-items:center;justify-content:center;background:#bfe9fb;padding:6px;}
+  .card{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:12px 12px 18px;position:relative;}
+  .poster-area{position:relative;width:100%;max-width:1120px;margin:0 auto;touch-action:none;}
+  .poster-img{width:100%;height:auto;display:block;position:relative;z-index:0;pointer-events:none;}
+  .dot-layer{position:absolute;inset:0;pointer-events:none;z-index:1;}
+  .draw-layer{position:absolute;inset:0;pointer-events:auto;z-index:2;touch-action:none;display:block;cursor:crosshair;}
+  .status-line{text-align:center;min-height:1.4em;font-weight:700;color:#1f7a3a;margin-top:8px;}
+  .controls{margin-top:10px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+  .mic-icon-btn{border:none;border-radius:999px;padding:8px 14px;cursor:pointer;background:linear-gradient(180deg,#ff8a5b,#ff6b3d);box-shadow:0 4px 0 rgba(0,0,0,.2);}
+  .mic-icon-btn img{width:26px;height:26px;display:block;}
+  .convo-line{display:none;position:absolute;z-index:4;}
+  .convo-line.show{display:flex;}
+  .line1{left:17%;top:17%;}
+  .line2{right:14%;top:20%;}
+  .line3{left:50%;top:70%;transform:translateX(-50%);}
+  .bubble-stack{display:flex;flex-direction:column;gap:8px;}
+  .bubble{background:#fff6ea;border:3px solid #1d5fd6;border-radius:20px;padding:12px 18px;font-size:clamp(13px,1.8vw,18px);line-height:1.22;max-width:260px;box-shadow:0 8px 18px rgba(0,0,0,.12);transition:all .3s ease;}
+  .bubble.highlight{background:#ffeb99;box-shadow:0 0 0 3px rgba(255,165,0,.6), 0 8px 20px rgba(255,165,0,.4);transform:scale(1.05);}
+  .repeat-result,.star-row,.conversation-status{min-height:1.2em;text-align:center;font-weight:700;}
+  button{border:none;border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer;background:linear-gradient(180deg,#fffad7,#ffd86a);color:#8b5a00;box-shadow:0 4px 0 rgba(0,0,0,.2);}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2);}
+  .highlight-overlay{position:absolute;pointer-events:none;border-radius:12px;transition:all .4s ease;opacity:0;box-shadow:inset 0 0 0 3px rgba(255,165,0,.7);}
+  .highlight-overlay.active{opacity:1;}
+</style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+</head>
+<body>
+  <div class="card">
+    <div class="poster-area" id="posterArea">
+      <img class="poster-img" src="../../../../assets/images/shapes/LevelC8.png" alt="Understanding Shapes poster">
+      <div class="highlight-overlay" id="browniesOverlay" style="left:8%;top:20%;width:30%;height:35%;"></div>
+      <div class="highlight-overlay" id="muffinsOverlay" style="right:8%;top:20%;width:30%;height:35%;"></div>
+      <div class="row convo-line line1">
+        <div class="bubble-stack">
+          <div class="bubble baker big">Let's eat brownies together.</div>
+          <div class="repeat-result" data-line="0"></div>
+          <div class="star-row" data-line="0"></div>
+        </div>
+      </div>
+      <div class="row right convo-line line2">
+        <div class="bubble-stack">
+          <div class="bubble kid">Let's eat muffins together.</div>
+          <div class="repeat-result" data-line="1"></div>
+          <div class="star-row" data-line="1"></div>
+        </div>
+      </div>
+      <div class="row center convo-line line3">
+        <div class="bubble-stack">
+          <div class="bubble teacher">The brownies have 4 sides, and the muffins have 5 sides.</div>
+          <div class="repeat-result" data-line="2"></div>
+          <div class="star-row" data-line="2"></div>
+        </div>
+      </div>
+        <svg class="dot-layer" id="dotLayer" viewBox="0 0 1000 1400" preserveAspectRatio="xMidYMid meet"></svg>
+      <canvas class="draw-layer" id="drawLayer"></canvas>
+    </div>
+    <div class="status-line" id="statusLine"></div>
+    <div class="controls">
+      <button id="prevBtn"><- Previous page</button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone"></button>
+      <button id="clearBtn">Clear [X]</button>
+      <button id="nextBtn">Next page -></button>
+    </div>
+    <div class="conversation-status" id="conversationStatus"></div>
+  </div>
+
+<script>
+  // Prevent auto-playing intro videos
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'disableAutoIntro' }, '*');
+  }
+
+  // Load instruction audio
+  const instructionAudio = new Audio('../../../../assets/audio/chimes/InstructionAudio.mp3');
+  instructionAudio.preload = 'auto';
+
+  const posterArea = document.getElementById('posterArea');
+  const posterImg = posterArea.querySelector('.poster-img');
+  const dotLayer = document.getElementById('dotLayer');
+  const drawLayer = document.getElementById('drawLayer');
+  const statusLine = document.getElementById('statusLine');
+  const ctx = drawLayer.getContext('2d');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const micIconBtn = document.getElementById('micIconBtn');
+  const conversationStatus = document.getElementById('conversationStatus');
+  const lines = Array.from(document.querySelectorAll('.convo-line'));
+  const expectedLines = ["Let's eat brownies together.", "Let's eat muffins together.", "The brownies have 4 sides, and the muffins have 5 sides."];
+
+    const introLines = [
+      "What shall we eat?",
+      "Let's eat brownies together.",
+      "Let's eat muffins together.",
+      "The brownies have 4 sides, and the muffins have 5 sides."
+    ];
+
+  function getSpeechVoice(role){
+    if (!('speechSynthesis' in window) || typeof window.speechSynthesis.getVoices !== 'function') return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+    const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || '')));
+    const pool = englishVoices.length ? englishVoices : voices;
+    const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
+    if (role === 'female') {
+      return pool.find((voice) => femaleName.test(String(voice.name || ''))) || pool[0] || null;
+    }
+    return pool[0] || null;
+  }
+
+  function speak(text, onend, options){
+    if(!('speechSynthesis' in window)) {
+      if (typeof onend === 'function') onend();
+      return;
+    }
+    try { window.speechSynthesis.cancel(); } catch (_err) {}
+    const opts = options || {};
+    const u = new SpeechSynthesisUtterance(text);
+    const voice = getSpeechVoice(opts.role);
+    if (voice) u.voice = voice;
+    u.lang = opts.lang || 'en-US';
+    u.rate = typeof opts.rate === 'number' ? opts.rate : 1.0;
+    u.pitch = typeof opts.pitch === 'number' ? opts.pitch : 1.05;
+    u.volume = typeof opts.volume === 'number' ? opts.volume : 1.0;
+    u.onend = () => { if (typeof onend === 'function') onend(); };
+    u.onerror = () => { if (typeof onend === 'function') onend(); };
+    window.speechSynthesis.speak(u);
+  }
+
+  function playKidEngineSound(){
+    try {
+      new Audio('../../../../assets/audio/sfx-click.mp3').play().catch(()=>{});
+    } catch(_e) {}
+  }
+
+  function highlightBubble(bubbleEl, durationMs){
+    if (!bubbleEl) return;
+    bubbleEl.classList.add('highlight');
+    setTimeout(() => {
+      bubbleEl.classList.remove('highlight');
+    }, durationMs || 1800);
+  }
+
+  function speakIntro(){
+    let i = 0;
+    const browniesOverlay = document.getElementById('browniesOverlay');
+    const muffinsOverlay = document.getElementById('muffinsOverlay');
+    
+    const next = () => {
+      if(i >= introLines.length) return;
+      
+      // Hide all conversation lines and overlays first
+      lines.forEach(line => line.classList.remove('show'));
+      if (browniesOverlay) browniesOverlay.classList.remove('active');
+      if (muffinsOverlay) muffinsOverlay.classList.remove('active');
+      
+      // Step 1: "What shall we eat?" (no bubble highlight, 2 sec pause after)
+      if(i === 0){
+        speak(introLines[i], () => {
+          setTimeout(next, 2000);
+        }, { role: 'female', rate: 0.95, pitch: 1.05 });
+        i += 1;
+        return;
+      }
+      
+      // Step 2: "Let's eat brownies together." (just show bubble, no highlight)
+      if(i === 1){
+        lines[0].classList.add('show');
+        speak(introLines[i], () => {
+          setTimeout(next, 300);
+        }, { role: 'female', rate: 0.95, pitch: 1.05 });
+        i += 1;
+        return;
+      }
+      
+      // Step 3: "Let's eat muffins together." (just show bubble, no highlight)
+      if(i === 2){
+        lines[1].classList.add('show');
+        speak(introLines[i], () => {
+          setTimeout(next, 300);
+        }, { role: 'female', rate: 0.95, pitch: 1.05 });
+        i += 1;
+        return;
+      }
+      
+      // Step 4: "The brownies have 4 sides..." (highlight bubble + overlays + sound)
+      if(i === 3){
+        lines[2].classList.add('show');
+        highlightBubble(lines[2].querySelector('.bubble'), 2400);
+        if (browniesOverlay) browniesOverlay.classList.add('active');
+        if (muffinsOverlay) muffinsOverlay.classList.add('active');
+        playKidEngineSound();
+        speak(introLines[i], () => {
+          if (browniesOverlay) browniesOverlay.classList.remove('active');
+          if (muffinsOverlay) muffinsOverlay.classList.remove('active');
+        }, { role: 'female', rate: 0.93, pitch: 1.05 });
+        i += 1;
+        return;
+      }
+    };
+    next();
+  }
+
+  function playLoadInstructionSequence(){
+    lines.forEach(line => line.classList.remove('show'));
+    const browniesOverlay = document.getElementById('browniesOverlay');
+    const muffinsOverlay = document.getElementById('muffinsOverlay');
+    if (browniesOverlay) browniesOverlay.classList.remove('active');
+    if (muffinsOverlay) muffinsOverlay.classList.remove('active');
+    
+    const beginSpeech = () => setTimeout(speakIntro, 140);
+    const fallbackTimer = setTimeout(beginSpeech, 5200);
+    
+    instructionAudio.onended = () => {
+      clearTimeout(fallbackTimer);
+      beginSpeech();
+    };
+    instructionAudio.onerror = () => {
+      clearTimeout(fallbackTimer);
+      beginSpeech();
+    };
+    
+    try {
+      instructionAudio.currentTime = 0;
+      const playAttempt = instructionAudio.play();
+      if (playAttempt && typeof playAttempt.catch === 'function') {
+        playAttempt.catch(() => {
+          clearTimeout(fallbackTimer);
+          beginSpeech();
+        });
+      }
+    } catch (_err) {
+      clearTimeout(fallbackTimer);
+      beginSpeech();
+    }
+  }
+
+  // Poster-aligned guide dots for three quadrangles and three pentagons.
+    const quadrangles = [
+      { id:'q1', row:0, points:[[0.14,0.24],[0.34,0.24],[0.38,0.38],[0.18,0.38]] },
+      { id:'q2', row:1, points:[[0.14,0.48],[0.34,0.48],[0.38,0.62],[0.18,0.62]] },
+      { id:'q3', row:2, points:[[0.14,0.72],[0.34,0.72],[0.38,0.86],[0.18,0.86]] }
+    ];
+    const pentagons = [
+      { id:'p1', row:0, points:[[0.66,0.24],[0.80,0.24],[0.86,0.33],[0.73,0.42],[0.60,0.33]] },
+      { id:'p2', row:1, points:[[0.66,0.48],[0.80,0.48],[0.86,0.57],[0.73,0.66],[0.60,0.57]] },
+      { id:'p3', row:2, points:[[0.66,0.72],[0.80,0.72],[0.86,0.81],[0.73,0.90],[0.60,0.81]] }
+    ];
+
+  const shapes = [...quadrangles, ...pentagons];
+  const samples = new Map();
+  const visited = new Map();
+  const completed = new Set();
+  const rowCompleted = [false,false,false];
+  const rowMessages = ["Amazing Job!","Thumps up!","Wow! you are super smart!"];
+  let lastTraceSound = 0;
+
+  function playTraceTick(){
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtx) return;
+      const a = new AudioCtx();
+      const osc = a.createOscillator();
+      const gain = a.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.value = 0.06;
+      osc.connect(gain);
+      gain.connect(a.destination);
+      osc.start();
+      osc.stop(a.currentTime + 0.05);
+      osc.onended = () => a.close();
+    }catch(e){}
+  }
+
+  function redrawDots(){
+    dotLayer.innerHTML = '';
+    // Removed dashed guide lines and visible dot markers for cleaning
+  }
+
+  function toCanvasPoint(pt){
+    return { x: pt[0] * drawLayer.width, y: pt[1] * drawLayer.height };
+  }
+
+  function buildSamples(){
+    samples.clear();
+    visited.clear();
+    completed.clear();
+    shapes.forEach(shape => {
+      const pts = shape.points.map(p => toCanvasPoint(p));
+        const spacing = 10;
+      const s = [];
+      for(let i=0;i<pts.length;i++){
+        const a = pts[i];
+        const b = pts[(i+1)%pts.length];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.hypot(dx,dy);
+        const steps = Math.max(1, Math.ceil(dist/spacing));
+        for(let k=0;k<=steps;k++){
+          s.push({ x: a.x + (dx*k/steps), y: a.y + (dy*k/steps) });
+        }
+      }
+      samples.set(shape.id, s);
+      visited.set(shape.id, new Array(s.length).fill(false));
+    });
+  }
+
+  function updateVisited(pos){
+      const threshold = 34;
+      const thr2 = threshold * threshold;
+    shapes.forEach(shape => {
+      if(completed.has(shape.id)) return;
+      const s = samples.get(shape.id) || [];
+      const v = visited.get(shape.id) || [];
+      let changed = false;
+      for(let i=0;i<s.length;i++){
+        if(v[i]) continue;
+        const dx = pos.x - s[i].x;
+        const dy = pos.y - s[i].y;
+        if(dx*dx + dy*dy <= thr2){ v[i]=true; changed=true; }
+      }
+      if(changed){
+        const pct = Math.round((v.filter(Boolean).length / s.length) * 100);
+        if(pct >= 90){ completed.add(shape.id); }
+      }
+    });
+
+    for(let row=0; row<3; row++){
+      const qId = `q${row+1}`;
+      const pId = `p${row+1}`;
+      if(!rowCompleted[row] && completed.has(qId) && completed.has(pId)){
+        rowCompleted[row] = true;
+        const msg = rowMessages[row];
+        statusLine.textContent = msg;
+        speak(msg);
+      }
+      if (typeof window.finishAndSave === 'function') {
+        const score = Math.round((completed.size / shapes.length) * 100);
+        window.finishAndSave({
+          pageId:'LevelC8',
+          level:'C',
+          activityType:'tracing',
+          score,
+          tracing:score,
+          stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
+          skills:{ reading:1, writing:1, speaking:0, listening:1 }
+        });
+      }
+    }
+  }
+
+  let drawing = false;
+  function getEventPos(e){
+    const rect = drawLayer.getBoundingClientRect();
+    if (e.touches && e.touches[0]) {
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+  function startDraw(e){
+    e.preventDefault();
+    drawing = true;
+    const pos = getEventPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x,pos.y);
+    updateVisited(pos);
+  }
+  function moveDraw(e){
+    if(!drawing) return;
+    e.preventDefault();
+    const pos = getEventPos(e);
+    ctx.lineTo(pos.x,pos.y);
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#ff4d4d';
+    ctx.stroke();
+    updateVisited(pos);
+    const now = performance.now();
+    if(now - lastTraceSound > 120){ lastTraceSound = now; playTraceTick(); }
+  }
+  function endDraw(e){
+    if(!drawing) return;
+    e && e.preventDefault();
+    drawing = false;
+  }
+  drawLayer.addEventListener('pointerdown', startDraw);
+  drawLayer.addEventListener('pointermove', moveDraw);
+  drawLayer.addEventListener('pointerup', endDraw);
+  drawLayer.addEventListener('pointerleave', endDraw);
+  drawLayer.addEventListener('pointercancel', endDraw);
+  drawLayer.addEventListener('mousedown', startDraw);
+  drawLayer.addEventListener('mousemove', moveDraw);
+  drawLayer.addEventListener('mouseup', endDraw);
+  drawLayer.addEventListener('touchstart', startDraw, { passive:false });
+  drawLayer.addEventListener('touchmove', moveDraw, { passive:false });
+  drawLayer.addEventListener('touchend', endDraw);
+
+    clearBtn.addEventListener('click', () => {
+      ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
+      rowCompleted.fill(false);
+      statusLine.textContent = '';
+      buildSamples();
+      if (typeof window.finishAndSave === 'function') {
+        window.finishAndSave({
+          pageId:'LevelC8',
+          level:'C',
+          activityType:'tracing',
+          score:0,
+          tracing:0,
+          stars:0,
+          skills:{ reading:1, writing:1, speaking:0, listening:1 }
+        });
+      }
+    });
+  if (prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../../week-1/friday/LevelC_Quiz1.html'; });
+  if (nextBtn) nextBtn.addEventListener('click', () => { window.location.href = 'LevelC9.html'; });
+
+  function resize(){
+    const imgRect = posterImg.getBoundingClientRect();
+    const areaRect = posterArea.getBoundingClientRect();
+    const width = imgRect.width || areaRect.width;
+    const height = imgRect.height || areaRect.height;
+    if(!width || !height){
+      requestAnimationFrame(resize);
+      return;
+    }
+    drawLayer.width = width;
+    drawLayer.height = height;
+    drawLayer.style.width = width + 'px';
+    drawLayer.style.height = height + 'px';
+    ctx.clearRect(0,0,drawLayer.width,drawLayer.height);
+    redrawDots();
+    buildSamples();
+  }
+
+  resize();
+  if (posterImg && !posterImg.complete) {
+    posterImg.addEventListener('load', resize, { once:true });
+  }
+  window.addEventListener('resize', resize);
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(resize);
+    ro.observe(posterArea);
+  }
+
+  // Play instruction audio sequence
+  setTimeout(() => {
+    playLoadInstructionSequence();
+  }, 150);
+</script>
+<script src="../../../../activity-standardizer.js"></script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LevelC8",
+    defaultLevel: "C",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+
+</script>
+</body>
 </html>
