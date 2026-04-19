@@ -1596,23 +1596,44 @@
 })();
 </script>
 <script src="shared/js/page-audio-sequencer.js"></script>
+<script src="shared/js/bg-music-manager.js"></script>
 <script>
 (() => {
-  const playlist = [
+  const bgMusicPlaylist = [
     "assets/audio/chimes/Audio4.mp4",
     "assets/audio/chimes/Audio2.mp4"
   ];
-  const bgSequencer = window.GPPageAudioSequencer && window.GPPageAudioSequencer.create
-    ? window.GPPageAudioSequencer.create({ tracks: playlist, volume: 0.18, loopPlaylist: true })
-    : null;
+  let currentTrackIndex = 0;
+  const bgAudio = new Audio();
+  bgAudio.loop = false;
+  bgAudio.volume = 0.4;
+
+  function playNextTrack() {
+    if (currentTrackIndex < bgMusicPlaylist.length) {
+      bgAudio.src = bgMusicPlaylist[currentTrackIndex];
+      bgAudio.play().catch(() => {});
+      currentTrackIndex++;
+    }
+  }
+
+  bgAudio.addEventListener("ended", playNextTrack);
 
   function startReportMusic() {
-    if (bgSequencer && !bgSequencer.isStarted()) bgSequencer.start();
+    if (bgAudio.paused || !bgAudio.src) {
+      currentTrackIndex = 0;
+      playNextTrack();
+    }
   }
 
   function stopReportMusic() {
-    if (bgSequencer) bgSequencer.stop();
+    bgAudio.pause();
+    bgAudio.currentTime = 0;
   }
+
+  window.__gpReportBgMusicManager = {
+    start: startReportMusic,
+    stop: stopReportMusic
+  };
 
   window.addEventListener("load", startReportMusic, { once:true });
   ["pointerdown","touchstart","keydown"].forEach((eventName) => {
@@ -1620,6 +1641,17 @@
   });
   window.addEventListener("pagehide", stopReportMusic, { once:true });
   window.addEventListener("beforeunload", stopReportMusic, { once:true });
+
+  // Stop music when navigating to lesson pages
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a[href]");
+    if (link) {
+      const href = link.getAttribute("href");
+      if (href && (href.includes("/levels/") || href.includes("lesson"))) {
+        stopReportMusic();
+      }
+    }
+  });
 })();
 </script>
 </body>

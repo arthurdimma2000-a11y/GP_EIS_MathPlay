@@ -2101,6 +2101,63 @@
       cleanupLegacyServiceWorkers().catch(() => null);
     });
   </script>
+
+  <script src="shared/js/bg-music-manager.js"></script>
+
+  <script>
+    (function() {
+      const bgMusicPlaylist = [
+        "assets/audio/chimes/Audio1.mp4",
+        "assets/audio/chimes/Audio2.mp4",
+        "assets/audio/chimes/Audio3.mp4"
+      ];
+      let currentTrackIndex = 0;
+      const bgAudio = new Audio();
+      bgAudio.loop = false;
+      bgAudio.volume = 0.4;
+
+      function playNextTrack() {
+        if (currentTrackIndex < bgMusicPlaylist.length) {
+          bgAudio.src = bgMusicPlaylist[currentTrackIndex];
+          bgAudio.play().catch(() => {});
+          currentTrackIndex++;
+        }
+      }
+
+      bgAudio.addEventListener("ended", playNextTrack);
+
+      function startBackgroundMusic() {
+        if (bgAudio.paused || !bgAudio.src) {
+          currentTrackIndex = 0;
+          playNextTrack();
+        }
+      }
+
+      function stopBackgroundMusic() {
+        bgAudio.pause();
+        bgAudio.currentTime = 0;
+      }
+
+      window.__gpBgMusicManager = {
+        start: startBackgroundMusic,
+        stop: stopBackgroundMusic
+      };
+
+      startBackgroundMusic();
+
+      // Stop music when navigating to lesson pages
+      const originalHref = window.location.href;
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest("a[href]");
+        if (link) {
+          const href = link.getAttribute("href");
+          if (href && (href.includes("/levels/") || href.includes("lesson"))) {
+            stopBackgroundMusic();
+          }
+        }
+      });
+    })();
+  </script>
   <style id="gpResponsiveHotfix">
     button,
     .btn,
@@ -2327,7 +2384,7 @@
 
       <div class="profile-box">
         <div class="profile-top">
-          <img id="sidebarAvatar" class="profile-avatar" src="ProfDog.png" alt="Level Avatar">
+          <img id="sidebarAvatar" class="profile-avatar" src="assets/images/shapes/ProfDog.png" alt="Level Avatar">
           <div class="profile-copy">
             <b id="sidebarLevelTitle">Level A Selected</b>
             <span id="sidebarLevelSub">Starter Learning Path</span>
@@ -2390,7 +2447,7 @@
 
           <div class="hero-mascots">
             <div class="mascot-card">
-              <img src="ProfDog.png" alt="Professor Dog">
+              <img src="assets/images/shapes/ProfDog.png" alt="Professor Dog">
               <button class="highlight-trigger" type="button" data-highlight-video="shape">Click Shapes Video</button>
               <h3>Level A</h3>
               <p>Circle, triangle and square learning.</p>
@@ -2402,7 +2459,7 @@
               <p>Polygon tracing and recognition.</p>
             </div>
             <div class="mascot-card">
-              <img src="ProfTangramC.png" alt="Professor Tangram">
+              <img src="assets/images/shapes/ProfTangramC.png" alt="Professor Tangram">
               <button class="highlight-trigger" type="button" data-highlight-video="tangram">Click Tangram Video</button>
               <h3>Level C</h3>
               <p>Tangram puzzles and advanced play.</p>
@@ -2486,7 +2543,7 @@
                 <p>Starter shape learning.</p>
               </div>
               <div class="level-illus">
-                <img id="lvlAImg" src="ProfDog.png" alt="Professor Dog">
+                <img id="lvlAImg" src="assets/images/shapes/ProfDog.png" alt="Professor Dog">
               </div>
               <div class="level-foot">
                 <div class="level-status">
@@ -2528,7 +2585,7 @@
                 <p>Advanced tangram learning.</p>
               </div>
               <div class="level-illus">
-                <img id="lvlCImg" src="ProfTangramC.png" alt="Professor Tangram">
+                <img id="lvlCImg" src="assets/images/shapes/ProfTangramC.png" alt="Professor Tangram">
               </div>
               <div class="level-foot">
                 <div class="level-status">
@@ -7383,121 +7440,6 @@
 <script>
   window.__GP_DISABLE_SHARED_BG_AUDIO__ = true;
   window.__GP_SKIP_INDEX_GUIDE_WELCOME__ = true;
-</script>
-<script src="shared/audio-manager.js"></script>
-<script src="shared/js/page-audio-sequencer.js"></script>
-<script>
-  (function(){
-    const playlist = [
-      "assets/audio/chimes/Audio1.mp4",
-      "assets/audio/chimes/Audio2.mp4",
-      "assets/audio/chimes/Audio3.mp4"
-    ];
-    const welcomeText = "Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then Login when a week is opened to access the lesson activities on this app.";
-    const bgSequencer = window.GPPageAudioSequencer && window.GPPageAudioSequencer.create
-      ? window.GPPageAudioSequencer.create({ tracks: playlist, volume: 0.2, loopPlaylist: true })
-      : null;
-    const uiChime = new Audio("assets/audio/chimes/chime.mp3");
-    uiChime.preload = "auto";
-
-    let narrationDone = false;
-    let narrationInFlight = false;
-
-    function chooseWarmFemaleVoice() {
-      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
-      const voices = window.speechSynthesis.getVoices() || [];
-      const rank = [
-        /en/i,
-        /female|woman|zira|aria|samantha|ava|jenny|allison|emma|olivia|ivy|libby|ellie|google us english/i
-      ];
-      return voices.find((voice) => rank.every((pattern) => pattern.test(String(voice.name || "") + " " + String(voice.lang || ""))))
-        || voices.find((voice) => /en/i.test(String(voice.lang || "")) && /female|zira|aria|samantha|ava|jenny|allison|emma|olivia|ivy|libby|ellie/i.test(String(voice.name || "")))
-        || voices.find((voice) => /en/i.test(String(voice.lang || "")))
-        || null;
-    }
-
-    function stopPageAudio() {
-      if (bgSequencer) bgSequencer.stop();
-      if ("speechSynthesis" in window) {
-        try { window.speechSynthesis.cancel(); } catch (_) {}
-      }
-      if (window.GPAudio && typeof window.GPAudio.stopBg === "function") {
-        window.GPAudio.stopBg();
-      }
-    }
-    window.__GP_INDEX_STOP_PAGE_AUDIO__ = stopPageAudio;
-
-    function playUiChime() {
-      try {
-        uiChime.currentTime = 0;
-        uiChime.volume = 1;
-        const playAttempt = uiChime.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {});
-        }
-      } catch (_) {}
-    }
-
-    function startNarration() {
-      if (narrationDone || narrationInFlight || !("speechSynthesis" in window)) return;
-      narrationInFlight = true;
-
-      const utter = new SpeechSynthesisUtterance(welcomeText);
-      const voice = chooseWarmFemaleVoice();
-      if (voice) utter.voice = voice;
-      utter.lang = voice && voice.lang ? voice.lang : "en-US";
-      utter.rate = 0.94;
-      utter.pitch = 1.18;
-      utter.volume = 1;
-      utter.onstart = () => {
-        if (bgSequencer) bgSequencer.setVolume(0.09);
-      };
-      utter.onend = () => {
-        narrationDone = true;
-        narrationInFlight = false;
-        if (bgSequencer) bgSequencer.setVolume(0.2);
-      };
-      utter.onerror = () => {
-        narrationInFlight = false;
-        if (bgSequencer) bgSequencer.setVolume(0.2);
-      };
-
-      try {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
-        window.setTimeout(() => {
-          if (!narrationDone && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
-            narrationInFlight = false;
-          }
-        }, 1200);
-      } catch (_) {}
-    }
-
-    function startIndexAudioExperience() {
-      if (window.GPAudio && typeof window.GPAudio.stopBg === "function") {
-        window.GPAudio.stopBg();
-      }
-      if (bgSequencer && !bgSequencer.isStarted()) bgSequencer.start();
-      startNarration();
-    }
-
-    window.addEventListener("load", startIndexAudioExperience, { once:true });
-    if ("speechSynthesis" in window && typeof window.speechSynthesis.onvoiceschanged !== "undefined") {
-      window.speechSynthesis.onvoiceschanged = window.speechSynthesis.onvoiceschanged || null;
-    }
-    ["pointerdown","touchstart","keydown"].forEach((eventName) => {
-      window.addEventListener(eventName, startIndexAudioExperience, { once:true, passive:eventName !== "keydown" });
-    });
-    document.addEventListener("pointerdown", (event) => {
-      const target = event.target && event.target.closest
-        ? event.target.closest("button, .btn, a[href], [role='button']")
-        : null;
-      if (!target || target.disabled) return;
-      playUiChime();
-    }, { passive:true, capture:true });
-    window.addEventListener("pagehide", stopPageAudio, { once:true });
-    window.addEventListener("beforeunload", stopPageAudio, { once:true });
-  })();
 </script>
 <script src="shared/index-guide.js"></script>
 </body>
