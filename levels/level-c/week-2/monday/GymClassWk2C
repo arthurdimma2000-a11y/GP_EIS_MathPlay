@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Circle Art Class</title>
+  <title>Gym Class Week 2C</title>
 
   <style>
     * {
@@ -15,11 +15,7 @@
     :root {
       --bg1: #0f172a;
       --bg2: #1e293b;
-      --panel: rgba(255, 255, 255, 0.12);
-      --panel-strong: rgba(15, 23, 42, 0.72);
       --text: #ffffff;
-      --accent: #f59e0b;
-      --accent2: #38bdf8;
       --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
       --radius: 24px;
     }
@@ -39,7 +35,7 @@
       width: 100%;
       opacity: 0;
       visibility: hidden;
-      transition: opacity .28s ease;
+      transition: opacity 0.28s ease;
     }
 
     body.intro-complete #pageContent {
@@ -64,11 +60,11 @@
 
     .intro-panel {
       width: min(920px, 100%);
-      background: rgba(15, 15, 15, .96);
+      background: rgba(15, 15, 15, 0.96);
       border-radius: 24px;
       padding: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
-      border: 2px solid rgba(255,255,255,.14);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      border: 2px solid rgba(255, 255, 255, 0.14);
     }
 
     .intro-title {
@@ -102,10 +98,10 @@
       border-radius: 999px;
       padding: 12px 18px;
       min-width: 140px;
-      font-size: .96rem;
+      font-size: 0.96rem;
       font-weight: 800;
       color: #fff;
-      box-shadow: 0 8px 18px rgba(0,0,0,.28);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
     }
 
     .intro-btn.sound {
@@ -120,7 +116,7 @@
       margin-top: 10px;
       text-align: center;
       color: #fef3c7;
-      font-size: .9rem;
+      font-size: 0.9rem;
       font-weight: 700;
     }
 
@@ -139,7 +135,7 @@
       font-weight: 800;
       letter-spacing: 0.4px;
       color: #fff;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     }
 
     .video-shell {
@@ -151,7 +147,7 @@
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
-      border: 3px solid rgba(255,255,255,0.12);
+      border: 3px solid rgba(255, 255, 255, 0.12);
     }
 
     video {
@@ -172,7 +168,7 @@
       align-items: center;
       gap: 8px;
       padding: 12px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.65), rgba(0,0,0,0.08));
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.08));
       z-index: 5;
       pointer-events: none;
     }
@@ -197,7 +193,7 @@
       font-size: 0.95rem;
       font-weight: 700;
       transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
     }
 
     .nav-btn:hover {
@@ -240,7 +236,7 @@
       color: white;
       background: rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       pointer-events: auto;
       transition: transform 0.15s ease, background 0.2s ease;
     }
@@ -272,7 +268,7 @@
       background: rgba(15, 23, 42, 0.72);
       backdrop-filter: blur(6px);
       z-index: 5;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
     }
 
     .bottom-bar .lesson-name {
@@ -293,7 +289,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.18);
+      background: rgba(0, 0, 0, 0.18);
       z-index: 3;
       pointer-events: none;
       opacity: 0;
@@ -312,7 +308,7 @@
       font-size: 1rem;
       font-weight: 700;
       backdrop-filter: blur(6px);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
     }
 
     .nav-hidden {
@@ -366,7 +362,7 @@
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
-      <div class="intro-title">Circle Art Class Intro</div>
+      <div class="intro-title">Gym Class Week 2C Intro</div>
       <video
         id="lbIntroVideo"
         playsinline
@@ -374,13 +370,15 @@
         muted
         preload="metadata"
       >
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776038722/Laartcircleclass_iksorh.mp4" type="video/mp4" />
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776525365/Finalwk2gymclassc_gkg8r0.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+
       <div class="intro-actions">
         <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
+
       <div class="intro-help">If the intro does not play, the lesson page will open automatically.</div>
     </div>
   </div>
@@ -388,7 +386,7 @@
   <div id="pageContent">
     <div class="page-wrap">
       <div class="title-bar">
-        <h1>Circle Art Class</h1>
+        <h1>Gym Class Week 2C</h1>
       </div>
 
       <div class="video-shell" id="videoShell">
@@ -398,7 +396,7 @@
           playsinline
           preload="metadata"
         >
-          <source src="CircleArtClass.mp4" type="video/mp4" />
+          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776525365/Finalwk2gymclassc_gkg8r0.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
@@ -425,7 +423,7 @@
         </div>
 
         <div class="bottom-bar nav-visible" id="bottomBar">
-          <div class="lesson-name">Circle Art Class Video</div>
+          <div class="lesson-name">Gym Class Week 2C Video</div>
           <div class="hint">Use the buttons to move around the app</div>
         </div>
       </div>
@@ -436,11 +434,12 @@
     /* =========================
        EDIT THESE PAGE LINKS
        ========================= */
-    const VIDEO_SRC = "CircleArtClass.mp4";
-    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776038722/Laartcircleclass_iksorh.mp4";
+    const VIDEO_SRC = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776525365/Finalwk2gymclassc_gkg8r0.mp4";
+    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776525365/Finalwk2gymclassc_gkg8r0.mp4";
+
     const HOME_PAGE = "../../../../index.html";
-    const PREVIOUS_PAGE = "../../../../index.html";
-    const NEXT_PAGE = "../tuesday/LA2.html";
+    const PREVIOUS_PAGE = "../friday/LevelC_Quiz1.html";
+    const NEXT_PAGE = "../tuesday/LevelC8.html";
 
     const video = document.getElementById("lessonVideo");
     const videoShell = document.getElementById("videoShell");
@@ -460,44 +459,30 @@
     const skipIntroBtn = document.getElementById("skipIntroBtn");
 
     let introFinished = false;
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
-    instructionAudio.preload = "auto";
-    let instructionAudioStarted = false;
+    let navTimer;
 
-    function playInstructionBed() {
-      if (instructionAudioStarted) return;
-      try { instructionAudio.currentTime = 0; } catch (_err) {}
-      const playAttempt = instructionAudio.play();
-      if (playAttempt && typeof playAttempt.then === "function") {
-        playAttempt.then(() => {
-          instructionAudioStarted = true;
-        }).catch(() => {});
+    function setVideoSource(videoEl, url) {
+      const source = videoEl.querySelector("source");
+      if (source) {
+        source.src = url;
+        videoEl.load();
       } else {
-        instructionAudioStarted = true;
+        videoEl.src = url;
       }
     }
 
-    window.addEventListener("load", playInstructionBed, { once: true });
-    ["pointerdown", "touchstart", "click", "keydown"].forEach((eventName) => {
-      document.addEventListener(eventName, playInstructionBed, {
-        once: true,
-        capture: true,
-        passive: eventName !== "keydown"
-      });
-    });
-
-    if (video.querySelector("source")) {
-      video.querySelector("source").src = VIDEO_SRC;
-      video.load();
-    }
+    setVideoSource(video, VIDEO_SRC);
+    setVideoSource(introVideo, INTRO_VIDEO_URL);
 
     function revealPageContent() {
       if (introFinished) return;
       introFinished = true;
       document.body.classList.add("intro-complete");
+
       if (introOverlay) {
         introOverlay.hidden = true;
       }
+
       if (introVideo) {
         try {
           introVideo.pause();
@@ -515,13 +500,15 @@
       } else if (document.referrer) {
         history.back();
       } else {
-        window.location.href = HOME_PAGE || "index.html";
+        goHome();
       }
     }
 
     function goNextPage() {
       if (NEXT_PAGE && NEXT_PAGE.trim() !== "") {
         window.location.href = NEXT_PAGE;
+      } else {
+        goHome();
       }
     }
 
@@ -560,8 +547,6 @@
       turnOnSoundBtn.disabled = true;
     }
 
-    let navTimer;
-
     function showNavigation() {
       topNav.classList.remove("nav-hidden");
       topNav.classList.add("nav-visible");
@@ -584,8 +569,6 @@
     }
 
     if (introVideo) {
-      introVideo.src = INTRO_VIDEO_URL;
-      introVideo.load();
       introVideo.addEventListener("ended", revealPageContent);
       introVideo.addEventListener("error", revealPageContent);
       introVideo.addEventListener("stalled", () => {
@@ -595,6 +578,7 @@
           }
         }, 1200);
       });
+
       introVideo.play().catch(() => {});
     } else {
       revealPageContent();

@@ -352,6 +352,31 @@
     const skipIntroBtn = document.getElementById("skipIntroBtn");
 
     let introFinished = false;
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    instructionAudio.preload = "auto";
+    let instructionAudioStarted = false;
+
+    function playInstructionBed() {
+      if (instructionAudioStarted) return;
+      try { instructionAudio.currentTime = 0; } catch (_err) {}
+      const playAttempt = instructionAudio.play();
+      if (playAttempt && typeof playAttempt.then === "function") {
+        playAttempt.then(() => {
+          instructionAudioStarted = true;
+        }).catch(() => {});
+      } else {
+        instructionAudioStarted = true;
+      }
+    }
+
+    window.addEventListener("load", playInstructionBed, { once: true });
+    ["pointerdown", "touchstart", "click", "keydown"].forEach((eventName) => {
+      document.addEventListener(eventName, playInstructionBed, {
+        once: true,
+        capture: true,
+        passive: eventName !== "keydown"
+      });
+    });
 
     function revealPageContent() {
       if (introFinished) return;

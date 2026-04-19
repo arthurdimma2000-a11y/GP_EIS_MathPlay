@@ -1,187 +1,860 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Level B • Quiz 2 — Count Vertices</title>
-<style>
-  :root{--bg1:#fff4b8;--bg2:#c7f7ff;--bg3:#ffd1f3;--ink:#1f2430;--card:#fff;
-    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;}
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));padding:18px}
-  .app{width:min(980px,98vw)}
-  .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-  .badge{background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 12px 28px rgba(0,0,0,.10);font-weight:1000;display:flex;gap:10px;align-items:center}
-  .btn{border:0;cursor:pointer;font-weight:1000;border-radius:14px;padding:12px 14px;background:#fff;color:var(--ink);box-shadow:0 10px 22px rgba(0,0,0,.12);text-decoration:none;display:inline-flex;gap:8px;align-items:center}
-  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#0b1b10}
-  .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7);color:#06121d}
-  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
-  .title{font-size:26px;font-weight:1000;margin:6px 0 6px}
-  .subtitle{margin:0 0 12px;opacity:.85}
-  .q{border-radius:18px;padding:12px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);margin-top:10px}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .opt{border:0;cursor:pointer;font-weight:1000;font-size:20px;border-radius:16px;padding:12px 14px;background:#fff;box-shadow:0 10px 22px rgba(0,0,0,.12)}
-  .opt:active{transform:translateY(1px)}
-  .msg{margin-top:12px;border-radius:16px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Shape Quiz — Pentagon, Hexagon & Octagon</title>
+  <style>
+    :root{
+      --bg1:#fff5b7;
+      --bg2:#c9f6ff;
+      --bg3:#ffd7ef;
+      --ink:#1f2430;
+      --card:#ffffff;
+      --purple:#9b5de5;
+      --blue:#00bbf9;
+      --pink:#f15bb5;
+      --green:#22c55e;
+      --orange:#ff9f1c;
+      --red:#ef4444;
+      --shadow:0 18px 38px rgba(0,0,0,.12);
+      --soft-shadow:0 10px 22px rgba(0,0,0,.10);
+      font-family:"Comic Sans MS","Baloo 2","Trebuchet MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+      color:var(--ink);
+      padding:16px;
+    }
+
+    .app{
+      width:min(980px,100%);
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .pill{
+      background:#fff;
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:1000;
+      box-shadow:var(--soft-shadow);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius:16px;
+      padding:12px 16px;
+      font-weight:1000;
+      font-size:16px;
+      background:#fff;
+      box-shadow:var(--soft-shadow);
+      text-decoration:none;
+      color:var(--ink);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background:linear-gradient(180deg,#86efac,#22c55e);
+    }
+    .btn.blue{
+      background:linear-gradient(180deg,#93c5fd,#38bdf8);
+    }
+    .btn.pink{
+      background:linear-gradient(180deg,#f9a8d4,#f472b6);
+    }
+    .btn.orange{
+      background:linear-gradient(180deg,#fdba74,#fb923c);
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:16px;
+      overflow:hidden;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:16px;
+      align-items:center;
+    }
+
+    @media (max-width: 820px){
+      .hero{grid-template-columns:1fr}
+    }
+
+    .title{
+      font-size:clamp(28px,4vw,40px);
+      line-height:1.05;
+      font-weight:1000;
+      margin:0 0 8px;
+    }
+
+    .subtitle{
+      margin:0;
+      font-size:18px;
+      opacity:.9;
+      font-weight:700;
+    }
+
+    .helper{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .speech{
+      background:linear-gradient(180deg,#fffef7,#fff);
+      border-radius:22px;
+      padding:14px 16px;
+      box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+      font-size:18px;
+      font-weight:900;
+      min-height:60px;
+      display:flex;
+      align-items:center;
+    }
+
+    .scorebox{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+
+    .mini{
+      background:linear-gradient(180deg,#fff,#f8fbff);
+      border-radius:20px;
+      padding:14px;
+      box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+      text-align:center;
+    }
+
+    .mini .num{
+      display:block;
+      font-size:28px;
+      font-weight:1000;
+      margin-top:4px;
+    }
+
+    .progressWrap{
+      margin-top:16px;
+      background:#eef6ff;
+      height:20px;
+      border-radius:999px;
+      overflow:hidden;
+      box-shadow:inset 0 0 0 2px rgba(0,0,0,.05);
+    }
+
+    .progressBar{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#60a5fa,#34d399,#fbbf24,#f472b6);
+      transition:width .35s ease;
+    }
+
+    .quiz{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+    }
+
+    .stage{
+      background:
+        linear-gradient(180deg,#fffdf7,#ffffff),
+        repeating-linear-gradient(0deg,transparent 0 28px,rgba(0,0,0,.03) 28px 29px),
+        repeating-linear-gradient(90deg,transparent 0 28px,rgba(0,0,0,.03) 28px 29px);
+      border-radius:28px;
+      min-height:320px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      box-shadow:inset 0 0 0 3px rgba(0,0,0,.05);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .shapeLabel{
+      margin-top:12px;
+      font-size:28px;
+      font-weight:1000;
+      text-align:center;
+    }
+
+    .questionText{
+      font-size:28px;
+      font-weight:1000;
+      text-align:center;
+      margin:0 0 4px;
+    }
+
+    .tip{
+      font-size:16px;
+      font-weight:800;
+      opacity:.85;
+      text-align:center;
+      margin:0;
+    }
+
+    .options{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+
+    @media (max-width: 700px){
+      .options{grid-template-columns:1fr}
+    }
+
+    .option{
+      border:0;
+      cursor:pointer;
+      border-radius:24px;
+      padding:18px 14px;
+      font-size:clamp(22px,3vw,28px);
+      font-weight:1000;
+      background:#fff;
+      box-shadow:var(--soft-shadow);
+      min-height:84px;
+      transition:transform .15s ease, box-shadow .15s ease, background .2s ease;
+    }
+
+    .option:hover{transform:translateY(-2px)}
+    .option:active{transform:translateY(1px)}
+    .option[disabled]{cursor:default; opacity:.95}
+
+    .option.correct{
+      background:linear-gradient(180deg,#bbf7d0,#86efac);
+    }
+    .option.wrong{
+      background:linear-gradient(180deg,#fecaca,#fca5a5);
+    }
+
+    .footerRow{
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+
+    .finalBox{
+      display:none;
+      margin-top:16px;
+      border-radius:24px;
+      padding:18px;
+      background:linear-gradient(180deg,#fffef7,#ffffff);
+      box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+      text-align:center;
+    }
+
+    .finalTitle{
+      font-size:34px;
+      margin:0 0 8px;
+      font-weight:1000;
+    }
+
+    .starsBig{
+      font-size:34px;
+      margin:8px 0 10px;
+    }
+
+    .sparkle{
+      position:absolute;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:#fff799;
+      opacity:.85;
+      animation:pop 900ms ease-out forwards;
+      pointer-events:none;
+    }
+
+    @keyframes pop{
+      0%{transform:translate(0,0) scale(.4); opacity:1}
+      100%{transform:translate(var(--dx),var(--dy)) scale(1.6); opacity:0}
+    }
+
+    .bounce{
+      animation:bounce 1.6s infinite;
+      transform-origin:center;
+    }
+
+    @keyframes bounce{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-6px)}
+    }
+
+    .vertexDot{
+      animation:pulseDot 1.2s infinite;
+      transform-origin:center;
+    }
+
+    @keyframes pulseDot{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.18)}
+    }
+
+    .hidden{display:none !important}
+  </style>
 </head>
 <body>
-<div class="app">
-  <div class="top">
-    <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Quiz 2 • Vertices</span></div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap">
-      <a class="btn" href="LB_Game2.html">⬅ Back</a>
-      <a class="btn next" href="../../week-3/tuesday/LB14.html">Next ▶</a>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="title">How many vertices?</div>
-    <p class="subtitle">Remember your book practice: 5, 6, 8 vertices. :contentReference[oaicite:11]{index=11}</p>
-
-    <div class="q">
-      <div id="shapeBox" style="display:flex;justify-content:center;align-items:center;height:220px"></div>
-      <div class="row" style="justify-content:center;margin-top:10px">
-        <button class="opt" data-a="5">5</button>
-        <button class="opt" data-a="6">6</button>
-        <button class="opt" data-a="8">8</button>
+  <div class="app">
+    <div class="topbar">
+      <div class="pill">🟣 Shape Quiz • Age 6+</div>
+      <div class="actions">
+        <button class="btn" onclick="history.back()">⬅ Back</button>
+        <button class="btn blue" id="listenBtn">🔊 Listen</button>
+        <a class="btn pink" href="../../../../index.html">📘 Progress Report</a>
       </div>
     </div>
 
-    <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="nextQ">➡ Next</button>
-      <button class="btn" id="finish">🏁 Finish</button>
+    <div class="card">
+      <div class="hero">
+        <div>
+          <h1 class="title">Let’s Learn Shapes!</h1>
+          <p class="subtitle">Today we will play with <strong>Pentagon</strong>, <strong>Hexagon</strong>, and <strong>Octagon</strong>.</p>
+          <div class="helper">
+            <div class="speech" id="speechBubble">Tap Start Quiz to begin ⭐</div>
+            <button class="btn primary" id="startBtn">▶ Start Quiz</button>
+          </div>
+          <div class="progressWrap" aria-label="Quiz progress">
+            <div class="progressBar" id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="scorebox">
+          <div class="mini">
+            Question
+            <span class="num" id="qNum">0/8</span>
+          </div>
+          <div class="mini">
+            Score
+            <span class="num" id="scoreNum">0</span>
+          </div>
+          <div class="mini">
+            Stars
+            <span class="num" id="starNum">⭐ 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz">
+        <div class="stage" id="stage">
+          <p class="questionText" id="questionText">Ready?</p>
+          <p class="tip" id="tipText">Tap Start Quiz. Then listen and choose the correct answer.</p>
+
+          <div id="shapeBox" style="margin-top:10px;"></div>
+          <div class="shapeLabel hidden" id="shapeNameLabel"></div>
+        </div>
+
+        <div class="options" id="options"></div>
+
+        <div class="footerRow">
+          <button class="btn orange hidden" id="nextBtn">➡ Next Question</button>
+          <button class="btn hidden" id="playAgainBtn">🔁 Play Again</button>
+        </div>
+
+        <div class="finalBox" id="finalBox">
+          <h2 class="finalTitle">Great Job!</h2>
+          <div class="starsBig" id="finalStars">⭐</div>
+          <div id="finalMessage" style="font-size:22px;font-weight:1000;margin-bottom:12px;"></div>
+          <div class="footerRow">
+            <button class="btn primary" id="playAgainBtn2">Play Again</button>
+            <a class="btn blue" href="../../../../index.html">Open Progress Report</a>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="msg" id="msg">Press Next to begin ⭐</div>
   </div>
-</div>
 
-<script>
-/* --- SFX + Tracker --- */
-(function(){
-  const STORE_KEY="gpeis_progress_v1";
-  let audioCtx=null;
-  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function beep(f,t,g=0.05,type="triangle"){ const c=ctx(),o=c.createOscillator(),ga=c.createGain();
-    o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
-  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
-  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
-  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
-  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
-  window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
-    const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
-    const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
-    const a=acts[activityId];
-    a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
-    a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
-    db[level].updatedAt=new Date().toISOString(); save(db);
-    chime(); if(stars>=3||score>=85) cheer();
-    return a;
-  }};
-  window.__SFX__={chime,cheer};
-})();
+  <script>
+    /* =========================
+       AUDIO + SIMPLE TRACKING
+    ========================== */
+    (function () {
+      const STORE_KEY = "gpeis_progress_v1";
+      let audioCtx = null;
 
-const shapeBox=document.getElementById("shapeBox");
-const msg=document.getElementById("msg");
+      function getCtx() {
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        return audioCtx;
+      }
 
-const deck=[
-  {name:"Pentagon", v:5, color:"#9b5de5", svg:`<path d="M60 18 L 98 44 L 84 92 L 36 92 L 22 44 Z"/>`},
-  {name:"Hexagon", v:6, color:"#00bbf9", svg:`<path d="M60 18 L 95 38 L 95 82 L 60 102 L 25 82 L 25 38 Z"/>`},
-  {name:"Octagon", v:8, color:"#f15bb5", svg:`<path d="M44 18 L 76 18 L 98 40 L 98 80 L 76 102 L 44 102 L 22 80 L 22 40 Z"/>`},
-];
+      function tone(freq, dur, gain = 0.05, type = "triangle") {
+        const ctx = getCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        g.gain.value = gain;
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      }
 
-let q=-1, correct=0, total=7, locked=true;
+      function happyChime() {
+        try {
+          tone(740, 0.09, 0.05, "triangle");
+          setTimeout(() => tone(988, 0.11, 0.05, "triangle"), 90);
+          setTimeout(() => tone(1318, 0.13, 0.05, "triangle"), 180);
+        } catch (e) {}
+      }
 
-function render(item){
-  shapeBox.innerHTML = `
-    <div style="width:240px;height:240px;border-radius:30px;display:flex;align-items:center;justify-content:center;
-                background:linear-gradient(180deg, ${item.color}, #ffffff);
-                box-shadow:0 18px 38px rgba(0,0,0,.14);">
-      <svg viewBox="0 0 120 120" width="170" height="170" fill="white" opacity="0.95">${item.svg}</svg>
-    </div>`;
-  shapeBox.dataset.ans = String(item.v);
-}
+      function softOops() {
+        try {
+          tone(260, 0.09, 0.04, "sine");
+          setTimeout(() => tone(220, 0.14, 0.04, "sine"), 80);
+        } catch (e) {}
+      }
 
-function nextQ(){
-  q++; if(q>=total){ finish(); return; }
-  const item = deck[Math.floor(Math.random()*deck.length)];
-  render(item);
-  locked=false;
-  msg.textContent=`Question ${q+1}/${total}: How many vertices?`;
-  window.__SFX__.chime();
-}
+      function bigCheer() {
+        try {
+          tone(523, 0.09, 0.05, "sine");
+          setTimeout(() => tone(659, 0.09, 0.05, "sine"), 80);
+          setTimeout(() => tone(784, 0.11, 0.05, "sine"), 160);
+          setTimeout(() => tone(1046, 0.16, 0.05, "sine"), 260);
+        } catch (e) {}
+      }
 
-async function finish(){
-  const scorePct=Math.round((correct/total)*100);
-  const stars=scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
-  msg.textContent=`🎉 Done! Correct ${correct}/${total} (≈${scorePct}%). Stars: ${"⭐".repeat(Math.max(1,stars))}`;
-  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
-    await window.GPTrack.finish({
-      pageId: "LB_Quiz2",
-      level: "B",
-      activityType: "quiz",
-      score: scorePct,
-      stars,
-      skills: { reading: 2, writing: 0, speaking: 0, listening: 1 }
+      function loadProgress() {
+        try {
+          return JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveProgress(db) {
+        localStorage.setItem(STORE_KEY, JSON.stringify(db));
+      }
+
+      window.__QuizAudio__ = { happyChime, softOops, bigCheer };
+
+      window.__LegacyTrack__ = {
+        complete({ level, activityId, score = 0, stars = 0 }) {
+          const db = loadProgress();
+          db[level] = db[level] || { level, activities: {}, updatedAt: new Date().toISOString() };
+
+          const acts = db[level].activities;
+          acts[activityId] = acts[activityId] || {
+            attempts: 0,
+            bestScore: 0,
+            bestStars: 0
+          };
+
+          const a = acts[activityId];
+          a.attempts++;
+          a.lastScore = score;
+          a.lastStars = stars;
+          a.completed = true;
+          a.lastAt = new Date().toISOString();
+          a.bestScore = Math.max(a.bestScore || 0, score);
+          a.bestStars = Math.max(a.bestStars || 0, stars);
+
+          db[level].updatedAt = new Date().toISOString();
+          saveProgress(db);
+        }
+      };
+    })();
+
+    /* =========================
+       SPEECH
+    ========================== */
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    instructionAudio.preload = "auto";
+
+    function playInstructionBed(onDone) {
+      const finish = () => {
+        instructionAudio.onended = null;
+        instructionAudio.onerror = null;
+        if (typeof onDone === "function") onDone();
+      };
+      instructionAudio.onended = finish;
+      instructionAudio.onerror = finish;
+      try {
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => finish());
+        }
+      } catch (e) {
+        finish();
+      }
+    }
+
+    function speak(text) {
+      const bubble = document.getElementById("speechBubble");
+      bubble.textContent = text;
+
+      try {
+        if (!("speechSynthesis" in window)) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 0.92;
+        u.pitch = 1.12;
+        u.volume = 1;
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+
+    /* =========================
+       QUIZ DATA
+    ========================== */
+    const SHAPES = {
+      pentagon: {
+        name: "Pentagon",
+        vertices: 5,
+        color: "#9b5de5",
+        points: "100,25 182,85 151,180 49,180 18,85"
+      },
+      hexagon: {
+        name: "Hexagon",
+        vertices: 6,
+        color: "#00bbf9",
+        points: "100,20 172,60 172,140 100,180 28,140 28,60"
+      },
+      octagon: {
+        name: "Octagon",
+        vertices: 8,
+        color: "#f15bb5",
+        points: "62,18 138,18 182,62 182,138 138,182 62,182 18,138 18,62"
+      }
+    };
+
+    const TOTAL_QUESTIONS = 8;
+
+    let questions = [];
+    let currentIndex = -1;
+    let score = 0;
+    let stars = 0;
+    let quizStarted = false;
+    let canAnswer = false;
+    let lastSpokenText = "Tap Start Quiz to begin ⭐";
+
+    const shapeBox = document.getElementById("shapeBox");
+    const optionsBox = document.getElementById("options");
+    const questionText = document.getElementById("questionText");
+    const tipText = document.getElementById("tipText");
+    const qNum = document.getElementById("qNum");
+    const scoreNum = document.getElementById("scoreNum");
+    const starNum = document.getElementById("starNum");
+    const progressBar = document.getElementById("progressBar");
+    const nextBtn = document.getElementById("nextBtn");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const playAgainBtn2 = document.getElementById("playAgainBtn2");
+    const finalBox = document.getElementById("finalBox");
+    const finalMessage = document.getElementById("finalMessage");
+    const finalStars = document.getElementById("finalStars");
+    const listenBtn = document.getElementById("listenBtn");
+    const startBtn = document.getElementById("startBtn");
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function buildQuestions() {
+      const keys = ["pentagon", "hexagon", "octagon"];
+      const q = [];
+
+      for (let i = 0; i < 4; i++) {
+        const key = keys[i % keys.length];
+        q.push({
+          mode: "name",
+          shapeKey: key
+        });
+      }
+
+      for (let i = 0; i < 4; i++) {
+        const key = keys[(i + 1) % keys.length];
+        q.push({
+          mode: "vertices",
+          shapeKey: key
+        });
+      }
+
+      return shuffle(q);
+    }
+
+    function getPolygonPoints(pointsString) {
+      return pointsString.trim().split(" ").map(pair => {
+        const [x, y] = pair.split(",").map(Number);
+        return { x, y };
+      });
+    }
+
+    function createShapeSVG(shape) {
+      const points = getPolygonPoints(shape.points);
+
+      const dots = points.map((p, i) => {
+        const delay = (i * 0.12).toFixed(2);
+        return `
+          <circle class="vertexDot" cx="${p.x}" cy="${p.y}" r="7" fill="${shape.color}" style="animation-delay:${delay}s"></circle>
+        `;
+      }).join("");
+
+      return `
+        <svg class="bounce" viewBox="0 0 200 200" width="240" height="240" aria-label="${shape.name}">
+          <defs>
+            <filter id="shadow-${shape.name}">
+              <feDropShadow dx="0" dy="6" stdDeviation="6" flood-opacity=".18"/>
+            </filter>
+          </defs>
+          <polygon
+            points="${shape.points}"
+            fill="white"
+            stroke="${shape.color}"
+            stroke-width="8"
+            filter="url(#shadow-${shape.name})"
+            stroke-linejoin="round">
+          </polygon>
+          ${dots}
+        </svg>
+      `;
+    }
+
+    function renderQuestion() {
+      const q = questions[currentIndex];
+      const shape = SHAPES[q.shapeKey];
+      finalBox.style.display = "none";
+      playAgainBtn.classList.add("hidden");
+      nextBtn.classList.add("hidden");
+
+      shapeBox.innerHTML = createShapeSVG(shape);
+
+      if (q.mode === "name") {
+        questionText.textContent = "What shape is this?";
+        tipText.textContent = "Look carefully and tap the correct shape name.";
+        const opts = shuffle(["Pentagon", "Hexagon", "Octagon"]);
+        renderOptions(opts, shape.name, q.mode, shape);
+        lastSpokenText = `What shape is this? Is it a Pentagon, Hexagon, or Octagon?`;
+      } else {
+        questionText.textContent = `How many vertices does a ${shape.name} have?`;
+        tipText.textContent = "Count the corners and tap the correct number.";
+        const opts = shuffle(["5", "6", "8"]);
+        renderOptions(opts, String(shape.vertices), q.mode, shape);
+        lastSpokenText = `How many vertices does a ${shape.name} have? Choose ${opts.join(", ")}.`;
+      }
+
+      qNum.textContent = `${currentIndex + 1}/${TOTAL_QUESTIONS}`;
+      progressBar.style.width = `${((currentIndex) / TOTAL_QUESTIONS) * 100}%`;
+
+      canAnswer = true;
+      speak(lastSpokenText);
+    }
+
+    function renderOptions(options, correctAnswer, mode, shape) {
+      optionsBox.innerHTML = "";
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(btn, opt, correctAnswer, mode, shape));
+        optionsBox.appendChild(btn);
+      });
+    }
+
+    function createSparkles() {
+      const stage = document.getElementById("stage");
+      for (let i = 0; i < 12; i++) {
+        const s = document.createElement("span");
+        s.className = "sparkle";
+        s.style.left = `${20 + Math.random() * 60}%`;
+        s.style.top = `${20 + Math.random() * 60}%`;
+        s.style.setProperty("--dx", `${(Math.random() - 0.5) * 180}px`);
+        s.style.setProperty("--dy", `${(Math.random() - 0.5) * 180}px`);
+        stage.appendChild(s);
+        setTimeout(() => s.remove(), 950);
+      }
+    }
+
+    function lockOptions() {
+      [...optionsBox.querySelectorAll(".option")].forEach(btn => btn.disabled = true);
+    }
+
+    function getStarsFromScore(scorePercent) {
+      if (scorePercent >= 90) return 3;
+      if (scorePercent >= 70) return 2;
+      if (scorePercent >= 50) return 1;
+      return 0;
+    }
+
+    function handleAnswer(btn, chosen, correctAnswer, mode, shape) {
+      if (!canAnswer) return;
+      canAnswer = false;
+      lockOptions();
+
+      const isCorrect = chosen === correctAnswer;
+
+      if (isCorrect) {
+        btn.classList.add("correct");
+        score++;
+        scoreNum.textContent = score;
+        __QuizAudio__.happyChime();
+        createSparkles();
+
+        if (mode === "name") {
+          speak(`Yay! That is a ${shape.name}!`);
+        } else {
+          speak(`Great job! A ${shape.name} has ${shape.vertices} vertices!`);
+        }
+      } else {
+        btn.classList.add("wrong");
+
+        [...optionsBox.querySelectorAll(".option")].forEach(other => {
+          if (other.textContent === correctAnswer) {
+            other.classList.add("correct");
+          }
+        });
+
+        __QuizAudio__.softOops();
+
+        if (mode === "name") {
+          speak(`Nice try. This shape is a ${shape.name}.`);
+        } else {
+          speak(`Nice try. A ${shape.name} has ${shape.vertices} vertices.`);
+        }
+      }
+
+      stars = getStarsFromScore(Math.round((score / (currentIndex + 1)) * 100));
+      starNum.textContent = `⭐ ${stars}`;
+      progressBar.style.width = `${((currentIndex + 1) / TOTAL_QUESTIONS) * 100}%`;
+
+      if (currentIndex < TOTAL_QUESTIONS - 1) {
+        nextBtn.classList.remove("hidden");
+      } else {
+        setTimeout(finishQuiz, 1100);
+      }
+    }
+
+    async function finishQuiz() {
+      optionsBox.innerHTML = "";
+      nextBtn.classList.add("hidden");
+      playAgainBtn.classList.remove("hidden");
+
+      const percent = Math.round((score / TOTAL_QUESTIONS) * 100);
+      const finalStarCount = getStarsFromScore(percent);
+      const starText = finalStarCount === 3 ? "⭐⭐⭐" : finalStarCount === 2 ? "⭐⭐" : finalStarCount === 1 ? "⭐" : "🙂";
+
+      finalStars.textContent = starText;
+      finalMessage.textContent = `You got ${score} out of ${TOTAL_QUESTIONS} correct! Score: ${percent}%`;
+      finalBox.style.display = "block";
+
+      questionText.textContent = "Quiz Finished!";
+      tipText.textContent = "You are learning your shapes so well!";
+      shapeBox.innerHTML = `
+        <div style="font-size:90px;line-height:1" class="bounce">🏆</div>
+        <div style="font-size:28px;font-weight:1000;text-align:center;margin-top:10px;">Fantastic work!</div>
+      `;
+
+      __QuizAudio__.bigCheer();
+      speak(`Fantastic work! You got ${score} out of ${TOTAL_QUESTIONS} correct.`);
+
+      try {
+        if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+          await window.GPTrack.finish({
+            pageId: "Shapes_Quiz_Pentagon_Hexagon_Octagon",
+            level: "C",
+            activityType: "quiz",
+            score: percent,
+            stars: finalStarCount,
+            skills: { reading: 2, writing: 0, speaking: 0, listening: 2 }
+          });
+        } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+          window.__LegacyTrack__.complete({
+            level: "C",
+            activityId: "Shapes_Quiz_Pentagon_Hexagon_Octagon",
+            score: percent,
+            stars: finalStarCount
+          });
+        }
+      } catch (e) {
+        console.log("Progress save skipped:", e);
+      }
+    }
+
+    function nextQuestion() {
+      currentIndex++;
+      if (currentIndex >= TOTAL_QUESTIONS) {
+        finishQuiz();
+        return;
+      }
+      renderQuestion();
+    }
+
+    function startQuiz() {
+      quizStarted = true;
+      questions = buildQuestions();
+      currentIndex = -1;
+      score = 0;
+      stars = 0;
+
+      scoreNum.textContent = "0";
+      starNum.textContent = "⭐ 0";
+      qNum.textContent = `0/${TOTAL_QUESTIONS}`;
+      progressBar.style.width = "0%";
+      finalBox.style.display = "none";
+      nextBtn.classList.add("hidden");
+      playAgainBtn.classList.add("hidden");
+      startBtn.classList.add("hidden");
+
+      nextQuestion();
+    }
+
+    listenBtn.addEventListener("click", () => speak(lastSpokenText));
+    startBtn.addEventListener("click", startQuiz);
+    nextBtn.addEventListener("click", nextQuestion);
+    playAgainBtn.addEventListener("click", startQuiz);
+    playAgainBtn2.addEventListener("click", startQuiz);
+
+    window.addEventListener("load", () => {
+      playInstructionBed(() => {
+        speak("Welcome! Today we will learn Pentagon, Hexagon, and Octagon. Tap Start Quiz to begin.");
+      });
     });
-  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
-    window.__LegacyTrack__.complete({ level: "B", activityId: "LB_Quiz2", score: scorePct, stars });
-  }
-  locked=true;
-  window.__SFX__.cheer();
-}
-
-document.getElementById("nextQ").addEventListener("click", nextQ);
-document.getElementById("finish").addEventListener("click", finish);
-
-document.querySelectorAll(".opt").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    if(locked) return;
-    locked=true;
-    const pick=b.dataset.a;
-    const ans=shapeBox.dataset.ans;
-    if(pick===ans){ correct++; msg.textContent="✅ Correct!"; window.__SFX__.cheer(); }
-    else{ msg.textContent=`❌ Not quite. Correct answer is ${ans}.`; window.__SFX__.chime(); }
-    setTimeout(()=>{ locked=false; nextQ(); }, 650);
-  });
-});
-</script>
-<video class="autoplay-intro" preload="auto" muted playsinline autoplay style="display:none" aria-hidden="true">
-  <source src="../../../../assets/video/LB13b.mp4" type="video/mp4">
-</video>
-<script src="./levelbc-runtime-fix.js"></script>
-<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
-<script type="module" src="./progress-tracker.js"></script>
-<script>
-  window.addEventListener("load", () => {
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    GPTrack.start(pageFile || document.title || "Activity");
-  });
-
-  async function finishActivity(overrides = {}){
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
-      ? "A"
-      : (/^(LB|LevelB)/i.test(pageFile))
-        ? "B"
-        : (/^(LC|LevelC)/i.test(pageFile))
-          ? "C"
-          : null;
-
-    await GPTrack.finish({
-      pageId: pageFile || document.title || "Activity",
-      level: inferredLevel,
-      activityType: "activity",
-      score: null,
-      stars: 0,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
-      ...overrides
-    });
-  }
-</script>
+  </script>
 </body>
 </html>
-

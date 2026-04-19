@@ -1,11 +1,13 @@
 (function(){
   if (window.__GP_MIC_LESSON_HELPER__) return;
   window.__GP_MIC_LESSON_HELPER__ = true;
+  if (window.__GP_DISABLE_SHARED_MIC_GUIDE__) return;
 
-  const micBtn = document.querySelector('#micIconBtn, .mic-icon-btn, [aria-label*="Repeat conversation" i], [aria-label*="Repeat instruction" i], [aria-label*="Microphone" i]');
+  const micBtn = document.querySelector('#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*="Repeat conversation" i], [aria-label*="Repeat instruction" i], [aria-label*="Repeat after me" i], [aria-label*="speaking activity" i], [aria-label*="Microphone" i]');
   if (!micBtn) return;
 
   const girlTarget = document.querySelector('#tapGirl, #girlBtn, .tap-girl, .girl-spot, .girl-inline, [aria-label="Tap the girl"]');
+  const statusEl = document.querySelector('#conversationStatus, .conversation-status, .status, .lesson-status, .footer-note, .note');
   const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
   chimeAudio.preload = "auto";
 
@@ -110,6 +112,11 @@
     window.speechSynthesis.speak(utter);
   }
 
+  function showHint(text){
+    if (!statusEl || !text) return;
+    statusEl.textContent = text;
+  }
+
   if ("speechSynthesis" in window && !window.__GP_MIC_SPEAK_PATCHED__) {
     window.__GP_MIC_SPEAK_PATCHED__ = true;
     const originalSpeak = window.speechSynthesis.speak.bind(window.speechSynthesis);
@@ -170,6 +177,7 @@
     const message = girlTarget
       ? "Click the Mic icon for the listening and speaking lesson activity. Then tap the girl."
       : "Click the Mic icon for the listening and speaking lesson activity.";
+    showHint(message);
     window.setTimeout(() => speakFriendly(message), 1100);
   }
 
@@ -186,6 +194,7 @@
     }catch(_err){}
     if (girlTarget) {
       pointTo(girlTarget);
+      showHint("Tap the girl.");
       window.setTimeout(() => speakFriendly("Tap the girl."), 140);
     }
   }
@@ -232,6 +241,7 @@
     pointTo(micBtn);
     if (!repeatPrompted) {
       repeatPrompted = true;
+      showHint("Repeat after me.");
       window.setTimeout(() => speakFriendly("Repeat after me."), 80);
     }
     completeCheckTimers.forEach((timerId) => window.clearTimeout(timerId));

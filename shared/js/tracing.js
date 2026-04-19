@@ -378,7 +378,7 @@
 
   const DIGIT_STROKES = {
     "0": [
-      [[0.5, 0.05], [0.72, 0.1], [0.86, 0.28], [0.86, 0.72], [0.72, 0.9], [0.5, 0.95], [0.28, 0.9], [0.14, 0.72], [0.14, 0.28], [0.28, 0.1], [0.5, 0.05]]
+      [[0.5, 0.05], [0.74, 0.1], [0.88, 0.28], [0.88, 0.72], [0.74, 0.9], [0.5, 0.95], [0.26, 0.9], [0.12, 0.72], [0.12, 0.28], [0.26, 0.1], [0.5, 0.05]]
     ],
     "1": [
       [[0.32, 0.22], [0.5, 0.08], [0.5, 0.95]]
@@ -433,10 +433,12 @@
     digits.forEach((digit, index) => {
       const templates = getDigitTraceGroups(digit);
       const x = box.x + (index * (digitWidth + gap));
-      const innerX = x + (digitWidth * insetXRatio);
-      const innerY = box.y + (box.h * insetYRatio);
-      const innerW = digitWidth * (1 - (insetXRatio * 2));
-      const innerH = box.h * (1 - (insetYRatio * 2));
+      const digitInsetXRatio = digit === "0" ? Math.max(0.04, insetXRatio * 0.55) : insetXRatio;
+      const digitInsetYRatio = digit === "0" ? Math.max(0.04, insetYRatio * 0.72) : insetYRatio;
+      const innerX = x + (digitWidth * digitInsetXRatio);
+      const innerY = box.y + (box.h * digitInsetYRatio);
+      const innerW = digitWidth * (1 - (digitInsetXRatio * 2));
+      const innerH = box.h * (1 - (digitInsetYRatio * 2));
       templates.forEach((segment) => {
         groups.push(segment.map((point) => ([
           innerX + (point[0] * innerW),
@@ -934,8 +936,8 @@
       const lineWidth = opts.lineWidth || 12;
       const threshold = typeof opts.threshold === "number"
         ? opts.threshold
-        : Math.max(18, Math.round(lineWidth * 2.4));
-    const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 94;
+        : Math.max(22, Math.round(lineWidth * 2.9));
+    const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 90;
     const getMessage = typeof opts.getMessage === "function" ? opts.getMessage : null;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
     const onProgress = typeof opts.onProgress === "function" ? opts.onProgress : null;
@@ -965,7 +967,7 @@
           const dx = (b[0] - a[0]) * width;
           const dy = (b[1] - a[1]) * height;
           const segmentLength = Math.hypot(dx, dy);
-          const steps = Math.max(320, Math.round(segmentLength * 6.2));
+          const steps = Math.max(120, Math.round(segmentLength * 3.4));
           for (let s = 0; s < steps; s += 1) {
             const t = s / (steps - 1);
             result.push({
@@ -1655,7 +1657,7 @@
     const attempts = new Array(expectedLines.length).fill(0);
     const starsAwarded = new Array(expectedLines.length).fill(0);
     const maxAttempts = 3;
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chime.preload = "auto";
 
     let currentLineIndex = -1;

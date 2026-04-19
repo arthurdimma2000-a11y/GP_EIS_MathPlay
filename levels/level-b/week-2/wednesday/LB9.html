@@ -1104,14 +1104,14 @@
     setStatus(`Square trace ${s}% • Hexagon trace ${h}% • Saved to ProgressReport.html`, true);
   });
 
-  prevBtn.addEventListener("click", () => { window.location.href = "LB8.html"; });
+  prevBtn.addEventListener("click", () => { window.location.href = "../tuesday/LB8.html"; });
   nextBtn.addEventListener("click", () => {
     const s = getPercent("square");
     const h = getPercent("hex");
     const avg = Math.round((s + h) / 2);
     const stars = avg >= 90 ? 3 : avg >= 70 ? 2 : avg >= 50 ? 1 : 0;
     saveProgressReport(s, h, avg, stars);
-    window.location.href = "../wednesday/LB10.html";
+    window.location.href = "LB13.html";
   });
 
   function speak(text, onend){

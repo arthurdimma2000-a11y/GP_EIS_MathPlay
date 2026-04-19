@@ -6,6 +6,12 @@
   let savePromise = null;
   let localSpeechPatchInstalled = false;
   let speechCancelStamp = 0;
+  const sharedScriptSrc = (document.currentScript && document.currentScript.src) || window.location.href;
+  const instructionAudioSrc = new URL("../../assets/audio/chimes/InstructionAudio.mp3", sharedScriptSrc).href;
+  let pageInstructionAudio = null;
+  let pageInstructionAudioBound = false;
+  let pageInstructionAudioStarted = false;
+  let pageInstructionAudioFinished = false;
 
   function isMobileSpeechDevice() {
     try {
@@ -127,6 +133,75 @@
 
   window.__GP_STOP_INTRO_MEDIA = stopIntroMedia;
 
+  function hasPageManagedInstructionAudio() {
+    if (document.querySelector("#instructionAudio, audio[src*='InstructionAudio.mp3' i], source[src*='InstructionAudio.mp3' i]")) {
+      return true;
+    }
+    return Array.from(document.scripts || []).some((script) => {
+      const src = String((script && script.getAttribute && script.getAttribute("src")) || "");
+      if (/activity-standardizer(?:-shared)?\.js/i.test(src)) return false;
+      const text = String((script && script.textContent) || "");
+      return /InstructionAudio\.mp3|playInstructionBed|instructionAudio\s*=/.test(text);
+    });
+  }
+
+  function stopPageInstructionAudio() {
+    if (!pageInstructionAudio) return;
+    try { pageInstructionAudio.pause(); } catch (_) {}
+    try { pageInstructionAudio.currentTime = 0; } catch (_) {}
+  }
+
+  function shouldAutoPlayPageInstructionAudio() {
+    if (!isLevelLessonPage()) return false;
+    if (window.__GP_AUTO_PAGE_INSTRUCTION_AUDIO__ === false) return false;
+    if (hasPageManagedInstructionAudio()) return false;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    if (/quiz|game|revision|finalquiz/i.test(pageFile)) {
+      const introCandidates = [];
+      collectExistingIntroSources().forEach((src) => pushUniqueCandidate(introCandidates, src));
+      getAutoIntroCandidates(pageFile).forEach((src) => pushUniqueCandidate(introCandidates, src));
+      if (introCandidates.length) return false;
+    }
+    return true;
+  }
+
+  function initPageInstructionAudio() {
+    if (pageInstructionAudioBound) return;
+    if (!shouldAutoPlayPageInstructionAudio()) return;
+    pageInstructionAudioBound = true;
+    pageInstructionAudio = new Audio(instructionAudioSrc);
+    pageInstructionAudio.preload = "auto";
+
+    const markFinished = function () {
+      pageInstructionAudioFinished = true;
+    };
+    pageInstructionAudio.addEventListener("ended", markFinished, { once: true });
+    pageInstructionAudio.addEventListener("error", markFinished, { once: true });
+
+    function tryPlayInstructionAudio() {
+      if (!pageInstructionAudio || pageInstructionAudioFinished || pageInstructionAudioStarted) return;
+      try { pageInstructionAudio.currentTime = 0; } catch (_) {}
+      const playAttempt = pageInstructionAudio.play();
+      if (playAttempt && typeof playAttempt.then === "function") {
+        playAttempt.then(function () {
+          pageInstructionAudioStarted = true;
+        }).catch(function () {});
+      } else {
+        pageInstructionAudioStarted = true;
+      }
+    }
+
+    tryPlayInstructionAudio();
+    window.addEventListener("load", tryPlayInstructionAudio, { once: true });
+    ["pointerdown", "touchstart", "click", "keydown"].forEach(function (eventName) {
+      document.addEventListener(eventName, tryPlayInstructionAudio, {
+        once: true,
+        capture: true,
+        passive: eventName !== "keydown"
+      });
+    });
+  }
+
   function suppressWeek2LessonIntroVideos() {
     if (!isLevelLessonPage()) return;
     if (inferWeekFromPage() !== 2) return;
@@ -215,7 +290,7 @@
 
   function getMicTarget(target) {
     if (!(target instanceof Element)) return null;
-    return target.closest("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
+    return target.closest("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
   }
 
   function prepareMicSupport() {
@@ -276,12 +351,11 @@
         "week-1/thursday/CircleFairlyTale.html",
         "week-1/friday/LA_Game1.html",
         "week-1/friday/LA_Quiz1.html",
+        "week-2/monday/GymClassWk2A.html",
         "week-2/tuesday/LA8.html",
-        "week-2/tuesday/LA9.html",
-        "week-2/wednesday/LA10.html",
-        "week-2/wednesday/LA11.html",
-        "week-2/tuesday/LA12.html",
-        "week-2/tuesday/LA13.html",
+        "week-2/wednesday/LA9.html",
+        "week-2/wednesday/LA13.html",
+        "week-2/thursday/FairlyTaleWk2A.html",
         "week-2/friday/LA_Game2.html",
         "week-2/friday/LA_Quiz2.html",
         "week-3/tuesday/LA14.html",
@@ -311,13 +385,11 @@
         "week-1/thursday/PentagonFairlyTale.html",
         "week-1/friday/LB_Game1.html",
         "week-1/friday/LB_Quiz1.html",
+        "week-2/monday/GymClassWk2B",
         "week-2/tuesday/LB8.html",
-        "week-2/tuesday/LB9.html",
-        "week-2/wednesday/LB10.html",
-        "week-2/wednesday/LB11.html",
-        "week-2/tuesday/LB12.html",
-        "week-2/tuesday/LB13.html",
-        "week-2/friday/LB_Revision2.html",
+        "week-2/wednesday/LB9.html",
+        "week-2/wednesday/LB13.html",
+        "week-2/thursday/FairlyTaleWk2B.html",
         "week-2/friday/LB_Game2.html",
         "week-2/friday/LB_Quiz2.html",
         "week-3/tuesday/LB14.html",
@@ -347,13 +419,11 @@
         "week-1/thursday/TangramHorseFairlyTale.html",
         "week-1/friday/LevelC_Game1.html",
         "week-1/friday/LevelC_Quiz1.html",
+        "week-2/monday/GymClassWk2C",
         "week-2/tuesday/LevelC8.html",
-        "week-2/tuesday/LevelC9.html",
-        "week-2/wednesday/LevelC10.html",
-        "week-2/wednesday/LevelC11.html",
-        "week-2/tuesday/LevelC12.html",
-        "week-2/tuesday/LevelC13.html",
-        "week-2/friday/LevelC_Revision2.html",
+        "week-2/wednesday/LevelC9.html",
+        "week-2/wednesday/LevelC13.html",
+        "week-2/thursday/FairlyTaleWk2C.html",
         "week-2/friday/LevelC_Game2.html",
         "week-2/friday/LevelC_Quiz2.html",
         "week-3/tuesday/LevelC14.html",
@@ -879,7 +949,7 @@
       const forceLA2MicForLesson = isLevelLessonPage() && !/^LA2$/i.test(pageFile);
       if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
 
-    const micButton = document.querySelector("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
+    const micButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
     if (!micButton) return;
 
     const lines = getConversationLineNodes();
@@ -900,7 +970,7 @@
         "Amazing Job",
         "Great Try! keep it up!!!"
       ];
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
       const state = {
         fallbackActive: false,
@@ -1117,7 +1187,7 @@
       }
 
         function forceOwnMicButton() {
-          const liveMicButton = document.querySelector("#micIconBtn, .mic-icon-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='microphone' i]");
+          const liveMicButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
           if (!liveMicButton || liveMicButton.dataset.gpStrictLa2MicBound === "1") return;
           liveMicButton.dataset.gpStrictLa2MicBound = "1";
           if (liveMicButton.hasAttribute("onclick")) {
@@ -1498,6 +1568,7 @@
 
   window.addEventListener("gp:intro-end", stopIntroMedia, true);
   window.addEventListener("pagehide", stopIntroMedia, true);
+  window.addEventListener("pagehide", stopPageInstructionAudio, true);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") stopIntroMedia();
   }, true);
@@ -1539,6 +1610,7 @@
     document.addEventListener("DOMContentLoaded", initExpectedLessonNavigation, { once: true });
     document.addEventListener("DOMContentLoaded", suppressWeek2LessonIntroVideos, { once: true });
     document.addEventListener("DOMContentLoaded", initAutoIntroVideo, { once: true });
+    document.addEventListener("DOMContentLoaded", initPageInstructionAudio, { once: true });
     document.addEventListener("DOMContentLoaded", initUnifiedMicProtocol, { once: true });
     document.addEventListener("DOMContentLoaded", initGenericTraceCanvasAudio, { once: true });
     document.addEventListener("DOMContentLoaded", initHomeButtonRouting, { once: true });
@@ -1547,6 +1619,7 @@
     initExpectedLessonNavigation();
     suppressWeek2LessonIntroVideos();
     initAutoIntroVideo();
+    initPageInstructionAudio();
     initUnifiedMicProtocol();
     initGenericTraceCanvasAudio();
     initHomeButtonRouting();

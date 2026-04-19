@@ -46,11 +46,6 @@
     overflow-x:hidden;
   }
 
-  .blob{position:fixed; filter:blur(20px); opacity:.32; pointer-events:none}
-  .blob.b1{width:420px;height:420px; left:-140px; top:60px; background:radial-gradient(circle at 30% 30%, #fff, #ff6fb5 55%, transparent 70%)}
-  .blob.b2{width:520px;height:520px; right:-200px; top:260px; background:radial-gradient(circle at 30% 30%, #fff, #3cb7ff 55%, transparent 70%)}
-  .blob.b3{width:420px;height:420px; left:20%; bottom:-220px; background:radial-gradient(circle at 30% 30%, #fff, #ffd34e 55%, transparent 70%)}
-
   .wrap{
     width:min(1260px,94vw);
     margin:18px auto 36px;
@@ -439,9 +434,6 @@
 </head>
 
 <body>
-<div class="blob b1"></div>
-<div class="blob b2"></div>
-<div class="blob b3"></div>
 <div id="toasts" class="toasts"></div>
 
 <div class="wrap">
@@ -719,8 +711,20 @@
     osc.stop(now + dur + 0.02);
   }
 
+  const clickChime = new Audio("assets/audio/chimes/chime.mp3");
+  clickChime.preload = "auto";
+  let lastClickChimeAt = 0;
+
   function playClick(){
-    beep(720, 0.05, "triangle", 0.035);
+    const now = Date.now();
+    if (now - lastClickChimeAt < 180) return;
+    lastClickChimeAt = now;
+    try{
+      clickChime.currentTime = 0;
+      clickChime.volume = 1;
+      const p = clickChime.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    }catch(_){}
   }
 
   function playSuccess(){
@@ -730,8 +734,7 @@
   }
 
   function playSoftOpen(){
-    beep(560, 0.06, "sine", 0.035);
-    setTimeout(() => beep(680, 0.07, "sine", 0.04), 80);
+    playClick();
   }
 
   window.GPToast = toast;
@@ -1590,6 +1593,33 @@
   buildMonthSelect();
   refreshReport();
   soundOpen();
+})();
+</script>
+<script src="shared/js/page-audio-sequencer.js"></script>
+<script>
+(() => {
+  const playlist = [
+    "assets/audio/chimes/Audio4.mp4",
+    "assets/audio/chimes/Audio2.mp4"
+  ];
+  const bgSequencer = window.GPPageAudioSequencer && window.GPPageAudioSequencer.create
+    ? window.GPPageAudioSequencer.create({ tracks: playlist, volume: 0.18, loopPlaylist: true })
+    : null;
+
+  function startReportMusic() {
+    if (bgSequencer && !bgSequencer.isStarted()) bgSequencer.start();
+  }
+
+  function stopReportMusic() {
+    if (bgSequencer) bgSequencer.stop();
+  }
+
+  window.addEventListener("load", startReportMusic, { once:true });
+  ["pointerdown","touchstart","keydown"].forEach((eventName) => {
+    window.addEventListener(eventName, startReportMusic, { once:true, passive:eventName !== "keydown" });
+  });
+  window.addEventListener("pagehide", stopReportMusic, { once:true });
+  window.addEventListener("beforeunload", stopReportMusic, { once:true });
 })();
 </script>
 </body>

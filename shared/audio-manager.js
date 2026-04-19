@@ -34,6 +34,10 @@
   let sfxVolume = DEFAULTS.sfxVolume;
   let initialized = false;
 
+  function isSharedBgAudioDisabled() {
+    return window.__GP_DISABLE_SHARED_BG_AUDIO__ === true;
+  }
+
   function safeLocalStorageGet(key, fallback = null) {
     try {
       const value = localStorage.getItem(key);
@@ -181,6 +185,7 @@
   }
 
   async function playPageMusic(options = {}) {
+    if (isSharedBgAudioDisabled()) return;
     const pageType = detectPageType();
     const trackKey = getBgTrackForPageType(pageType);
     await playBg(trackKey, options);
@@ -325,7 +330,7 @@
       if (currentBg) {
         try { currentBg.pause(); } catch (_) {}
       }
-    } else if (audioUnlocked && !isMuted) {
+    } else if (audioUnlocked && !isMuted && !isSharedBgAudioDisabled()) {
       if (currentBg) {
         currentBg.play().catch(() => {});
       } else {
@@ -359,7 +364,7 @@
       }
     });
 
-    if (audioUnlocked && !isMuted) {
+    if (audioUnlocked && !isMuted && !isSharedBgAudioDisabled()) {
       playPageMusic();
     } else {
       updateMuteButtons();

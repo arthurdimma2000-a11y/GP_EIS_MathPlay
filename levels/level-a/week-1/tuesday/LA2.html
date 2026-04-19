@@ -38,7 +38,25 @@
     align-items:flex-start;
     justify-content:center;
     background:var(--bg);
-      .app{
+    padding:10px;
+    color:var(--ink);
+  }
+  #pageContent{
+    width:100%;
+    opacity:1;
+    visibility:visible;
+    transition:opacity .28s ease;
+  }
+  body.intro-active #pageContent{
+    opacity:0;
+    visibility:hidden;
+  }
+  body.intro-complete #pageContent{
+    opacity:1;
+    visibility:visible;
+  }
+  body.intro-active .app{ visibility:hidden; }
+  .app{
     width:min(960px,100%);
     max-width:960px;
     border-radius:16px;
@@ -231,19 +249,27 @@
   .convo-line{
     position:absolute;
     inset:0;
-    pointer-events:n    top:37%;
-    max-width:34%;
+    pointer-events:none;
+    z-index:3;
+    margin:0;
+    overflow:visible;
+  }
+  .convo-line .bubble-stack{
+    position:absolute;
+    z-index:4;
+  }
+  .kid-bubble{
+    right:6%;
+    top:19%;
+    max-width:36%;
     align-items:flex-end;
   }
-
-  /* pushed down below baker image */
   .chef-bubble{
-    left:9%;
-    top:76%;
+    left:7%;
+    top:45%;
     max-width:36%;
     align-items:flex-start;
   }
-
   .bubble.sparkle{
     background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
     box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
@@ -330,23 +356,6 @@
     color:#2f9f5f;
     white-space:nowrap;
   }
-  .tap-pointer{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:34px;
-    height:34px;
-    border-radius:999px;
-    background:#fff6cc;
-    color:#d97706;
-    font-size:1.2rem;
-    box-shadow:0 6px 14px rgba(0,0,0,.12);
-    animation:tapPointBounce 1.1s ease-in-out infinite;
-  }
-  @keyframes tapPointBounce{
-    0%,100%{ transform:translateX(0) translateY(0); }
-    50%{ transform:translateX(-8px) translateY(-3px); }
-  }
   .btn{
     border:none;
     border-radius:999px;
@@ -419,8 +428,6 @@
       font-size:1.5rem;
       top:79%;
     }
-    .kid-bubble{ right:7%; top:35%; max-width:40%; }
-    .chef-bubble{ left:7%; top:77%; max-width:42%; }
   }
   @media (max-width:520px){
     :root{ --bubble-font:.95rem; }
@@ -469,8 +476,8 @@
       overflow-wrap:normal;
       word-break:normal;
     }
-    .kid-bubble{ right:3%; top:33%; max-width:48%; }
-    .chef-bubble{ left:3%; top:78%; max-width:48%; }
+    .kid-bubble{ right:4%; top:17%; max-width:48%; }
+    .chef-bubble{ left:4%; top:47%; max-width:48%; }
     .controls{
       justify-content:center;
     }
@@ -484,83 +491,110 @@
     100%{transform:translateY(30%) rotate(-6deg);}
   }
 
+  /* Intro Video Overlay Styles */
+
+  .intro-video-container{
+    max-width:90vw;
+    max-height:90vh;
+    position:relative;
+  }
+  .intro-controls{
+    margin-top:20px;
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .intro-btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 24px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.25);
+    transition:transform 0.1s;
+  }
+  .intro-btn:active{
+    transform:translateY(2px);
+  }
+  .intro-btn.sound{
+    background:var(--btn-orange);
+    color:#fff;
+  }
+  .intro-btn.skip{
+    background:var(--btn-blue);
+    color:#1f3b6b;
+  }
   #lbIntroVideoOverlay{
     position:fixed;
     inset:0;
-    display:none;
+    display:flex;
     align-items:center;
     justify-content:center;
-    background:rgba(0,0,0,.92);
-    z-index:99999;
-    padding:16px;
-    flex-direction:column;
-    gap:14px;
+    padding:18px;
+    background:rgba(0,0,0,.82);
+    z-index:9999;
   }
-  #lbIntroVideoOverlay.active{display:flex;}
-
-  #lbIntroVideo{
-    width:min(92vw,980px);
-    max-height:82vh;
-    height:auto;
-    display:block;
-    border-radius:14px;
-    background:#000;
-    box-shadow:0 18px 48px rgba(0,0,0,.45);
-  }
-
-  .gp-intro-help{
-    color:#fff;
-    font-weight:800;
-    font-size:1rem;
-    text-align:center;
-    text-shadow:0 2px 8px rgba(0,0,0,.45);
-    max-width:min(92vw,760px);
-  }
-
-  .gp-intro-controls{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    justify-content:center;
-  }
-
-  .gp-intro-btn{
-    border:none;
-    border-radius:999px;
-    padding:12px 22px;
-    font-size:1rem;
-    font-weight:800;
-    cursor:pointer;
-    box-shadow:0 6px 0 rgba(0,0,0,.22);
-  }
-
-  .gp-intro-btn.play{
-    background:linear-gradient(180deg,#dff7ff,#8fdcff);
-    color:#114a67;
-    display:none;
-  }
-
-  .gp-intro-btn.sound{
-    background:linear-gradient(180deg,#fffad7,#ffd86a);
-    color:#8b5a00;
-  }
-
-  .gp-intro-btn.skip{
-    background:linear-gradient(180deg,#ffffff,#e9eef7);
-    color:#304060;
-  }
-</style>
-<style id="gpUnifiedIntroPrehide">
-  #introVideoWrap,.intro-video-wrap{
+  #lbIntroVideoOverlay[hidden]{
     display:none !important;
-    visibility:hidden !important;
-    opacity:0 !important;
-    pointer-events:none !important;
   }
-</style>
+  .intro-panel{
+    width:min(920px,100%);
+    background:rgba(15,15,15,.96);
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.45);
+    border:2px solid rgba(255,255,255,.14);
+  }
+  .intro-title{
+    color:#fff4d6;
+    font-size:clamp(1.1rem,2.4vw,1.5rem);
+    font-weight:900;
+    text-align:center;
+    margin-bottom:12px;
+  }
+  #lbIntroVideo{
+    width:100%;
+    max-height:72vh;
+    border-radius:18px;
+    object-fit:contain;
+    background:#000;
+    display:block;
+  }
+  .intro-help{
+    margin-top:10px;
+    text-align:center;
+    color:#fef3c7;
+    font-size:.9rem;
+    font-weight:700;
+  }
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
 <body>
+  <!-- Intro Video Overlay -->
+  <div id="lbIntroVideoOverlay">
+    <div class="intro-panel">
+      <div class="intro-title">Circle Intro</div>
+      <video
+        id="lbIntroVideo"
+        playsinline
+        autoplay
+        muted
+        preload="metadata"
+      >
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776006235/Page2Circle_zn6ebl.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="intro-controls">
+        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
+        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
+      </div>
+      <div class="intro-help">If the intro does not play, the lesson page will open automatically.</div>
+    </div>
+  </div>
 
+  <div id="pageContent">
   <div class="app">
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
       <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
@@ -579,7 +613,7 @@
       <div class="tray-hero">
         <div class="tray-caption-center">I am a baker</div>
         <img src="../../../../assets/images/shapes/A2.png" alt="Poster">
-        <div class="circle-reveal" id="circleReveal">It&apos;s a Circle!</div>
+        <div class="circle-reveal" id="circleReveal">It&apos;s a Circle</div>
 
         <div class="row right convo-line">
           <div class="bubble-stack kid-bubble">
@@ -589,7 +623,8 @@
           </div>
         </div>
 
-        <div class=bble">
+        <div class="row convo-line">
+          <div class="bubble-stack chef-bubble">
             <div class="bubble baker">I make cookies.</div>
             <div class="repeat-result" data-line="1"></div>
             <div class="star-row" data-line="1"></div>
@@ -600,7 +635,6 @@
 
     <div class="controls">
       <div class="mascot-spot">
-        <div class="tap-pointer" aria-hidden="true">👉</div>
         <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="tapGirl" class="tap-girl">
         <div class="mascot-hint">Tap the girl</div>
       </div>
@@ -633,12 +667,75 @@
     <div class="conversation-status" id="conversationStatus"></div>
     <div class="footer-note">Tap the microphone to reveal the conversation line by line.</div>
   </div>
+  </div>
+
+  
 
   <script src="../../../../shared/js/storage.js"></script>
   <script src="../../../../shared/js/progress.js"></script>
   <script src="../../../../shared/js/tracing.js"></script>
 
   <script>
+    window.__GP_REQUIRE_INTRO_AUDIO__ = false;
+    document.body.classList.add("intro-complete");
+    introFinished = true;
+
+    const introOverlay = document.getElementById("lbIntroVideoOverlay");
+    const introVideo = document.getElementById("lbIntroVideo");
+    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
+    const skipIntroBtn = document.getElementById("skipIntroBtn");
+    let introFinished = false;
+
+    function revealPageContent(){
+      if (introFinished) return;
+      introFinished = true;
+      document.body.classList.remove("intro-active");
+      document.body.classList.add("intro-complete");
+      if (introOverlay) introOverlay.hidden = true;
+      if (introVideo) {
+        try { introVideo.pause(); } catch (_err) {}
+      }
+      window.setTimeout(() => {
+        playInstructionThenDialogue();
+      }, 120);
+    }
+
+    function enableIntroSound(){
+      if (!introVideo) return;
+      introVideo.muted = false;
+      introVideo.volume = 1;
+      introVideo.play().catch(() => {});
+      if (turnOnSoundBtn) {
+        turnOnSoundBtn.textContent = "Sound On";
+        turnOnSoundBtn.disabled = true;
+      }
+    }
+
+    if (introVideo) {
+      introVideo.addEventListener("ended", revealPageContent);
+      introVideo.addEventListener("error", revealPageContent);
+      introVideo.addEventListener("stalled", () => {
+        window.setTimeout(() => {
+          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
+            revealPageContent();
+          }
+        }, 1200);
+      });
+      introVideo.play().catch(() => {});
+    } else {
+      revealPageContent();
+    }
+
+    if (turnOnSoundBtn) turnOnSoundBtn.addEventListener("click", enableIntroSound);
+    if (skipIntroBtn) skipIntroBtn.addEventListener("click", revealPageContent);
+    
+    // Fallback timeout to start audio if video takes too long or doesn't load
+    window.setTimeout(() => {
+      if (!introFinished && introVideo && introVideo.readyState < 1) {
+        revealPageContent();
+      }
+    }, 8000);
+
     const clearBtn = document.getElementById("clearBtn");
     const micIconBtn = document.getElementById("micIconBtn");
     const recordBtn = document.getElementById("recordBtn");
@@ -646,13 +743,13 @@
     const recordingStatus = document.getElementById("recordingStatus");
     const conversationStatus = document.getElementById("conversationStatus");
     const tapGirl = document.getElementById("tapGirl");
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
     const nextBtn = document.getElementById("nextBtn");
     const prevBtn = document.getElementById("prevBtn");
     const circleReveal = document.getElementById("circleReveal");
     const lines = Array.from(document.querySelectorAll(".convo-line"));
     const repeatResults = Array.from(document.querySelectorAll(".repeat-result"));
     const starRows = Array.from(document.querySelectorAll(".star-row"));
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
 
     let readToken = 0;
     let currentLineIndex = -1;
@@ -670,8 +767,26 @@
     let micInitialized = false;
     let activitySaved = false;
     let circleTapped = false;
-    let startupSequenceStarted = false;
+    let loadIntroStarted = false;
+    let introDialogueStarted = false;
+    let instructionGestureBound = false;
+
     instructionAudio.preload = "auto";
+
+    function bindInstructionGestureRetry(startSequence){
+      if (instructionGestureBound) return;
+      instructionGestureBound = true;
+      const resumeFromGesture = () => {
+        startSequence();
+      };
+      ["pointerdown", "touchstart", "keydown"].forEach((eventName) => {
+        window.addEventListener(eventName, resumeFromGesture, {
+          once: true,
+          passive: eventName !== "keydown",
+          capture: true
+        });
+      });
+    }
 
     function hideAllLines(){
       lines.forEach(line => {
@@ -689,65 +804,155 @@
       line.style.display = "flex";
     }
 
-    function getVoicesList(){
-      try{
-        return window.speechSynthesis ? window.speechSynthesis.getVoices() || [] : [];
-      }catch(e){
-        return [];
-      }
-    }
-
-    function chooseVoice(role){
-      const voices = getVoicesList();
+    function getSpeechVoice(role){
+      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
+      const voices = window.speechSynthesis.getVoices() || [];
       if (!voices.length) return null;
 
-      const lower = (s) => String(s || "").toLowerCase();
+      const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || "")));
+      const pool = englishVoices.length ? englishVoices : voices;
+      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
+      const kidName = /(kids?|child|junior|young|ava|aria|ellie|ivy|jenny|libby|nova|grace|olivia|emma)/i;
 
       if (role === "male") {
-        return voices.find(v =>
-          /en/.test(lower(v.lang)) &&
-          (
-            /male|david|mark|tom|daniel|alex|fred|guy|man|google uk english male|microsoft david|microsoft mark|aaron|james/.test(lower(v.name))
-          )
-        ) || voices.find(v => /en/.test(lower(v.lang))) || voices[0];
+        return pool.find((voice) => maleName.test(String(voice.name || ""))) || pool[0] || null;
       }
 
       if (role === "kid") {
-        return voices.find(v =>
-          /en-us|en_us|en/.test(lower(v.lang)) &&
-          (
-            /ava|aria|samantha|jenny|zira|female|girl|kid|child|microsoft zira|microsoft jenny|microsoft ava|allison|emma/.test(lower(v.name))
-          )
-        ) || voices.find(v => /en-us|en_us/.test(lower(v.lang)) && !maleNamePattern().test(lower(v.name))) || voices.find(v => /en/.test(lower(v.lang))) || voices[0];
+        return pool.find((voice) => kidName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
+          || pool.find((voice) => !maleName.test(String(voice.name || "")))
+          || pool[0]
+          || null;
       }
 
-      return voices.find(v => /en/.test(lower(v.lang))) || voices[0];
+      return pool[0] || null;
     }
 
-    function maleNamePattern(){
-      return /(male|david|mark|tom|daniel|alex|fred|guy|man|boy|aaron|james|matthew|george)/i;
-    }
-
-    function speakWithRole(text, role, onend){
+    function speakLine(text, onend, options){
       if (!("speechSynthesis" in window)) {
         if (onend) onend();
         return;
       }
-      try { window.speechSynthesis.cancel(); } catch(e){}
+      const opts = options || {};
       const utter = new SpeechSynthesisUtterance(text);
-      const voice = chooseVoice(role);
-      if (voice) utter.voice = voice;
-      utter.lang = (voice && voice.lang) ? voice.lang : "en-US";
-      utter.rate = role === "kid" ? 1.06 : 0.95;
-      utter.pitch = role === "kid" ? 1.52 : 0.9;
-      utter.volume = 1;
+      utter.rate = typeof opts.rate === "number" ? opts.rate : 0.95;
+      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.1;
+      utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
+      utter.lang = opts.lang || "en-US";
+      const selectedVoice = getSpeechVoice(opts.role);
+      if (selectedVoice) utter.voice = selectedVoice;
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
     }
 
-    function speakLine(text, onend){
-      speakWithRole(text, "male", onend);
+    function runPageHintAndLessonSequence(){
+      if (introDialogueStarted) return;
+      introDialogueStarted = true;
+      hideAllLines();
+      setConversationStatus("");
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch (_err) {}
+      }
+      const steps = [
+        () => {
+          setConversationStatus("Tap the girl. Click the Mic icon. Then repeat after me.");
+          speakLine("Tap the girl. Click the Mic icon. Then repeat after me.", runNextLoadIntroStep, {
+            role: "kid",
+            rate: 0.96,
+            pitch: 1.3,
+            volume: 1
+          });
+        },
+        () => {
+          setConversationStatus("I am a baker.");
+          speakLine("I am a baker.", runNextLoadIntroStep, {
+            role: "male",
+            rate: 0.92,
+            pitch: 0.9,
+            volume: 1
+          });
+        },
+        () => {
+          showLine(0);
+          setConversationStatus("What do you make?");
+          speakLine("What do you make?", runNextLoadIntroStep, {
+            role: "kid",
+            rate: 0.98,
+            pitch: 1.35,
+            volume: 1
+          });
+        },
+        () => {
+          showLine(1);
+          setConversationStatus("I make cookies.");
+          speakLine("I make cookies.", runNextLoadIntroStep, {
+            role: "male",
+            rate: 0.92,
+            pitch: 0.9,
+            volume: 1
+          });
+        },
+        () => {
+          circleTapped = true;
+          if (circleReveal) circleReveal.classList.add("show");
+          setConversationStatus("It's a Circle!");
+          speakLine("It's a Circle!", null, {
+            role: "kid",
+            rate: 1,
+            pitch: 1.35,
+            volume: 1
+          });
+        }
+      ];
+
+      let stepIndex = 0;
+      function runNextLoadIntroStep(){
+        const step = steps[stepIndex++];
+        if (step) {
+          window.setTimeout(step, 120);
+        }
+      }
+      window.setTimeout(runNextLoadIntroStep, 120);
+    }
+
+    function playInstructionThenDialogue(){
+      if (loadIntroStarted) return;
+      loadIntroStarted = true;
+      let sequenceTriggered = false;
+      const startSequence = () => {
+        if (sequenceTriggered) return;
+        sequenceTriggered = true;
+        runPageHintAndLessonSequence();
+      };
+
+      hideAllLines();
+      setConversationStatus("Listen to the instruction audio.");
+      bindInstructionGestureRetry(playInstructionThenDialogue);
+
+      instructionAudio.onended = () => {
+        startSequence();
+      };
+      instructionAudio.onerror = () => {
+        startSequence();
+      };
+
+      const fallbackTimer = window.setTimeout(startSequence, 3600);
+
+      try {
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.then(() => {
+            setConversationStatus("Instruction audio is playing.");
+          });
+          playAttempt.catch(() => {
+            startSequence();
+          });
+        }
+      } catch (_err) {
+        startSequence();
+      }
     }
 
     function highlightLine(index, on){
@@ -794,63 +999,6 @@
         if (bubble) bubble.classList.remove("sparkle");
       });
       setConversationStatus("");
-      try { window.speechSynthesis.cancel(); } catch(e){}
-      try {
-        instructionAudio.pause();
-        instructionAudio.currentTime = 0;
-      } catch(e){}
-    }
-
-    function playInstructionBed(onDone){
-      const fallbackTimer = window.setTimeout(() => {
-        if (onDone) onDone();
-      }, 5200);
-
-      instructionAudio.onended = () => {
-        window.clearTimeout(fallbackTimer);
-        if (onDone) onDone();
-      };
-      instructionAudio.onerror = () => {
-        window.clearTimeout(fallbackTimer);
-        if (onDone) onDone();
-      };
-
-      try{
-        instructionAudio.currentTime = 0;
-        const playAttempt = instructionAudio.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {
-            window.clearTimeout(fallbackTimer);
-            if (onDone) onDone();
-          });
-        }
-      }catch(_err){
-        window.clearTimeout(fallbackTimer);
-        if (onDone) onDone();
-      }
-    }
-
-    function runStartupSequence(){
-      if (startupSequenceStarted) return;
-      startupSequenceStarted = true;
-      clearConversation();
-      setConversationStatus("Listen, then tap the girl.");
-
-      playInstructionBed(() => {
-        speakWithRole("I am a baker.", "male", () => {
-          if (lines[0]) showLine(0);
-          speakWithRole("What do you make?", "kid", () => {
-            if (lines[1]) showLine(1);
-            speakWithRole("I make cookies.", "male", () => {
-              if (circleReveal) circleReveal.classList.add("show");
-              speakWithRole("It's a Circle!", "kid", () => {
-                setConversationStatus("Tap the girl.");
-                speakWithRole("Tap the girl.", "kid");
-              });
-            });
-          });
-        });
-      });
     }
 
     function revealBubblesFromMic(){
@@ -865,6 +1013,10 @@
         micInitialized = true;
       }
       currentLineIndex = micStepIndex;
+    }
+
+    function percentMatch(expectedText, saidText){
+      return window.GPTracing.percentWordMatch(expectedText, saidText);
     }
 
     function listenForRepeat(expectedText, onDone){
@@ -885,10 +1037,7 @@
       const line = lines[index];
       currentLineIndex = index;
       const bubble = line.querySelector(".bubble");
-      if (bubble) {
-        const role = index === 0 ? "kid" : "male";
-        speakWithRole(bubble.textContent || "", role);
-      }
+      if (bubble) speakLine(bubble.textContent || "");
     }
 
     async function moveToNextMicStep(){
@@ -911,11 +1060,11 @@
             "Great Try! keep it up!!!"
           ];
           const remark = remarks[Math.floor(Math.random() * remarks.length)];
-          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+          const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
           chime.preload = "auto";
           chime.play().catch(() => {});
           setConversationStatus(remark);
-          speakWithRole(remark, "kid");
+          speakLine(remark);
         } else {
           setConversationStatus("");
         }
@@ -962,7 +1111,7 @@
       micBusy = true;
       setConversationStatus("Repeat after me.");
 
-      speakWithRole("Repeat after me.", "kid", () => {
+      speakLine("Repeat after me.", () => {
         listenForRepeat(expectedLines[micStepIndex], (pct, said) => {
           const tryNo = ++attempts[micStepIndex];
 
@@ -984,7 +1133,7 @@
             }
             starsAwarded[micStepIndex] = 0;
             setStars(micStepIndex, 0);
-            speakWithRole("You did a good Job. Nice try!", "kid", () => setTimeout(() => { moveToNextMicStep(); }, 200));
+            speakLine("You did a good Job. Nice try!", () => setTimeout(() => { moveToNextMicStep(); }, 200));
             return;
           }
 
@@ -995,7 +1144,7 @@
             repeatResults[micStepIndex].textContent = "Sorry, try again!";
           }
           setConversationStatus("Sorry, try again!");
-          speakWithRole("Sorry, try again!", "kid");
+          speakLine("Sorry, try again!");
         });
       });
     }
@@ -1003,14 +1152,56 @@
     function revealCircleFromGirl(){
       circleTapped = true;
       if (circleReveal) circleReveal.classList.add("show");
-      setConversationStatus("It's a Circle!");
-      speakWithRole("It's a Circle!", "kid");
+      setConversationStatus("It's a Circle");
+      speakLine("It's a Circle");
     }
 
     window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL = true;
+    window.__GP_DISABLE_SHARED_MIC_GUIDE__ = true;
+
+    function readAllLines(){
+      if (currentLineIndex === -1) {
+        hideAllLines();
+        readToken += 1;
+        currentLineIndex = 0;
+        repeatNext = true;
+        showAndSpeakLine(currentLineIndex);
+        return;
+      }
+
+      if (repeatNext) {
+        showAndSpeakLine(currentLineIndex);
+        repeatNext = false;
+        return;
+      }
+
+      if (currentLineIndex + 1 < lines.length) {
+        currentLineIndex += 1;
+        repeatNext = true;
+        showAndSpeakLine(currentLineIndex);
+      }
+    }
 
     hideAllLines();
     try { window.__GP_STOP_INTRO_MEDIA && window.__GP_STOP_INTRO_MEDIA(); } catch (_) {}
+    
+    // Start the audio sequence only after intro video ends
+    function startAudioSequenceAfterVideo(){
+      if (!introFinished) return;
+      playInstructionThenDialogue();
+    }
+
+    if (introFinished) {
+      window.setTimeout(startAudioSequenceAfterVideo, 120);
+    }
+    
+    if (introVideo) {
+      introVideo.addEventListener("ended", startAudioSequenceAfterVideo, { once: true });
+    } else {
+      window.addEventListener("load", () => {
+        playInstructionThenDialogue();
+      }, { once: true });
+    }
 
     function setRecordLabel(text){
       recordBtn.innerHTML = '<svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">' +
@@ -1129,7 +1320,7 @@
           });
           activitySaved = true;
         }
-        window.location.href = "../../../../index.html";
+        window.location.href = "../monday/CircleArtClass.html";
       });
     }
 
@@ -1142,17 +1333,13 @@
         runMicStepFlow();
       });
     }
-
-    window.addEventListener("load", () => {
-      runStartupSequence();
-    }, { once:true });
   </script>
 
   <script>
     (function(){
       const homeBtn = document.querySelector('.home-btn');
       if(!homeBtn) return;
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
 
       homeBtn.addEventListener('click', async (e) => {
@@ -1295,130 +1482,5 @@
 
     window.finishAndSave = finishAndSave;
   </script>
-</body>
-</html>
-
-      video.addEventListener("loadedmetadata", () => {
-        tryAutoplayMuted();
-      }, { once:true });
-
-      window.addEventListener("load", () => {
-        if (!revealed && video.readyState >= 1) {
-          tryAutoplayMuted();
-        }
-      }, { once:true });
-    })();
-
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = function(){};
-    }
-  </script>
-</body>
-</html>
-        }catch(err){
-          help.textContent = "Unable to start the intro video.";
-          setTimeout(revealLesson, 900);
-        }
-      });
-
-      soundBtn.addEventListener("click", playWithSound);
-      skipBtn.addEventListener("click", revealLesson);
-      video.addEventListener("ended", revealLesson, { once:true });
-      video.addEventListener("error", () => {
-        help.textContent = "Intro video failed to load. Opening page now.";
-        setTimeout(revealLesson, 800);
-      }, { once:true });
-
-      video.addEventListener("playing", () => {
-        help.textContent = video.muted
-          ? 'Intro is playing. Tap "Turn On Sound" for audio or "Skip Intro".'
-          : 'Sound is on. Tap "Skip Intro" to continue.';
-      });
-
-      video.addEventListener("loadedmetadata", () => {
-        tryAutoplayMuted();
-      }, { once:true });
-
-      window.addEventListener("load", () => {
-        if (!revealed && video.readyState >= 1) {
-          tryAutoplayMuted();
-        }
-      }, { once:true });
-    })();
-  </script>
-</body>
-</html>= {
-        ...(store[meta.pageId] || {}),
-        ...entry
-      };
-      setActivityStore(store);
-      try{
-        localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-      }catch(e){}
-      return store[meta.pageId];
-    }
-
-    async function finishAndSave(payload){
-      const session = getStudentSession() || {};
-      const fullPayload = {
-        ...(payload || {}),
-        classId: (payload && payload.classId) || session.classId || null,
-        studentId: (payload && payload.studentId) || session.studentId || null,
-        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-      };
-    
-      saveLocalActivityFallback(fullPayload);
-    
-      if (typeof window.finishActivity === "function") {
-        try{
-          await window.finishActivity(fullPayload);
-        }catch(err){
-          console.warn("finishActivity failed, local fallback already saved:", err);
-        }
-      }
-    
-      return fullPayload;
-    }
-
-    window.finishAndSave = finishAndSave;
-
-    
-</script>
-</body>
-</html>
-     window.setTimeout(() => {
-        if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
-          revealLessonAfterIntro();
-        }
-      }, 1200);
-    });
-
-    window.setTimeout(() => {
-      if (!introFinished && introVideo.readyState < 1) {
-        revealLessonAfterIntro();
-      }
-    }, 8000);
-
-    tapGirl.addEventListener("click", revealCircle);
-    micBtn.addEventListener("click", replayLessonSequence);
-    clearBtn.addEventListener("click", resetLessonState);
-    prevBtn.addEventListener("click", () => { window.location.href = "../../../../index.html"; });
-    nextBtn.addEventListener("click", () => { window.location.href = "../wednesday/LA3.html"; });
-
-    window.addEventListener("load", () => {
-      introVideo.muted = true;
-      introVideo.play().catch(() => {
-        window.setTimeout(revealLessonAfterIntro, 3000);
-      });
-    }, { once: true });
-  </script>
- && pageContent){
-    pageContent.style.opacity = "1";
-    pageContent.style.visibility = "visible";
-    pageContent.style.display = "block";
-  }
-});
-</script>
-
 </body>
 </html>

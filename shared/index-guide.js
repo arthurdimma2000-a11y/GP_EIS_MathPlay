@@ -6,6 +6,7 @@
   function init() {
     if (initialized) return;
     initialized = true;
+    const suppressAutoWelcomeSpeech = window.__GP_SKIP_INDEX_GUIDE_WELCOME__ === true;
 
     const finger = document.getElementById("gpGuideFinger");
     const bubble = document.getElementById("gpGuideBubble");
@@ -182,15 +183,6 @@
       if (hero && !hero.dataset.decorated) {
         hero.dataset.decorated = "1";
 
-        const cloud1 = document.createElement("div");
-        cloud1.className = "kid-cloud c1";
-
-        const cloud2 = document.createElement("div");
-        cloud2.className = "kid-cloud c2";
-
-        const cloud3 = document.createElement("div");
-        cloud3.className = "kid-cloud c3";
-
         const dog = document.createElement("img");
         dog.className = "kid-sticker medium";
         dog.src = "ProfDog.png";
@@ -206,7 +198,7 @@
         tangram.style.bottom = "16px";
         tangram.style.animationDelay = ".7s";
 
-        hero.append(cloud1, cloud2, cloud3, dog, tangram);
+        hero.append(dog, tangram);
       }
 
       const welcomeBox = document.querySelector(".welcome-box");
@@ -328,7 +320,7 @@
               const el = document.getElementById(firstVisible.id);
               if (el) {
                 placeGuide(el, firstVisible.text);
-                if (!hasPlayedWelcomeSpeech) {
+                if (!hasPlayedWelcomeSpeech && !suppressAutoWelcomeSpeech) {
                   hasPlayedWelcomeSpeech = true;
                   speak(firstVisible.text);
                 }
@@ -364,7 +356,7 @@
     playWelcomeGuide();
 
     setTimeout(() => {
-      if (!hasPlayedWelcomeSpeech) {
+      if (!hasPlayedWelcomeSpeech && !suppressAutoWelcomeSpeech) {
         hasPlayedWelcomeSpeech = true;
         speak("Welcome to G P E I S Kids Adventure. Tap login or signup, or tap start learning.");
       }

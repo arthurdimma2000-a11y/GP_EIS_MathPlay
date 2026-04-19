@@ -7,6 +7,7 @@
 
   const girlTarget = document.querySelector('#tapGirl, #girlBtn, .tap-girl, .girl-spot, .girl-inline, [aria-label="Tap the girl"]');
   if (!girlTarget) return;
+  const statusEl = document.querySelector('#conversationStatus, .conversation-status, .status, .lesson-status, .footer-note, .note');
 
   let pointerEl = null;
   let introSpoken = false;
@@ -100,6 +101,11 @@
     window.speechSynthesis.speak(utter);
   }
 
+  function showHint(text){
+    if (!statusEl || !text) return;
+    statusEl.textContent = text;
+  }
+
   function ensurePointer(){
     if (pointerEl && document.body.contains(pointerEl)) return pointerEl;
     pointerEl = ensureSharedPointer();
@@ -136,7 +142,9 @@
   function speakIntro(){
     if (introSpoken) return;
     introSpoken = true;
-    window.setTimeout(() => speakFriendly(inferInstruction()), 900);
+    const message = inferInstruction();
+    showHint(message);
+    window.setTimeout(() => speakFriendly(message), 900);
   }
 
   function cleanup(){
