@@ -868,5 +868,18 @@
       });
     });
   </script>
+  <script>
+  // Override any quiz completion navigation
+  (function() {
+    window.addEventListener("click", function(e) {
+      const btn = e.target.closest("button[data-action='next'], button.next-btn, #nextBtn, [onclick*='next']");
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = "./../../../../../../index.html";
+      }
+    }, true);
+  })();
+</script>
 </body>
 </html>

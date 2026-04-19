@@ -185,9 +185,19 @@ cheer("How many vertices does a triangle have?");
       ...overrides
     });
   }
+<script>
+  // Override any quiz completion navigation
+  (function() {
+    window.addEventListener("click", function(e) {
+      const btn = e.target.closest("button[data-action='next'], button.next-btn, #nextBtn, [onclick*='next']");
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = "./../../../../../../index.html";
+      }
+    }, true);
+  })();
 </script>
-<script src="../../../../shared/js/tracing.js"></script>
-<script src="../../../../activity-standardizer.js"></script>
 </body>
 </html>
 
