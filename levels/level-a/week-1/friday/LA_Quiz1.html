@@ -4,9 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Level A • Quiz 1 • Shapes Quiz</title>
-<link rel="stylesheet" href="../../../../shared/css/base.css" />
-<link rel="stylesheet" href="../../../../shared/css/layout.css" />
-<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
 <style>
   :root{
     --ink:#1f2a37;
@@ -19,7 +17,8 @@
     --yellow:#ffd84d;
     --good:#22c55e;
     --bad:#ef4444;
-    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+    --purple:#8b5cf6;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
   }
 
   *{box-sizing:border-box}
@@ -83,8 +82,6 @@
     justify-content:center;
     min-height:44px;
     transition:transform .08s ease, opacity .08s ease, filter .08s ease;
-    position:relative;
-    z-index:5;
   }
 
   .btn:hover,.btn:focus{
@@ -97,6 +94,7 @@
     color:#111827;
   }
 
+  .btn[disabled],
   .btn.is-disabled{
     opacity:.55;
     cursor:not-allowed;
@@ -161,7 +159,7 @@
   }
 
   .dot.done{background:var(--good);}
-  .dot.now{background:#8b5cf6;}
+  .dot.now{background:var(--purple);}
 
   .big{
     height:260px;
@@ -404,7 +402,7 @@
 
     <div class="footerNav">
       <a class="btn ghost" href="LA_Game1.html">◀ Prev</a>
-      <button class="btn is-disabled" id="nextBtn" type="button" aria-disabled="true">Home ➜</button>
+      <button class="btn is-disabled" id="nextBtn" type="button" disabled>Next ➜</button>
     </div>
   </div>
 </div>
@@ -412,23 +410,20 @@
 <div class="spark" id="spark"></div>
 <div class="toast" id="toast"></div>
 
-<script src="../../../../shared/js/storage.js"></script>
-<script src="../../../../shared/js/progress.js"></script>
-<script src="../../../../shared/js/tracing.js"></script>
 <script>
 (function(){
-  const TRACK = { level:"A" };
-  const LS_KEY = "gp_kids_progress_v1";
   const PAGE_ID = "LA_Quiz1";
-  const NEXT_PAGE_URL = "../../../../index.html";
+  const HOME_URL = "../../../../index.html";
+  const STORAGE_KEY = "GP_EIS_ACTIVITY_RESULTS";
+  const SIMPLE_KEY = "gp_kids_progress_v2";
 
   let soundOn = true;
   let stars = 0;
   let currentQuestion = 0;
   let correctCount = 0;
-  let questionLocked = false;
+  let questionAnswered = false;
   let audioCtx = null;
-  let canGoNext = false;
+  let speaking = false;
 
   const questions = [
     {
@@ -436,24 +431,21 @@
       question: "How many vertices does a circle have?",
       correct: 0,
       answers: [0, 3, 4],
-      shapeClass: "shape-circle",
-      voice: "How many vertices does a circle have?"
+      shapeClass: "shape-circle"
     },
     {
       id: "square",
       question: "How many vertices does a square have?",
       correct: 4,
       answers: [3, 4, 0],
-      shapeClass: "shape-square",
-      voice: "How many vertices does a square have?"
+      shapeClass: "shape-square"
     },
     {
       id: "triangle",
       question: "How many vertices does a triangle have?",
       correct: 3,
       answers: [4, 0, 3],
-      shapeClass: "shape-triangle",
-      voice: "How many vertices does a triangle have?"
+      shapeClass: "shape-triangle"
     }
   ];
 
@@ -473,47 +465,6 @@
   const soundBtn = $("#soundBtn");
   const readBtn = $("#readBtn");
 
-  function setNextEnabled(enabled){
-    canGoNext = enabled;
-    nextBtn.classList.toggle("is-disabled", !enabled);
-    nextBtn.setAttribute("aria-disabled", enabled ? "false" : "true");
-  }
-
-  function saveProgress(activity, score, max){
-    const row = {
-      ...TRACK,
-      activity,
-      score,
-      max,
-      at:new Date().toISOString(),
-      file:location.pathname.split("/").pop()
-    };
-    if (window.GPStorage && typeof window.GPStorage.appendJSON === "function") {
-      window.GPStorage.appendJSON(LS_KEY, row, []);
-    }
-  }
-
-  function toastShow(text){
-    if(!toast) return;
-    toast.textContent = text;
-    toast.style.display = "block";
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => {
-      toast.style.display = "none";
-    }, 1600);
-  }
-
-  function starBurst(x, y, emoji="⭐"){
-    if(!spark) return;
-    const s = document.createElement("div");
-    s.className = "star";
-    s.textContent = emoji;
-    s.style.left = x + "px";
-    s.style.top = y + "px";
-    spark.appendChild(s);
-    setTimeout(() => s.remove(), 950);
-  }
-
   function getAudioCtx(){
     if (!audioCtx) {
       const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -522,10 +473,10 @@
     return audioCtx;
   }
 
-  async function ensureAudioUnlocked(){
+  async function unlockAudio(){
     try{
       const ctx = getAudioCtx();
-      if(ctx && ctx.state === "suspended") await ctx.resume();
+      if (ctx && ctx.state === "suspended") await ctx.resume();
     }catch(e){}
   }
 
@@ -539,11 +490,11 @@
     const now = ctx.currentTime;
 
     o.type = "sine";
-    const f1 = type === "good" ? 880 : 220;
-    const f2 = type === "good" ? 1320 : 180;
+    const startFreq = type === "good" ? 880 : 220;
+    const endFreq = type === "good" ? 1320 : 180;
 
-    o.frequency.setValueAtTime(f1, now);
-    o.frequency.exponentialRampToValueAtTime(f2, now + 0.14);
+    o.frequency.setValueAtTime(startFreq, now);
+    o.frequency.exponentialRampToValueAtTime(endFreq, now + 0.14);
 
     g.gain.setValueAtTime(0.0001, now);
     g.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
@@ -555,58 +506,78 @@
     o.stop(now + 0.2);
   }
 
+  function toastShow(text){
+    toast.textContent = text;
+    toast.style.display = "block";
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.style.display = "none";
+    }, 1600);
+  }
+
+  function starBurst(x, y, emoji="⭐"){
+    const s = document.createElement("div");
+    s.className = "star";
+    s.textContent = emoji;
+    s.style.left = x + "px";
+    s.style.top = y + "px";
+    spark.appendChild(s);
+    setTimeout(() => s.remove(), 950);
+  }
+
+  function setNextEnabled(enabled){
+    nextBtn.disabled = !enabled;
+    nextBtn.classList.toggle("is-disabled", !enabled);
+  }
+
   function getFemaleVoice(){
+    if(!("speechSynthesis" in window)) return null;
     const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-    return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
-        || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+    return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang || "") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || ""))
+      || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || ""))
+      || voices.find(v => /^en/i.test(v.lang || ""))
+      || null;
   }
 
   function speakText(text){
-    if(!soundOn) return Promise.resolve();
-    if(!("speechSynthesis" in window)) return Promise.resolve();
-    return new Promise(resolve => {
-      try{ speechSynthesis.cancel(); } catch(_){ }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US";
-      u.rate = 0.95;
-      u.pitch = 1.25;
-      u.volume = 1;
-      const female = getFemaleVoice();
-      if(female) u.voice = female;
-      u.onend = resolve;
-      u.onerror = resolve;
-      speechSynthesis.speak(u);
-    });
+    if(!soundOn) return;
+    if(!("speechSynthesis" in window)) return;
+
+    try{
+      window.speechSynthesis.cancel();
+    }catch(e){}
+
+    speaking = true;
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.rate = 0.95;
+    utter.pitch = 1.2;
+    utter.volume = 1;
+
+    const female = getFemaleVoice();
+    if(female) utter.voice = female;
+
+    utter.onend = () => { speaking = false; };
+    utter.onerror = () => { speaking = false; };
+
+    try{
+      window.speechSynthesis.speak(utter);
+      setTimeout(() => { speaking = false; }, 7000);
+    }catch(e){
+      speaking = false;
+    }
   }
 
-  async function announceQuestionTwice(question, options){
-    const lines = [question, `Choices are ${options.join(", ")}.`];
-    for(let pass = 0; pass < 2; pass++){
-      for(const line of lines){
-        await speakText(line);
-      }
-    }
+  function readCurrentQuestion(){
+    const q = questions[currentQuestion];
+    const text = q.question + ". Choices are " + q.answers.join(", ") + ".";
+    speakText(text);
   }
 
   function cheer(text){
     if(!soundOn) return;
-    try{
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.2;
-      u.pitch = 2.0;
-      u.volume = 1;
-      const female = getFemaleVoice();
-      if(female) u.voice = female;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
-    }catch(e){}
-  }
-
-  function playBigCheer(){
-    beep("good");
-    setTimeout(() => beep("good"), 180);
-    setTimeout(() => beep("good"), 340);
-    cheer("Amazing! You finished the quiz!");
+    speakText(text);
   }
 
   function updateProgressDots(){
@@ -628,10 +599,10 @@
   }
 
   function renderQuestion(){
-    questionLocked = true;
+    const q = questions[currentQuestion];
+    questionAnswered = false;
     setNextEnabled(false);
 
-    const q = questions[currentQuestion];
     roundLabel.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
     questionText.textContent = q.question;
     shapeStage.innerHTML = `<div class="${q.shapeClass}"></div>`;
@@ -643,97 +614,58 @@
       btn.type = "button";
       btn.dataset.v = String(value);
       btn.textContent = String(value);
-      btn.disabled = true;
       btn.addEventListener("click", (e) => handleAnswer(e, btn, value));
       answersEl.appendChild(btn);
     });
 
     updateProgressDots();
     updateScoreUi();
+
     msgEl.textContent = "Choose the correct answer to win a star ⭐";
     nextBtn.textContent = currentQuestion === questions.length - 1 ? "Home ➜" : "Next ➜";
-    readCurrentQuestion();
+
+    setTimeout(() => {
+      readCurrentQuestion();
+    }, 350);
   }
 
-  async function saveResultSnapshot(isCompleted){
-    const score = Math.round((correctCount / questions.length) * 100);
-    if (typeof window.finishAndSave === "function") {
-      try{
-        await window.finishAndSave({
-          pageId: PAGE_ID,
-          level: "A",
-          activityType: "quiz",
-          score,
-          tracing: score,
-          progress: score,
-          completed: isCompleted,
-          stars,
-          skills: {
-            reading: 1,
-            writing: 0,
-            speaking: 0,
-            listening: 1
-          }
-        });
-      }catch(err){
-        console.warn("finishAndSave failed:", err);
-      }
-    }
-  }
+  function handleAnswer(e, button, value){
+    if(questionAnswered) return;
 
-  async function handleAnswer(e, button, value){
-    if(questionLocked) return;
-    questionLocked = true;
-    await ensureAudioUnlocked();
+    questionAnswered = true;
 
     const q = questions[currentQuestion];
     const ok = value === q.correct;
 
-    document.querySelectorAll(".ans").forEach(x => x.disabled = true);
-    document.querySelectorAll(".ans").forEach(x => x.classList.remove("good","bad"));
+    const allAnswers = [...document.querySelectorAll(".ans")];
+    allAnswers.forEach(x => x.disabled = true);
+    allAnswers.forEach(x => x.classList.remove("good","bad"));
 
     if(ok){
       button.classList.add("good");
       stars++;
       correctCount++;
       beep("good");
-      cheer(currentQuestion === questions.length - 1 ? "Great job!" : "Correct!");
-      starBurst(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, "🎉");
+      cheer(currentQuestion === questions.length - 1 ? "Great job! You finished the quiz!" : "Correct!");
+      starBurst(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, "🎉");
       msgEl.textContent = "Yay! Correct answer! ⭐";
       toastShow("Correct! Great job!");
-      saveProgress(`LA_Quiz1_${q.id}`, 1, 1);
     }else{
       button.classList.add("bad");
-      const correctBtn = [...document.querySelectorAll(".ans")].find(x => Number(x.dataset.v) === q.correct);
+      const correctBtn = allAnswers.find(x => Number(x.dataset.v) === q.correct);
       if(correctBtn) correctBtn.classList.add("good");
       beep("bad");
-      cheer("Try again next time!");
-      starBurst(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, "💛");
+      cheer("The correct answer is " + q.correct);
+      starBurst(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, "💛");
       msgEl.textContent = `The correct answer is ${q.correct}.`;
       toastShow("Oops! Let's learn the right answer.");
-      saveProgress(`LA_Quiz1_${q.id}`, 0, 1);
     }
 
     updateScoreUi();
-    await saveResultSnapshot(currentQuestion === questions.length - 1);
+    saveCurrentProgress();
 
     if(currentQuestion === questions.length - 1){
       nextBtn.textContent = "Home ➜";
-      try{
-        const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-        chimeAudio.preload = "auto";
-        const playAttempt = chimeAudio.play();
-        if (playAttempt && typeof playAttempt.finally === "function") {
-          playAttempt.finally(() => {
-            setTimeout(() => cheer("Amazing! You finished the quiz!"), 120);
-          });
-        } else {
-          setTimeout(() => cheer("Amazing! You finished the quiz!"), 120);
-        }
-      }catch(_){
-        setTimeout(() => cheer("Amazing! You finished the quiz!"), 120);
-      }
-      playBigCheer();
       msgEl.textContent = `Wonderful! You finished the quiz with ${correctCount} correct answers.`;
     }else{
       nextBtn.textContent = "Next ➜";
@@ -742,16 +674,8 @@
     setNextEnabled(true);
   }
 
-  function readCurrentQuestion(){
-    const q = questions[currentQuestion];
-    announceQuestionTwice(q.voice, q.answers.map(String)).then(() => {
-      questionLocked = false;
-      document.querySelectorAll(".ans").forEach(x => x.disabled = false);
-    });
-  }
-
   function goNext(){
-    if (!canGoNext) {
+    if(nextBtn.disabled){
       toastShow("Please answer the question first.");
       return;
     }
@@ -759,174 +683,73 @@
     if(currentQuestion < questions.length - 1){
       currentQuestion++;
       renderQuestion();
-      readCurrentQuestion();
     }else{
-      window.location.href = NEXT_PAGE_URL;
+      window.location.href = HOME_URL;
     }
   }
 
+  function saveCurrentProgress(){
+    const score = Math.round((correctCount / questions.length) * 100);
+    const payload = {
+      pageId: PAGE_ID,
+      level: "A",
+      type: "quiz",
+      score,
+      stars,
+      correctCount,
+      total: questions.length,
+      completed: currentQuestion === questions.length - 1 && questionAnswered,
+      savedAt: new Date().toISOString()
+    };
+
+    try{
+      localStorage.setItem(SIMPLE_KEY, JSON.stringify(payload));
+    }catch(e){}
+
+    try{
+      const store = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      store[PAGE_ID] = payload;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    }catch(e){}
+  }
+
   soundBtn.addEventListener("click", async () => {
-    await ensureAudioUnlocked();
+    await unlockAudio();
     soundOn = !soundOn;
     soundBtn.textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-    beep(soundOn ? "good" : "bad");
+    if(soundOn) beep("good");
   });
 
   readBtn.addEventListener("click", async () => {
-    await ensureAudioUnlocked();
+    await unlockAudio();
     readCurrentQuestion();
   });
 
   nextBtn.addEventListener("click", async () => {
-    await ensureAudioUnlocked();
+    await unlockAudio();
     goNext();
   });
 
   window.addEventListener("keydown", async (e) => {
-    if (e.key === "Enter" && document.activeElement === nextBtn) {
-      await ensureAudioUnlocked();
+    if(e.key === "Enter" && document.activeElement === nextBtn){
+      await unlockAudio();
       goNext();
     }
   });
 
-  window.addEventListener("pointerdown", ensureAudioUnlocked, { once:true });
-  window.addEventListener("keydown", ensureAudioUnlocked, { once:true });
+  window.addEventListener("pointerdown", unlockAudio, { once:true });
+  window.addEventListener("keydown", unlockAudio, { once:true });
+
+  if("speechSynthesis" in window){
+    try{
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {};
+    }catch(e){}
+  }
 
   renderQuestion();
-  setTimeout(() => {
-    readCurrentQuestion();
-  }, 600);
 })();
 </script>
 
-<script src="../../../../activity-standardizer.js"></script>
-<script type="module">
-  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-
-  window.GPProgress.installTracker({
-    saveActivityResult,
-    markLoginPing,
-    defaultPageId: "LA_Quiz1",
-    defaultLevel: "A",
-    defaultActivityType: "quiz",
-    defaultScore: 0,
-    defaultStars: 0,
-    defaultSkills: {
-      reading: 1,
-      writing: 0,
-      speaking: 0,
-      listening: 1
-    }
-  });
-
-  function getStudentSession(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-    }catch(e){
-      return null;
-    }
-  }
-
-  function inferProgressMeta(payload){
-    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-    const level = (payload && payload.level)
-      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-    const month = payload && payload.month != null ? Number(payload.month) : 1;
-
-    return {
-      pageId,
-      file,
-      level,
-      week: Number.isFinite(week) && week > 0 ? week : 1,
-      month: Number.isFinite(month) && month > 0 ? month : 1
-    };
-  }
-
-  function getActivityStore(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-    }catch(e){
-      return {};
-    }
-  }
-
-  function setActivityStore(store){
-    try{
-      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-    }catch(e){}
-  }
-
-  function saveLocalActivityFallback(payload){
-    const session = getStudentSession() || {};
-    const meta = inferProgressMeta(payload || {});
-    const score = payload && typeof payload.score === "number" ? payload.score : 0;
-    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-    const tracing = payload && typeof payload.tracing === "number"
-      ? payload.tracing
-      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-
-    const entry = {
-      pageId: meta.pageId,
-      file: meta.file,
-      level: meta.level,
-      type,
-      activityType: (payload && payload.activityType) || type,
-      score,
-      stars,
-      skills: payload && payload.skills ? payload.skills : {},
-      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-      tracing,
-      week: meta.week,
-      month: meta.month,
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-      savedAt: new Date().toISOString(),
-      ts: Date.now()
-    };
-
-    const store = getActivityStore();
-    store[meta.pageId] = {
-      ...(store[meta.pageId] || {}),
-      ...entry
-    };
-    setActivityStore(store);
-
-    try{
-      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-    }catch(e){}
-
-    return store[meta.pageId];
-  }
-
-  async function finishAndSave(payload){
-    const session = getStudentSession() || {};
-    const fullPayload = {
-      ...(payload || {}),
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-    };
-
-    saveLocalActivityFallback(fullPayload);
-
-    if (typeof window.finishActivity === "function") {
-      try{
-        await window.finishActivity(fullPayload);
-      }catch(err){
-        console.warn("finishActivity failed, local fallback already saved:", err);
-      }
-    }
-
-    return fullPayload;
-  }
-
-  window.finishAndSave = finishAndSave;
-</script>
 </body>
 </html>
