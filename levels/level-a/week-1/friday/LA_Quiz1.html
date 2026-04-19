@@ -413,7 +413,7 @@
 <script>
 (function(){
   const PAGE_ID = "LA_Quiz1";
-  const HOME_URL = "../../../../index.html";
+  const HOME_URL = "../../week-2/monday/GymClassWk2A.html";
   const STORAGE_KEY = "GP_EIS_ACTIVITY_RESULTS";
   const SIMPLE_KEY = "gp_kids_progress_v2";
 
@@ -534,7 +534,7 @@
     if(!("speechSynthesis" in window)) return null;
     const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
     return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang || "") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || ""))
-      || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || ""))
+      || voices.find(v => /^en/i.test(v.lang || "") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || ""))
       || voices.find(v => /^en/i.test(v.lang || ""))
       || null;
   }
@@ -622,7 +622,7 @@
     updateScoreUi();
 
     msgEl.textContent = "Choose the correct answer to win a star ⭐";
-    nextBtn.textContent = currentQuestion === questions.length - 1 ? "Home ➜" : "Next ➜";
+    nextBtn.textContent = currentQuestion === questions.length - 1 ? "Week 2 ➜" : "Next ➜";
 
     setTimeout(() => {
       readCurrentQuestion();
@@ -665,7 +665,7 @@
     saveCurrentProgress();
 
     if(currentQuestion === questions.length - 1){
-      nextBtn.textContent = "Home ➜";
+      nextBtn.textContent = "Week 2 ➜";
       msgEl.textContent = `Wonderful! You finished the quiz with ${correctCount} correct answers.`;
     }else{
       nextBtn.textContent = "Next ➜";

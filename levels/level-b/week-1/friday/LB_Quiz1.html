@@ -168,7 +168,7 @@
     <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Quiz 1 • Names</span></div>
     <div style="display:flex; gap:10px; flex-wrap:wrap">
       <a class="btn" href="LB_Game1.html">⬅ Back</a>
-      <a class="btn next" href="../../../../index.html">Next Level ▶</a>
+      <a class="btn next" href="../../week-2/monday/GymClassWk2C.html">Week 2 ▶</a>
     </div>
   </div>
 
@@ -241,8 +241,9 @@ function getFemaleVoice(){
     /^en(-|_)?(us|gb|au|ca)/i.test(v.lang || "") &&
     /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || "")
   ) || voices.find(v =>
+    /^en/i.test(v.lang || "") &&
     /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name || "")
-  ) || null;
+  ) || voices.find(v => /^en/i.test(v.lang || "")) || null;
 }
 
 function speakText(text, opts = {}){

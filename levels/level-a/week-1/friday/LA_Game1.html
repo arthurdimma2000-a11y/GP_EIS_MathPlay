@@ -246,7 +246,9 @@
   function getFemaleVoice(){
     const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
     return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
-        || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+        || voices.find(v => /^en/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+        || voices.find(v => /^en/i.test(v.lang||""))
+        || null;
   }
 
   function speakCompletionLine(text){

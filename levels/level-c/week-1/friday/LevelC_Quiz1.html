@@ -100,7 +100,7 @@
       <a class="btn" href="LevelC_Game1.html">⬅ Back</a>
       <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
       <button class="btn primary" id="startBtn" type="button">▶ Start</button>
-      <a class="btn primary" href="../../../../index.html">Next Level ➜</a>
+      <a class="btn primary" href="../../week-2/monday/GymClassWk2C.html">Week 2 ➜</a>
     </div>
   </div>
 
@@ -188,7 +188,9 @@ function speak(text){
 function getFemaleVoice(){
   const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
   return voices.find(v => /^en(-|_)?(us|gb|au|ca)/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
-      || voices.find(v => /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""));
+      || voices.find(v => /^en/i.test(v.lang||"") && /aria|jenny|samantha|ava|zira|female|woman|girl/i.test(v.name||""))
+      || voices.find(v => /^en/i.test(v.lang||""))
+      || null;
 }
 
 function speakText(text){

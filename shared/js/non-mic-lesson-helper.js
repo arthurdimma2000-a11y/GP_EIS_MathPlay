@@ -85,7 +85,7 @@
     return voices.find(v => /en-us|en_us/.test(lower(v.lang)) && /ava|aria|samantha|jenny|zira|female|girl|kid|child|allison|emma|ivy|olivia|libby|ellie/i.test(lower(v.name)) && !malePattern.test(v.name || ""))
       || voices.find(v => /en-us|en_us/.test(lower(v.lang)) && !malePattern.test(v.name || ""))
       || voices.find(v => /en/.test(lower(v.lang)) && !malePattern.test(v.name || ""))
-      || voices[0];
+      || null;
   }
 
   function speakFriendly(text){
@@ -94,7 +94,7 @@
     const utter = new SpeechSynthesisUtterance(text);
     const voice = chooseFriendlyVoice();
     if (voice) utter.voice = voice;
-    utter.lang = (voice && voice.lang) ? voice.lang : "en-US";
+    utter.lang = "en-US";
     utter.rate = 1.02;
     utter.pitch = 1.5;
     utter.volume = 1;

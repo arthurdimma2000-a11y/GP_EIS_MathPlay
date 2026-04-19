@@ -45,7 +45,6 @@
       matches(englishLang, femaleName) ||
       list.find((voice) => americanLang.test(voice.lang || "") && notMale(voice)) ||
       list.find((voice) => englishLang.test(voice.lang || "") && notMale(voice)) ||
-      list.find((voice) => femaleName.test(voice.name || "") && notMale(voice)) ||
       null
     );
   }
@@ -66,19 +65,15 @@
       synth.speak = function patchedSpeak(utterance) {
         try {
           if (utterance) {
-            const lang = String(utterance.lang || "");
-            const shouldForceEnglish = !lang || /^en([-_]|$)/i.test(lang);
-            if (shouldForceEnglish) {
-              const preferred = pickPreferredFemaleVoice(
-                typeof synth.getVoices === "function" ? synth.getVoices() : []
-              );
-              if (preferred) {
-                utterance.voice = preferred;
-                utterance.lang = preferred.lang || "en-US";
-              } else if (!utterance.lang) {
-                utterance.lang = "en-US";
-              }
+            const preferred = pickPreferredFemaleVoice(
+              typeof synth.getVoices === "function" ? synth.getVoices() : []
+            );
+            if (preferred) {
+              utterance.voice = preferred;
+            } else {
+              utterance.voice = null;
             }
+            utterance.lang = "en-US";
             if (typeof utterance.rate !== "number" || utterance.rate > 0.94 || utterance.rate < 0.86) utterance.rate = 0.9;
             if (typeof utterance.pitch !== "number" || utterance.pitch > 1.28 || utterance.pitch <= 1.08) utterance.pitch = 1.18;
             utterance.volume = 1;

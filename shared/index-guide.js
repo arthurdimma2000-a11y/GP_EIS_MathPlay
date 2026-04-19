@@ -104,6 +104,7 @@
         window.speechSynthesis.cancel();
 
         const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "en-US";
         utter.rate = 0.96;
         utter.pitch = 1.12;
         utter.volume = 0.9;

@@ -104,7 +104,6 @@
       matches(englishLang, femaleName) ||
       list.find((voice) => americanLang.test(voice.lang || "") && notMale(voice)) ||
       list.find((voice) => englishLang.test(voice.lang || "") && notMale(voice)) ||
-      list.find((voice) => femaleName.test(voice.name || "") && notMale(voice)) ||
       null
     );
   }
@@ -114,14 +113,12 @@
     try {
       const voices = global.speechSynthesis.getVoices ? global.speechSynthesis.getVoices() : [];
       const preferred = pickPreferredFemaleVoice(voices);
-      const lang = String(utterance.lang || "");
-      const shouldForceEnglish = !lang || /^en([-_]|$)/i.test(lang);
-      if (preferred && shouldForceEnglish) {
+      if (preferred) {
         utterance.voice = preferred;
-        utterance.lang = preferred.lang || "en-US";
-      } else if (shouldForceEnglish && !utterance.lang) {
-        utterance.lang = "en-US";
+      } else {
+        utterance.voice = null;
       }
+      utterance.lang = "en-US";
       if (typeof utterance.rate !== "number" || utterance.rate > 0.94 || utterance.rate < 0.86) {
         utterance.rate = 0.9;
       }
