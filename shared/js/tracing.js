@@ -122,11 +122,11 @@
       } else if (shouldForceEnglish && !utterance.lang) {
         utterance.lang = "en-US";
       }
-      if (typeof utterance.rate !== "number" || utterance.rate >= 0.98 || utterance.rate < 0.88) {
-        utterance.rate = 0.92;
+      if (typeof utterance.rate !== "number" || utterance.rate > 0.94 || utterance.rate < 0.86) {
+        utterance.rate = 0.9;
       }
-      if (typeof utterance.pitch !== "number" || utterance.pitch <= 1.1) {
-        utterance.pitch = 1.34;
+      if (typeof utterance.pitch !== "number" || utterance.pitch > 1.28 || utterance.pitch <= 1.08) {
+        utterance.pitch = 1.18;
       }
       utterance.volume = 1;
     } catch (_err) {}

@@ -6,7 +6,7 @@ function corsHeaders() {
   return {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Accept",
     "Access-Control-Allow-Methods": "POST, OPTIONS"
   };
 }
@@ -169,7 +169,8 @@ exports.handler = async function handler(event) {
     }
 
     const body = parsedBody.value || {};
-    const teacherContext = body && typeof body.teacherContext === "object" ? body.teacherContext : {};
+    const teacherContext =
+      body && typeof body.teacherContext === "object" ? body.teacherContext : {};
     const rawStudents = Array.isArray(body && body.students) ? body.students : [];
 
     if (!rawStudents.length) {
@@ -203,7 +204,9 @@ exports.handler = async function handler(event) {
     students.forEach((student) => {
       const studentDoc = db.collection("studentAccounts").doc(student.compositeKey);
       const teacherKey = student.teacherUid || student.teacherEmail || "teacher";
-      const teacherDoc = db.collection("teacherStudentCredentials").doc(`${teacherKey}__${student.compositeKey}`);
+      const teacherDoc = db
+        .collection("teacherStudentCredentials")
+        .doc(`${teacherKey}__${student.compositeKey}`);
 
       const createdAt = student.createdAt || now;
       const updatedAt = student.updatedAt || now;

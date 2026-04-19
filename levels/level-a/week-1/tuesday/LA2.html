@@ -572,28 +572,6 @@
 <style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
 <body>
-  <!-- Intro Video Overlay -->
-  <div id="lbIntroVideoOverlay">
-    <div class="intro-panel">
-      <div class="intro-title">Circle Intro</div>
-      <video
-        id="lbIntroVideo"
-        playsinline
-        autoplay
-        muted
-        preload="metadata"
-      >
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776006235/Page2Circle_zn6ebl.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <div class="intro-controls">
-        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
-        <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
-      </div>
-      <div class="intro-help">If the intro does not play, the lesson page will open automatically.</div>
-    </div>
-  </div>
-
   <div id="pageContent">
   <div class="app">
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
@@ -678,64 +656,9 @@
 
   <script>
     window.__GP_REQUIRE_INTRO_AUDIO__ = false;
+    document.body.classList.remove("intro-active");
     document.body.classList.add("intro-complete");
-    introFinished = true;
-
-    const introOverlay = document.getElementById("lbIntroVideoOverlay");
-    const introVideo = document.getElementById("lbIntroVideo");
-    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
-    const skipIntroBtn = document.getElementById("skipIntroBtn");
-    let introFinished = false;
-
-    function revealPageContent(){
-      if (introFinished) return;
-      introFinished = true;
-      document.body.classList.remove("intro-active");
-      document.body.classList.add("intro-complete");
-      if (introOverlay) introOverlay.hidden = true;
-      if (introVideo) {
-        try { introVideo.pause(); } catch (_err) {}
-      }
-      window.setTimeout(() => {
-        playInstructionThenDialogue();
-      }, 120);
-    }
-
-    function enableIntroSound(){
-      if (!introVideo) return;
-      introVideo.muted = false;
-      introVideo.volume = 1;
-      introVideo.play().catch(() => {});
-      if (turnOnSoundBtn) {
-        turnOnSoundBtn.textContent = "Sound On";
-        turnOnSoundBtn.disabled = true;
-      }
-    }
-
-    if (introVideo) {
-      introVideo.addEventListener("ended", revealPageContent);
-      introVideo.addEventListener("error", revealPageContent);
-      introVideo.addEventListener("stalled", () => {
-        window.setTimeout(() => {
-          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
-            revealPageContent();
-          }
-        }, 1200);
-      });
-      introVideo.play().catch(() => {});
-    } else {
-      revealPageContent();
-    }
-
-    if (turnOnSoundBtn) turnOnSoundBtn.addEventListener("click", enableIntroSound);
-    if (skipIntroBtn) skipIntroBtn.addEventListener("click", revealPageContent);
-    
-    // Fallback timeout to start audio if video takes too long or doesn't load
-    window.setTimeout(() => {
-      if (!introFinished && introVideo && introVideo.readyState < 1) {
-        revealPageContent();
-      }
-    }, 8000);
+    let introFinished = true;
 
     const clearBtn = document.getElementById("clearBtn");
     const micIconBtn = document.getElementById("micIconBtn");
@@ -938,7 +861,7 @@
         startSequence();
       };
 
-      const fallbackTimer = window.setTimeout(startSequence, 3600);
+      window.setTimeout(startSequence, 3600);
 
       try {
         instructionAudio.currentTime = 0;
@@ -1185,24 +1108,9 @@
 
     hideAllLines();
     try { window.__GP_STOP_INTRO_MEDIA && window.__GP_STOP_INTRO_MEDIA(); } catch (_) {}
-    
-    // Start the audio sequence only after intro video ends
-    function startAudioSequenceAfterVideo(){
-      if (!introFinished) return;
+    window.addEventListener("load", () => {
       playInstructionThenDialogue();
-    }
-
-    if (introFinished) {
-      window.setTimeout(startAudioSequenceAfterVideo, 120);
-    }
-    
-    if (introVideo) {
-      introVideo.addEventListener("ended", startAudioSequenceAfterVideo, { once: true });
-    } else {
-      window.addEventListener("load", () => {
-        playInstructionThenDialogue();
-      }, { once: true });
-    }
+    }, { once: true });
 
     function setRecordLabel(text){
       recordBtn.innerHTML = '<svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">' +
@@ -1281,47 +1189,60 @@
       recordBtn.addEventListener("click", toggleRecord);
     }
 
+    async function savePageProgressBeforeLeave(){
+      if (typeof window.finishAndSave === "function" && !activitySaved) {
+        await window.finishAndSave({
+          pageId: "LA2",
+          level: "A",
+          activityType: "lesson",
+          score: micDone ? null : (circleTapped ? 40 : 10),
+          stars: micDone ? 0 : (circleTapped ? 1 : 0),
+          skills: {
+            reading: circleTapped ? 1 : 0,
+            writing: 0,
+            speaking: 0,
+            listening: 0
+          }
+        });
+        activitySaved = true;
+      }
+    }
+
+    function stopPageAudioImmediately(){
+      try { instructionAudio.pause(); } catch (_) {}
+      try { instructionAudio.currentTime = 0; } catch (_) {}
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+      try { window.__BgMusicManager && window.__BgMusicManager.stopAllBgMusic(); } catch (_) {}
+    }
+
+    async function navigateToPage(target){
+      stopPageAudioImmediately();
+      await savePageProgressBeforeLeave();
+      window.location.href = target;
+    }
+
+    window.addEventListener("pagehide", stopPageAudioImmediately);
+    window.addEventListener("beforeunload", stopPageAudioImmediately);
+
     if (nextBtn) {
-      nextBtn.addEventListener("click", async () => {
-        if (typeof window.finishAndSave === "function" && !activitySaved) {
-          await window.finishAndSave({
-            pageId: "LA2",
-            level: "A",
-            activityType: "lesson",
-            score: micDone ? null : (circleTapped ? 40 : 10),
-            stars: micDone ? 0 : (circleTapped ? 1 : 0),
-            skills: {
-              reading: circleTapped ? 1 : 0,
-              writing: 0,
-              speaking: 0,
-              listening: 0
-            }
-          });
-          activitySaved = true;
+      nextBtn.addEventListener("click", async (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
         }
-        window.location.href = "../wednesday/LA3.html";
+        await navigateToPage("../wednesday/LA3.html");
       });
     }
 
     if (prevBtn) {
-      prevBtn.addEventListener("click", async () => {
-        if (typeof window.finishAndSave === "function" && !activitySaved) {
-          await window.finishAndSave({
-            pageId: "LA2",
-            level: "A",
-            activityType: "lesson",
-            score: micDone ? null : (circleTapped ? 40 : 10),
-            stars: micDone ? 0 : (circleTapped ? 1 : 0),
-            skills: {
-              reading: circleTapped ? 1 : 0,
-              writing: 0,
-              speaking: 0,
-              listening: 0
-            }
-          });
-          activitySaved = true;
+      prevBtn.addEventListener("click", async (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
         }
-        window.location.href = "../monday/CircleArtClass.html";
+        await navigateToPage("../monday/CircleArtClass.html");
       });
     }
 
@@ -1352,24 +1273,7 @@
           if (p && typeof p.catch === "function") p.catch(() => {});
         }catch(e){}
 
-        if (typeof window.finishAndSave === "function" && !activitySaved) {
-          await window.finishAndSave({
-            pageId: "LA2",
-            level: "A",
-            activityType: "lesson",
-            score: micDone ? null : (circleTapped ? 40 : 10),
-            stars: micDone ? 0 : (circleTapped ? 1 : 0),
-            skills: {
-              reading: circleTapped ? 1 : 0,
-              writing: 0,
-              speaking: 0,
-              listening: 0
-            }
-          });
-          activitySaved = true;
-        }
-
-        window.location.href = homeBtn.getAttribute("href") || "../../../../index.html";
+        await navigateToPage(homeBtn.getAttribute("href") || "../../../../index.html");
       });
     })();
   </script>

@@ -425,7 +425,7 @@
       <button class="btn" id="readBtn" type="button">🗣️ Read Quiz</button>
       <button class="btn" id="soundBtn" type="button">🔊 Sound: ON</button>
       <button class="btn warn" id="newBtn" type="button">🔁 New Round</button>
-      <a class="btn primary" href="../../../../index.html">Next ➜</a>
+      <a class="btn primary" id="nextHomeBtn" href="../../../../index.html">Next ➜</a>
     </div>
   </div>
 
@@ -640,6 +640,7 @@ const correctEl = document.getElementById("correct");
 const wrongEl = document.getElementById("wrong");
 const msgEl = document.getElementById("msg");
 const roundDotsEl = document.getElementById("roundDots");
+const nextHomeBtn = document.getElementById("nextHomeBtn");
 
 let round = 1;
 let score = 0;
@@ -652,6 +653,14 @@ let finished = false;
 
 function computeStars(scoreValue){
   return scoreValue >= 95 ? 3 : scoreValue >= 65 ? 2 : scoreValue > 0 ? 1 : 0;
+}
+
+function goHomeNow(event){
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  window.location.assign("../../../../index.html");
 }
 
 function persistState(){
@@ -933,6 +942,7 @@ document.getElementById("newBtn").addEventListener("click", async () => {
   renderRound();
   toastShow("🔁 New quiz started!");
 });
+if (nextHomeBtn) nextHomeBtn.addEventListener("click", goHomeNow);
 
 window.addEventListener("pointerdown", ensureAudioUnlocked, { once:true });
 window.addEventListener("keydown", ensureAudioUnlocked, { once:true });

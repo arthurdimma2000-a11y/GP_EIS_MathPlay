@@ -2102,60 +2102,147 @@
     });
   </script>
 
+  <script src="shared/js/page-audio-sequencer.js"></script>
   <script src="shared/js/bg-music-manager.js"></script>
 
   <script>
-    (function() {
-      const bgMusicPlaylist = [
-        "assets/audio/chimes/Audio1.mp4",
+    (() => {
+      const playlist = [
         "assets/audio/chimes/Audio2.mp4",
         "assets/audio/chimes/Audio3.mp4"
       ];
-      let currentTrackIndex = 0;
-      const bgAudio = new Audio();
-      bgAudio.loop = false;
-      bgAudio.volume = 0.4;
+      let currentIndex = 0;
+      let activeVolume = 0.1;
+      let userStopped = false;
+      let isPlaying = false;
+      const audio = new Audio();
+      audio.preload = "auto";
+      audio.playsInline = true;
+      audio.setAttribute("playsinline", "true");
+      audio.setAttribute("webkit-playsinline", "true");
 
-      function playNextTrack() {
-        if (currentTrackIndex < bgMusicPlaylist.length) {
-          bgAudio.src = bgMusicPlaylist[currentTrackIndex];
-          bgAudio.play().catch(() => {});
-          currentTrackIndex++;
+      function resolveTrack(track){
+        try {
+          return new URL(String(track || ""), window.location.href).toString();
+        } catch (_) {
+          return String(track || "");
         }
       }
 
-      bgAudio.addEventListener("ended", playNextTrack);
+      function applyTrack(index){
+        currentIndex = ((index % playlist.length) + playlist.length) % playlist.length;
+        audio.src = resolveTrack(playlist[currentIndex]);
+        audio.volume = activeVolume;
+      }
+
+      function playCurrentTrack(){
+        if (userStopped || !playlist.length) return;
+        applyTrack(currentIndex);
+        audio.muted = true;
+        const playAttempt = audio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.then(() => {
+            isPlaying = true;
+            window.setTimeout(() => {
+              audio.muted = false;
+              audio.volume = activeVolume;
+            }, 120);
+          }).catch(() => {
+            isPlaying = false;
+          });
+        } else {
+          isPlaying = true;
+          window.setTimeout(() => {
+            audio.muted = false;
+            audio.volume = activeVolume;
+          }, 120);
+        }
+      }
 
       function startBackgroundMusic() {
-        if (bgAudio.paused || !bgAudio.src) {
-          currentTrackIndex = 0;
-          playNextTrack();
-        }
+        if (userStopped || isPlaying) return;
+        playCurrentTrack();
       }
 
-      function stopBackgroundMusic() {
-        bgAudio.pause();
-        bgAudio.currentTime = 0;
+      function stopBackgroundMusic(manual = false) {
+        if (manual) userStopped = true;
+        isPlaying = false;
+        try { audio.pause(); } catch (_) {}
+        try { audio.currentTime = 0; } catch (_) {}
       }
 
-      window.__gpBgMusicManager = {
-        start: startBackgroundMusic,
-        stop: stopBackgroundMusic
-      };
+      function setBackgroundMusicVolume(nextVolume) {
+        const safeVolume = Math.max(0.02, Math.min(0.18, Number(nextVolume) || 0.1));
+        activeVolume = safeVolume;
+        audio.volume = safeVolume;
+      }
 
-      startBackgroundMusic();
+      function stopForPageLeave() {
+        stopBackgroundMusic(false);
+      }
 
-      // Stop music when navigating to lesson pages
-      const originalHref = window.location.href;
-      document.addEventListener("click", (e) => {
-        const link = e.target.closest("a[href]");
-        if (link) {
-          const href = link.getAttribute("href");
-          if (href && (href.includes("/levels/") || href.includes("lesson"))) {
-            stopBackgroundMusic();
-          }
+      audio.addEventListener("ended", () => {
+        isPlaying = false;
+        currentIndex = (currentIndex + 1) % playlist.length;
+        if (!userStopped) {
+          playCurrentTrack();
         }
       });
+
+      audio.addEventListener("error", () => {
+        isPlaying = false;
+        currentIndex = (currentIndex + 1) % playlist.length;
+        if (!userStopped) {
+          window.setTimeout(() => playCurrentTrack(), 120);
+        }
+      });
+
+      window.__gpBgMusicManager = {
+        start() {
+          userStopped = false;
+          startBackgroundMusic();
+        },
+        stop() {
+          stopBackgroundMusic(false);
+        },
+        setVolume(nextVolume) {
+          setBackgroundMusicVolume(nextVolume);
+        }
+      };
+
+      window.__GP_INDEX_STOP_PAGE_AUDIO__ = stopForPageLeave;
+
+      window.addEventListener("load", startBackgroundMusic, { once:true });
+      window.addEventListener("pageshow", () => {
+        userStopped = false;
+        startBackgroundMusic();
+      });
+      window.addEventListener("focus", startBackgroundMusic);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          stopForPageLeave();
+          return;
+        }
+        userStopped = false;
+        startBackgroundMusic();
+      });
+
+      ["pointerdown", "touchstart", "keydown", "click"].forEach((eventName) => {
+        window.addEventListener(eventName, () => {
+          userStopped = false;
+          startBackgroundMusic();
+        }, { once:true, passive:eventName !== "keydown" });
+      });
+
+      window.addEventListener("pagehide", stopForPageLeave);
+      window.addEventListener("beforeunload", stopForPageLeave);
+
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest("a[href]");
+        if (!link) return;
+        const href = String(link.getAttribute("href") || "");
+        if (/levels\/|lesson/i.test(href)) stopForPageLeave();
+      }, true);
     })();
   </script>
   <style id="gpResponsiveHotfix">
@@ -2261,12 +2348,9 @@
     @media (max-width:700px){.gp-guide-finger{width:52px;height:52px;font-size:34px}.gp-guide-bubble{max-width:220px;font-size:13px}.audio-toggle-btn{top:10px;right:10px;padding:9px 12px;font-size:13px}}
   </style>
 
-
-<style>
-.month-card.month-open .month-chip{background:linear-gradient(180deg,#dbf9e7,#bcf0d1);color:#0c5a35}
-.month-card.month-locked .month-chip{background:linear-gradient(180deg,#ffe2e2,#ffc9c9);color:#7a1f1f}
-
 <style id="gpMonthWeekWindowEnhancements">
+  .month-card.month-open .month-chip{background:linear-gradient(180deg,#dbf9e7,#bcf0d1);color:#0c5a35}
+  .month-card.month-locked .month-chip{background:linear-gradient(180deg,#ffe2e2,#ffc9c9);color:#7a1f1f}
   .learning-stage-toolbar{
     display:flex;
     align-items:center;
@@ -2336,6 +2420,316 @@
     }
   }
 </style>
+
+<style id="gpMobileTabletRedesign">
+  .mobile-launch-grid{display:none !important}
+
+  @media (max-width:1024px){
+    body{
+      background:
+        linear-gradient(90deg,#0a7c49 0 3.5%, transparent 3.5% 96.5%, #9e7b12 96.5% 100%),
+        linear-gradient(180deg,#f4f4f4 0%, #fbfbfb 100%);
+    }
+
+    .topbar{
+      background:transparent;
+      box-shadow:none;
+      border-bottom:0;
+      backdrop-filter:none;
+    }
+
+    .topbar-inner{
+      max-width:860px;
+      padding:12px 16px 4px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      justify-items:center;
+    }
+
+    .brand{
+      width:min(100%,760px);
+      justify-content:center;
+      background:linear-gradient(180deg,#ffffff,#f8f8f8);
+      border-radius:28px;
+      padding:12px 18px;
+      box-shadow:0 14px 28px rgba(0,0,0,.10);
+    }
+
+    .brand-logo{width:56px;height:56px;border-radius:16px}
+    .brand-copy b{font-size:1.65rem}
+    .brand-copy span{font-size:1rem}
+
+    .top-actions{
+      width:min(100%,760px);
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      justify-content:stretch;
+    }
+
+    #goHomeTop{display:none !important}
+    #installBtn{grid-column:1 / -1}
+
+    .top-actions .btn,
+    .mobile-launch-btn{
+      min-height:56px;
+      padding:14px 16px;
+      border-radius:22px;
+      font-size:1rem;
+    }
+
+    .app-shell{
+      grid-template-columns:1fr;
+      max-width:860px;
+      margin:8px auto 0;
+      padding:0 16px 28px;
+    }
+
+    .sidebar{display:none !important}
+
+    .main-area{
+      gap:14px;
+      max-width:760px;
+      margin:0 auto;
+      width:100%;
+    }
+
+    .hero{
+      background:none;
+      box-shadow:none;
+      overflow:visible;
+    }
+
+    .hero-inner{
+      grid-template-columns:1fr;
+      gap:14px;
+      min-height:auto;
+      padding:0;
+    }
+
+    .hero-copy,
+    #panel-home .section-card,
+    #panel-levels .section-card,
+    #panel-login .section-card,
+    #panel-portals .section-card,
+    #panel-quick-links .section-card,
+    #panel-quicklinks .section-card{
+      background:linear-gradient(180deg,#ffffff,#f8f8f8);
+      border-radius:34px;
+      padding:22px 20px;
+      box-shadow:0 18px 34px rgba(0,0,0,.12);
+      border:1px solid rgba(0,0,0,.05);
+    }
+
+    .hero-copy{
+      text-align:center;
+    }
+
+    .hero-copy h1{
+      color:#261407;
+      text-shadow:none;
+      line-height:.95;
+      font-size:clamp(2.4rem,8vw,4rem);
+      margin-bottom:12px;
+    }
+
+    .hero-copy p{
+      margin:0 auto 10px;
+      padding:0;
+      background:transparent;
+      box-shadow:none;
+      display:block;
+      max-width:26ch;
+      color:#3c2b20;
+      font-size:1rem;
+    }
+
+    .hero-actions{display:none}
+    .mobile-launch-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+
+    .hero-mascots{
+      background:linear-gradient(180deg,#ffffff,#f8f8f8);
+      border-radius:34px;
+      padding:18px;
+      box-shadow:0 18px 34px rgba(0,0,0,.12);
+      border:1px solid rgba(0,0,0,.05);
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .mascot-card{
+      border-radius:26px;
+      min-height:unset;
+      padding:14px 12px 16px;
+      background:linear-gradient(180deg,#ffffff,#fcfcfc);
+    }
+
+    .mascot-card img{width:min(100%,112px);height:112px}
+    .mascot-card h3{font-size:1.05rem}
+    .mascot-card p{font-size:.88rem}
+    .highlight-trigger{font-size:.98rem}
+
+    .section-head{
+      justify-content:center;
+      text-align:center;
+      margin-bottom:12px;
+    }
+
+    .section-head h2{font-size:2rem}
+    .section-head p{margin-top:6px}
+
+    .welcome-box{
+      min-height:auto;
+      padding:18px;
+      background:linear-gradient(180deg,#fff6dd 0%, #ffffff 100%);
+      text-align:center;
+    }
+
+    .welcome-box h3{font-size:2rem;margin-bottom:8px}
+    .welcome-box p{margin-bottom:0}
+    #panel-home .row{display:none}
+
+    .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .summary-card{border-radius:22px;min-height:auto;padding:14px 16px;text-align:center}
+    .summary-main{justify-content:center}
+    .summary-card .k,.summary-card .s{font-size:.9rem}
+    .summary-card .v{font-size:1.7rem}
+
+    .level-grid{grid-template-columns:1fr;gap:14px}
+    .level-card{min-height:unset}
+
+    .auth-mini-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .auth-mini-tab{min-height:52px;border-radius:18px}
+    .session-banner{border-radius:26px}
+    .auth-grid{grid-template-columns:1fr}
+    .auth-box,.manager-card,.role-card,.portal-card,.quick-card,.week-card,.month-card{border-radius:28px}
+
+    #panel-login .auth-box,
+    #panel-login .auth-box.auth-hero{
+      background:linear-gradient(180deg,#ffffff,#f8f8f8);
+      padding:20px 18px;
+    }
+
+    #panel-login .auth-box h3{
+      text-align:center;
+      font-size:2rem;
+      color:#261407;
+    }
+
+    #panel-login .auth-box p{
+      text-align:center;
+      color:#3c2b20;
+    }
+
+    #panel-login .auth-callout,
+    #panel-login .field-note{
+      display:none;
+    }
+
+    #panel-login .field{
+      gap:8px;
+    }
+
+    #panel-login .field label{
+      color:#120b06;
+      font-size:1.1rem;
+    }
+
+    #panel-login .field input,
+    #panel-login .field select,
+    #panel-login .field textarea{
+      border:3px solid #18110b;
+      border-radius:20px;
+      background:#5bd382;
+      color:#fff;
+      padding:18px 16px;
+      box-shadow:none;
+      font-size:1.08rem;
+    }
+
+    #panel-login .field input::placeholder,
+    #panel-login .field textarea::placeholder{
+      color:rgba(255,255,255,.82);
+      font-style:italic;
+    }
+
+    #panel-login .field input:focus,
+    #panel-login .field select:focus,
+    #panel-login .field textarea:focus{
+      border-color:#18110b;
+      box-shadow:0 0 0 5px rgba(91,211,130,.18);
+    }
+
+    #panel-login .field-toggle{
+      background:linear-gradient(180deg,#ffffff,#f1f1f1);
+      border:2px solid #18110b;
+      color:#261407;
+      border-radius:14px;
+      top:50%;
+      transform:translateY(-50%);
+    }
+
+    #panel-login .auth-actions{
+      display:grid;
+      gap:12px;
+    }
+
+    #panel-login .auth-actions .btn-primary{
+      width:100%;
+      min-height:68px;
+      font-size:1.6rem;
+      border-radius:999px;
+      background:linear-gradient(180deg,#53db7d,#44c36a);
+      color:#fff;
+      box-shadow:0 12px 22px rgba(0,0,0,.16);
+    }
+
+    #panel-login .auth-actions .btn-soft{
+      border-radius:18px;
+    }
+
+    .audio-toggle-btn{
+      top:10px;
+      right:10px;
+      border-radius:18px;
+      padding:9px 13px;
+    }
+  }
+
+  @media (min-width:681px) and (max-width:1024px){
+    .hero-mascots{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .mobile-launch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .mobile-launch-grid .mobile-launch-btn:last-child{grid-column:1 / -1}
+    .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  }
+
+  @media (max-width:680px){
+    .top-actions{grid-template-columns:1fr 1fr}
+    .brand{justify-content:flex-start}
+    .brand-copy b{font-size:1.45rem}
+    .brand-copy span{font-size:.92rem}
+    .hero-mascots,
+    .summary-grid,
+    .auth-mini-tabs{grid-template-columns:1fr}
+    .top-actions .btn{
+      font-size:.96rem;
+      min-height:52px;
+      padding:12px 12px;
+    }
+    .mascot-card img{width:min(100%,104px);height:104px}
+  }
+</style>
+<script id="gpMobileTabletRedesignScript">
+  document.addEventListener('click', function(event){
+    var proxy = event.target.closest('[data-proxy-click]');
+    if(!proxy) return;
+    var id = proxy.getAttribute('data-proxy-click');
+    var target = document.getElementById(id);
+    if(target) target.click();
+  });
+</script>
+
 </head>
 
 <body data-page-type="welcome">
@@ -2364,7 +2758,7 @@
       </div>
 
       <div class="top-actions">
-        <button class="btn btn-soft" id="goHomeTop">Home</button>
+        <button class="btn btn-soft hidden" id="goHomeTop">Home</button>
         <button class="btn btn-primary" id="topStartLearningBtn">Start Learning</button>
         <button class="btn btn-orange" id="topQuickLinksBtn">Quick Links</button>
         <button class="btn btn-pink" id="signupTopBtn">Login / Signup</button>
@@ -2435,7 +2829,8 @@
         <div class="hero-inner">
           <div class="hero-copy">
             <h1>Welcome to GP EIS Online</h1>
-            <p>A bright and professional learning home for students, parents, teachers and admins.</p>
+            <p>Simple and fun learning for kids.</p>
+
 
             <div class="hero-actions">
               <span class="badge">Choose a level hero</span>
@@ -2552,7 +2947,7 @@
                 </div>
                 <div class="level-actions">
                   <button id="selectLevelABtn" type="button">Select A</button>
-                  <button id="openFirstLevelABtn" type="button">Start Learning</button>
+                  <button id="openFirstLevelABtn" type="button">Open Level A</button>
                 </div>
               </div>
             </article>
@@ -2573,7 +2968,7 @@
                 </div>
                 <div class="level-actions">
                   <button id="selectLevelBBtn" type="button">Select B</button>
-                  <button id="openFirstLevelBBtn" type="button">Start Learning</button>
+                  <button id="openFirstLevelBBtn" type="button">Open Level B</button>
                 </div>
               </div>
             </article>
@@ -2594,7 +2989,7 @@
                 </div>
                 <div class="level-actions">
                   <button id="selectLevelCBtn" type="button">Select C</button>
-                  <button id="openFirstLevelCBtn" type="button">Start Learning</button>
+                  <button id="openFirstLevelCBtn" type="button">Open Level C</button>
                 </div>
               </div>
               </article>
@@ -3092,15 +3487,47 @@
   <div class="toasts" id="toasts"></div>
 
   <script>
+    const ASSET_VERSION = "restore-images-2";
     const ASSET_MAP = {
       "gplogo.jpeg": "assets/images/avatars/gplogo.png",
       "gplogo.png": "assets/images/avatars/gplogo.png",
-      "ProfDog.png": "assets/images/avatars/ProfDog.png",
+      "assets/images/avatars/gplogo.png": "assets/images/avatars/gplogo.png",
+      "assets/images/shapes/gplogo.png": "assets/images/avatars/gplogo.png",
+      "ProfDog.png": "assets/images/shapes/ProfDog.png",
+      "assets/images/avatars/ProfDog.png": "assets/images/shapes/ProfDog.png",
+      "assets/images/shapes/ProfDog.png": "assets/images/shapes/ProfDog.png",
       "ProfBearB.png": "assets/images/shapes/ProfBearB.transparent.png",
-      "ProfTangramC.png": "assets/images/shapes/ProfTangramC.png"
+      "assets/images/avatars/Prof Bear B.png": "assets/images/shapes/ProfBearB.transparent.png",
+      "assets/images/shapes/Prof Bear B.png": "assets/images/shapes/ProfBearB.transparent.png",
+      "assets/images/shapes/ProfBearB.png": "assets/images/shapes/ProfBearB.transparent.png",
+      "assets/images/shapes/ProfBearB.transparent.png": "assets/images/shapes/ProfBearB.transparent.png",
+      "ProfTangramC.png": "assets/images/shapes/ProfTangramC.png",
+      "assets/images/avatars/Prof Tangram C.png": "assets/images/shapes/ProfTangramC.png",
+      "assets/images/shapes/Prof Tangram C.png": "assets/images/shapes/ProfTangramC.png",
+      "assets/images/shapes/ProfTangramC.png": "assets/images/shapes/ProfTangramC.png"
     };
 
-    const ASSET = (name) => encodeURI(ASSET_MAP[name] || name || "");
+    function appendAssetVersion(path){
+      const cleanPath = String(path || "").trim();
+      if (!cleanPath) return "";
+      if (/^https?:/i.test(cleanPath)) return cleanPath;
+      const separator = cleanPath.includes("?") ? "&" : "?";
+      return `${cleanPath}${separator}v=${ASSET_VERSION}`;
+    }
+
+    function normalizeAssetPath(name){
+      const raw = String(name || "").trim();
+      if (!raw) return "";
+      const withoutQuery = raw.replace(/[?#].*$/, "");
+      const exact = ASSET_MAP[withoutQuery] || ASSET_MAP[raw];
+      if (exact) return appendAssetVersion(exact);
+      const fileName = withoutQuery.split("/").pop();
+      const byFile = ASSET_MAP[fileName];
+      if (byFile) return appendAssetVersion(byFile);
+      return appendAssetVersion(withoutQuery);
+    }
+
+    const ASSET = (name) => encodeURI(normalizeAssetPath(name));
     const HIGHLIGHT_VIDEOS = {
       shape: {
         title: "Click Shapes Video",
@@ -3446,6 +3873,11 @@
     };
 
     function getWeekDayLabel(weekNumber, day){
+      if (day === "monday") {
+        if (weekNumber === 2) return "Gym Class";
+        if (weekNumber === 3) return "Science Class";
+        if (weekNumber === 4) return "Music Class";
+      }
       return DAY_LABELS[day] || "";
     }
 
@@ -3639,13 +4071,46 @@
     const logoutBtn = document.getElementById("logoutBtn");
 
     (function fixImages(){
+      const imageRestorePlan = [
+        { selector: "#logoImg", src: "assets/images/avatars/gplogo.png" },
+        { selector: "#sidebarAvatar", src: "assets/images/shapes/ProfDog.png" },
+        { selector: ".hero-mascots .mascot-card:nth-child(1) img", src: "assets/images/shapes/ProfDog.png" },
+        { selector: ".hero-mascots .mascot-card:nth-child(2) img", src: "assets/images/shapes/ProfBearB.transparent.png" },
+        { selector: ".hero-mascots .mascot-card:nth-child(3) img", src: "assets/images/shapes/ProfTangramC.png" },
+        { selector: "#lvlAImg", src: "assets/images/shapes/ProfDog.png" },
+        { selector: "#lvlBImg", src: "assets/images/shapes/ProfBearB.transparent.png" },
+        { selector: "#lvlCImg", src: "assets/images/shapes/ProfTangramC.png" }
+      ];
+
+      function getFallbackAsset(el, currentSrc){
+        const altText = String(el.getAttribute("alt") || "").toLowerCase();
+        if (/logoImg/i.test(el.id || "") || /gp eis logo|logo/.test(altText)) return ASSET("gplogo.png");
+        if (/sidebarAvatar|lvlAImg/i.test(el.id || "") || /profdog/i.test(currentSrc) || /professor dog|level a/.test(altText)) return ASSET("ProfDog.png");
+        if (/lvlBImg/i.test(el.id || "") || /profbearb|prof bear b/i.test(currentSrc) || /professor bear|level b/.test(altText)) return ASSET("ProfBearB.png");
+        if (/lvlCImg/i.test(el.id || "") || /proftangramc|prof tangram c/i.test(currentSrc) || /professor tangram|level c/.test(altText)) return ASSET("ProfTangramC.png");
+        return "";
+      }
+
       document.querySelectorAll("img[src]").forEach(el => {
         const src = el.getAttribute("src");
         const isPriorityImage = /^(logoImg|sidebarAvatar|lvlAImg|lvlBImg|lvlCImg)$/i.test(el.id || "");
         if (src) el.src = ASSET(src);
+        el.addEventListener("error", () => {
+          const currentSrc = String(el.getAttribute("src") || "");
+          const fallback = getFallbackAsset(el, currentSrc);
+          if (fallback && fallback !== currentSrc) {
+            el.src = fallback;
+          }
+        }, { once:true });
         if (!el.hasAttribute("decoding")) el.setAttribute("decoding", "async");
         if (!el.hasAttribute("loading")) el.setAttribute("loading", isPriorityImage ? "eager" : "lazy");
         if (isPriorityImage && !el.hasAttribute("fetchpriority")) el.setAttribute("fetchpriority", "high");
+      });
+
+      imageRestorePlan.forEach((entry) => {
+        const node = document.querySelector(entry.selector);
+        if (!node) return;
+        node.src = ASSET(entry.src);
       });
     })();
 
@@ -5680,7 +6145,7 @@
             </div>
             <div class="month-body month-body-simple">
               <div class="month-figure">
-                <img src="${getMonthHumanImage(month)}" alt="Month ${month} character" loading="lazy" decoding="async">
+                <img src="${ASSET(getMonthHumanImage(month))}" alt="Month ${month} character" loading="lazy" decoding="async">
               </div>
             </div>
           </article>
@@ -5720,7 +6185,7 @@
             <span>${week}</span>
           </div>
           <div class="week-human-frame">
-            <img src="${weekHumanImage}" alt="Week ${week} character" loading="lazy" decoding="async">
+            <img src="${ASSET(weekHumanImage)}" alt="Week ${week} character" loading="lazy" decoding="async">
           </div>
         </div>`;
 
@@ -5755,7 +6220,7 @@
             </div>
             <div class="day-tv-body">
               <div class="animal-visual${animalPath ? "" : " pending"}">
-                ${animalPath ? `<img src="${animalPath}" alt="" loading="lazy" decoding="async">` : `Animal image pending`}
+                ${animalPath ? `<img src="${ASSET(animalPath)}" alt="" loading="lazy" decoding="async">` : `Animal image pending`}
               </div>
               <div class="day-lesson-list">${lessonStackHtml}</div>
             </div>
@@ -5945,12 +6410,65 @@
       if (!message || !("speechSynthesis" in window) || typeof SpeechSynthesisUtterance !== "function") return;
       try {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = "en-US";
-        utterance.rate = 0.96;
-        utterance.pitch = 1.02;
+        const femaleVoice = getWarmFemaleVoice();
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+          utterance.lang = femaleVoice.lang || "en-US";
+        } else {
+          utterance.lang = "en-US";
+        }
+        utterance.rate = 0.9;
+        utterance.pitch = 1.18;
+        utterance.volume = 1;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
       } catch (_) {}
+    }
+
+    function getWarmFemaleVoice(){
+      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+      const femaleName = /(aria|jenny|samantha|zira|ava|allison|ellie|libby|olivia|emma|ivy|serena|grace|amy|luna|nova|stella|female|woman|girl)/i;
+      const maleName = /(david|guy|man|male|boy|john|matthew|matt|michael|james|daniel|george|thomas|alex|arthur|fred|richard|jason|ryan|andrew|mark|paul|brian|steve|kevin|eric|christopher|roger)/i;
+      const english = (voice) => /^en(-|_)?/i.test(String(voice.lang || ""));
+      const notMale = (voice) => !maleName.test(String(voice.name || ""));
+      return voices.find((voice) => english(voice) && femaleName.test(String(voice.name || "")) && notMale(voice))
+        || voices.find((voice) => femaleName.test(String(voice.name || "")) && notMale(voice))
+        || voices.find((voice) => english(voice) && notMale(voice))
+        || voices.find((voice) => english(voice))
+        || voices[0]
+        || null;
+    }
+
+    function duckIndexBackgroundMusic(enabled){
+      if (!window.__gpBgMusicManager || typeof window.__gpBgMusicManager.setVolume !== "function") return;
+      window.__gpBgMusicManager.setVolume(enabled ? 0.04 : 0.1);
+    }
+
+    let indexWelcomeNarrationDone = false;
+    function playIndexWelcomeNarration(){
+      if (indexWelcomeNarrationDone) return;
+      if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance !== "function") return;
+      const message = "Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then Login when a week is opened to access the lesson activities on this app.";
+      try {
+        indexWelcomeNarrationDone = true;
+        duckIndexBackgroundMusic(true);
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = "en-US";
+        utterance.rate = 0.88;
+        utterance.pitch = 1.16;
+        utterance.volume = 1;
+        const femaleVoice = getWarmFemaleVoice();
+        if (femaleVoice) utterance.voice = femaleVoice;
+        utterance.onend = () => duckIndexBackgroundMusic(false);
+        utterance.onerror = () => duckIndexBackgroundMusic(false);
+        window.speechSynthesis.speak(utterance);
+      } catch (_) {
+        duckIndexBackgroundMusic(false);
+        indexWelcomeNarrationDone = false;
+      }
     }
 
     const AudioGuide = (() => {
@@ -6850,22 +7368,25 @@
     }
 
     async function directSaveStudentsToCloud(studentsToSync){
-      const teacher = getTeacherSession();
+      const teacher = typeof getTeacherSession === "function" ? getTeacherSession() : null;
+
       if (!teacher || !teacher.email) {
-        return { ok:false, reason:"Teacher session is required.", syncedStudentIds:[] };
+        return {
+          ok: false,
+          reason: "Teacher session is required before cloud sync.",
+          syncedStudentIds: []
+        };
       }
 
-      const endpoint = new URL("/.netlify/functions/save-students", window.location.origin).toString();
-
-      const payloadStudents = dedupeStudents(Array.isArray(studentsToSync) ? studentsToSync : [])
+      const payloadStudents = (Array.isArray(studentsToSync) ? studentsToSync : [])
         .filter(Boolean)
         .map((student) => ({
-          classId: normalizeClassId(student.classId || ""),
-          studentId: normalizeStudentId(student.studentId || ""),
+          classId: String(student.classId || "").trim().toUpperCase(),
+          studentId: String(student.studentId || "").trim().toUpperCase(),
           pin: String(student.pin || "").trim(),
           level: String(student.level || "").trim().toUpperCase(),
           teacherUid: String(student.teacherUid || teacher.id || teacher.uid || "").trim(),
-          teacherEmail: normalizeEmail(student.teacherEmail || teacher.email || ""),
+          teacherEmail: String(student.teacherEmail || teacher.email || "").trim().toLowerCase(),
           teacherName: String(student.teacherName || teacher.name || "").trim(),
           displayName: String(student.displayName || student.name || "").trim(),
           createdAt: student.createdAt || new Date().toISOString(),
@@ -6874,53 +7395,68 @@
         .filter((student) => student.classId && student.studentId && student.pin && student.level);
 
       if (!payloadStudents.length) {
-        return { ok:false, reason:"No valid student records were available to sync.", syncedStudentIds:[] };
-      }
-
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            teacherContext: {
-              uid: String(teacher.id || teacher.uid || "").trim(),
-              name: String(teacher.name || "").trim(),
-              email: normalizeEmail(teacher.email || "")
-            },
-            students: payloadStudents
-          })
-        });
-
-        let data = null;
-        try { data = await res.json(); } catch (_) {}
-
-        if (!res.ok || !data || data.ok === false || data.success === false) {
-          return {
-            ok: false,
-            reason: (data && (data.details || data.error || data.message)) || `Cloud save failed (${res.status}).`,
-            syncedStudentIds: []
-          };
-        }
-
-        const syncedIds = Array.isArray(data.syncedStudentIds) && data.syncedStudentIds.length
-          ? data.syncedStudentIds.map((id) => canonicalStudentId(id))
-          : payloadStudents.map((student) => canonicalStudentId(student.studentId));
-
-        return {
-          ok: true,
-          reason: "",
-          syncedStudentIds: syncedIds
-        };
-      } catch (error) {
         return {
           ok: false,
-          reason: error && error.message ? error.message : "Could not reach the cloud save service.",
+          reason: "No valid student records were available to sync.",
           syncedStudentIds: []
         };
       }
+
+      const endpoints = [
+        `${window.location.origin}/.netlify/functions/save-students`,
+        "/.netlify/functions/save-students"
+      ];
+
+      let lastReason = "Cloud save failed.";
+
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({
+              teacherContext: {
+                uid: String(teacher.id || teacher.uid || "").trim(),
+                name: String(teacher.name || "").trim(),
+                email: String(teacher.email || "").trim().toLowerCase()
+              },
+              students: payloadStudents
+            })
+          });
+
+          let data = null;
+          try {
+            data = await response.json();
+          } catch (_) {}
+
+          if (response.ok && data && data.ok !== false && data.success !== false) {
+            return {
+              ok: true,
+              reason: "",
+              syncedStudentIds: Array.isArray(data.syncedStudentIds)
+                ? data.syncedStudentIds
+                : payloadStudents.map((student) => student.studentId)
+            };
+          }
+
+          lastReason =
+            (data && (data.details || data.error || data.message)) ||
+            `Cloud save failed (${response.status}).`;
+        } catch (error) {
+          lastReason = error && error.message
+            ? error.message
+            : "Could not reach the cloud save service.";
+        }
+      }
+
+      return {
+        ok: false,
+        reason: lastReason,
+        syncedStudentIds: []
+      };
     }
 
     async function syncStudentsToCloud(studentsToSync){
@@ -7258,24 +7794,38 @@
       audioToggleButton.addEventListener("click", () => AudioGuide.toggle());
     }
 
-    if (goHomeTopBtn) goHomeTopBtn.addEventListener("click", () => showPanel("panel-home"));
+    if (goHomeTopBtn) goHomeTopBtn.addEventListener("click", () => {
+      syncLevelUI();
+      showPanel("panel-home");
+    });
     if (signupTopButton) signupTopButton.addEventListener("click", () => {
+      ensureLoginPanelReady();
+      syncLevelUI();
       showPanel("panel-login");
       showAuthSubpanel("teacher-auth");
     });
     if (logoutButton) logoutButton.addEventListener("click", logoutUser);
     if (topStartLearningBtn) {
-      topStartLearningBtn.addEventListener("click", () => showPanel("panel-levels"));
+      topStartLearningBtn.addEventListener("click", () => {
+        syncLevelUI();
+        showPanel("panel-levels");
+      });
       topStartLearningBtn.addEventListener("pointerdown", warmNavigationTargets, { passive:true });
     }
     if (topQuickLinksBtn) {
       topQuickLinksBtn.addEventListener("click", () => {
+        syncLevelUI();
+        renderMonthRoadmap();
+        renderQuickLinks();
         setLearningStageView("months");
         showPanel("panel-links");
       });
       topQuickLinksBtn.addEventListener("pointerdown", warmNavigationTargets, { passive:true });
     }
-    if (topPortalsBtn) topPortalsBtn.addEventListener("click", () => showPanel("panel-portals"));
+    if (topPortalsBtn) topPortalsBtn.addEventListener("click", () => {
+      syncLevelUI();
+      showPanel("panel-portals");
+    });
     if (sidebarContinueButton) {
       sidebarContinueButton.addEventListener("click", continueLearning);
       sidebarContinueButton.addEventListener("pointerdown", warmNavigationTargets, { passive:true });
@@ -7432,7 +7982,24 @@
     loadPartnerSchoolsFromCloud({ quiet:true });
     syncLevelUI();
     setLearningStageView("months");
+    renderMonthRoadmap();
+    renderQuickLinks();
     showPanel("panel-home");
+    updateAudioGuideButton();
+    if (AudioGuide.isOn()) {
+      AudioGuide.start();
+    }
+    if (window.__gpBgMusicManager && typeof window.__gpBgMusicManager.start === "function") {
+      window.setTimeout(() => window.__gpBgMusicManager.start(), 180);
+    }
+    window.setTimeout(() => playIndexWelcomeNarration(), 320);
+    ["pointerdown", "keydown", "touchstart"].forEach((eventName) => {
+      window.addEventListener(eventName, () => {
+        if (!indexWelcomeNarrationDone) {
+          playIndexWelcomeNarration();
+        }
+      }, { passive:eventName !== "keydown", once:true });
+    });
     window.setTimeout(() => updateGuideHint(), 180);
   </script>
   <script type="module" src="shared/js/auth-sync-shared.js"></script>

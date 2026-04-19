@@ -92,8 +92,8 @@
     const voices = getVoices();
     if (!voices.length) return null;
     const lower = (s) => String(s || "").toLowerCase();
-    const malePattern = /(male|david|mark|tom|daniel|alex|fred|guy|man|boy|aaron|james|matthew|george)/i;
-    return voices.find(v => /en-us|en_us/.test(lower(v.lang)) && /ava|aria|samantha|jenny|zira|female|girl|kid|child|allison|emma|ivy|olivia|libby|ellie/i.test(lower(v.name)) && !malePattern.test(v.name || ""))
+    const malePattern = /(male|david|mark|tom|daniel|alex|fred|guy|man|boy|aaron|james|matthew|george|john|michael|jason|ryan|andrew|paul|brian|kevin|eric|christopher|roger)/i;
+    return voices.find(v => /en-us|en_us/.test(lower(v.lang)) && /ava|aria|samantha|jenny|zira|female|girl|kid|child|allison|emma|ivy|olivia|libby|ellie|grace|amy|serena|luna|nova|stella/i.test(lower(v.name)) && !malePattern.test(v.name || ""))
       || voices.find(v => /en-us|en_us/.test(lower(v.lang)) && !malePattern.test(v.name || ""))
       || voices.find(v => /en/.test(lower(v.lang)) && !malePattern.test(v.name || ""))
       || voices[0];
@@ -106,8 +106,8 @@
     const voice = chooseKidVoice();
     if (voice) utter.voice = voice;
     utter.lang = (voice && voice.lang) ? voice.lang : "en-US";
-    utter.rate = 1.03;
-    utter.pitch = 1.55;
+    utter.rate = 0.9;
+    utter.pitch = 1.2;
     utter.volume = 1;
     window.speechSynthesis.speak(utter);
   }
@@ -125,8 +125,8 @@
         const voice = chooseKidVoice();
         if (voice) utterance.voice = voice;
         utterance.lang = (voice && voice.lang) ? voice.lang : "en-US";
-        utterance.rate = 1.03;
-        utterance.pitch = 1.55;
+        utterance.rate = 0.9;
+        utterance.pitch = 1.2;
         utterance.volume = 1;
         utterance.__gpMicAdjusted = true;
       }

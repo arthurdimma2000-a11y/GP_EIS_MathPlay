@@ -103,9 +103,12 @@
     }
     .tray-hero{
       display:flex;
+      flex-direction:column;
+      align-items:center;
       justify-content:center;
       margin:6px 0 14px;
       position:relative;
+      gap:10px;
     }
     .tray-hero img{
       width:min(420px,90%);
@@ -241,6 +244,48 @@
     .poster-bubble{
       position:absolute;
       max-width:min(420px,70vw);
+    }
+    .poster-dialogue-zone{
+      display:none;
+      width:min(460px,92%);
+      margin:2px auto 0;
+      padding:10px 12px;
+      border-radius:18px;
+      background:rgba(255,255,255,.94);
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
+      border:2px solid rgba(108,75,191,.14);
+    }
+    .poster-dialogue-zone.active{
+      display:block;
+    }
+    .poster-dialogue-zone .convo-line{
+      position:static;
+      inset:auto;
+      width:100%;
+      margin:0;
+      pointer-events:none;
+    }
+    .poster-dialogue-zone .convo-line.show{
+      display:block !important;
+    }
+    .poster-dialogue-zone .poster-bubble,
+    .poster-dialogue-zone .kid-bubble,
+    .poster-dialogue-zone .chef-bubble{
+      position:static;
+      right:auto;
+      left:auto;
+      top:auto;
+      transform:none;
+      max-width:100%;
+    }
+    .poster-dialogue-zone .bubble-stack{
+      width:100%;
+      align-items:flex-start;
+    }
+    .poster-dialogue-zone .bubble{
+      width:100%;
+      max-width:100%;
+      white-space:normal;
     }
     .kid-bubble{
       right:10%;
@@ -411,9 +456,10 @@
             <div class="star-row" data-line="1"></div>
           </div>
         </div>
-        <div class="tap-prompt" id="tapPrompt">Are you hungry?</div>
-        <div class="triangle-answer" id="triangleAnswer">They are triangles.</div>
-      </div>
+      <div class="tap-prompt" id="tapPrompt">Are you hungry?</div>
+      <div class="triangle-answer" id="triangleAnswer">They are triangles.</div>
+      <div class="poster-dialogue-zone" id="posterDialogueZone" aria-live="polite"></div>
+    </div>
     </div>
 
     <div class="controls">
@@ -457,12 +503,16 @@
     const cookieRow = document.getElementById("cookieRow");
     const triangleAnswer = document.getElementById("triangleAnswer");
     const tapPrompt = document.getElementById("tapPrompt");
+    const posterDialogueZone = document.getElementById("posterDialogueZone");
+    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
 
     let recorder = null;
     let recordedChunks = [];
     let currentLineIndex = -1;
     let micExpectingRepeat = false;
     let tapRevealTimer = null;
+    let instructionStarted = false;
+    let introGuideStarted = false;
     const expectedLines = [
       "Eat some cookies.",
       "Yes, I'm hungry."
@@ -471,6 +521,17 @@
     const maxAttempts = 3;
     const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
     chimeAudio.preload = "auto";
+    instructionAudio.preload = "auto";
+
+    function ensureBubblesUnderPoster(){
+      if (!posterDialogueZone) return;
+      posterDialogueZone.classList.add("active");
+      lines.forEach((line) => {
+        if (line.parentElement !== posterDialogueZone) {
+          posterDialogueZone.appendChild(line);
+        }
+      });
+    }
 
     function hideAllLines(){
       lines.forEach(line => {
@@ -479,6 +540,7 @@
         const bubble = line.querySelector(".bubble");
         if (bubble) bubble.classList.remove("sparkle");
       });
+      if (posterDialogueZone) posterDialogueZone.classList.remove("active");
       if (tapPrompt) tapPrompt.classList.remove("show");
       if (triangleAnswer) triangleAnswer.classList.remove("show");
     }
@@ -545,6 +607,7 @@
     function showAndSpeakLine(index){
       const line = lines[index];
       if (!line) return;
+      ensureBubblesUnderPoster();
       line.hidden = false;
       line.classList.add("show");
       currentLineIndex = index;
@@ -624,7 +687,59 @@
       recognition.start();
     }
 
+    function playIntroGuideSequence(){
+      if (introGuideStarted) return;
+      introGuideStarted = true;
+      const steps = [
+        "Tap the microphone to reveal the bubble texts under the poster.",
+        "Listen carefully and repeat each sentence.",
+        "You can tap the picture to hear the page question."
+      ];
+      let index = 0;
+      const runNext = () => {
+        const line = steps[index++];
+        if (!line) {
+          setConversationStatus("Tap the microphone to begin.");
+          return;
+        }
+        setConversationStatus(line);
+        speakLine(line, () => {
+          window.setTimeout(runNext, 120);
+        });
+      };
+      runNext();
+    }
+
+    function playInstructionThenGuide(){
+      if (instructionStarted) return;
+      instructionStarted = true;
+      setConversationStatus("Listen to the instruction audio.");
+      instructionAudio.onended = () => {
+        playIntroGuideSequence();
+      };
+      instructionAudio.onerror = () => {
+        playIntroGuideSequence();
+      };
+      window.setTimeout(() => {
+        playIntroGuideSequence();
+      }, 3600);
+      try {
+        instructionAudio.currentTime = 0;
+        const playAttempt = instructionAudio.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.then(() => {
+            setConversationStatus("Instruction audio is playing.");
+          }).catch(() => {
+            playIntroGuideSequence();
+          });
+        }
+      } catch (_) {
+        playIntroGuideSequence();
+      }
+    }
+
     function onMicClick(){
+      ensureBubblesUnderPoster();
       if (currentLineIndex === -1) {
         hideAllLines();
         showAndSpeakLine(0);
@@ -754,7 +869,15 @@
       }
     }
 
-    // Mic click is handled by activity-standardizer unified protocol.
+    if (micIconBtn) {
+      micIconBtn.addEventListener("click", (event) => {
+        if (event) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+        onMicClick();
+      });
+    }
     if (clearBtn) clearBtn.addEventListener("click", clearConversation);
     recordBtn.addEventListener("click", toggleRecord);
     document.addEventListener("click", (event) => {
@@ -766,11 +889,15 @@
     });
 
     nextBtn.addEventListener("click", () => {
+      try { instructionAudio.pause(); } catch (_) {}
+      try { instructionAudio.currentTime = 0; } catch (_) {}
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       window.location.href = "LA9.html";
     });
 
     prevBtn.addEventListener("click", () => {
+      try { instructionAudio.pause(); } catch (_) {}
+      try { instructionAudio.currentTime = 0; } catch (_) {}
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       window.location.href = "../../week-1/friday/LA_Quiz1.html";
     });
@@ -782,6 +909,14 @@
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", fitPageToViewport);
     }
+    window.addEventListener("load", playInstructionThenGuide, { once: true });
+    window.addEventListener("pagehide", () => {
+      try { instructionAudio.pause(); } catch (_) {}
+      try { instructionAudio.currentTime = 0; } catch (_) {}
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+    });
   </script>
 <script>
   (function(){

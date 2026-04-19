@@ -1599,59 +1599,129 @@
 <script src="shared/js/bg-music-manager.js"></script>
 <script>
 (() => {
+  const reportLogo = document.querySelector(".logo");
+  if (!reportLogo) return;
+  reportLogo.src = "assets/images/avatars/gplogo.png?v=restore-report-logo-2";
+  reportLogo.addEventListener("error", () => {
+    reportLogo.src = "assets/images/shapes/gplogo.png?v=restore-report-logo-2";
+  }, { once:true });
+})();
+</script>
+<script>
+(() => {
   const bgMusicPlaylist = [
     "assets/audio/chimes/Audio4.mp4",
     "assets/audio/chimes/Audio2.mp4"
   ];
-  let currentTrackIndex = 0;
-  const bgAudio = new Audio();
-  bgAudio.loop = false;
-  bgAudio.volume = 0.4;
+  const audio = new Audio();
+  audio.preload = "auto";
+  audio.playsInline = true;
+  audio.setAttribute("playsinline", "true");
+  audio.setAttribute("webkit-playsinline", "true");
+  let currentIndex = 0;
+  let isPlaying = false;
+  let userStopped = false;
 
-  function playNextTrack() {
-    if (currentTrackIndex < bgMusicPlaylist.length) {
-      bgAudio.src = bgMusicPlaylist[currentTrackIndex];
-      bgAudio.play().catch(() => {});
-      currentTrackIndex++;
+  function resolveTrack(track) {
+    try {
+      return new URL(String(track || ""), window.location.href).toString();
+    } catch (_) {
+      return String(track || "");
     }
   }
 
-  bgAudio.addEventListener("ended", playNextTrack);
+  function playCurrentTrack() {
+    if (userStopped || isPlaying || !bgMusicPlaylist.length) return;
+    audio.src = resolveTrack(bgMusicPlaylist[currentIndex]);
+    audio.muted = true;
+    audio.volume = 0.12;
+    const playAttempt = audio.play();
+    if (playAttempt && typeof playAttempt.catch === "function") {
+      playAttempt.then(() => {
+        isPlaying = true;
+        window.setTimeout(() => {
+          audio.muted = false;
+          audio.volume = 0.12;
+        }, 120);
+      }).catch(() => {
+        isPlaying = false;
+      });
+    } else {
+      isPlaying = true;
+      window.setTimeout(() => {
+        audio.muted = false;
+        audio.volume = 0.12;
+      }, 120);
+    }
+  }
 
   function startReportMusic() {
-    if (bgAudio.paused || !bgAudio.src) {
-      currentTrackIndex = 0;
-      playNextTrack();
-    }
+    if (userStopped) return;
+    playCurrentTrack();
   }
 
-  function stopReportMusic() {
-    bgAudio.pause();
-    bgAudio.currentTime = 0;
+  function stopReportMusic(manual = false) {
+    if (manual) userStopped = true;
+    isPlaying = false;
+    try { audio.pause(); } catch (_) {}
+    try { audio.currentTime = 0; } catch (_) {}
   }
+
+  audio.addEventListener("ended", () => {
+    isPlaying = false;
+    currentIndex = (currentIndex + 1) % bgMusicPlaylist.length;
+    if (!userStopped) playCurrentTrack();
+  });
+
+  audio.addEventListener("error", () => {
+    isPlaying = false;
+    currentIndex = (currentIndex + 1) % bgMusicPlaylist.length;
+    if (!userStopped) {
+      window.setTimeout(() => playCurrentTrack(), 120);
+    }
+  });
 
   window.__gpReportBgMusicManager = {
-    start: startReportMusic,
-    stop: stopReportMusic
+    start() {
+      userStopped = false;
+      startReportMusic();
+    },
+    stop() {
+      stopReportMusic(false);
+    }
   };
 
-  window.addEventListener("load", startReportMusic, { once:true });
-  ["pointerdown","touchstart","keydown"].forEach((eventName) => {
-    window.addEventListener(eventName, startReportMusic, { once:true, passive:eventName !== "keydown" });
-  });
-  window.addEventListener("pagehide", stopReportMusic, { once:true });
-  window.addEventListener("beforeunload", stopReportMusic, { once:true });
+  window.__GP_REPORT_STOP_PAGE_AUDIO__ = () => stopReportMusic(false);
 
-  // Stop music when navigating to lesson pages
+  window.addEventListener("load", startReportMusic, { once:true });
+  window.addEventListener("pageshow", () => {
+    userStopped = false;
+    startReportMusic();
+  });
+  window.addEventListener("focus", startReportMusic);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopReportMusic(false);
+      return;
+    }
+    userStopped = false;
+    startReportMusic();
+  });
+  ["pointerdown","touchstart","keydown","click"].forEach((eventName) => {
+    window.addEventListener(eventName, () => {
+      userStopped = false;
+      startReportMusic();
+    }, { once:true, passive:eventName !== "keydown" });
+  });
+  window.addEventListener("pagehide", () => stopReportMusic(false));
+  window.addEventListener("beforeunload", () => stopReportMusic(false));
+
   document.addEventListener("click", (e) => {
     const link = e.target.closest("a[href]");
-    if (link) {
-      const href = link.getAttribute("href");
-      if (href && (href.includes("/levels/") || href.includes("lesson"))) {
-        stopReportMusic();
-      }
-    }
-  });
+    if (!link) return;
+    const href = String(link.getAttribute("href") || "");
+    if (/levels\/|lesson/i.test(href)) stopReportMusic(false);
+  }, true);
 })();
 </script>
 </body>

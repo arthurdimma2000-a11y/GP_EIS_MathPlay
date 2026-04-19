@@ -73,7 +73,7 @@
 
     <div class="footerNav">
       <a class="btn ghost" href="LA_Game2.html">◀ Prev</a>
-      <a class="btn" href="../../../../index.html">Next ➜</a>
+      <a class="btn" id="nextHomeBtn" href="../../../../index.html">Next ➜</a>
     </div>
   </div>
 </div>
@@ -123,6 +123,16 @@ $("#soundBtn").addEventListener("click", ()=>{
   $("#soundBtn").textContent=soundOn?"🔊 Sound: ON":"🔇 Sound: OFF";
   beep(soundOn?"good":"bad");
 });
+
+function goHomeNow(event){
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  window.location.assign("../../../../index.html");
+}
+
+$("#nextHomeBtn").addEventListener("click", goHomeNow);
 
 const correct=3; // triangle vertices
 $("#answers").addEventListener("click",(e)=>{
