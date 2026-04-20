@@ -302,10 +302,10 @@
         try { synth.cancel(); } catch (_err) {}
       }
       const utterance = new SpeechSynthesisUtterance(" " + normalizedText);
-      if (typeof opts.rate === "number") utterance.rate = opts.rate;
-      if (typeof opts.pitch === "number") utterance.pitch = opts.pitch;
-      if (typeof opts.volume === "number") utterance.volume = opts.volume;
-      if (typeof opts.lang === "string" && opts.lang) utterance.lang = opts.lang;
+      utterance.rate = typeof opts.rate === "number" ? opts.rate : 0.84;
+      utterance.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.04;
+      utterance.volume = typeof opts.volume === "number" ? opts.volume : 1;
+      utterance.lang = typeof opts.lang === "string" && opts.lang ? opts.lang : "en-US";
       if (typeof opts.onEnd === "function") utterance.onend = opts.onEnd;
       if (typeof opts.onError === "function") utterance.onerror = opts.onError;
       speakPreparedUtterance(utterance, {
@@ -527,8 +527,9 @@
   function listenForRepeat(expectedText, onDone, options){
     const SpeechRecognition = global.SpeechRecognition || global.webkitSpeechRecognition;
     const opts = options || {};
-    const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 3000;
-    const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 900;
+    const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 5200;
+    const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 1200;
+    const startDelayMs = typeof opts.startDelayMs === "number" ? opts.startDelayMs : 260;
     if (!SpeechRecognition) {
       promptRepeatFallback(expectedText, onDone, opts);
       return;
@@ -637,11 +638,14 @@
       finishWithFallback();
     }, timeoutMs);
 
-    try {
-      recognition.start();
-    } catch (_err) {
-      finishWithFallback();
-    }
+    global.setTimeout(() => {
+      if (done) return;
+      try {
+        recognition.start();
+      } catch (_err) {
+        finishWithFallback();
+      }
+    }, Math.max(0, startDelayMs));
   }
 
   function fitElementToViewport(elementOrSelector, options){

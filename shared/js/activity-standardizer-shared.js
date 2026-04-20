@@ -906,8 +906,8 @@
       try {
         if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
           window.GPTracing.speakText(text, {
-          rate: 0.88,
-          pitch: 1.38,
+          rate: 0.82,
+          pitch: 1.02,
             volume: 1,
             onEnd: done,
             onError: done
@@ -915,8 +915,8 @@
           return;
         }
         const utter = new SpeechSynthesisUtterance(" " + String(text).replace(/\s+/g, " ").trim());
-      utter.rate = 0.88;
-      utter.pitch = 1.38;
+      utter.rate = 0.82;
+      utter.pitch = 1.02;
       utter.volume = 1;
       utter.onend = () => { if (done) done(); };
       utter.onerror = () => { if (done) done(); };
@@ -932,7 +932,7 @@
       }, getSpeechDelayMs(false));
     } catch (_) {
       if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
-        window.GPTracing.speakText(text, { rate: 0.88, pitch: 1.38, volume: 1, onEnd: done, onError: done });
+        window.GPTracing.speakText(text, { rate: 0.82, pitch: 1.02, volume: 1, onEnd: done, onError: done });
         return;
       }
       if (done) done();
@@ -1110,8 +1110,8 @@
         speakMicPrompt("Repeat after me.", () => {
           if (!window.GPTracing || typeof window.GPTracing.listenForRepeat !== "function") {
             setFallbackRepeat(state.micStepIndex, expected, true);
-            starsAwarded[state.micStepIndex] = 1;
-            setFallbackStars(state.micStepIndex, 1);
+            starsAwarded[state.micStepIndex] = 3;
+            setFallbackStars(state.micStepIndex, 3);
             window.setTimeout(moveFallbackToNextStep, 180);
             return;
           }
@@ -1147,6 +1147,10 @@
             window.setTimeout(() => {
               speakMicPrompt("Sorry, try again!");
             }, 320);
+          }, {
+            timeoutMs: 5200,
+            settleMs: 1200,
+            startDelayMs: 260
           });
         });
       }

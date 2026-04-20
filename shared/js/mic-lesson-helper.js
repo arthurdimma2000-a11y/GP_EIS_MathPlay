@@ -106,8 +106,8 @@
     const voice = chooseKidVoice();
     if (voice) utter.voice = voice;
     utter.lang = "en-US";
-    utter.rate = 0.9;
-    utter.pitch = 1.2;
+    utter.rate = 0.82;
+    utter.pitch = 1.02;
     utter.volume = 1;
     window.speechSynthesis.speak(utter);
   }
@@ -125,8 +125,8 @@
         const voice = chooseKidVoice();
         if (voice) utterance.voice = voice;
         utterance.lang = "en-US";
-        utterance.rate = 0.9;
-        utterance.pitch = 1.2;
+        utterance.rate = 0.82;
+        utterance.pitch = 1.02;
         utterance.volume = 1;
         utterance.__gpMicAdjusted = true;
       }
@@ -246,8 +246,8 @@
     }
     completeCheckTimers.forEach((timerId) => window.clearTimeout(timerId));
     completeCheckTimers = [
-      window.setTimeout(maybeCompleteFromDom, 1200),
-      window.setTimeout(maybeCompleteFromDom, 2500)
+      window.setTimeout(maybeCompleteFromDom, 2200),
+      window.setTimeout(maybeCompleteFromDom, 4800)
     ];
   }, true);
 

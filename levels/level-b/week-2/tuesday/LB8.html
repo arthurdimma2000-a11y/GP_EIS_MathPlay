@@ -510,8 +510,13 @@
       }
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 1.0;
-      utter.pitch = 1.1;
+      utter.lang = "en-US";
+      utter.rate = 0.82;
+      utter.pitch = 1.02;
+      utter.volume = 1;
+      if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+        window.GPTracing.applyPreferredVoice(utter);
+      }
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
@@ -565,8 +570,9 @@
       }
       const recognition = new SpeechRecognition();
       recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 3;
       recognition.onresult = (event) => {
         const said = event.results[0][0].transcript;
         const expected = normalizeSpeech(expectedText);
@@ -611,7 +617,16 @@
           listenForRepeat(expectedText);
         });
       };
-      recognition.start();
+      window.setTimeout(() => {
+        try {
+          recognition.start();
+        } catch (_) {
+          speakLine("Sorry, try again!", () => {
+            setConversationStatus("Sorry, try again!");
+            listenForRepeat(expectedText);
+          });
+        }
+      }, 260);
     }
 
     function onMicClick(){
@@ -728,7 +743,7 @@
 
     nextBtn.addEventListener("click", () => {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      window.location.href = "LB9.html";
+      window.location.href = "../wednesday/LB9.html";
     });
 
     prevBtn.addEventListener("click", () => {

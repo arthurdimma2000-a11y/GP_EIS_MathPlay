@@ -519,7 +519,7 @@
     ];
     const attempts = [0, 0];
     const maxAttempts = 3;
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chimeAudio.preload = "auto";
     instructionAudio.preload = "auto";
 
@@ -552,8 +552,13 @@
       }
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
-      utter.rate = 1.0;
-      utter.pitch = 1.1;
+      utter.lang = "en-US";
+      utter.rate = 0.82;
+      utter.pitch = 1.02;
+      utter.volume = 1;
+      if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+        window.GPTracing.applyPreferredVoice(utter);
+      }
       utter.onend = () => { if (onend) onend(); };
       utter.onerror = () => { if (onend) onend(); };
       window.speechSynthesis.speak(utter);
@@ -626,8 +631,9 @@
       }
       const recognition = new SpeechRecognition();
       recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 3;
       recognition.onresult = (event) => {
         const said = event.results[0][0].transcript;
         const pct = matchPercent(expectedText, said);
@@ -684,7 +690,14 @@
         speakLine("Sorry, try again!");
         setConversationStatus("Sorry, try again!");
       };
-      recognition.start();
+      window.setTimeout(() => {
+        try {
+          recognition.start();
+        } catch (_) {
+          speakLine("Sorry, try again!");
+          setConversationStatus("Sorry, try again!");
+        }
+      }, 260);
     }
 
     function playIntroGuideSequence(){
@@ -892,7 +905,7 @@
       try { instructionAudio.pause(); } catch (_) {}
       try { instructionAudio.currentTime = 0; } catch (_) {}
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      window.location.href = "LA9.html";
+      window.location.href = "../wednesday/LA9.html";
     });
 
     prevBtn.addEventListener("click", () => {
@@ -922,7 +935,7 @@
   (function(){
     const homeBtn = document.querySelector('.home-btn');
     if(!homeBtn) return;
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chime.preload = "auto";
     homeBtn.addEventListener('click', () => {
       try{
