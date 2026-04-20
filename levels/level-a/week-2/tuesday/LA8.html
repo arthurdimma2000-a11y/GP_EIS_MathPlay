@@ -631,11 +631,17 @@
       }
       const recognition = new SpeechRecognition();
       recognition.lang = "en-US";
-      recognition.interimResults = true;
+      recognition.interimResults = false;
       recognition.continuous = false;
       recognition.maxAlternatives = 3;
       recognition.onresult = (event) => {
-        const said = event.results[0][0].transcript;
+        const transcripts = [];
+        for (let i = 0; i < event.results.length; i += 1) {
+          const result = event.results[i];
+          if (!result || !result[0]) continue;
+          transcripts.push(result[0].transcript || "");
+        }
+        const said = (transcripts.join(" ").trim() || event.results[0][0].transcript || "").trim();
         const pct = matchPercent(expectedText, said);
         attempts[currentLineIndex] += 1;
         if (pct >= 50) {
@@ -656,8 +662,9 @@
             window.dispatchEvent(new CustomEvent("gp:mic-complete"));
             return;
           }
+          setConversationStatus("Great speaking. Get ready for the next bubble.");
           currentLineIndex += 1;
-          showAndSpeakLine(currentLineIndex);
+          window.setTimeout(() => { showAndSpeakLine(currentLineIndex); }, 900);
         } else {
           if (attempts[currentLineIndex] >= maxAttempts) {
             speakLine("Sorry, Study hard!");
@@ -669,8 +676,9 @@
             micExpectingRepeat = false;
             highlightLine(currentLineIndex, false);
             if (currentLineIndex < lines.length - 1) {
+              setConversationStatus("Good try. Get ready for the next bubble.");
               currentLineIndex += 1;
-              showAndSpeakLine(currentLineIndex);
+              window.setTimeout(() => { showAndSpeakLine(currentLineIndex); }, 900);
             } else {
               chimeAudio.currentTime = 0;
               chimeAudio.play().catch(() => {});
@@ -697,7 +705,7 @@
           speakLine("Sorry, try again!");
           setConversationStatus("Sorry, try again!");
         }
-      }, 260);
+        }, 700);
     }
 
     function playIntroGuideSequence(){

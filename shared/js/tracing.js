@@ -384,7 +384,8 @@
       [[0.18, 0.22], [0.34, 0.08], [0.66, 0.08], [0.82, 0.24], [0.78, 0.42], [0.2, 0.95], [0.84, 0.95]]
     ],
     "3": [
-      [[0.18, 0.12], [0.7, 0.12], [0.54, 0.46], [0.74, 0.46], [0.84, 0.6], [0.76, 0.86], [0.22, 0.9]]
+      [[0.18, 0.14], [0.34, 0.08], [0.62, 0.08], [0.8, 0.2], [0.62, 0.42], [0.42, 0.48]],
+      [[0.42, 0.48], [0.66, 0.5], [0.84, 0.64], [0.7, 0.88], [0.3, 0.9], [0.18, 0.82]]
     ],
     "4": [
       [[0.72, 0.08], [0.72, 0.95]],
@@ -527,9 +528,9 @@
   function listenForRepeat(expectedText, onDone, options){
     const SpeechRecognition = global.SpeechRecognition || global.webkitSpeechRecognition;
     const opts = options || {};
-    const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 5200;
-    const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 1200;
-    const startDelayMs = typeof opts.startDelayMs === "number" ? opts.startDelayMs : 260;
+    const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 6500;
+    const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 1400;
+    const startDelayMs = typeof opts.startDelayMs === "number" ? opts.startDelayMs : 700;
     if (!SpeechRecognition) {
       promptRepeatFallback(expectedText, onDone, opts);
       return;
@@ -585,7 +586,7 @@
     }
 
     recognition.lang = "en-US";
-    recognition.interimResults = true;
+    recognition.interimResults = false;
     recognition.continuous = false;
     recognition.maxAlternatives = 3;
     try {
@@ -1467,7 +1468,6 @@
       add("../../../../assets/video/LB" + number + "bVideo.mp4");
       add("../../../../assets/video/LB" + number + "Bvideo.mp4");
       add("../../../../assets/video/LB" + number + "b_video.mp4");
-      add("../../../../assets/video/LB" + number + "avideo.mp4");
     } else if (/^LevelC$/i.test(page.levelCode || "")) {
       add("../../../../assets/video/LevelC" + number + "c.mp4");
       add("../../../../assets/video/LC" + number + "cvideo.mp4");
@@ -1830,7 +1830,8 @@
             }
             starsAwarded[micStepIndex] = rewardStars(tryNo);
             setStars(micStepIndex, starsAwarded[micStepIndex]);
-            global.setTimeout(() => { moveToNextMicStep(); }, 220);
+            setConversationStatus("Great speaking. Get ready for the next bubble.");
+            global.setTimeout(() => { moveToNextMicStep(); }, 900);
             return;
           }
 
@@ -1842,7 +1843,7 @@
             starsAwarded[micStepIndex] = 0;
             setStars(micStepIndex, 0);
             speakLine("You did a good Job. Nice try!", () => {
-              global.setTimeout(() => { moveToNextMicStep(); }, 200);
+              global.setTimeout(() => { moveToNextMicStep(); }, 900);
             });
             return;
           }
@@ -1856,9 +1857,10 @@
           setConversationStatus("Sorry, try again!");
           speakLine("Sorry, try again!");
         }, {
-          timeoutMs: 3000,
-          settleMs: 900
-        });
+            timeoutMs: 6500,
+            settleMs: 1400,
+            startDelayMs: 700
+          });
       }, {
           rate: 0.92,
           pitch: 1.34,

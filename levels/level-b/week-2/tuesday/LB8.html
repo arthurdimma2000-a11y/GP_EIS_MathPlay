@@ -165,17 +165,44 @@
     .convo-line.show{
       display:flex !important;
     }
-    .line1{
-      left:22%;
-      top:28%;
-    }
-    .line2{
-      right:18%;
-      top:28%;
-    }
-    .row.right{
-      justify-content:flex-end;
-    }
+      .line1{
+        left:0;
+        right:0;
+        top:auto;
+      }
+      .line2{
+        left:0;
+        right:0;
+        top:auto;
+      }
+      .row.right{
+        justify-content:flex-end;
+      }
+      .board.bubbles-below{
+        display:block;
+        padding-bottom:22px;
+      }
+      .board.bubbles-below .convo-line{
+        position:relative;
+        inset:auto;
+        transform:none;
+        margin:12px auto 0;
+        width:min(92%,760px);
+      }
+      .board.bubbles-below .row.right{
+        justify-content:flex-start;
+      }
+      .board.bubbles-below .bubble-stack,
+      .board.bubbles-below .row.right .bubble-stack{
+        align-items:flex-start;
+      }
+      .board.bubbles-below .bubble{
+        max-width:min(100%,640px);
+      }
+      .board.bubbles-below .bubble.baker::after,
+      .board.bubbles-below .bubble.kid::after{
+        display:none;
+      }
     .avatar{
       width:56px;
       height:56px;
@@ -469,6 +496,7 @@
     const clearBtn = document.getElementById("clearBtn");
     const recordBtn = document.getElementById("recordBtn");
     const recordingPlayback = document.getElementById("recordingPlayback");
+    const board = document.getElementById("board");
     const conversationStatus = document.getElementById("conversationStatus");
     const designImage = document.getElementById("designImage");
     const designerText = document.getElementById("designerText");
@@ -481,9 +509,9 @@
     const starRows = Array.from(document.querySelectorAll(".star-row"));
 
     let recorder = null;
-    let recordedChunks = [];
-    let currentLineIndex = -1;
-    let micExpectingRepeat = false;
+      let recordedChunks = [];
+      let currentLineIndex = -1;
+      let micExpectingRepeat = false;
     const expectedLines = [
       "I design games.",
       "These characters are shapes."
@@ -492,7 +520,12 @@
     const maxAttempts = 3;
     const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chimeAudio.preload = "auto";
-    let designerTimer = null;
+      let designerTimer = null;
+
+      function ensureBubblesUnderPoster(){
+        if (!board) return;
+        board.classList.add("bubbles-below");
+      }
 
     function hideAllLines(){
       lines.forEach(line => {
@@ -568,15 +601,21 @@
         setConversationStatus("Sorry, try again!");
         return;
       }
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
-      recognition.interimResults = true;
-      recognition.continuous = false;
-      recognition.maxAlternatives = 3;
-      recognition.onresult = (event) => {
-        const said = event.results[0][0].transcript;
-        const expected = normalizeSpeech(expectedText);
-        const actual = normalizeSpeech(said);
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        recognition.continuous = false;
+        recognition.maxAlternatives = 3;
+        recognition.onresult = (event) => {
+          const transcripts = [];
+          for (let i = 0; i < event.results.length; i += 1) {
+            const result = event.results[i];
+            if (!result || !result[0]) continue;
+            transcripts.push(result[0].transcript || "");
+          }
+          const said = (transcripts.join(" ").trim() || event.results[0][0].transcript || "").trim();
+          const expected = normalizeSpeech(expectedText);
+          const actual = normalizeSpeech(said);
         attempts[currentLineIndex] += 1;
         if (actual === expected) {
           highlightLine(currentLineIndex, false);
@@ -595,8 +634,9 @@
             setConversationStatus("Wow! You are super smart!");
             return;
           }
-          currentLineIndex += 1;
-          showAndSpeakLine(currentLineIndex);
+            setConversationStatus("Great speaking. Get ready for the next bubble.");
+            currentLineIndex += 1;
+            window.setTimeout(() => { showAndSpeakLine(currentLineIndex); }, 900);
         } else {
           if (attempts[currentLineIndex] >= maxAttempts) {
             speakLine("Sorry, Study hard!");
@@ -626,7 +666,7 @@
             listenForRepeat(expectedText);
           });
         }
-      }, 260);
+        }, 700);
     }
 
     function onMicClick(){

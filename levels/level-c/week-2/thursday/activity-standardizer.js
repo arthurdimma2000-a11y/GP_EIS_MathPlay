@@ -162,7 +162,7 @@
         video.defaultMuted = true;
         video.muted = true;
         video.setAttribute("muted", "");
-        video.volume = 1;
+        video.volume = 0.3;
       } catch (_) {}
       var playPromise = video.play();
       if (playPromise && typeof playPromise.then === "function") {
@@ -183,7 +183,7 @@
         video.defaultMuted = false;
         video.muted = false;
         video.removeAttribute("muted");
-        video.volume = 1;
+        video.volume = 0.3;
       } catch (_) {}
       var playPromise = video.play();
       if (playPromise && typeof playPromise.then === "function") {

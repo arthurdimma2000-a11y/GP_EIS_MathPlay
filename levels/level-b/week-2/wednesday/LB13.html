@@ -17,7 +17,7 @@
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Level A_Literacy Math: Repeat and Record Week 1</title>
+  <title>Level B Literacy Math: Repeat and Record Week 2</title>
   <link rel="stylesheet" href="../../../../shared/css/base.css" />
   <link rel="stylesheet" href="../../../../shared/css/layout.css" />
   <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
@@ -736,9 +736,9 @@
           <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the dotted numbers"></canvas>
         </div>
       </div>
-      <div class="designer-text" id="designerText">I am a designer.</div>
+      <div class="designer-text" id="designerText">Look at the hexagons.</div>
 
-      <div class="designer-sub" id="designerSub">I design using shapes.</div>
+      <div class="designer-sub" id="designerSub">Subtract the even numbers.</div>
 
       <div class="girl-spot" aria-label="Tap the girl">
 
@@ -1165,19 +1165,19 @@
       if (designerTimer) clearTimeout(designerTimer);
       hideAllLines();
       if (designerText) {
-        designerText.textContent = "I am a designer.";
+          designerText.textContent = "Look at the hexagons.";
         designerText.classList.add("show");
       }
       if (designerSub) {
-        designerSub.textContent = "I design using shapes.";
+          designerSub.textContent = "Subtract the even numbers.";
         designerSub.classList.remove("show");
       }
       setConversationStatus("Tap the girl to hear the lesson again.");
       chimeAudio.currentTime = 0;
       chimeAudio.play().catch(() => {});
-      speakLine("I am a designer.", () => {
+      speakLine("Look at the hexagons.", () => {
         if (designerSub) designerSub.classList.add("show");
-        speakLine("I design using shapes.");
+        speakLine("Subtract the even numbers.");
       });
     }
 

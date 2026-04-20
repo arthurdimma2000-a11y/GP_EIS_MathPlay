@@ -12,6 +12,7 @@
   let pageInstructionAudioBound = false;
   let pageInstructionAudioStarted = false;
   let pageInstructionAudioFinished = false;
+  let mediaPlaybackPatchInstalled = false;
 
   function isMobileSpeechDevice() {
     try {
@@ -146,6 +147,50 @@
     try { pageInstructionAudio.currentTime = 0; } catch (_) {}
   }
 
+  function installMediaPlaybackPatch() {
+    if (mediaPlaybackPatchInstalled || typeof HTMLMediaElement === "undefined") return;
+    mediaPlaybackPatchInstalled = true;
+    try {
+      const originalPlay = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function patchedPlay() {
+        try {
+          const media = this;
+          const src = String(media.currentSrc || media.src || "");
+          const tag = String(media.tagName || "").toUpperCase();
+          const isInstructionAudio = tag === "AUDIO" && /InstructionAudio\.mp3/i.test(src);
+          const isVideo = tag === "VIDEO";
+          const isRecordingPlayback = /recordingPlayback/i.test(String(media.id || ""));
+
+          if (isInstructionAudio) {
+            media.muted = false;
+            media.volume = 1;
+            if (media.dataset && media.dataset.gpInstructionRepeatBound !== "1") {
+              media.dataset.gpInstructionRepeatBound = "1";
+              media.dataset.gpInstructionRepeatCount = "0";
+              media.addEventListener("ended", function repeatInstructionOnce() {
+                const count = Number(media.dataset.gpInstructionRepeatCount || "0");
+                if (count >= 1) return;
+                media.dataset.gpInstructionRepeatCount = String(count + 1);
+                window.setTimeout(() => {
+                  try {
+                    media.currentTime = 0;
+                    media.muted = false;
+                    media.volume = 1;
+                    const replay = originalPlay.call(media);
+                    if (replay && typeof replay.catch === "function") replay.catch(() => {});
+                  } catch (_) {}
+                }, 420);
+              });
+            }
+          } else if (isVideo && !isRecordingPlayback) {
+            media.volume = Math.min(Number.isFinite(media.volume) ? media.volume : 1, 0.3);
+          }
+        } catch (_) {}
+        return originalPlay.apply(this, arguments);
+      };
+    } catch (_) {}
+  }
+
   function shouldAutoPlayPageInstructionAudio() {
     if (!isLevelLessonPage()) return false;
     if (window.__GP_AUTO_PAGE_INSTRUCTION_AUDIO__ === false) return false;
@@ -166,16 +211,39 @@
     pageInstructionAudioBound = true;
     pageInstructionAudio = new Audio(instructionAudioSrc);
     pageInstructionAudio.preload = "auto";
+    pageInstructionAudio.volume = 1;
 
     const markFinished = function () {
       pageInstructionAudioFinished = true;
     };
-    pageInstructionAudio.addEventListener("ended", markFinished, { once: true });
     pageInstructionAudio.addEventListener("error", markFinished, { once: true });
+    pageInstructionAudio.addEventListener("ended", function () {
+      const replayCount = Number(pageInstructionAudio.dataset.gpInstructionRepeatCount || "0");
+      if (replayCount >= 1) {
+        markFinished();
+        return;
+      }
+      pageInstructionAudio.dataset.gpInstructionRepeatCount = String(replayCount + 1);
+      window.setTimeout(() => {
+        try {
+          pageInstructionAudio.currentTime = 0;
+          pageInstructionAudio.volume = 1;
+          const replay = pageInstructionAudio.play();
+          if (replay && typeof replay.catch === "function") {
+            replay.catch(() => {
+              markFinished();
+            });
+          }
+        } catch (_) {
+          markFinished();
+        }
+      }, 420);
+    });
 
     function tryPlayInstructionAudio() {
       if (!pageInstructionAudio || pageInstructionAudioFinished || pageInstructionAudioStarted) return;
       try { pageInstructionAudio.currentTime = 0; } catch (_) {}
+      pageInstructionAudio.volume = 1;
       const playAttempt = pageInstructionAudio.play();
       if (playAttempt && typeof playAttempt.then === "function") {
         playAttempt.then(function () {
@@ -380,11 +448,11 @@
         "week-1/thursday/PentagonFairlyTale.html",
         "week-1/friday/LB_Game1.html",
         "week-1/friday/LB_Quiz1.html",
-        "week-2/monday/GymClassWk2B",
+        "week-2/monday/GymClassWk2C.html",
         "week-2/tuesday/LB8.html",
         "week-2/wednesday/LB9.html",
         "week-2/wednesday/LB13.html",
-        "week-2/thursday/FairlyTaleWk2B.html",
+        "week-2/thursday/FairlyTaleWk2C.html",
         "week-2/friday/LB_Game2.html",
         "week-2/friday/LB_Quiz2.html",
         "week-3/tuesday/LB14.html",
@@ -941,7 +1009,13 @@
 
   function initUnifiedMicProtocol() {
       const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-      const forceLA2MicForLesson = isLevelLessonPage() && !/^LA2$/i.test(pageFile);
+      const forceLA2MicForLesson = !!(
+        isLevelLessonPage() &&
+        (
+          window.__GP_FORCE_UNIFIED_MIC_PROTOCOL__ === true ||
+          (document.body && document.body.dataset && document.body.dataset.gpForceUnifiedMic === "1")
+        )
+      );
       if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
 
     const micButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
@@ -1112,7 +1186,8 @@
             setFallbackRepeat(state.micStepIndex, expected, true);
             starsAwarded[state.micStepIndex] = 3;
             setFallbackStars(state.micStepIndex, 3);
-            window.setTimeout(moveFallbackToNextStep, 180);
+              setConversationStatus("Great speaking. Get ready for the next bubble.");
+              window.setTimeout(moveFallbackToNextStep, 900);
             return;
           }
 
@@ -1122,7 +1197,7 @@
               setFallbackRepeat(state.micStepIndex, (said || expected).trim(), true);
               starsAwarded[state.micStepIndex] = window.GPTracing.rewardStars(tryNo);
               setFallbackStars(state.micStepIndex, starsAwarded[state.micStepIndex]);
-              window.setTimeout(moveFallbackToNextStep, 220);
+                    window.setTimeout(moveFallbackToNextStep, 900);
               return;
             }
 
@@ -1148,10 +1223,10 @@
               speakMicPrompt("Sorry, try again!");
             }, 320);
           }, {
-            timeoutMs: 5200,
-            settleMs: 1200,
-            startDelayMs: 260
-          });
+              timeoutMs: 6500,
+              settleMs: 1400,
+              startDelayMs: 700
+            });
         });
       }
 
@@ -1462,7 +1537,7 @@
             video.setAttribute("muted", "");
           }
         } catch (_) {}
-        try { video.volume = 1; } catch (_) {}
+        try { video.volume = withAudio ? 0.3 : 0; } catch (_) {}
         const playPromise = video.play();
         if (playPromise && typeof playPromise.catch === "function") {
           playPromise.catch(function () {
@@ -1493,7 +1568,7 @@
           video.defaultMuted = false;
           video.muted = false;
           video.removeAttribute("muted");
-          video.volume = 1;
+          video.volume = 0.3;
         } catch (_) {}
         const playPromise = video.play();
         if (playPromise && typeof playPromise.then === "function") {
@@ -1604,6 +1679,7 @@
   }, { capture: true });
 
   installSpeechVoicePreference();
+  installMediaPlaybackPatch();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initExpectedLessonNavigation, { once: true });

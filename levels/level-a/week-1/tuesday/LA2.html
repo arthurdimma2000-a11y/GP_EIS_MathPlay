@@ -1046,7 +1046,8 @@
             }
             starsAwarded[micStepIndex] = window.GPTracing.rewardStars(tryNo);
             setStars(micStepIndex, starsAwarded[micStepIndex]);
-            setTimeout(() => { moveToNextMicStep(); }, 220);
+            setConversationStatus("Great speaking. Get ready for the next bubble.");
+            setTimeout(() => { moveToNextMicStep(); }, 900);
             return;
           }
 
@@ -1057,7 +1058,7 @@
             }
             starsAwarded[micStepIndex] = 0;
             setStars(micStepIndex, 0);
-            speakLine("You did a good Job. Nice try!", () => setTimeout(() => { moveToNextMicStep(); }, 200));
+            speakLine("You did a good Job. Nice try!", () => setTimeout(() => { moveToNextMicStep(); }, 900));
             return;
           }
 
