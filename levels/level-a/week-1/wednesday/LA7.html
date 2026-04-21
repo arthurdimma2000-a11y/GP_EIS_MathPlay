@@ -266,13 +266,27 @@
     .trace-layer{
         position:absolute;
         inset:0;
-        pointer-events:auto;
+        pointer-events:none;
         z-index:9;
         background:transparent;
       }
 
-    .trace-canvas{
+    .trace-grid{
         position:absolute;
+        left:57.2%;
+        top:30.3%;
+        width:16.4%;
+        height:58.8%;
+        display:grid;
+        grid-template-rows:repeat(3,1fr);
+        gap:1.8%;
+        pointer-events:auto;
+      }
+
+    .trace-canvas{
+        position:relative;
+        width:100%;
+        height:100%;
         pointer-events:auto;
         touch-action:none;
         -ms-touch-action:none;
@@ -283,10 +297,6 @@
         user-select:none;
         -webkit-user-select:none;
       }
-
-    #trace1{ left:57.8%; top:30.2%; width:15.2%; height:18.2%; }
-    #trace2{ left:57.4%; top:49.8%; width:15.8%; height:18.8%; }
-    #trace3{ left:57.4%; top:69.6%; width:15.8%; height:18.8%; }
 
     .girl-sentence{
       margin-top:10px;
@@ -464,9 +474,7 @@
       .boy-bubble{right:4.5%;top:60%;max-width:41%;}
       .home-btn{width:70px;height:70px;}
 
-      #trace1{ left:57.6%; top:30.6%; width:15.6%; height:18.6%; }
-      #trace2{ left:57.2%; top:50.2%; width:16.2%; height:19.1%; }
-      #trace3{ left:57.2%; top:70.0%; width:16.2%; height:19.1%; }
+      .trace-grid{ left:57.1%; top:30.4%; width:16.7%; height:59.2%; }
     }
 
     @media (max-width:520px){
@@ -493,9 +501,7 @@
       .chef-bubble{left:3.5%;top:15%;max-width:46%;}
       .boy-bubble{right:3.5%;top:62%;max-width:46%;}
 
-      #trace1{ left:57.2%; top:30.8%; width:16.4%; height:19.1%; }
-      #trace2{ left:56.9%; top:50.5%; width:16.8%; height:19.5%; }
-      #trace3{ left:56.9%; top:70.4%; width:16.8%; height:19.5%; }
+      .trace-grid{ left:56.8%; top:30.6%; width:17.1%; height:59.6%; }
 
       .mascot-spot{
         width:100%;
@@ -543,9 +549,11 @@
       </div>
 
       <div class="trace-layer">
-        <canvas class="trace-canvas" id="trace1" aria-label="Trace circle and number 1"></canvas>
-        <canvas class="trace-canvas" id="trace2" aria-label="Trace circle and number 2"></canvas>
-        <canvas class="trace-canvas" id="trace3" aria-label="Trace circle and number 3"></canvas>
+        <div class="trace-grid">
+          <canvas class="trace-canvas" id="trace1" aria-label="Trace number 1"></canvas>
+          <canvas class="trace-canvas" id="trace2" aria-label="Trace number 2"></canvas>
+          <canvas class="trace-canvas" id="trace3" aria-label="Trace number 3"></canvas>
+        </div>
       </div>
     </div>
 

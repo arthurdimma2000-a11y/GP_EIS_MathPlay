@@ -14,6 +14,38 @@
   let pageInstructionAudioFinished = false;
   let mediaPlaybackPatchInstalled = false;
 
+  function ensureMobileViewportMeta() {
+    if (typeof document === "undefined") return;
+    let meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "viewport");
+      (document.head || document.documentElement).appendChild(meta);
+    }
+    meta.setAttribute("content", "width=device-width, initial-scale=1.0, viewport-fit=cover");
+  }
+
+  function ensureGlobalLessonRuntimeStyles() {
+    if (typeof document === "undefined" || document.getElementById("gpGlobalLessonRuntimeStyles")) return;
+    const style = document.createElement("style");
+    style.id = "gpGlobalLessonRuntimeStyles";
+    style.textContent =
+      "html,body{max-width:100%;overflow-x:hidden !important;overscroll-behavior-x:contain;-webkit-text-size-adjust:100%;text-size-adjust:100%;}" +
+      "*,*::before,*::after{box-sizing:border-box;}" +
+      "img,video,canvas,svg,iframe{max-width:100%;height:auto;display:block;}" +
+      "body{padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));}" +
+      ".app,.card,.page,.page-wrap,.board,.poster-area,.poster-wrap,.video-shell,.video-card,.stage,.lesson-stage,.tray-hero{position:relative;max-width:100% !important;}" +
+      ".button-row,.controls,.footerNav,.top-actions,.top-bar,.bottom-bar{gap:clamp(8px,2vw,14px) !important;flex-wrap:wrap !important;}" +
+      "button,[role='button'],.btn,.nav-btn,.mic-icon-btn,.ans,.choice{touch-action:manipulation;min-height:clamp(44px,7vw,60px);}" +
+      ".mic-icon-btn{min-width:clamp(52px,10vw,76px) !important;min-height:clamp(52px,10vw,76px) !important;}" +
+      ".mic-icon-btn img{width:clamp(32px,7vw,54px) !important;height:clamp(32px,7vw,54px) !important;}" +
+      ".home-btn{width:clamp(54px,14vw,76px) !important;height:clamp(54px,14vw,76px) !important;}" +
+      ".home-btn img{width:100% !important;height:100% !important;}" +
+      "canvas,.draw-layer,.trace-canvas{touch-action:none !important;}" +
+      "@media (max-width:900px){.app,.card,.page,.page-wrap{width:min(100%,calc(100vw - 12px)) !important;max-width:100% !important;}}";
+    (document.head || document.documentElement).appendChild(style);
+  }
+
   function isMobileSpeechDevice() {
     try {
       const ua = String((window.navigator && window.navigator.userAgent) || "");
@@ -163,7 +195,7 @@
 
           if (isInstructionAudio) {
             media.muted = false;
-            media.volume = 1;
+            media.volume = 0.28;
             if (media.dataset && media.dataset.gpInstructionRepeatBound !== "1") {
               media.dataset.gpInstructionRepeatBound = "1";
               media.dataset.gpInstructionRepeatCount = "0";
@@ -175,7 +207,7 @@
                   try {
                     media.currentTime = 0;
                     media.muted = false;
-                    media.volume = 1;
+                    media.volume = 0.28;
                     const replay = originalPlay.call(media);
                     if (replay && typeof replay.catch === "function") replay.catch(() => {});
                   } catch (_) {}
@@ -482,7 +514,7 @@
         "week-1/thursday/TangramHorseFairlyTale.html",
         "week-1/friday/LevelC_Game1.html",
         "week-1/friday/LevelC_Quiz1.html",
-        "week-2/monday/GymClassWk2C",
+        "week-2/monday/GymClassWk2C.html",
         "week-2/tuesday/LevelC8.html",
         "week-2/wednesday/LevelC9.html",
         "week-2/wednesday/LevelC13.html",
@@ -1687,6 +1719,8 @@
 
   installSpeechVoicePreference();
   installMediaPlaybackPatch();
+  ensureMobileViewportMeta();
+  ensureGlobalLessonRuntimeStyles();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initExpectedLessonNavigation, { once: true });

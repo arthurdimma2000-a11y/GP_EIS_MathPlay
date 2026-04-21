@@ -9,6 +9,50 @@
   transform:translateY(0);
 }
 
+.bubble,
+.speech-bubble,
+.dialog-bubble,
+.convo-bubble,
+.bubble-left,
+.bubble-right,
+#bubbleLeft,
+#bubbleRight,
+.headline-line,
+.sentence-line{
+  font-size:clamp(16px, 2.7vw, 24px);
+  line-height:1.28;
+  max-width:min(92vw, 760px);
+  white-space:normal;
+  word-break:normal;
+  overflow-wrap:anywhere;
+}
+
+.repeat-result,
+.star-row,
+.conversation-status,
+.recording-status,
+.status-line{
+  max-width:min(94vw, 760px);
+  margin-inline:auto;
+  text-align:center;
+}
+
+@media (max-width:900px){
+  .bubble,
+  .speech-bubble,
+  .dialog-bubble,
+  .convo-bubble,
+  .bubble-left,
+  .bubble-right,
+  #bubbleLeft,
+  #bubbleRight,
+  .headline-line,
+  .sentence-line{
+    font-size:clamp(15px, 4.4vw, 21px);
+    max-width:min(94vw, 520px);
+  }
+}
+
 .spark{
   position:fixed;
   width:22px;

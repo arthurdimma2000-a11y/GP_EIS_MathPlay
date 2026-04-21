@@ -1223,6 +1223,26 @@
     setupTrace(cfg.id, window.GPTracing.getDigitTraceGroups(cfg.type), idx);
   });
 
+  async function saveActivityBeforeLeave(){
+    if (typeof window.finishAndSave !== "function" || activitySaved) return;
+    try {
+      await window.finishAndSave({
+        pageId: "LA13",
+        level: "A",
+        activityType: "lesson",
+        score: Math.max(10, Math.round(tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length)),
+        stars: tracePercents.every(p => p >= 90) ? 3 : 1,
+        skills: {
+          reading: girlTapped ? 1 : 0,
+          writing: tracePercents.every(p => p >= 70) ? 3 : 1,
+          speaking: micDone ? 1 : 0,
+          listening: micDone ? 1 : 0
+        }
+      });
+      activitySaved = true;
+    } catch (_) {}
+  }
+
   if (micIconBtn) {
     micIconBtn.addEventListener("click", (e) => {
       if (e) {
@@ -1235,44 +1255,14 @@
 
   if (prevBtn) {
     prevBtn.addEventListener("click", async () => {
-      if (typeof window.finishAndSave === "function" && !activitySaved) {
-        await window.finishAndSave({
-          pageId: "LA13",
-          level: "A",
-          activityType: "lesson",
-          score: Math.max(10, Math.round(tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length)),
-          stars: tracePercents.every(p => p >= 90) ? 3 : 1,
-          skills: {
-            reading: girlTapped ? 1 : 0,
-            writing: tracePercents.every(p => p >= 70) ? 3 : 1,
-            speaking: micDone ? 1 : 0,
-            listening: micDone ? 1 : 0
-          }
-        });
-        activitySaved = true;
-      }
+      await saveActivityBeforeLeave();
       window.location.href = "LA9.html";
     });
   }
 
   if (nextBtn) {
     nextBtn.addEventListener("click", async () => {
-      if (typeof window.finishAndSave === "function" && !activitySaved) {
-        await window.finishAndSave({
-          pageId: "LA13",
-          level: "A",
-          activityType: "lesson",
-          score: Math.max(10, Math.round(tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length)),
-          stars: tracePercents.every(p => p >= 90) ? 3 : 1,
-          skills: {
-            reading: girlTapped ? 1 : 0,
-            writing: tracePercents.every(p => p >= 70) ? 3 : 1,
-            speaking: micDone ? 1 : 0,
-            listening: micDone ? 1 : 0
-          }
-        });
-        activitySaved = true;
-      }
+      await saveActivityBeforeLeave();
       window.location.href = "../friday/LA_Quiz2.html";
     });
   }
@@ -1285,23 +1275,7 @@
         playChime();
       }catch(_){}
 
-      if (typeof window.finishAndSave === "function" && !activitySaved) {
-        await window.finishAndSave({
-          pageId: "LA13",
-          level: "A",
-          activityType: "lesson",
-          score: Math.max(10, Math.round(tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length)),
-          stars: tracePercents.every(p => p >= 90) ? 3 : 1,
-          skills: {
-            reading: girlTapped ? 1 : 0,
-            writing: tracePercents.every(p => p >= 70) ? 3 : 1,
-            speaking: micDone ? 1 : 0,
-            listening: micDone ? 1 : 0
-          }
-        });
-        activitySaved = true;
-      }
-
+      await saveActivityBeforeLeave();
       window.location.href = homeBtn.getAttribute("href") || "../../../../index.html";
     });
   }

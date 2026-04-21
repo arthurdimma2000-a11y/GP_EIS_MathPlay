@@ -1,14 +1,48 @@
 *{box-sizing:border-box;}
 
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+
 html,body{
   width:100%;
   max-width:100%;
   overflow-x:hidden;
+  overscroll-behavior-x:contain;
 }
 
 body{
   margin:0;
   min-height:100vh;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+img,
+video,
+canvas,
+svg,
+iframe{
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+
+button,
+[role="button"],
+.btn,
+.nav-btn,
+.mic-icon-btn,
+.ans,
+.choice{
+  touch-action:manipulation;
+}
+
+canvas,
+.draw-layer,
+.trace-canvas{
+  touch-action:none;
 }
 
 body.intro-active{
