@@ -528,7 +528,7 @@
 
       <div class="row convo-line">
         <div class="bubble-stack chef-bubble">
-          <div class="bubble baker">Let&apos;s count the circles!</div>
+          <div class="bubble baker">Let&apos;s write numbers.</div>
           <div class="repeat-result" id="bakerRepeat"></div>
           <div class="star-row" id="bakerStars"></div>
         </div>
@@ -536,7 +536,7 @@
 
       <div class="row right convo-line">
         <div class="bubble-stack boy-bubble">
-          <div class="bubble kid">One, two, three</div>
+          <div class="bubble kid">1, 2, 3</div>
           <div class="repeat-result" id="kidRepeat"></div>
           <div class="star-row" id="kidStars"></div>
         </div>
@@ -600,17 +600,18 @@
     const repeatResults = [bakerRepeat, kidRepeat];
     const starRows = [bakerStars, kidStars];
 
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
     chimeAudio.preload = "auto";
     chimeAudio.volume = 1;
     const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
     instructionAudio.preload = "auto";
+    instructionAudio.volume = 0.28;
     let loadIntroStarted = false;
 
     let audioUnlocked = false;
     let sentenceToken = 0;
 
-    const expectedLines = ["Let's count the circles!", "One, two, three"];
+    const expectedLines = ["Let's write numbers.", "1, 2, 3"];
     const attempts = [0,0];
     const starsAwarded = [0,0];
     const maxAttempts = 3;
@@ -736,6 +737,7 @@
       }
       u.rate = 0.94;
       u.pitch = 1.08;
+      u.volume = 1;
       u.onend = () => { if (typeof onend === "function") onend(); };
       u.onerror = () => { if (typeof onend === "function") onend(); };
       window.speechSynthesis.speak(u);
@@ -746,7 +748,7 @@
       loadIntroStarted = true;
 
       const beginSpeech = () => {
-        speak("A real Tangram animal should use all seven pieces. Circle the animal that is wrong, then tap Check Answer. Find the mistake and circle it.");
+        speak("Let's write numbers. 1, 2, 3");
       };
 
       const fallbackTimer = window.setTimeout(beginSpeech, 5200);
@@ -804,7 +806,11 @@
 
     function listenForRepeat(expectedText, onDone){
       if (window.GPTracing && typeof window.GPTracing.listenForRepeat === "function") {
-        window.GPTracing.listenForRepeat(expectedText, onDone);
+        window.GPTracing.listenForRepeat(expectedText, onDone, {
+          timeoutMs: 6500,
+          settleMs: 1400,
+          startDelayMs: 700
+        });
         return;
       }
       onDone(0, "");
@@ -873,8 +879,8 @@
                 ? window.GPTracing.rewardStars(tryNo)
                 : (tryNo === 1 ? 3 : tryNo === 2 ? 2 : 1);
             setStars(currentLineIndex, starsAwarded[currentLineIndex]);
-            setConversationStatus("Excellent!");
-            setTimeout(() => { goToNextMicLine(); }, 250);
+            setConversationStatus("Great speaking. Get ready for the next bubble.");
+            setTimeout(() => { goToNextMicLine(); }, 900);
             return;
           }
 
@@ -882,7 +888,7 @@
             setRepeatText(currentLineIndex, "Sorry, Study hard!");
             setStars(currentLineIndex, 0);
             speak("Sorry, Study hard!", () => {
-              setTimeout(() => { goToNextMicLine(); }, 250);
+              setTimeout(() => { goToNextMicLine(); }, 900);
             });
             return;
           }
@@ -898,8 +904,8 @@
     }
 
     const sentenceLines = [
-      { text: "Let's count the circles.", html: "Let’s count the circles." },
-      { text: "One, two, three", html: "One, two, three" }
+      { text: "Let's write numbers.", html: "Let’s write numbers." },
+      { text: "1, 2, 3", html: "1, 2, 3" }
     ];
 
     function showSpark(){
@@ -1018,76 +1024,14 @@
       // Shared tracing handles its own internal canvas resize lifecycle.
     }
 
-    function buildEllipsePoints(cx, cy, rx, ry, segments = 80, start = 0, end = Math.PI * 2){
-      const pts = [];
-      for(let i = 0; i <= segments; i++){
-        const t = start + ((end - start) * i / segments);
-        pts.push([cx + Math.cos(t) * rx, cy + Math.sin(t) * ry]);
-      }
-      return pts;
-    }
-
-    function buildLinePoints(x1, y1, x2, y2, segments = 18){
-      const pts = [];
-      for(let i = 0; i <= segments; i++){
-        const t = i / segments;
-        pts.push([
-          x1 + (x2 - x1) * t,
-          y1 + (y2 - y1) * t
-        ]);
-      }
-      return pts;
-    }
-
-    function buildQuadraticPoints(x1, y1, cx, cy, x2, y2, segments = 32){
-      const pts = [];
-      for(let i = 0; i <= segments; i++){
-        const t = i / segments;
-        const mt = 1 - t;
-        pts.push([
-          mt * mt * x1 + 2 * mt * t * cx + t * t * x2,
-          mt * mt * y1 + 2 * mt * t * cy + t * t * y2
-        ]);
-      }
-      return pts;
-    }
-
-    function getLessonTraceGroups(kind){
-      const groups = [];
-
-        if (kind === "1") {
-          groups.push(buildLinePoints(0.28, 0.18, 0.50, 0.08, 18));
-          groups.push(buildLinePoints(0.50, 0.08, 0.56, 0.94, 34));
-        }
-
-        if (kind === "2") {
-          groups.push(buildLinePoints(0.22, 0.20, 0.36, 0.10, 12));
-          groups.push(buildQuadraticPoints(0.36, 0.10, 0.58, -0.02, 0.76, 0.18, 34));
-          groups.push(buildQuadraticPoints(0.76, 0.18, 0.84, 0.32, 0.56, 0.54, 28));
-          groups.push(buildLinePoints(0.56, 0.54, 0.26, 0.88, 24));
-          groups.push(buildLinePoints(0.26, 0.88, 0.84, 0.88, 24));
-        }
-
-        if (kind === "3") {
-          groups.push(buildLinePoints(0.22, 0.18, 0.34, 0.10, 12));
-          groups.push(buildQuadraticPoints(0.34, 0.10, 0.60, -0.02, 0.78, 0.20, 34));
-          groups.push(buildQuadraticPoints(0.78, 0.20, 0.58, 0.36, 0.40, 0.46, 24));
-          groups.push(buildQuadraticPoints(0.40, 0.46, 0.60, 0.40, 0.78, 0.58, 24));
-          groups.push(buildQuadraticPoints(0.78, 0.58, 0.60, 0.98, 0.24, 0.82, 36));
-        }
-
-      return groups;
-    }
-
     function setupTrace(canvasId, kind, index){
+      const traceGroups = window.GPTracing.getDigitTraceGroups(kind);
       const reset = window.GPTracing.createPathTracePad({
         canvasId,
-        getPoints: () => getLessonTraceGroups(kind),
-          lineWidth: 22,
-          threshold: 32,
-          smoothness: 36,
-          simplify: false,
-          completionSnap: 90,
+        getPoints: () => traceGroups,
+          lineWidth: 13,
+          threshold: 26,
+          posterImg,
         onProgress: (pct) => {
           tracePercents[index] = Math.max(0, Math.min(100, Math.round(pct)));
           updateTotal();
@@ -1214,7 +1158,7 @@
       const homeBtn = document.querySelector('.home-btn');
       if(!homeBtn) return;
 
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
 
       homeBtn.addEventListener('click', () => {

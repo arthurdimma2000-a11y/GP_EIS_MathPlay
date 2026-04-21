@@ -211,7 +211,7 @@
     pageInstructionAudioBound = true;
     pageInstructionAudio = new Audio(instructionAudioSrc);
     pageInstructionAudio.preload = "auto";
-    pageInstructionAudio.volume = 1;
+    pageInstructionAudio.volume = 0.28;
 
     const markFinished = function () {
       pageInstructionAudioFinished = true;
@@ -227,7 +227,7 @@
       window.setTimeout(() => {
         try {
           pageInstructionAudio.currentTime = 0;
-          pageInstructionAudio.volume = 1;
+            pageInstructionAudio.volume = 0.28;
           const replay = pageInstructionAudio.play();
           if (replay && typeof replay.catch === "function") {
             replay.catch(() => {
@@ -243,7 +243,7 @@
     function tryPlayInstructionAudio() {
       if (!pageInstructionAudio || pageInstructionAudioFinished || pageInstructionAudioStarted) return;
       try { pageInstructionAudio.currentTime = 0; } catch (_) {}
-      pageInstructionAudio.volume = 1;
+        pageInstructionAudio.volume = 0.28;
       const playAttempt = pageInstructionAudio.play();
       if (playAttempt && typeof playAttempt.then === "function") {
         playAttempt.then(function () {
@@ -792,9 +792,12 @@
         ".repeat-result,.bubble-result,[data-repeat-result]{font-size:2.1rem !important;line-height:1.1 !important;}" +
         ".girl-sentence,#girlSentence,.big-note,.belly-note,.prompt-line,.headline-line{font-size:clamp(28px,5vw,56px) !important;line-height:1.15 !important;font-weight:900 !important;text-align:center !important;}" +
         ".girl-sentence,#girlSentence{width:min(92%,900px) !important;margin:12px auto 0 !important;min-height:2.4em !important;transform:none !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;}" +
-      "body[data-gp-force-la2-mic='1'] .convo-line,body[data-gp-force-la2-mic='1'] .speech-line,body[data-gp-force-la2-mic='1'] .dialog-line,body[data-gp-force-la2-mic='1'] .bubble-line{position:relative !important;inset:auto !important;transform:none !important;overflow:visible !important;}" +
-      "body[data-gp-force-la2-mic='1'] .convo-line .bubble-stack,body[data-gp-force-la2-mic='1'] .speech-line .bubble-stack,body[data-gp-force-la2-mic='1'] .dialog-line .bubble-stack,body[data-gp-force-la2-mic='1'] .bubble-line .bubble-stack{position:static !important;transform:none !important;}" +
-      "@media (max-width:780px){.bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line{font-size:clamp(17px,4.8vw,24px) !important;max-width:min(84vw,420px) !important;line-height:1.22 !important;white-space:normal !important;word-break:normal !important;overflow-wrap:anywhere !important;}.girl-sentence,#girlSentence,.big-note,.belly-note,.prompt-line,.headline-line{font-size:clamp(22px,6vw,40px) !important;}}";
+        "body[data-gp-unified-mic-protocol='1'] #posterArea,body[data-gp-unified-mic-protocol='1'] .poster-area,body[data-gp-unified-mic-protocol='1'] .board.bubbles-below{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:flex-start !important;gap:14px !important;}" +
+        "body[data-gp-unified-mic-protocol='1'] .convo-line,body[data-gp-unified-mic-protocol='1'] .speech-line,body[data-gp-unified-mic-protocol='1'] .dialog-line,body[data-gp-unified-mic-protocol='1'] .bubble-line{position:relative !important;inset:auto !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;transform:none !important;overflow:visible !important;width:min(92%,920px) !important;max-width:920px !important;margin:0 auto !important;justify-content:center !important;}" +
+        "body[data-gp-unified-mic-protocol='1'] .row.right.convo-line,body[data-gp-unified-mic-protocol='1'] .row.right.speech-line,body[data-gp-unified-mic-protocol='1'] .row.right.dialog-line,body[data-gp-unified-mic-protocol='1'] .row.right.bubble-line{justify-content:center !important;}" +
+        "body[data-gp-unified-mic-protocol='1'] .convo-line .bubble-stack,body[data-gp-unified-mic-protocol='1'] .speech-line .bubble-stack,body[data-gp-unified-mic-protocol='1'] .dialog-line .bubble-stack,body[data-gp-unified-mic-protocol='1'] .bubble-line .bubble-stack{position:static !important;transform:none !important;align-items:center !important;width:100% !important;}" +
+        "body[data-gp-unified-mic-protocol='1'] .bubble,body[data-gp-unified-mic-protocol='1'] .speech-bubble,body[data-gp-unified-mic-protocol='1'] .dialog-bubble,body[data-gp-unified-mic-protocol='1'] .convo-bubble,body[data-gp-unified-mic-protocol='1'] .bubble-left,body[data-gp-unified-mic-protocol='1'] .bubble-right,body[data-gp-unified-mic-protocol='1'] #bubbleLeft,body[data-gp-unified-mic-protocol='1'] #bubbleRight,body[data-gp-unified-mic-protocol='1'] .headline-line,body[data-gp-unified-mic-protocol='1'] .sentence-line{text-align:center !important;max-width:min(92vw,760px) !important;}" +
+        "@media (max-width:780px){.bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line{font-size:clamp(17px,4.8vw,24px) !important;max-width:min(84vw,420px) !important;line-height:1.22 !important;white-space:normal !important;word-break:normal !important;overflow-wrap:anywhere !important;}.girl-sentence,#girlSentence,.big-note,.belly-note,.prompt-line,.headline-line{font-size:clamp(22px,6vw,40px) !important;}}";
     document.head.appendChild(style);
   }
 
@@ -1028,6 +1031,10 @@
     lines.forEach(hideConversationLine);
     const hasCustomMicFlow = !!document.querySelector(".repeat-result,.star-row,.conversation-status,.recording-status");
 
+      if (document.body) {
+        document.body.dataset.gpUnifiedMicProtocol = "1";
+      }
+
       const fallbackOutputs = ensureFallbackMicOutputs(lines);
       const repeatOutputs = fallbackOutputs.repeatOutputs;
       const starOutputs = fallbackOutputs.starOutputs;
@@ -1208,7 +1215,7 @@
               setFallbackStars(state.micStepIndex, 0);
               window.setTimeout(() => {
                 speakMicPrompt("You did a good Job. Nice try!", () => {
-                  window.setTimeout(moveFallbackToNextStep, 220);
+                  window.setTimeout(moveFallbackToNextStep, 900);
                 });
               }, 420);
               return;
