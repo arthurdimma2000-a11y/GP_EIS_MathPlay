@@ -1,6 +1,8 @@
 (() => {
   "use strict";
 
+  window.__GP_DISABLE_SHARED_BG_AUDIO__ = true;
+
   const STORAGE_KEYS = {
     unlocked: "gp_audio_unlocked",
     muted: "gp_audio_muted",
@@ -150,38 +152,8 @@
   }
 
   async function playBg(trackKey, options = {}) {
-    const { forceRestart = false } = options;
-
-    if (isMuted || !audioUnlocked) return;
-
-    const src = AUDIO_PATHS[trackKey];
-    if (!src) {
-      logError("Unknown background track:", trackKey);
-      return;
-    }
-
-    if (currentBg && currentBgKey === trackKey && !forceRestart) {
-      currentBg.volume = bgVolume;
-      return;
-    }
-
     stopBg();
-
-    const audio = safeAudio(src);
-    if (!audio) return;
-
-    audio.loop = true;
-    audio.preload = "auto";
-    audio.volume = bgVolume;
-
-    currentBg = audio;
-    currentBgKey = trackKey;
-
-    try {
-      await audio.play();
-    } catch (error) {
-      logError("Background music play failed:", trackKey, error);
-    }
+    return;
   }
 
   async function playPageMusic(options = {}) {

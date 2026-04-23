@@ -471,6 +471,15 @@ async function startQuiz(){
 /* ----------------- events ----------------- */
 startBtn.addEventListener("click", startQuiz);
 
+document.addEventListener("DOMContentLoaded", () => {
+  const week2Btn = document.querySelector('a.btn.next[href$="GymClassWk2C.html"]');
+  if (!week2Btn) return;
+  week2Btn.addEventListener("click", (event) => {
+    event.preventDefault();
+    window.location.assign("../../week-2/monday/GymClassWk2C.html");
+  }, { capture: true });
+});
+
 repeatBtn.addEventListener("click", async () => {
   if(!quizStarted || !currentItem) return;
   await askCurrentQuestion();

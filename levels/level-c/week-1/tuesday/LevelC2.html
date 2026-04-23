@@ -1,464 +1,115 @@
 <!doctype html>
 <html lang="en">
 <head>
-
-<style id="gpLessonPrehide">
-  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
-  @media (max-width:780px){
-    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
-  }
-</style>
-
-
-
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Level C14 - Shape Sides</title>
-<link rel="stylesheet" href="../../../../shared/css/base.css" />
-<link rel="stylesheet" href="../../../../shared/css/layout.css" />
-<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+<title>LevelC2</title>
 <style>
-  :root{
-    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-    --ink:#2d2d2d;
-    --bubble-left:#dff1ff;
-    --bubble-right:#ffe7d8;
-    --shadow:0 20px 40px rgba(0,0,0,.12);
-  }
-  body{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#e7f7e7;
-    padding:16px;
-    color:var(--ink);
-  }
-
-  .card{
-    width:min(980px,96vw);
-    border-radius:18px;
-    padding:14px 14px 18px;
-  }
-  .poster-area{
-    position:relative;
-    width:min(900px,100%);
-    margin:0 auto;
-    border-radius:16px;
-    overflow:hidden;
-  }
-  .poster-img{width:100%;height:auto;display:block;}
-  .bubble{
-    position:absolute;
-    padding:10px 14px;
-    border-radius:16px;
-    font-weight:700;
-    font-size:1.05rem;
-    max-width:260px;
-    line-height:1.2;
-    box-shadow:0 8px 18px rgba(0,0,0,.12);
-    opacity:0;
-  }
-  .bubble.show{opacity:1;}
-  .bubble.left{left:10%; top:25%; background:var(--bubble-left);}
-  .bubble.right{right:8%; top:27%; background:var(--bubble-right);}
-  .bubble.left::after{
-    content:"";
-    position:absolute;
-    left:12px;
-    bottom:-10px;
-    border-width:10px 8px 0 8px;
-    border-style:solid;
-    border-color:var(--bubble-left) transparent transparent transparent;
-  }
-  .bubble.right::after{
-    content:"";
-    position:absolute;
-    right:14px;
-    bottom:-10px;
-    border-width:10px 8px 0 8px;
-    border-style:solid;
-    border-color:var(--bubble-right) transparent transparent transparent;
-  }
-
-  .controls{
-    margin-top:12px;
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-  }
-  .btn{
-    border:none;
-    border-radius:999px;
-    padding:8px 12px;
-    font-size:.9rem;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow:0 4px 0 rgba(0,0,0,.15);
-    background:#ff8a5b;
-    color:#fff;
-  }
-  .mic-icon-btn img{
-    width:32px;
-    height:32px;
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
-  }
-  .record-icon{width:16px;height:16px;display:inline-block;vertical-align:middle;}
-  .recording{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .recording audio{height:28px;}
-  .recording-status,.conversation-status{font-size:.9rem;font-weight:700;color:#555;}
+  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;--ink:#2d2d2d;--bubble-left:#dff1ff;--bubble-right:#ffe7d8;--shadow:0 20px 40px rgba(0,0,0,.12);--bg:#e7f7e7;--orange:#ff8a5b;--success:#2f9f5f;--gold:#ffd24a}
+  *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--ink)} body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:12px}
+  .card{width:min(980px,96vw);background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:14px 14px 18px}
+  .poster-area{position:relative;width:min(900px,100%);margin:0 auto;border-radius:16px;overflow:hidden}
+  .poster-img{width:100%;height:auto;display:block}
+  .girl-spot{position:absolute;left:16px;top:16px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:5}
+  .girl-spot img{width:72px;height:72px;border-radius:18px;object-fit:cover;border:4px solid #ffe3f7;background:#ffd6f2;box-shadow:0 6px 14px rgba(0,0,0,.25);cursor:pointer}
+  .girl-hint{font-size:.92rem;font-weight:800;color:#d62828;text-align:center}
+  .finger-cue{position:absolute;left:50%;top:-26px;transform:translateX(-50%);font-size:1.8rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));animation:fingerBob 1s ease-in-out infinite;display:none;pointer-events:none}
+  .finger-cue.show{display:block}
+  @keyframes fingerBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+  .bubble{position:absolute;padding:10px 14px;border-radius:16px;font-weight:700;font-size:1.05rem;max-width:260px;line-height:1.2;box-shadow:0 8px 18px rgba(0,0,0,.12);display:none}
+  .bubble.show{display:block}.bubble.left{left:10%;top:25%;background:var(--bubble-left)}.bubble.right{right:8%;top:27%;background:var(--bubble-right)}
+  .bubble.left::after{content:"";position:absolute;left:12px;bottom:-10px;border-width:10px 8px 0 8px;border-style:solid;border-color:var(--bubble-left) transparent transparent transparent}
+  .bubble.right::after{content:"";position:absolute;right:14px;bottom:-10px;border-width:10px 8px 0 8px;border-style:solid;border-color:var(--bubble-right) transparent transparent transparent}
+  .bubble.highlight{outline:3px solid rgba(255,165,0,.65);background:#ffeb99;transform:scale(1.04)}
+  .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{border:none;border-radius:999px;padding:10px 14px;font-size:.95rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff}
+  .mic-icon-btn{border:none;background:transparent;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.mic-icon-btn img{width:36px;height:36px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))}
+  .record-icon{width:16px;height:16px;display:inline-block;vertical-align:middle}
+  .recording{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}.recording audio{height:28px}
+  .recording-status,.conversation-status{font-size:.95rem;font-weight:800;color:#555;min-height:1.25em;text-align:center;margin-top:8px}
+  .conversation-status{color:#6c4bbf}.repeat-result{min-height:1.2em;font-weight:900;color:var(--success);text-align:center}.star-row{min-height:1.1em;text-align:center;color:var(--gold);font-size:28px;text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.22)}
+  .practice-panel{display:grid;gap:8px;justify-items:center;margin-top:12px}
+  @media (max-width:600px){.controls{justify-content:center}.bubble{max-width:40vw;font-size:.95rem}.girl-spot img{width:62px;height:62px}}
 </style>
 </head>
 <body>
-
-  
-
   <div class="card">
     <div class="poster-area" id="posterArea">
       <img class="poster-img" src="../../../../assets/images/shapes/LC2c.png" alt="Shape Sides poster">
-
+      <div class="girl-spot">
+        <span class="finger-cue show" id="girlFinger" aria-hidden="true">👇</span>
+        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn">
+        <div class="girl-hint">Tap the girl</div>
+      </div>
       <div class="bubble left" id="bubbleLeft">Don’t eat alone.</div>
       <div class="bubble right" id="bubbleRight">Let's eat together.</div>
     </div>
 
+    <div class="practice-panel">
+      <div class="repeat-result" id="repeatResult"></div>
+      <div class="star-row" id="starRow"></div>
+    </div>
+
     <div class="controls">
-      <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
+      <button class="btn prev" id="prevBtn" type="button">← Previous page</button>
       <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+        <span class="finger-cue" id="micFinger" aria-hidden="true">👇</span>
         <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
       </button>
-      <button class="btn next" id="nextBtn">Next page &#8594;</button>
+      <button class="btn next" id="nextBtn" type="button">Next page →</button>
       <button class="btn" id="recordBtn" type="button">
         <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z"
-                fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
           <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
           <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
           <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
         </svg> Record Practice
       </button>
-      <div class="recording">
-        <audio id="recordingPlayback" controls></audio>
-      </div>
+      <div class="recording"><audio id="recordingPlayback" controls></audio></div>
     </div>
     <div class="recording-status" id="recordingStatus"></div>
     <div class="conversation-status" id="conversationStatus"></div>
   </div>
-
-  <script>
-    const bubbleLeft = document.getElementById('bubbleLeft');
-    const bubbleRight = document.getElementById('bubbleRight');
-    const micIconBtn = document.getElementById('micIconBtn');
-    const recordBtn = document.getElementById('recordBtn');
-    const recordingPlayback = document.getElementById('recordingPlayback');
-    const recordingStatus = document.getElementById('recordingStatus');
-    const conversationStatus = document.getElementById('conversationStatus');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
-    instructionAudio.preload = "auto";
-
-    let recorder = null;
-    let recordedChunks = [];
-    let isRecording = false;
-    let loadIntroStarted = false;
-
-    function getSpeechVoice(role){
-      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
-      const voices = window.speechSynthesis.getVoices() || [];
-      if (!voices.length) return null;
-      const english = voices.filter(v => /^en(-|_)?/i.test(String(v.lang || "")));
-      const pool = english.length ? english : voices;
-      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
-      const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
-      const kidName = /(kids?|child|junior|young|ava|aria|allison|ellie|libby|olivia|emma|ivy|jenny|nova|grace|girl)/i;
-      if (role === "female") {
-        return pool.find(v => femaleName.test(String(v.name || "")) && !maleName.test(String(v.name || "")))
-          || pool.find(v => !maleName.test(String(v.name || "")))
-          || pool[0]
-          || null;
-      }
-      if (role === "kid") {
-        return pool.find(v => kidName.test(String(v.name || "")) && !maleName.test(String(v.name || "")))
-          || pool.find(v => !maleName.test(String(v.name || "")))
-          || pool[0]
-          || null;
-      }
-      return pool[0] || null;
-    }
-
-    function speak(text, options, onend){
-      if(!('speechSynthesis' in window)) {
-        if (onend) onend();
-        return;
-      }
-      try { window.speechSynthesis.cancel(); } catch (_err) {}
-      const opts = options || {};
-      const u = new SpeechSynthesisUtterance(text);
-      const voice = getSpeechVoice(opts.role);
-      if (voice) u.voice = voice;
-      u.lang = opts.lang || "en-US";
-      u.rate = typeof opts.rate === "number" ? opts.rate : 0.94;
-      u.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.08;
-      u.volume = 1.0;
-      u.onend = () => { if (onend) onend(); };
-      u.onerror = () => { if (onend) onend(); };
-      window.speechSynthesis.speak(u);
-    }
-
-    function showBubble(el, text){
-      el.textContent = text;
-      el.classList.add('show');
-      speak(text);
-    }
-
-    function hideBubbles(){
-      bubbleLeft.classList.remove('show');
-      bubbleRight.classList.remove('show');
-    }
-
-    function playLoadInstructionSequence(){
-      if (loadIntroStarted) return;
-      loadIntroStarted = true;
-      hideBubbles();
-      conversationStatus.textContent = "";
-
-      const steps = [
-        () => {
-          conversationStatus.textContent = "I eat a piece of cake.";
-          speak("I eat a piece of cake.", { role: "female", rate: 0.92, pitch: 1.08 }, runNextStep);
-        },
-        () => {
-          bubbleLeft.textContent = "Don’t eat alone.";
-          bubbleLeft.classList.add('show');
-          conversationStatus.textContent = "Don’t eat alone.";
-          speak("Don’t eat alone.", { role: "kid", rate: 1.0, pitch: 1.3 }, runNextStep);
-        },
-        () => {
-          bubbleRight.textContent = "Let’s eat together.";
-          bubbleRight.classList.add('show');
-          conversationStatus.textContent = "Let’s eat together.";
-          speak("Let’s eat together.", { role: "female", rate: 0.95, pitch: 1.08 }, runNextStep);
-        },
-        () => {
-          conversationStatus.textContent = "The cake has 0 sides and 3 vertices.";
-          speak("The cake has 0 sides and 3 vertices.", { role: "female", rate: 0.92, pitch: 1.08 });
-        }
-      ];
-
-      let stepIndex = 0;
-      function runNextStep(){
-        const step = steps[stepIndex++];
-        if (step) window.setTimeout(step, 140);
-      }
-
-      const beginSpeech = () => window.setTimeout(runNextStep, 140);
-      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
-      instructionAudio.onended = () => {
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      };
-      instructionAudio.onerror = () => {
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      };
-
-      try{
-        instructionAudio.currentTime = 0;
-        const playAttempt = instructionAudio.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {
-            window.clearTimeout(fallbackTimer);
-            beginSpeech();
-          });
-        }
-      }catch(_err){
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      }
-    }
-
-    function toggleRecord(){
-      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-        recordingStatus.textContent = "Recording not supported in this browser.";
-        return;
-      }
-      if(isRecording){
-        recorder && recorder.stop();
-        return;
-      }
-      navigator.mediaDevices.getUserMedia({ audio:true })
-        .then(stream => {
-          recorder = new MediaRecorder(stream);
-          recordedChunks = [];
-          recorder.ondataavailable = e => {
-            if(e.data && e.data.size > 0) recordedChunks.push(e.data);
-          };
-          recorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
-            recordingPlayback.src = URL.createObjectURL(blob);
-            recordingStatus.textContent = "Recording ready.";
-            stream.getTracks().forEach(t => t.stop());
-            isRecording = false;
-            recordBtn.innerHTML = `<svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
-              <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z"
-                    fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-              <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-              <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-              <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-            </svg> Record Practice`;
-          };
-          recorder.start();
-          isRecording = true;
-          recordingStatus.textContent = "Recording...";
-          recordBtn.textContent = "Stop Recording";
-        })
-        .catch(() => {
-          recordingStatus.textContent = "Microphone permission denied.";
-        });
-    }
-
-    hideBubbles();
-    window.addEventListener('load', playLoadInstructionSequence, { once:true });
-
-    recordBtn.addEventListener('click', toggleRecord);
-
-    if(prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../monday/TangramArtClass.html'; });
-    if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = '../wednesday/LevelC3.html'; });
-  </script>
-
-  <script src="../../../../activity-standardizer.js"></script>
-  <script src="../../../../shared/js/storage.js"></script>
-  <script src="../../../../shared/js/progress.js"></script>
-  <script src="../../../../shared/js/tracing.js"></script>
-
-  <script type="module">
-    import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-    window.GPProgress.installTracker({
-      saveActivityResult,
-      markLoginPing,
-      defaultPageId: "LevelC2",
-      defaultLevel: "C",
-      defaultActivityType: "lesson",
-      defaultScore: 100,
-      defaultStars: 1,
-      defaultSkills: {
-        reading: 1,
-        writing: 0,
-        speaking: 1,
-        listening: 1
-      }
-    });
-
-    function getStudentSession(){
-      try{
-        return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-      }catch(e){
-        return null;
-      }
-    }
-
-    function inferProgressMeta(payload){
-      const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-      const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-      const level = (payload && payload.level)
-        || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-      const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-      const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-      const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-      const month = payload && payload.month != null ? Number(payload.month) : 1;
-      return {
-        pageId,
-        file,
-        level,
-        week: Number.isFinite(week) && week > 0 ? week : 1,
-        month: Number.isFinite(month) && month > 0 ? month : 1
-      };
-    }
-
-    function getActivityStore(){
-      try{
-        return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-      }catch(e){
-        return {};
-      }
-    }
-
-    function setActivityStore(store){
-      try{
-        localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-      }catch(e){}
-    }
-
-    function saveLocalActivityFallback(payload){
-      const session = getStudentSession() || {};
-      const meta = inferProgressMeta(payload || {});
-      const score = payload && typeof payload.score === "number" ? payload.score : 0;
-      const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-      const tracing = payload && typeof payload.tracing === "number"
-        ? payload.tracing
-        : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-      const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-      const entry = {
-        pageId: meta.pageId,
-        file: meta.file,
-        level: meta.level,
-        type,
-        activityType: (payload && payload.activityType) || type,
-        score,
-        stars,
-        skills: payload && payload.skills ? payload.skills : {},
-        completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-        tracing,
-        week: meta.week,
-        month: meta.month,
-        classId: (payload && payload.classId) || session.classId || null,
-        studentId: (payload && payload.studentId) || session.studentId || null,
-        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-        savedAt: new Date().toISOString(),
-        ts: Date.now()
-      };
-      const store = getActivityStore();
-      store[meta.pageId] = {
-        ...(store[meta.pageId] || {}),
-        ...entry
-      };
-      setActivityStore(store);
-      try{
-        localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-      }catch(e){}
-      return store[meta.pageId];
-    }
-
-    async function finishAndSave(payload){
-      const session = getStudentSession() || {};
-      const fullPayload = {
-        ...(payload || {}),
-        classId: (payload && payload.classId) || session.classId || null,
-        studentId: (payload && payload.studentId) || session.studentId || null,
-        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-      };
-
-      saveLocalActivityFallback(fullPayload);
-
-      if (typeof window.finishActivity === "function") {
-        try{
-          await window.finishActivity(fullPayload);
-        }catch(err){
-          console.warn("finishActivity failed, local fallback already saved:", err);
-        }
-      }
-
-      return fullPayload;
-    }
-
-    window.finishAndSave = finishAndSave;
-  </script>
-
-  
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
+<script>
+window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL = true;
+const PREV_PAGE = '../monday/TangramArtClass.html';
+const NEXT_PAGE = '../wednesday/LevelC3.html';
+const PAGE_ID = 'LevelC2';
+const LEVEL_ID = 'C';
+const expectedLines = ['Don’t eat alone.', 'Let’s eat together.'];
+const bubbleLeft = document.getElementById('bubbleLeft');
+const bubbleRight = document.getElementById('bubbleRight');
+const girlBtn = document.getElementById('girlBtn');
+const girlFinger = document.getElementById('girlFinger');
+const micFinger = document.getElementById('micFinger');
+const micIconBtn = document.getElementById('micIconBtn');
+const recordBtn = document.getElementById('recordBtn');
+const recordingPlayback = document.getElementById('recordingPlayback');
+const recordingStatus = document.getElementById('recordingStatus');
+const conversationStatus = document.getElementById('conversationStatus');
+const repeatResult = document.getElementById('repeatResult');
+const starRow = document.getElementById('starRow');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+let recorder = null, recordedChunks = [], isRecording = false;
+let currentIndex = 0, phase = 'reveal', attempts = [0,0], stars = [0,0], finished = false, recognitionCounter = 0, girlTapped = false;
+function setGuide(stage){ if(girlFinger) girlFinger.classList.toggle('show', stage==='girl'); if(micFinger) micFinger.classList.toggle('show', stage==='mic'); }
+function getVoice(){ if (!('speechSynthesis' in window)) return null; const voices = speechSynthesis.getVoices() || []; return voices.find(v => /female|woman|zira|jenny|aria|ava|allison|emma|olivia/i.test(`${v.name} ${v.lang}`)) || voices.find(v => /en/i.test(v.lang||'')) || voices[0] || null; }
+function speak(text){ return new Promise(resolve => { if (!('speechSynthesis' in window)) return resolve(); try { speechSynthesis.cancel(); } catch(_) {} const u = new SpeechSynthesisUtterance(text); const voice = getVoice(); if (voice) u.voice = voice; u.lang='en-US'; u.rate=0.92; u.pitch=1.08; u.onend=resolve; u.onerror=resolve; speechSynthesis.speak(u); }); }
+function normalizeText(text){ return String(text||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim(); }
+function percentMatch(a,b){ const aa=normalizeText(a).split(' ').filter(Boolean); const bb=normalizeText(b).split(' ').filter(Boolean); if(!aa.length) return 0; let hits=0; aa.forEach(w=>{ if(bb.includes(w)) hits++; }); return Math.round(hits/aa.length*100); }
+function rewardStars(n){ return n===1?3:n===2?2:n===3?1:0; }
+function setStars(count){ starRow.textContent = new Array(count).fill('★').join(''); }
+function showBubble(index){ if(index===0){ bubbleLeft.classList.add('show'); bubbleLeft.classList.remove('highlight'); } if(index===1){ bubbleRight.classList.add('show'); bubbleRight.classList.remove('highlight'); } }
+function highlightBubble(index,on){ const el = index===0 ? bubbleLeft : bubbleRight; el.classList.toggle('highlight', !!on); }
+function getRecognitionCtor(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+function listen(){ return new Promise(resolve => { const SR = getRecognitionCtor(); if(!SR) return resolve({ supported:false, transcript:'' }); const id=++recognitionCounter; const rec=new SR(); rec.lang='en-US'; rec.interimResults=false; rec.maxAlternatives=3; rec.continuous=false; let done=false; const finish=t=>{ if(done || id!==recognitionCounter) return; done=true; resolve({ supported:true, transcript:(t||'').trim() }); }; rec.onresult=e=>finish(Array.from(e.results||[]).map(r=>r&&r[0]&&r[0].transcript).filter(Boolean).join(' ')); rec.onerror=()=>finish(''); rec.onnomatch=()=>finish(''); rec.onend=()=>finish(''); try{ rec.start(); }catch(_){ finish(''); } }); }
+async function pushProgress(extra={}){ const totalStars=stars.reduce((a,b)=>a+b,0); const payload={ pageId:PAGE_ID, level:LEVEL_ID, activityType:'speaking', score: finished ? 100 : Math.min(95,totalStars*15), stars: totalStars, completed: finished, skills:{reading:0, writing:0, speaking: finished ? 3 : 1, listening: finished ? 3 : 1}, ...extra }; try { const store = JSON.parse(localStorage.getItem('gpProgressByPage') || '{}'); store[payload.pageId] = payload; localStorage.setItem('gpProgressByPage', JSON.stringify(store)); localStorage.setItem('gpLatestProgress', JSON.stringify(payload)); } catch(_) {} try { if (window.GPTrack && typeof window.GPTrack.finish === 'function') await window.GPTrack.finish(payload); } catch(_) {} }
+async function handleMic(){ if (finished) return; if (phase === 'reveal') { showBubble(currentIndex); conversationStatus.textContent = expectedLines[currentIndex]; await speak(expectedLines[currentIndex]); phase='coach'; await pushProgress(); return; } if (phase === 'coach') { highlightBubble(currentIndex,true); conversationStatus.textContent='Repeat after me.'; await speak('Repeat after me.'); conversationStatus.textContent='Tap the mic and say the sentence.'; phase='listen'; return; } const heard = await listen(); const tryNo = ++attempts[currentIndex]; if (!heard.supported) { conversationStatus.textContent='Speech check is not supported in this browser.'; repeatResult.textContent='Use Chrome or Edge for mic practice.'; repeatResult.style.color='#b06a00'; return; } const pct = percentMatch(expectedLines[currentIndex], heard.transcript); if (pct >= 50) { repeatResult.textContent = heard.transcript || expectedLines[currentIndex]; repeatResult.style.color='#2f9f5f'; stars[currentIndex] = rewardStars(tryNo); setStars(stars[currentIndex]); conversationStatus.textContent = 'Great! Moving on.'; highlightBubble(currentIndex,false); await pushProgress(); if (currentIndex < expectedLines.length-1) { currentIndex += 1; phase='reveal'; return; } finished=true; conversationStatus.textContent='Amazing job!'; await speak('Amazing job!'); await pushProgress({ score:100, completed:true }); return; } if (tryNo >= 3) { repeatResult.textContent='You did a good Job. Nice try!'; repeatResult.style.color='#b06a00'; setStars(0); highlightBubble(currentIndex,false); if (currentIndex < expectedLines.length-1) { currentIndex += 1; phase='reveal'; conversationStatus.textContent='You did a good Job. Nice try!'; await speak('You did a good Job. Nice try!'); await pushProgress(); return; } finished=true; conversationStatus.textContent='You did a good Job. Nice try!'; await speak('You did a good Job. Nice try!'); await pushProgress({ completed:true }); return; } repeatResult.textContent='Sorry, try again!'; repeatResult.style.color='#c62828'; conversationStatus.textContent='Sorry, try again!'; await speak('Sorry, try again!'); phase='coach'; await pushProgress(); }
+function toggleRecord(){ if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ recordingStatus.textContent='Recording not supported in this browser.'; return; } if(isRecording){ recorder && recorder.stop(); return; } navigator.mediaDevices.getUserMedia({ audio:true }).then(stream => { recorder = new MediaRecorder(stream); recordedChunks=[]; recorder.ondataavailable=e=>{ if(e.data && e.data.size>0) recordedChunks.push(e.data); }; recorder.onstop=()=>{ const blob = new Blob(recordedChunks, { type:'audio/webm' }); recordingPlayback.src = URL.createObjectURL(blob); recordingStatus.textContent='Recording ready.'; stream.getTracks().forEach(t=>t.stop()); isRecording=false; recordBtn.innerHTML = `<svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg> Record Practice`; }; recorder.start(); isRecording=true; recordingStatus.textContent='Recording...'; recordBtn.textContent='Stop Recording'; }).catch(()=>{ recordingStatus.textContent='Microphone permission denied.'; }); }
+bubbleLeft.classList.remove('show'); bubbleRight.classList.remove('show');
+conversationStatus.textContent='Tap the girl to begin.';
+micIconBtn.addEventListener('click', async()=>{ if(!girlTapped){ conversationStatus.textContent='Tap the girl first.'; setGuide('girl'); await speak('Tap the girl first.'); return; } setGuide(''); return handleMic(); }); recordBtn.addEventListener('click', toggleRecord); if (girlBtn) girlBtn.addEventListener('click', async () => { girlTapped = true; showBubble(0); conversationStatus.textContent = expectedLines[0]; await speak(expectedLines[0]); conversationStatus.textContent='Now tap the microphone.'; setGuide('mic'); await speak('Now tap the microphone.'); }); prevBtn.addEventListener('click', ()=>{ try { speechSynthesis.cancel(); } catch(_) {} location.href = PREV_PAGE; }); nextBtn.addEventListener('click', ()=>{ try { speechSynthesis.cancel(); } catch(_) {} location.href = NEXT_PAGE; }); setGuide('girl'); window.addEventListener('load', () => { try { if (window.GPTrack) window.GPTrack.start(PAGE_ID); } catch(_) {} pushProgress({ score:0, stars:0, completed:false }); });
+</script>
 </body>
 </html>

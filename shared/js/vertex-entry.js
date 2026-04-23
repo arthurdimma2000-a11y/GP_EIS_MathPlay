@@ -177,7 +177,7 @@
 
   function playChime(){
     try{
-      new Audio("../../../../assets/audio/chimes/chime.mp3.mp3").play().catch(() => {});
+      new Audio("../../../../assets/audio/chimes/chime.mp3").play().catch(() => {});
     }catch(_e){}
     global.GPTracing?.playTraceCelebration?.();
   }

@@ -1,45 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <style id="gpLessonPrehide">
-    .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-    .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-    .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
-      font-size:clamp(13px,1.9vw,19px) !important;
-      line-height:1.24 !important;
-      max-width:min(52vw,420px) !important;
-      white-space:nowrap !important;
-      word-break:normal !important;
-      overflow-wrap:normal !important;
-    }
-    @media (max-width:780px){
-      .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
-        font-size:clamp(13px,3.6vw,17px) !important;
-        max-width:min(62vw,280px) !important;
-        line-height:1.2 !important;
-        white-space:nowrap !important;
-        word-break:normal !important;
-        overflow-wrap:normal !important;
-      }
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA7</title>
+<style>
 
-  
-
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Level A - Count the Circles</title>
-
-  <link rel="stylesheet" href="../../../../shared/css/base.css" />
-  <link rel="stylesheet" href="../../../../shared/css/layout.css" />
-  <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
-
-  <style>
     :root{
       --ink:#2d2d2d;
-      --bg:#bfe9fb;
-      --panel:#ffffff;
+      --bg:#e4f6df;
+      --card:#fff;
       --border:#d9b9f0;
       --accent:#6c4bbf;
       --bubble-kid:#d8ebff;
@@ -47,1286 +17,866 @@
       --btn-yellow:#f6da7b;
       --btn-orange:#ff8a5b;
       --btn-blue:#dfeaff;
+      --success:#2f9f5f;
+      --danger:#c62828;
       --shadow:0 10px 24px rgba(0,0,0,.08);
-
-      --bubble-font:1.05rem;
-      --bubble-max:420px;
-
-      --nav-btn-h:54px;
-      --nav-btn-pad-x:18px;
-      --nav-btn-font:1rem;
-
-      --mic-size:64px;
-
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
     }
-
     *{box-sizing:border-box;}
-
-    html,body{
-      margin:0;
-      padding:0;
-      background:var(--bg);
-      color:var(--ink);
-    }
-
-    body{
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:10px;
-    }
-
-    .card{
+    html,body{margin:0;width:100%;max-width:100%;overflow-x:hidden;background:var(--bg);color:var(--ink);}
+    body{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:10px;}
+    img,video{max-width:100%;height:auto;display:block;}
+    .app{
+      position:relative;
       width:min(960px,100%);
-      max-width:960px;
-      border-radius:16px;
-      padding:12px 12px 8px;
-      overflow:hidden;
-      position:relative;
-    }
-
-    .home-btn{
-      position:fixed;
-      top:10px;
-      left:10px;
-      z-index:20;
-      display:inline-flex;
-      width:78px;
-      height:78px;
-      align-items:center;
-      justify-content:center;
-      animation:homeSwingLA7 2.4s ease-in-out infinite;
-    }
-
-    .home-btn img{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      display:block;
-    }
-
-    @keyframes homeSwingLA7{
-      0%{transform:translateY(30%) rotate(-6deg);}
-      50%{transform:translateY(30%) rotate(8deg);}
-      100%{transform:translateY(30%) rotate(-6deg);}
-    }
-
-    .poster-area{
-        position:relative;
-        width:min(820px,90vw);
-        margin:6px auto 0;
-        z-index:1;
-        touch-action:none;
-        -ms-touch-action:none;
-      }
-
-    .poster-img{
-      width:min(820px,90vw);
-      height:auto;
-      display:block;
-      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-      object-fit:contain;
-      user-select:none;
-      -webkit-user-drag:none;
-    }
-
-    .row{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin:18px 0;
-      position:relative;
-      z-index:4;
-    }
-
-    .row.right{
-      justify-content:flex-end;
-    }
-
-    .convo-line{
-      display:none;
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      z-index:7;
-      margin:0;
-      overflow:visible;
-    }
-
-    .convo-line.show{
-      display:flex;
-    }
-
-    .convo-line .bubble-stack{
-      position:absolute;
-      z-index:8;
-    }
-
-    .bubble-stack{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      align-items:flex-start;
-    }
-
-    .row.right .bubble-stack{
-      align-items:flex-end;
-    }
-
-    .chef-bubble{
-      left:6%;
-      top:18%;
-      max-width:36%;
-      align-items:flex-start;
-    }
-
-    .boy-bubble{
-      right:5%;
-      top:58%;
-      max-width:35%;
-      align-items:flex-end;
-    }
-
-    .bubble{
-      padding:12px 16px;
+      background:var(--card);
       border-radius:18px;
-      position:relative;
-      font-size:var(--bubble-font);
-      line-height:1.24;
-      white-space:nowrap;
-      max-width:var(--bubble-max);
-      box-shadow:0 8px 16px rgba(0,0,0,.16);
-      overflow-wrap:normal;
-      word-break:normal;
-      min-height:46px;
-      display:flex;
-      align-items:center;
-      font-weight:700;
-    }
-
-    .bubble.kid{background:var(--bubble-kid);}
-    .bubble.baker{background:var(--bubble-baker);}
-
-    .bubble.kid::after{
-      content:"";
-      position:absolute;
-      right:-6px;
-      top:14px;
-      border-width:8px 0 8px 8px;
-      border-style:solid;
-      border-color:transparent transparent transparent var(--bubble-kid);
-    }
-
-    .bubble.baker::after{
-      content:"";
-      position:absolute;
-      left:-6px;
-      top:14px;
-      border-width:8px 8px 8px 0;
-      border-style:solid;
-      border-color:transparent var(--bubble-baker) transparent transparent;
-    }
-
-    .bubble.sparkle{
-      background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
-      box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
-      animation:sparklePulse 1.2s ease-in-out infinite;
-    }
-
-    @keyframes sparklePulse{
-      0%,100%{filter:brightness(1);}
-      50%{filter:brightness(1.12);}
-    }
-
-    .repeat-result{
-      margin-top:4px;
-      font-size:2.1rem !important;
-      line-height:1.1;
-      font-weight:900;
-      color:#2f9f5f;
-      min-height:1.2em;
-    }
-
-    .star-row{
-      display:flex;
-      gap:6px;
-      margin-top:4px;
-      font-weight:900;
-      font-size:2.35rem !important;
-      line-height:1;
-      color:#ffd24a;
-      text-shadow:
-        0 2px 0 #b87900,
-        0 4px 0 #8a5a00,
-        0 8px 14px rgba(0,0,0,.28);
-      min-height:1.15em;
-    }
-
-    .trace-layer{
-        position:absolute;
-        inset:0;
-        pointer-events:none;
-        z-index:9;
-        background:transparent;
-      }
-
-    .trace-grid{
-        position:absolute;
-        left:57.2%;
-        top:30.3%;
-        width:16.4%;
-        height:58.8%;
-        display:grid;
-        grid-template-rows:repeat(3,1fr);
-        gap:1.8%;
-        pointer-events:auto;
-      }
-
-    .trace-canvas{
-        position:relative;
-        width:100%;
-        height:100%;
-        pointer-events:auto;
-        touch-action:none;
-        -ms-touch-action:none;
-        z-index:10;
-        background:transparent;
-        border-radius:12px;
-        cursor:crosshair;
-        user-select:none;
-        -webkit-user-select:none;
-      }
-
-    .girl-sentence{
-      margin-top:10px;
-      text-align:center;
-      font-size:1.5rem;
-      font-weight:700;
-      color:var(--ink);
-      min-height:3.2em;
-      transform:translateY(-15%);
-    }
-
-    .headline-line{
-      opacity:0;
-      transform:translateY(8px);
-      transition:opacity .22s ease, transform .22s ease;
-    }
-
-    .headline-line.show{
-      opacity:1;
-      transform:translateY(0);
-    }
-
-    .controls{
-      margin-top:12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      font-size:.9rem;
-    }
-
-    .controls-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:16px;
-      flex-wrap:wrap;
-    }
-
-    .progress-wrap{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:6px;
-    }
-
-    .progress-bar{
-      width:min(520px,92%);
-      height:12px;
-      border-radius:999px;
-      background:#e7efff;
+      box-shadow:var(--shadow);
+      padding:12px 12px 10px;
       overflow:hidden;
-      box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
     }
-
-    .progress-fill{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,#3cc4ff,#7dffb3);
-      transition:width .15s ease-out;
+    .home-btn{
+      position:absolute; right:10px; top:6px; width:72px; height:72px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background:transparent; border:none; padding:0; text-decoration:none; z-index:20;
+      transform-origin:top center; animation:homeSwing 2.4s ease-in-out infinite;
     }
-
-    .progress-text{
-      font-size:.9rem;
-      font-weight:700;
-      color:#3b3b3b;
+    .home-btn img{width:72px;height:72px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));}
+    @keyframes homeSwing{0%{transform:translateY(30%) rotate(-6deg);}50%{transform:translateY(30%) rotate(8deg);}100%{transform:translateY(30%) rotate(-6deg);}}
+    .title{font-size:clamp(1.25rem,4vw,3rem);font-weight:900;margin:0 0 10px;color:#3a2d5a;}
+    .board{
+      position:relative;border:2px dashed var(--border);border-radius:18px;padding:10px;overflow:hidden;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,209,229,.45) 0 60px, transparent 65px),
+        radial-gradient(circle at 85% 25%, rgba(255,236,180,.5) 0 70px, transparent 75px),
+        radial-gradient(circle at 35% 80%, rgba(210,244,255,.55) 0 80px, transparent 85px),
+        radial-gradient(circle at 80% 75%, rgba(214,255,220,.55) 0 70px, transparent 75px),
+        linear-gradient(180deg, #fef7ff 0%, #f7fbff 50%, #fff4df 100%);
     }
-
-    .mascot-spot{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background:#fff;
-      border:2px solid #e8e0ff;
-      border-radius:14px;
-      padding:8px 12px;
-      box-shadow:0 8px 16px rgba(0,0,0,.12);
-      min-height:58px;
-    }
-
-    .tap-girl{
-      width:46px;
-      height:46px;
-      border-radius:12px;
-      object-fit:cover;
-      cursor:pointer;
-      display:block;
-      flex:0 0 auto;
-    }
-
-    .mascot-hint{
-      font-size:.98rem;
-      font-weight:800;
-      color:#2f9f5f;
-      white-space:nowrap;
-    }
-
-    .button-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      border:none;
-      border-radius:999px;
-      min-height:var(--nav-btn-h);
-      padding:0 var(--nav-btn-pad-x);
-      font-size:var(--nav-btn-font);
-      font-weight:800;
-      cursor:pointer;
-      box-shadow:0 4px 0 rgba(0,0,0,.15);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      line-height:1;
-      min-width:150px;
-      user-select:none;
-      -webkit-tap-highlight-color:transparent;
-    }
-
+    .board-sky{position:absolute; inset:0; pointer-events:none; z-index:0;}
+    .sparkle-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 6px 10px rgba(0,0,0,.12);}
+    .sparkle-dot.s1{left:20%;top:22%;} .sparkle-dot.s2{left:70%;top:32%;} .sparkle-dot.s3{left:35%;top:62%;} .sparkle-dot.s4{left:82%;top:60%;}
+    .tray-hero{position:relative;z-index:1;display:flex;justify-content:center;margin:2px 0 6px;overflow:visible;}
+    .tray-hero img{filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));}
+    .tray-caption-center{position:absolute;left:50%;top:24%;transform:translateX(-50%);font-size:clamp(1.6rem,5vw,3.2rem);font-weight:1000;color:var(--accent);text-shadow:0 2px 6px rgba(255,255,255,.75);text-align:center;white-space:nowrap;max-width:92%;z-index:2;}
+    .convo-line{display:none;align-items:flex-start;justify-content:flex-start;position:relative;z-index:5;margin:8px 0;}
+    .convo-line.show{display:flex;}
+    .convo-line.right{justify-content:flex-end;}
+    .bubble-stack{display:flex;flex-direction:column;gap:6px;max-width:min(100%,480px);}
+    .convo-line.right .bubble-stack{margin-left:auto;align-items:flex-end;}
+    .bubble{position:relative;padding:12px 15px;border-radius:18px;box-shadow:0 8px 16px rgba(0,0,0,.12);font-size:clamp(1rem,2.3vw,1.3rem);line-height:1.3;white-space:normal;word-break:break-word;font-weight:700;}
+    .bubble.kid{background:var(--bubble-kid);} .bubble.baker{background:var(--bubble-baker);}
+    .bubble.kid::after{content:"";position:absolute;right:-7px;top:16px;border-width:8px 0 8px 8px;border-style:solid;border-color:transparent transparent transparent var(--bubble-kid);}
+    .bubble.baker::after{content:"";position:absolute;left:-7px;top:16px;border-width:8px 8px 8px 0;border-style:solid;border-color:transparent var(--bubble-baker) transparent transparent;}
+    .bubble.sparkle{background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);box-shadow:0 0 12px rgba(255,214,0,.6),0 0 18px rgba(255,105,180,.45);animation:sparklePulse 1.2s ease-in-out infinite;}
+    @keyframes sparklePulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.12);}}
+    .repeat-result{min-height:1.25em;font-size:clamp(1rem,3vw,1.7rem);line-height:1.15;font-weight:900;color:var(--success);}
+    .star-row{min-height:1.25em;display:flex;gap:6px;font-size:clamp(1.4rem,4vw,2.1rem);line-height:1;color:#ffd24a;text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);}
+    .controls{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;width:100%;}
+    .mascot-spot{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid #e8e0ff;border-radius:14px;padding:6px 10px;box-shadow:0 8px 16px rgba(0,0,0,.12);}
+    .tap-girl{width:46px;height:46px;border-radius:12px;object-fit:cover;cursor:pointer;display:block;}
+    .mascot-hint{font-size:.95rem;font-weight:900;color:#2f9f5f;white-space:nowrap;}
+    .btn,.mic-icon-btn{min-height:46px;min-width:46px;border:none;border-radius:999px;cursor:pointer;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:transform .12s ease, filter .12s ease;}
+    .btn{padding:10px 16px;font-size:.95rem;}
     .btn.prev{background:#f8f0c7;color:#9c7b2f;}
     .btn.next{background:var(--btn-yellow);color:#8b5a00;}
     .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
-
-    .mic-icon-btn{
-      width:var(--mic-size);
-      height:var(--mic-size);
-      border:none;
-      background:transparent;
-      padding:0;
-      margin:0;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:50%;
-      -webkit-tap-highlight-color:transparent;
-    }
-
-    .mic-icon-btn img{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
-      display:block;
-    }
-
-    .mic-icon-btn.is-busy{
-      pointer-events:none;
-      opacity:.75;
-      transform:scale(.98);
-    }
-
-    .conversation-status{
-      margin-top:8px;
-      font-size:1rem;
-      font-weight:800;
-      color:#6c4bbf;
-      min-height:1.3em;
-      text-align:center;
-    }
-    @media (max-width:780px){
-      :root{
-        --bubble-font:1.08rem;
-        --nav-btn-h:52px;
-        --nav-btn-pad-x:16px;
-        --nav-btn-font:.97rem;
-        --mic-size:60px;
-      }
-
-      .chef-bubble{left:4.5%;top:17%;max-width:41%;}
-      .boy-bubble{right:4.5%;top:60%;max-width:41%;}
-      .home-btn{width:70px;height:70px;}
-
-      .trace-grid{ left:57.1%; top:30.4%; width:16.7%; height:59.2%; }
-    }
-
+    .btn.read{background:var(--btn-orange);color:#fff;}
+    .mic-icon-btn{background:transparent;padding:0;display:inline-flex;align-items:center;justify-content:center;box-shadow:none;}
+    .mic-icon-btn img{width:42px;height:42px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+    .mic-icon-btn.is-busy{opacity:.7;pointer-events:none;transform:scale(.97);}
+    .record-icon{width:16px;height:16px;vertical-align:middle;margin-right:6px;}
+    .recording audio{height:34px;max-width:240px;}
+    .status-wrap{display:grid;gap:6px;margin-top:8px;}
+    .conversation-status,.recording-status{min-height:1.25em;text-align:center;font-weight:900;}
+    .conversation-status{color:var(--accent);font-size:clamp(.95rem,2.5vw,1.1rem);}
+    .recording-status{color:#555;font-size:.92rem;}
+    .footer-note{margin-top:6px;text-align:center;color:#666;font-size:.92rem;}
+    .headline-line{opacity:0;transform:translateY(8px);transition:opacity .22s ease, transform .22s ease;}
+    .headline-line.show{opacity:1;transform:translateY(0);}
     @media (max-width:520px){
-      :root{
-        --bubble-font:.98rem;
-        --bubble-max:280px;
-        --nav-btn-h:50px;
-        --nav-btn-font:.93rem;
-        --mic-size:58px;
-      }
-
-      .card{
-        width:100%;
-        padding:12px 12px 10px;
-        border-radius:12px;
-      }
-
-      .bubble{
-        padding:9px 11px;
-        max-width:min(62vw,280px);
-        min-height:42px;
-      }
-
-      .chef-bubble{left:3.5%;top:15%;max-width:46%;}
-      .boy-bubble{right:3.5%;top:62%;max-width:46%;}
-
-      .trace-grid{ left:56.8%; top:30.6%; width:17.1%; height:59.6%; }
-
-      .mascot-spot{
-        width:100%;
-        justify-content:center;
-      }
-
-      .button-row .btn{
-        min-width:136px;
-      }
-
-      .home-btn{
-        width:64px;
-        height:64px;
-        top:8px;
-        left:8px;
-      }
+      body{padding:8px;}
+      .app{border-radius:14px;padding:10px 10px 12px;}
+      .title{font-size:1.4rem;margin-bottom:8px;}
+      .board{padding:10px;}
+      .home-btn,.home-btn img{width:62px;height:62px;}
+      .controls{gap:8px;}
+      .mascot-spot{width:100%;justify-content:center;}
     }
-  </style>
+    
+
+    .progress-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .progress-bar{width:min(520px,92%);height:12px;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}
+    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3cc4ff,#7dffb3);transition:width .15s ease-out;}
+    .progress-text{font-size:.9rem;font-weight:700;color:#3b3b3b;}
+    .trace-layer{position:absolute;inset:0;pointer-events:auto;z-index:9;background:transparent;}
+    .trace-canvas{position:relative;width:100%;height:100%;display:block;pointer-events:auto;touch-action:none;background:transparent;border-radius:12px;cursor:crosshair;user-select:none;}
+    .girl-sentence{margin-top:10px;text-align:center;font-size:1.35rem;font-weight:700;color:var(--ink);min-height:3em;}
+    
+    body{background:#bfe9fb;}
+    .card{max-width:960px;}
+    .poster-area{position:relative;width:min(820px,90vw);margin:6px auto 0;z-index:1;touch-action:none;}
+    .poster-img{width:min(820px,90vw);object-fit:contain;user-select:none;-webkit-user-drag:none;}
+    .convo-line{position:absolute;inset:0;pointer-events:none;z-index:7;margin:0;}
+    .convo-line .bubble-stack{position:absolute;z-index:8;}
+    .chef-bubble{left:6%;top:18%;max-width:36%;align-items:flex-start;}
+    .boy-bubble{right:5%;top:58%;max-width:35%;align-items:flex-end;}
+    .trace-grid{position:absolute;left:57.2%;top:30.3%;width:16.4%;height:58.8%;display:grid;grid-template-rows:repeat(3,1fr);gap:1.8%;pointer-events:auto;touch-action:none;}
+    @media (max-width:780px){.chef-bubble{left:4.5%;top:17%;max-width:41%;}.boy-bubble{right:4.5%;top:60%;max-width:41%;}.trace-grid{left:57.1%;top:30.4%;width:16.7%;height:59.2%;}}
+    @media (max-width:520px){.chef-bubble{left:3.5%;top:15%;max-width:46%;}.boy-bubble{right:3.5%;top:62%;max-width:46%;}.trace-grid{left:56.8%;top:30.6%;width:17.1%;height:59.6%;}}
+    
+</style>
 </head>
 <body>
-  
 
-  <div class="card">
-    <a class="home-btn" href="../../../../index.html" aria-label="Home">
-      <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
-    </a>
+<div class="card">
+  <a class="home-btn" id="homeBtn" href="../../../../index.html" aria-label="Home">
+    <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
+  </a>
 
-    <div class="poster-area" id="posterArea">
-      <img class="poster-img" id="posterImg" src="../../../../assets/images/shapes/A7a.png" alt="Numbers poster">
+  <div class="poster-area">
+    <img class="poster-img" src="../../../../assets/images/shapes/A7a.png" alt="Numbers poster">
 
-      <div class="row convo-line">
-        <div class="bubble-stack chef-bubble">
-          <div class="bubble baker">Let&apos;s write numbers.</div>
-          <div class="repeat-result" id="bakerRepeat"></div>
-          <div class="star-row" id="bakerStars"></div>
-        </div>
-      </div>
-
-      <div class="row right convo-line">
-        <div class="bubble-stack boy-bubble">
-          <div class="bubble kid">1, 2, 3</div>
-          <div class="repeat-result" id="kidRepeat"></div>
-          <div class="star-row" id="kidStars"></div>
-        </div>
-      </div>
-
-      <div class="trace-layer">
-        <div class="trace-grid">
-          <canvas class="trace-canvas" id="trace1" aria-label="Trace number 1"></canvas>
-          <canvas class="trace-canvas" id="trace2" aria-label="Trace number 2"></canvas>
-          <canvas class="trace-canvas" id="trace3" aria-label="Trace number 3"></canvas>
-        </div>
+    <div class="convo-line">
+      <div class="bubble-stack chef-bubble">
+        <div class="bubble baker">Let's write numbers.</div>
+        <div class="repeat-result"></div>
+        <div class="star-row"></div>
       </div>
     </div>
 
-    <div class="girl-sentence" id="girlSentence"></div>
-
-    <div class="controls">
-      <div class="progress-wrap">
-        <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      </div>
-
-      <div class="controls-row">
-        <div class="mascot-spot">
-          <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Circle helper girl" id="girlBtn" class="tap-girl">
-          <div class="mascot-hint">Tap the girl</div>
-        </div>
-
-        <div class="button-row">
-          <button class="btn prev" id="prevBtn" type="button">&#8592; Previous page</button>
-          <button class="btn next" id="nextBtn" type="button">Next page &#8594;</button>
-          <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
-            <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
-          </button>
-          <button class="btn stop" id="clearBtn" type="button">Clear</button>
-        </div>
+    <div class="convo-line right">
+      <div class="bubble-stack boy-bubble">
+        <div class="bubble kid">1, 2, 3</div>
+        <div class="repeat-result"></div>
+        <div class="star-row"></div>
       </div>
     </div>
 
-    <div class="conversation-status" id="conversationStatus"></div>
+    <div class="trace-layer">
+      <div class="trace-grid">
+        <canvas class="trace-canvas" id="trace1" aria-label="Trace number 1"></canvas>
+        <canvas class="trace-canvas" id="trace2" aria-label="Trace number 2"></canvas>
+        <canvas class="trace-canvas" id="trace3" aria-label="Trace number 3"></canvas>
+      </div>
+    </div>
   </div>
 
-  <script src="../../../../shared/js/storage.js"></script>
-  <script src="../../../../shared/js/progress.js"></script>
-  <script src="../../../../shared/js/tracing.js"></script>
+  <div class="girl-sentence" id="girlSentence"></div>
 
-  <script>
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const girlBtn = document.getElementById('girlBtn');
-    const bakerRepeat = document.getElementById('bakerRepeat');
-    const bakerStars = document.getElementById('bakerStars');
-    const kidRepeat = document.getElementById('kidRepeat');
-    const kidStars = document.getElementById('kidStars');
-    const micIconBtn = document.getElementById('micIconBtn');
-    const girlSentenceEl = document.getElementById('girlSentence');
-    const conversationStatus = document.getElementById('conversationStatus');
-    const posterArea = document.getElementById('posterArea');
-    const posterImg = document.getElementById('posterImg');
+  <div class="controls">
 
-    const lines = Array.from(document.querySelectorAll(".convo-line"));
-    const repeatResults = [bakerRepeat, kidRepeat];
-    const starRows = [bakerStars, kidStars];
+  <div class="progress-wrap">
+    <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
 
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-    chimeAudio.preload = "auto";
-    chimeAudio.volume = 1;
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
-    instructionAudio.preload = "auto";
-    instructionAudio.volume = 0.28;
-    let loadIntroStarted = false;
+    <div class="mascot-spot">
+      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Circle helper girl" id="girlBtn" class="tap-girl">
+      <div class="mascot-hint">Tap the girl</div>
+    </div>
+    <button class="btn prev" id="prevBtn" type="button">← Previous page</button>
+    <button class="btn next" id="nextBtn" type="button">Next page →</button>
+    <button class="btn stop" id="clearBtn" type="button">Clear</button>
+    <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+      <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
+    </button>
+    <button class="btn read" id="recordBtn" type="button">
+      <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      </svg>Record
+    </button>
+    <div class="recording"><audio id="recordingPlayback" controls></audio></div>
+  </div>
+  <div class="status-wrap">
+    <div class="recording-status" id="recordingStatus"></div>
+    <div class="conversation-status" id="conversationStatus"></div>
+  </div>
+  <div class="footer-note">Trace each number smoothly and use the microphone step by step.</div>
+</div>
 
-    let audioUnlocked = false;
-    let sentenceToken = 0;
+<script>window.__PAGE_CONFIG__ = {"pageId": "LA7", "level": "A", "homeHref": "../../../../index.html", "prevHref": "LA3.html", "nextHref": "../thursday/CircleFairlyTale.html", "chimeSrc": "../../../../assets/audio/chimes/chime.mp3", "micLines": ["Let's write numbers.", "1, 2, 3"], "girlSpeechLines": [{"text": "Let's write numbers.", "html": "Let's write numbers."}, {"text": "1, 2, 3", "html": "1, 2, 3"}], "completionRemarks": ["Wow! You are super smart!", "Amazing Job!", "Great! Keep it up!"], "trace": {"canvases": [{"id": "trace1", "kind": "1"}, {"id": "trace2", "kind": "2"}, {"id": "trace3", "kind": "3"}]}};</script>
 
-    const expectedLines = ["Let's write numbers.", "1, 2, 3"];
-    const attempts = [0,0];
-    const starsAwarded = [0,0];
-    const maxAttempts = 3;
+<script>
+(function(){
+  "use strict";
 
-    let currentLineIndex = 0;
-    let micPhase = "reveal";
-    let micBusy = false;
-    let micDone = false;
-    let micInitialized = false;
+  const CONFIG = window.__PAGE_CONFIG__;
+  const app = document.querySelector(".app, .card");
+  const homeBtn = document.getElementById("homeBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const micBtn = document.getElementById("micIconBtn");
+  const girlBtn = document.getElementById("girlBtn") || document.getElementById("tapGirl");
+  const recordBtn = document.getElementById("recordBtn");
+  const recordPlayback = document.getElementById("recordingPlayback");
+  const recordingStatus = document.getElementById("recordingStatus");
+  const conversationStatus = document.getElementById("conversationStatus");
+  const tracePercentEl = document.getElementById("progressPercent");
+  const traceFillEl = document.getElementById("progressFill");
+  const tapPrompt = document.getElementById("tapPrompt");
+  const extraAnswer = document.getElementById("triangleAnswer");
+  const girlSentence = document.getElementById("girlSentence");
+  const circleReveal = document.getElementById("circleReveal");
+  const lines = Array.from(document.querySelectorAll(".convo-line"));
+  const repeatResults = lines.map(line => line.querySelector(".repeat-result"));
+  const starRows = lines.map(line => line.querySelector(".star-row"));
+  const bubbles = lines.map(line => line.querySelector(".bubble"));
 
-    const progressPercentEl = document.getElementById('progressPercent');
-    const progressFillEl = document.getElementById('progressFill');
-    const tracePercents = [0,0,0];
-    const traceResets = [];
-    let traceCelebrated = false;
-    let traceCompletedNotified = false;
-    let lastTraceSound = 0;
-    let traceSetupDone = false;
+  let recorder = null;
+  let recordedChunks = [];
+  let recognitionToken = 0;
+  let tracePads = [];
+  let traceDoneCelebrated = false;
+  let girlTapped = false;
 
-    function unlockAudio(){
-      if (audioUnlocked) return;
-      audioUnlocked = true;
-      try{
-        chimeAudio.muted = true;
-        const p = chimeAudio.play();
-        if (p && typeof p.then === "function") {
-          p.then(() => {
-            chimeAudio.pause();
-            chimeAudio.currentTime = 0;
-            chimeAudio.muted = false;
-          }).catch(() => {
-            chimeAudio.muted = false;
-          });
-        } else {
-          chimeAudio.pause();
-          chimeAudio.currentTime = 0;
-          chimeAudio.muted = false;
-        }
-      }catch(e){
-        chimeAudio.muted = false;
-      }
-    }
+  const micState = {
+    index: 0,
+    phase: "reveal", // reveal -> prompt -> listen
+    attempts: new Array((CONFIG.micLines || []).length).fill(0),
+    stars: new Array((CONFIG.micLines || []).length).fill(0),
+    done: false,
+    busy: false,
+    initialized: false
+  };
 
-    function playChime(){
-      unlockAudio();
-      try{
-        const sound = chimeAudio.cloneNode(true);
-        sound.currentTime = 0;
-        const p = sound.play();
-        if (p && typeof p.catch === "function") p.catch(() => {});
-      }catch(e){}
-    }
+  function escapeHtml(str){
+    return String(str || "").replace(/[&<>"]/g, ch => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"
+    }[ch]));
+  }
 
-    function setConversationStatus(text){
-      if (conversationStatus) conversationStatus.textContent = text || "";
-    }
+  function pickVoice(){
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    return voices.find(v => /female|woman|zira|aria|samantha|ava|allison|jenny|serena|karen|moira/i.test(v.name + " " + v.lang))
+      || voices.find(v => /en-(us|gb|au|ca)|english/i.test(v.name + " " + v.lang))
+      || voices[0]
+      || null;
+  }
 
-    function lockMic(state){
-      micBusy = !!state;
-      if (micIconBtn) micIconBtn.classList.toggle("is-busy", !!state);
-    }
-
-    function hideAllLines(){
-      lines.forEach(line => {
-        line.classList.remove("show");
-        line.hidden = true;
-        line.style.display = "none";
-      });
-    }
-
-    function showLine(index){
-      const line = lines[index];
-      if (!line) return;
-      line.hidden = false;
-      line.classList.add("show");
-      line.style.display = "flex";
-    }
-
-    function highlightLine(index, on){
-      const line = lines[index];
-      if (!line) return;
-      const bubble = line.querySelector(".bubble");
-      if (!bubble) return;
-      bubble.classList.toggle("sparkle", !!on);
-    }
-
-    function clearHighlights(){
-      lines.forEach(line => {
-        const bubble = line.querySelector(".bubble");
-        if (bubble) bubble.classList.remove("sparkle");
-      });
-    }
-
-    function setStars(index, count){
-      const row = starRows[index];
-      if (!row) return;
-      row.innerHTML = new Array(count).fill("&#9733;").join("");
-    }
-
-    function setRepeatText(index, text){
-      const el = repeatResults[index];
-      if (!el) return;
-      el.textContent = text || "";
-    }
-
-    function stopSpeaking(){
-      try{
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      }catch(_){}
-    }
-
-    function speak(text, onend){
-      stopSpeaking();
-      if(!("speechSynthesis" in window)){
-        if (typeof onend === "function") onend();
+  function speak(text){
+    return new Promise((resolve) => {
+      if (!text || !("speechSynthesis" in window)) {
+        resolve();
         return;
       }
-      const u = new SpeechSynthesisUtterance(text || "");
-      if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
-        window.GPTracing.applyPreferredVoice(u);
-      } else {
-        u.lang = "en-US";
+      try { window.speechSynthesis.cancel(); } catch(_) {}
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.88;
+      utter.pitch = 1.1;
+      utter.volume = 1;
+      utter.lang = "en-US";
+      const voice = pickVoice();
+      if (voice) utter.voice = voice;
+      utter.onend = resolve;
+      utter.onerror = resolve;
+      window.speechSynthesis.speak(utter);
+    });
+  }
+
+  function stopSpeaking(){
+    recognitionToken += 1;
+    try {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    } catch(_) {}
+  }
+
+  function playChime(){
+    try{
+      const audio = new Audio(CONFIG.chimeSrc);
+      audio.preload = "auto";
+      audio.play().catch(() => {});
+    }catch(_){}
+  }
+
+  function normalize(text){
+    return String(text || "")
+      .toLowerCase()
+      .replace(/[^\w\s]|_/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  const stopWords = new Set(["a","an","the","is","are","am","to","of","for","on","in","at","my","your","his","her","our","their","do","does","did","i","you","he","she","it","we","they","some"]);
+  function importantWords(text){
+    return normalize(text).split(" ").filter(Boolean).filter(w => !stopWords.has(w));
+  }
+
+  function matchPercent(expected, said){
+    const e = normalize(expected).split(" ").filter(Boolean);
+    const s = normalize(said).split(" ").filter(Boolean);
+    if (!e.length) return 0;
+    let hits = 0;
+    e.forEach(word => { if (s.includes(word)) hits += 1; });
+    return Math.round((hits / e.length) * 100);
+  }
+
+  function importantEnough(expected, said){
+    const needed = importantWords(expected);
+    if (!needed.length) return true;
+    const heard = normalize(said).split(" ").filter(Boolean);
+    const hits = needed.filter(word => heard.includes(word)).length;
+    return hits >= Math.max(1, Math.ceil(needed.length * 0.5));
+  }
+
+  function rewardStars(attemptNo){
+    if (attemptNo === 1) return 3;
+    if (attemptNo === 2) return 2;
+    if (attemptNo === 3) return 1;
+    return 0;
+  }
+
+  function setStatus(text){
+    if (conversationStatus) conversationStatus.textContent = text || "";
+  }
+
+  function showLine(index){
+    if (!lines[index]) return;
+    lines[index].classList.add("show");
+    lines[index].hidden = false;
+  }
+
+  function hideAllLines(){
+    lines.forEach(line => {
+      line.classList.remove("show");
+      line.hidden = true;
+    });
+  }
+
+  function clearBubbleHighlights(){
+    bubbles.forEach(b => b && b.classList.remove("sparkle"));
+  }
+
+  function setBubbleHighlight(index, on){
+    if (!bubbles[index]) return;
+    bubbles[index].classList.toggle("sparkle", !!on);
+  }
+
+  function setRepeatResult(index, text, color){
+    const el = repeatResults[index];
+    if (!el) return;
+    el.textContent = text || "";
+    el.style.color = color || "";
+  }
+
+  function setStars(index, count){
+    const el = starRows[index];
+    if (!el) return;
+    el.textContent = count > 0 ? "★".repeat(count) : "";
+  }
+
+  function updateMicButtonState(){
+    if (!micBtn) return;
+    micBtn.classList.toggle("is-busy", !!micState.busy);
+  }
+
+  function listenForSpeech(){
+    return new Promise((resolve) => {
+      const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Ctor) {
+        resolve({ supported:false, transcript:"" });
+        return;
       }
-      u.rate = 0.94;
-      u.pitch = 1.08;
-      u.volume = 1;
-      u.onend = () => { if (typeof onend === "function") onend(); };
-      u.onerror = () => { if (typeof onend === "function") onend(); };
-      window.speechSynthesis.speak(u);
-    }
-
-    function playLoadInstructionSequence(){
-      if (loadIntroStarted) return;
-      loadIntroStarted = true;
-
-      const beginSpeech = () => {
-        speak("Let's write numbers. 1, 2, 3");
+      const token = ++recognitionToken;
+      const rec = new Ctor();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.continuous = false;
+      rec.maxAlternatives = 3;
+      let finished = false;
+      function done(text){
+        if (finished || token !== recognitionToken) return;
+        finished = true;
+        resolve({ supported:true, transcript:(text || "").trim() });
+      }
+      rec.onresult = (event) => {
+        const txt = Array.from(event.results || []).map(r => r && r[0] && r[0].transcript).filter(Boolean).join(" ");
+        done(txt);
       };
-
-      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
-      instructionAudio.onended = () => {
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      };
-      instructionAudio.onerror = () => {
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      };
-
-      try{
-        instructionAudio.currentTime = 0;
-        const playAttempt = instructionAudio.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {
-            window.clearTimeout(fallbackTimer);
-            beginSpeech();
-          });
-        }
-      }catch(_err){
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
+      rec.onerror = () => done("");
+      rec.onnomatch = () => done("");
+      rec.onend = () => done("");
+      try {
+        rec.start();
+      } catch(_) {
+        done("");
       }
-    }
-
-    function showAndSpeakLine(index, onend){
-      if (index < 0 || index >= lines.length) {
-        if (typeof onend === "function") onend();
-        return;
-      }
-      showLine(index);
-      currentLineIndex = index;
-      const bubble = lines[index].querySelector(".bubble");
-      const text = bubble ? bubble.textContent.trim() : "";
-      setConversationStatus(text);
-      speak(text, onend);
-    }
-
-    function prepareMicUI(){
-      if (!micInitialized) {
-        hideAllLines();
-        showLine(0);
-        if (lines[1]) {
-          lines[1].hidden = true;
-          lines[1].classList.remove("show");
-          lines[1].style.display = "none";
-        }
-        micInitialized = true;
-        currentLineIndex = 0;
-        micPhase = "reveal";
-      }
-    }
-
-    function listenForRepeat(expectedText, onDone){
-      if (window.GPTracing && typeof window.GPTracing.listenForRepeat === "function") {
-        window.GPTracing.listenForRepeat(expectedText, onDone, {
-          timeoutMs: 6500,
-          settleMs: 1400,
-          startDelayMs: 700
-        });
-        return;
-      }
-      onDone(0, "");
-    }
-
-    async function finishMicActivity(){
-      if (micDone) return;
-      micDone = true;
-      playChime();
-      const remarks = ["Wow! You are super smart!", "Amazing job!", "Great! Keep it up."];
-      const remark = remarks[Math.floor(Math.random() * remarks.length)];
-      setConversationStatus(remark);
-      speak(remark);
-      window.dispatchEvent(new CustomEvent("gp:mic-complete"));
-    }
-
-    async function goToNextMicLine(){
-      highlightLine(currentLineIndex, false);
-      const nextIndex = currentLineIndex + 1;
-      micPhase = "reveal";
-      lockMic(false);
-
-      if (nextIndex >= expectedLines.length) {
-        await finishMicActivity();
-        return;
-      }
-
-      currentLineIndex = nextIndex;
-      showAndSpeakLine(currentLineIndex);
-      micPhase = "repeat";
-    }
-
-    async function runMicSequence(){
-      unlockAudio();
-      if (window.GPTracing?.prepareMicSupport) {
-        await window.GPTracing.prepareMicSupport().catch(() => {});
-      }
-      if (micDone || micBusy) return;
-
-      prepareMicUI();
-
-      if (micPhase === "reveal") {
-        lockMic(true);
-        showAndSpeakLine(currentLineIndex, () => {
-          setConversationStatus("Tap microphone again and repeat.");
-          micPhase = "repeat";
-          lockMic(false);
-        });
-        return;
-      }
-
-      if (micPhase !== "repeat") return;
-
-      lockMic(true);
-      highlightLine(currentLineIndex, true);
-      setConversationStatus("Repeat after me.");
-
-      speak("Repeat after me.", () => {
-        listenForRepeat(expectedLines[currentLineIndex], (pct, said) => {
-          const tryNo = ++attempts[currentLineIndex];
-
-          if (pct >= 50) {
-            setRepeatText(currentLineIndex, (said || expectedLines[currentLineIndex]).trim());
-            starsAwarded[currentLineIndex] =
-              window.GPTracing && typeof window.GPTracing.rewardStars === "function"
-                ? window.GPTracing.rewardStars(tryNo)
-                : (tryNo === 1 ? 3 : tryNo === 2 ? 2 : 1);
-            setStars(currentLineIndex, starsAwarded[currentLineIndex]);
-            setConversationStatus("Great speaking. Get ready for the next bubble.");
-            setTimeout(() => { goToNextMicLine(); }, 900);
-            return;
-          }
-
-          if (tryNo >= maxAttempts) {
-            setRepeatText(currentLineIndex, "Sorry, Study hard!");
-            setStars(currentLineIndex, 0);
-            speak("Sorry, Study hard!", () => {
-              setTimeout(() => { goToNextMicLine(); }, 900);
-            });
-            return;
-          }
-
-          highlightLine(currentLineIndex, false);
-          lockMic(false);
-          micPhase = "repeat";
-          setRepeatText(currentLineIndex, "Sorry, try again!");
-          setConversationStatus("Sorry, try again!");
-          speak("Sorry, try again!");
-        });
-      });
-    }
-
-    const sentenceLines = [
-      { text: "Let's write numbers.", html: "Let’s write numbers." },
-      { text: "1, 2, 3", html: "1, 2, 3" }
-    ];
-
-    function showSpark(){
-      const girlRect = girlBtn.getBoundingClientRect();
-      const targetRect = girlSentenceEl.getBoundingClientRect();
-      const startX = girlRect.left + girlRect.width / 2;
-      const startY = girlRect.top + girlRect.height / 2;
-      const endX = targetRect.left + targetRect.width / 2;
-      const endY = targetRect.top + targetRect.height / 2;
-      const dx = endX - startX;
-      const dy = endY - startY;
-
-      const spark = document.createElement("div");
-      spark.style.position = "fixed";
-      spark.style.width = "18px";
-      spark.style.height = "18px";
-      spark.style.borderRadius = "50%";
-      spark.style.background = "radial-gradient(circle,#fff799 0%,#ffd54f 60%,rgba(255,213,79,0) 100%)";
-      spark.style.left = startX + "px";
-      spark.style.top = startY + "px";
-      spark.style.zIndex = "9998";
-      spark.style.pointerEvents = "none";
-      spark.animate([
-        { transform:"translate(0,0) scale(.6)", opacity:1 },
-        { transform:`translate(${dx}px,${dy}px) scale(1.2)`, opacity:0 }
-      ], { duration:700, easing:"ease-out" });
-      document.body.appendChild(spark);
-      setTimeout(() => spark.remove(), 760);
-    }
-
-    function revealSentenceLine(index, token){
-      if (token !== sentenceToken) return;
-      if (index >= sentenceLines.length) return;
-      const lineEl = girlSentenceEl.querySelector(`[data-line="${index}"]`);
-      if (!lineEl) return;
-      lineEl.classList.add("show");
-      speak(sentenceLines[index].text, () => {
-        setTimeout(() => revealSentenceLine(index + 1, token), 180);
-      });
-    }
-
-    girlBtn.addEventListener('click', () => {
-      unlockAudio();
-      sentenceToken += 1;
-      const token = sentenceToken;
-      girlSentenceEl.innerHTML = sentenceLines
-        .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
-        .join("");
-      showSpark();
-      playChime();
-      setTimeout(() => revealSentenceLine(0, token), 220);
     });
+  }
 
-    if (micIconBtn) {
-      micIconBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        runMicSequence();
-      }, { passive:false });
-    }
-
-    prevBtn.addEventListener('click', () => {
-      window.location.href = "LA3.html";
-    });
-
-    nextBtn.addEventListener('click', () => {
-      window.location.href = "../thursday/CircleFairlyTale.html";
-    });
-
-    function updateTotal(){
-      const raw = tracePercents.reduce((a,b)=>a+b,0) / tracePercents.length;
-      const allDone = tracePercents.every(p => p >= 90);
-      const total = Math.round(raw);
-      progressPercentEl.textContent = total + "%";
-      progressFillEl.style.width = total + "%";
-
-      if (typeof window.__gpRealtimeSaveLA7 === "function") {
-        window.__gpRealtimeSaveLA7(total);
-      }
-
-      if(allDone && !traceCelebrated){
-        traceCelebrated = true;
-        playChime();
-        speak("Wow! great job!");
-        if (!traceCompletedNotified) {
-          traceCompletedNotified = true;
-          window.dispatchEvent(new Event("gp:trace-complete"));
-        }
-      }
-
-      if(!allDone){
-        traceCelebrated = false;
-        traceCompletedNotified = false;
-      }
-    }
-
-    function playTraceTick(){
-      try{
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if(!AudioCtx) return;
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.value = 880;
-        gain.gain.value = 0.055;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.045);
-        osc.onended = () => ctx.close();
-      }catch(e){}
-    }
-
-    function syncTraceCanvasResolution(){
-      // Shared tracing handles its own internal canvas resize lifecycle.
-    }
-
-    function setupTrace(canvasId, kind, index){
-      const traceGroups = window.GPTracing.getDigitTraceGroups(kind);
-      const reset = window.GPTracing.createPathTracePad({
-        canvasId,
-        getPoints: () => traceGroups,
-          lineWidth: 13,
-          threshold: 26,
-          posterImg,
-        onProgress: (pct) => {
-          tracePercents[index] = Math.max(0, Math.min(100, Math.round(pct)));
-          updateTotal();
-        },
-        onTick: () => {
-          const now = performance.now();
-          if (now - lastTraceSound > 110) {
-            lastTraceSound = now;
-            playTraceTick();
-          }
-        }
-      });
-
-      if (typeof reset === "function") {
-        traceResets[index] = () => {
-          reset();
-          tracePercents[index] = 0;
-          updateTotal();
-        };
-      } else {
-        traceResets[index] = () => {
-          tracePercents[index] = 0;
-          updateTotal();
-        };
-      }
-    }
-
-    function initTracingOnce(){
-      if (traceSetupDone) return;
-      if (!window.GPTracing || typeof window.GPTracing.createPathTracePad !== "function") {
-        console.warn("GPTracing.createPathTracePad is not available.");
-        return;
-      }
-
-      syncTraceCanvasResolution();
-      setupTrace("trace1", "1", 0);
-      setupTrace("trace2", "2", 1);
-      setupTrace("trace3", "3", 2);
-
-      traceSetupDone = true;
-      updateTotal();
-    }
-
-    function resetTracingOnly(){
-      traceResets.forEach(fn => {
-        if (typeof fn === "function") fn();
-      });
-      syncTraceCanvasResolution();
-      tracePercents[0] = 0;
-      tracePercents[1] = 0;
-      tracePercents[2] = 0;
-      traceCelebrated = false;
-      traceCompletedNotified = false;
-      updateTotal();
-    }
-
-    function waitForPosterThenInit(){
-      if (posterImg.complete) {
-        requestAnimationFrame(() => {
-          syncTraceCanvasResolution();
-          initTracingOnce();
-        });
-      } else {
-        posterImg.addEventListener('load', () => {
-          requestAnimationFrame(() => {
-            syncTraceCanvasResolution();
-            initTracingOnce();
-          });
-        }, { once:true });
-      }
-    }
-
-    clearBtn.addEventListener('click', () => {
-      resetTracingOnly();
-      hideAllLines();
-      clearHighlights();
-      currentLineIndex = 0;
-      micPhase = "reveal";
-      lockMic(false);
-      micDone = false;
-      micInitialized = false;
-      attempts[0] = 0;
-      attempts[1] = 0;
-      starsAwarded[0] = 0;
-      starsAwarded[1] = 0;
-      setRepeatText(0, "");
-      setRepeatText(1, "");
-      setStars(0, 0);
-      setStars(1, 0);
-      setConversationStatus("");
-    });
-
-    hideAllLines();
-    waitForPosterThenInit();
-    window.addEventListener('load', playLoadInstructionSequence, { once:true });
-
-    window.addEventListener('resize', syncTraceCanvasResolution);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', syncTraceCanvasResolution);
-
-    if (window.ResizeObserver) {
-      const ro = new ResizeObserver(() => {
-        syncTraceCanvasResolution();
-      });
-      ro.observe(posterArea);
-    }
-  </script>
-
-  <script>
-    function fitCardToViewport(){
-      window.GPTracing.fitElementToViewport('.card', {
-        minWidth: 320,
-        minHeight: 320,
-        padding: 8,
-        minScale: 0.58
-      });
-    }
-    fitCardToViewport();
-    window.addEventListener('resize', fitCardToViewport);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', fitCardToViewport);
-  </script>
-
-  <script>
-    (function(){
-      const homeBtn = document.querySelector('.home-btn');
-      if(!homeBtn) return;
-
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
-      chime.preload = "auto";
-
-      homeBtn.addEventListener('click', () => {
-        try{
-          chime.currentTime = 0;
-          const p = chime.play();
-          if (p && typeof p.catch === "function") p.catch(() => {});
-        }catch(e){}
-      });
+  async function saveProgress(overrides = {}){
+    const pageId = CONFIG.pageId;
+    const level = CONFIG.level;
+    const session = (() => {
+      try { return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null") || {}; } catch(_) { return {}; }
     })();
-  </script>
 
-  <script src="../../../../activity-standardizer.js"></script>
+    const traceProgress = tracePads.length
+      ? Math.round(tracePads.reduce((sum, pad) => sum + pad.getProgress(), 0) / tracePads.length)
+      : 0;
+    const totalMicStars = micState.stars.reduce((a,b) => a+b, 0);
+    const micLinesDone = repeatResults.filter(el => {
+      const t = (el?.textContent || "").trim();
+      return t && t !== "Sorry, try again!" && t !== "You did a good Job. Nice try!";
+    }).length;
+    const inferredScore = tracePads.length
+      ? Math.max(traceProgress, Math.round((micLinesDone / Math.max(1, (CONFIG.micLines || []).length)) * 35 + totalMicStars * 5))
+      : Math.round((micLinesDone / Math.max(1, (CONFIG.micLines || []).length)) * 70 + totalMicStars * 5 + (girlTapped ? 10 : 0));
 
-  <script type="module">
-    import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-
-    let realtimeSaveTimer = null;
-    window.__gpRealtimeSaveLA7 = function(score){
-      if (typeof window.finishAndSave !== "function") return;
-      if (realtimeSaveTimer) window.clearTimeout(realtimeSaveTimer);
-      realtimeSaveTimer = window.setTimeout(() => {
-        window.finishAndSave({
-          pageId: "LA7",
-          level: "A",
-          activityType: "lesson",
-          score: Math.max(0, Math.min(100, Math.round(score))),
-          stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0,
-          tracing: Math.max(0, Math.min(100, Math.round(score))),
-          completed: score >= 90
-        }).catch(() => {});
-      }, 250);
+    const payload = {
+      pageId,
+      file: pageId + ".html",
+      level,
+      type: CONFIG.trace ? "lesson" : "activity",
+      activityType: CONFIG.trace ? "lesson" : "speaking",
+      score: Math.max(0, Math.min(100, inferredScore)),
+      stars: totalMicStars,
+      tracing: traceProgress,
+      completed: !!(micState.done || traceProgress >= 90),
+      skills: {
+        reading: girlTapped ? 1 : 0,
+        writing: traceProgress >= 90 ? 3 : traceProgress >= 70 ? 2 : traceProgress > 0 ? 1 : 0,
+        speaking: micLinesDone >= (CONFIG.micLines || []).length ? 3 : micLinesDone > 0 ? 1 : 0,
+        listening: micLinesDone >= (CONFIG.micLines || []).length ? 3 : micLinesDone > 0 ? 1 : 0
+      },
+      week: 1,
+      month: 1,
+      classId: session.classId || null,
+      studentId: session.studentId || null,
+      studentName: session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now(),
+      ...overrides
     };
 
-    window.GPProgress.installTracker({
-      saveActivityResult,
-      markLoginPing,
-      defaultPageId: "LA7",
-      defaultLevel: "A",
-      defaultActivityType: "lesson",
-      defaultScore: 100,
-      defaultStars: 1,
-      defaultSkills: {
-        reading: 1,
-        writing: 1,
-        speaking: 1,
-        listening: 1
+    try{
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+      store[payload.pageId] = { ...(store[payload.pageId] || {}), ...payload };
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE", payload.file);
+      localStorage.setItem("gpLatestProgress", JSON.stringify(payload));
+    }catch(_){}
+
+    try {
+      window.dispatchEvent(new CustomEvent("gp-progress-update", { detail: payload }));
+    } catch(_) {}
+
+    try {
+      if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+        await window.GPTrack.finish(payload);
       }
-    });
+    } catch(_) {}
 
-    function getStudentSession(){
-      try{
-        return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-      }catch(e){
-        return null;
+    return payload;
+  }
+
+  async function finishMicSequence(){
+    micState.done = true;
+    micState.busy = false;
+    updateMicButtonState();
+    clearBubbleHighlights();
+    playChime();
+    const remark = CONFIG.completionRemarks[Math.floor(Math.random() * CONFIG.completionRemarks.length)];
+    setStatus(remark);
+    await speak(remark);
+    await saveProgress({ score:100, completed:true });
+  }
+
+  async function goNextMicLine(){
+    clearBubbleHighlights();
+    micState.busy = false;
+    micState.phase = "reveal";
+    updateMicButtonState();
+
+    if (micState.index >= (CONFIG.micLines.length - 1)) {
+      await finishMicSequence();
+      return;
+    }
+
+    micState.index += 1;
+    showLine(micState.index);
+    setStatus(CONFIG.micLines[micState.index]);
+    await speak(CONFIG.micLines[micState.index]);
+    micState.phase = "prompt";
+    await saveProgress();
+  }
+
+  async function onMicClick(ev){
+    if (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+    if (micState.busy || micState.done) return;
+    if (!micState.initialized) {
+      hideAllLines();
+      showLine(0);
+      micState.initialized = true;
+      micState.index = 0;
+    }
+
+    const text = CONFIG.micLines[micState.index];
+
+    if (micState.phase === "reveal") {
+      clearBubbleHighlights();
+      setStatus(text);
+      await speak(text);
+      micState.phase = "prompt";
+      await saveProgress();
+      return;
+    }
+
+    if (micState.phase === "prompt") {
+      setBubbleHighlight(micState.index, true);
+      setStatus("Repeat after me.");
+      await speak("Repeat after me.");
+      setStatus("Now tap the microphone and speak.");
+      micState.phase = "listen";
+      await saveProgress();
+      return;
+    }
+
+    micState.busy = true;
+    updateMicButtonState();
+    setStatus("Speak now.");
+
+    const heard = await listenForSpeech();
+
+    if (!heard.supported) {
+      micState.busy = false;
+      updateMicButtonState();
+      setStatus("Speech check is not supported on this browser.");
+      setRepeatResult(micState.index, "Speech check is not supported on this browser.", "#b06a00");
+      return;
+    }
+
+    const tryNo = ++micState.attempts[micState.index];
+    const transcript = (heard.transcript || "").trim();
+    const pct = matchPercent(text, transcript);
+    const ok = pct >= 50 && importantEnough(text, transcript);
+
+    if (ok) {
+      setRepeatResult(micState.index, transcript || text, "#2f9f5f");
+      micState.stars[micState.index] = rewardStars(tryNo);
+      setStars(micState.index, micState.stars[micState.index]);
+      setStatus("Great! Get ready for the next sentence.");
+      await saveProgress();
+      await goNextMicLine();
+      return;
+    }
+
+    if (tryNo >= 3) {
+      micState.stars[micState.index] = 0;
+      setStars(micState.index, 0);
+      setRepeatResult(micState.index, "You did a good Job. Nice try!", "#b06a00");
+      setStatus("You did a good Job. Nice try!");
+      await saveProgress();
+      await speak("You did a good Job. Nice try!");
+      await goNextMicLine();
+      return;
+    }
+
+    micState.busy = false;
+    updateMicButtonState();
+    setRepeatResult(micState.index, "Sorry, try again!", "#c62828");
+    setStatus("Sorry, try again!");
+    await saveProgress();
+    await speak("Sorry, try again!");
+    setStatus("Tap the microphone and speak again.");
+  }
+
+  async function onGirlTap(){
+    girlTapped = true;
+    if (circleReveal) circleReveal.classList.add("show");
+    if (tapPrompt) tapPrompt.classList.add("show");
+    if (extraAnswer) {
+      extraAnswer.classList.remove("show");
+      setTimeout(() => extraAnswer.classList.add("show"), 2600);
+    }
+
+    if (CONFIG.girlSpeechLines && girlSentence) {
+      girlSentence.innerHTML = CONFIG.girlSpeechLines.map((line, i) => `<div class="headline-line" data-line="${i}">${escapeHtml(line.html || line.text || line)}</div>`).join("");
+      const elements = Array.from(girlSentence.querySelectorAll(".headline-line"));
+      for (let i = 0; i < CONFIG.girlSpeechLines.length; i += 1) {
+        const lineCfg = CONFIG.girlSpeechLines[i];
+        if (elements[i]) elements[i].classList.add("show");
+        await speak(lineCfg.text || lineCfg.html || "");
       }
+    } else if (CONFIG.girlTapSpeech) {
+      await speak(CONFIG.girlTapSpeech);
     }
 
-    function inferProgressMeta(payload){
-      const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-      const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-      const level = (payload && payload.level)
-        || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-      const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-      const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-      const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-      const month = payload && payload.month != null ? Number(payload.month) : 1;
-      return {
-        pageId,
-        file,
-        level,
-        week: Number.isFinite(week) && week > 0 ? week : 1,
-        month: Number.isFinite(month) && month > 0 ? month : 1
-      };
+    if (CONFIG.girlTapSpeech && !CONFIG.girlSpeechLines) {
+      setStatus(CONFIG.girlTapSpeech);
+    }
+    await saveProgress();
+  }
+
+  async function toggleRecord(){
+    if (!recordBtn) return;
+
+    function setRecordLabel(label){
+      recordBtn.innerHTML = `
+        <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        </svg>${label}`;
     }
 
-    function getActivityStore(){
-      try{
-        return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-      }catch(e){
-        return {};
+    if (recorder && recorder.state === "recording") {
+      recorder.stop();
+      setRecordLabel("Record");
+      if (recordingStatus) recordingStatus.textContent = "Saved recording.";
+      return;
+    }
+
+    try{
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (recordingStatus) recordingStatus.textContent = "Microphone not available in this browser.";
+        return;
       }
-    }
-
-    function setActivityStore(store){
-      try{
-        localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-      }catch(e){}
-    }
-
-    function saveLocalActivityFallback(payload){
-      const session = getStudentSession() || {};
-      const meta = inferProgressMeta(payload || {});
-      const score = payload && typeof payload.score === "number" ? payload.score : 0;
-      const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-      const tracing = payload && typeof payload.tracing === "number"
-        ? payload.tracing
-        : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-      const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-
-      const entry = {
-        pageId: meta.pageId,
-        file: meta.file,
-        level: meta.level,
-        type,
-        activityType: (payload && payload.activityType) || type,
-        score,
-        stars,
-        skills: payload && payload.skills ? payload.skills : {},
-        completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-        tracing,
-        week: meta.week,
-        month: meta.month,
-        classId: (payload && payload.classId) || session.classId || null,
-        studentId: (payload && payload.studentId) || session.studentId || null,
-        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-        savedAt: new Date().toISOString(),
-        ts: Date.now()
+      if (!window.MediaRecorder) {
+        if (recordingStatus) recordingStatus.textContent = "Recording not supported on this device.";
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      recordedChunks = [];
+      recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+      recorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: recorder.mimeType || "audio/webm" });
+        if (recordPlayback) {
+          recordPlayback.src = URL.createObjectURL(blob);
+          recordPlayback.load();
+        }
+        stream.getTracks().forEach(track => track.stop());
       };
-
-      const store = getActivityStore();
-      store[meta.pageId] = {
-        ...(store[meta.pageId] || {}),
-        ...entry
-      };
-      setActivityStore(store);
-
-      try{
-        localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-      }catch(e){}
-
-      return store[meta.pageId];
+      recorder.start();
+      setRecordLabel("Stop");
+      if (recordingStatus) recordingStatus.textContent = "Recording... speak clearly.";
+    }catch(_){
+      if (recordingStatus) recordingStatus.textContent = "Microphone permission denied.";
     }
+  }
 
-    async function finishAndSave(payload){
-      const session = getStudentSession() || {};
-      const fullPayload = {
-        ...(payload || {}),
-        classId: (payload && payload.classId) || session.classId || null,
-        studentId: (payload && payload.studentId) || session.studentId || null,
-        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-      };
+  function resizeCanvas(canvas){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(10, Math.round(rect.width * dpr));
+    const h = Math.max(10, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr, dpr);
+    return { ctx, width: rect.width, height: rect.height };
+  }
 
-      saveLocalActivityFallback(fullPayload);
-
-      if (typeof window.finishActivity === "function") {
-        try{
-          await window.finishActivity(fullPayload);
-        }catch(err){
-          console.warn("finishActivity failed, local fallback already saved:", err);
+  function sampleStroke(points, width, height, stepPx){
+    const samples = [];
+    points.forEach(polyline => {
+      for (let i = 0; i < polyline.length - 1; i += 1) {
+        const p0 = polyline[i], p1 = polyline[i+1];
+        const x0 = p0[0] * width, y0 = p0[1] * height;
+        const x1 = p1[0] * width, y1 = p1[1] * height;
+        const len = Math.hypot(x1 - x0, y1 - y0);
+        const steps = Math.max(1, Math.ceil(len / stepPx));
+        for (let s = 0; s <= steps; s += 1) {
+          const t = s / steps;
+          samples.push({ x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, hit:false });
         }
       }
+    });
+    return samples;
+  }
 
-      return fullPayload;
+  function distPointToSegment(px, py, ax, ay, bx, by){
+    const dx = bx - ax, dy = by - ay;
+    if (!dx && !dy) return Math.hypot(px - ax, py - ay);
+    const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx*dx + dy*dy)));
+    const x = ax + t * dx, y = ay + t * dy;
+    return Math.hypot(px - x, py - y);
+  }
+
+  function createTracePad(canvas, normalizedGroups, index){
+    const state = {
+      samples: [],
+      drawing: false,
+      prev:null,
+      progress:0
+    };
+
+    function rebuild(){
+      const { ctx, width, height } = resizeCanvas(canvas);
+      ctx.clearRect(0,0,width,height);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(31,94,168,0.95)";
+      ctx.lineWidth = Math.max(7, Math.min(width, height) * 0.09);
+      state.ctx = ctx;
+      state.cssWidth = width;
+      state.cssHeight = height;
+      state.samples = sampleStroke(normalizedGroups, width, height, Math.max(6, Math.min(width,height) * 0.05));
+      state.samples.forEach(s => s.hit = false);
+      state.progress = 0;
     }
 
-    window.finishAndSave = finishAndSave;
-  </script>
+    function updateProgress(){
+      const hitCount = state.samples.filter(s => s.hit).length;
+      state.progress = state.samples.length ? Math.round((hitCount / state.samples.length) * 100) : 0;
+      if (typeof CONFIG.onTraceProgress === "function") CONFIG.onTraceProgress(index, state.progress);
+      saveProgress();
+    }
 
-  
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
+    function markHits(a, b){
+      const threshold = Math.max(12, Math.min(state.cssWidth, state.cssHeight) * 0.12);
+      for (const s of state.samples) {
+        if (s.hit) continue;
+        if (distPointToSegment(s.x, s.y, a.x, a.y, b.x, b.y) <= threshold) s.hit = true;
+      }
+    }
+
+    function getPoint(evt){
+      const rect = canvas.getBoundingClientRect();
+      return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+    }
+
+    canvas.style.touchAction = "none";
+
+    canvas.addEventListener("pointerdown", (evt) => {
+      evt.preventDefault();
+      canvas.setPointerCapture?.(evt.pointerId);
+      state.drawing = true;
+      state.prev = getPoint(evt);
+    });
+
+    canvas.addEventListener("pointermove", (evt) => {
+      if (!state.drawing) return;
+      evt.preventDefault();
+      const p = getPoint(evt);
+      const ctx = state.ctx;
+      ctx.beginPath();
+      ctx.moveTo(state.prev.x, state.prev.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      markHits(state.prev, p);
+      state.prev = p;
+      updateProgress();
+    });
+
+    function stop(evt){
+      if (!state.drawing) return;
+      evt.preventDefault();
+      state.drawing = false;
+      state.prev = null;
+    }
+
+    canvas.addEventListener("pointerup", stop);
+    canvas.addEventListener("pointercancel", stop);
+    canvas.addEventListener("pointerleave", stop);
+
+    rebuild();
+
+    return {
+      reset(){
+        rebuild();
+        updateProgress();
+      },
+      getProgress(){
+        return state.progress || 0;
+      },
+      resize(){
+        rebuild();
+        updateProgress();
+      }
+    };
+  }
+
+  function digitGroups(kind){
+    const map = {
+      "1":[[[0.38,0.18],[0.55,0.08],[0.55,0.9]]],
+      "2":[[[0.22,0.22],[0.36,0.10],[0.62,0.12],[0.76,0.28],[0.70,0.48],[0.46,0.64],[0.24,0.86],[0.80,0.86]]],
+      "3":[[[0.24,0.18],[0.44,0.10],[0.68,0.16],[0.72,0.34],[0.52,0.50],[0.72,0.66],[0.68,0.84],[0.40,0.90],[0.22,0.82]]]
+    };
+    return map[String(kind)] || [];
+  }
+
+  if (CONFIG.trace && Array.isArray(CONFIG.trace.canvases)) {
+    const progresses = new Array(CONFIG.trace.canvases.length).fill(0);
+
+    CONFIG.onTraceProgress = (index, pct) => {
+      progresses[index] = Math.max(0, Math.min(100, Math.round(pct)));
+      const avg = Math.round(progresses.reduce((a,b) => a+b, 0) / progresses.length);
+      if (tracePercentEl) tracePercentEl.textContent = avg + "%";
+      if (traceFillEl) traceFillEl.style.width = avg + "%";
+      if (avg >= 90 && !traceDoneCelebrated) {
+        traceDoneCelebrated = true;
+        playChime();
+        speak("Wow! Great job!");
+      }
+      if (avg < 90) traceDoneCelebrated = false;
+    };
+
+    CONFIG.trace.canvases.forEach((cfg, index) => {
+      const el = document.getElementById(cfg.id);
+      if (!el) return;
+      tracePads.push(createTracePad(el, digitGroups(cfg.kind), index));
+    });
+
+    function resizePads(){ tracePads.forEach(p => p.resize()); }
+    window.addEventListener("resize", resizePads);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", resizePads);
+  }
+
+  function resetPage(){
+    stopSpeaking();
+    micState.index = 0;
+    micState.phase = "reveal";
+    micState.attempts = new Array((CONFIG.micLines || []).length).fill(0);
+    micState.stars = new Array((CONFIG.micLines || []).length).fill(0);
+    micState.done = false;
+    micState.busy = false;
+    micState.initialized = false;
+    updateMicButtonState();
+    hideAllLines();
+    clearBubbleHighlights();
+    repeatResults.forEach(el => { if (el) { el.textContent = ""; el.style.color = ""; } });
+    starRows.forEach(el => { if (el) el.textContent = ""; });
+    if (tapPrompt) tapPrompt.classList.remove("show");
+    if (extraAnswer) extraAnswer.classList.remove("show");
+    if (circleReveal) circleReveal.classList.remove("show");
+    if (girlSentence) girlSentence.innerHTML = "";
+    tracePads.forEach(p => p.reset());
+    setStatus("");
+    saveProgress({ score:0, stars:0, completed:false });
+  }
+
+  function go(url){
+    stopSpeaking();
+    window.location.href = url;
+  }
+
+  if (micBtn) micBtn.addEventListener("click", onMicClick, { passive:false });
+  if (clearBtn) clearBtn.addEventListener("click", resetPage);
+  if (girlBtn) girlBtn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); onGirlTap(); });
+  if (recordBtn) recordBtn.addEventListener("click", toggleRecord);
+  if (prevBtn) prevBtn.addEventListener("click", () => go(CONFIG.prevHref));
+  if (nextBtn) nextBtn.addEventListener("click", () => go(CONFIG.nextHref));
+  if (homeBtn) homeBtn.addEventListener("click", (e) => { e.preventDefault(); go(CONFIG.homeHref); });
+
+  hideAllLines();
+  saveProgress({ score:0, stars:0, completed:false });
+  window.addEventListener("beforeunload", stopSpeaking);
+})();
+</script>
+
 </body>
 </html>

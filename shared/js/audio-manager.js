@@ -1,5 +1,6 @@
 (function(){
   if (window.GPAudio) return;
+  window.__GP_DISABLE_SHARED_BG_AUDIO__ = true;
 
   const AUDIO_PATHS = {
     welcome: "/assets/audio/bg-welcome.mp3",
@@ -36,23 +37,8 @@
   }
 
   async function playBgm(key, volume = 0.35){
-    const src = AUDIO_PATHS[key];
-    if (!src) return null;
-
-    if (currentBgmKey === key && bgmAudio) {
-      bgmAudio.volume = volume;
-      return bgmAudio;
-    }
-
     stopBgm();
-    bgmAudio = createAudio(src, { loop:true, volume });
-    currentBgmKey = key;
-
-    try{
-      await bgmAudio.play();
-    }catch(_err){}
-
-    return bgmAudio;
+    return null;
   }
 
   async function playSfx(key, volume = 0.7){

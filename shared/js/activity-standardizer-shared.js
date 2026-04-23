@@ -32,7 +32,8 @@
     style.textContent =
       "html,body{max-width:100%;overflow-x:hidden !important;overscroll-behavior-x:contain;-webkit-text-size-adjust:100%;text-size-adjust:100%;}" +
       "*,*::before,*::after{box-sizing:border-box;}" +
-      "img,video,canvas,svg,iframe{max-width:100%;height:auto;display:block;}" +
+      "img,video,svg,iframe{max-width:100%;height:auto;display:block;}" +
+      "canvas{display:block;}" +
       "body{padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));}" +
       ".app,.card,.page,.page-wrap,.board,.poster-area,.poster-wrap,.video-shell,.video-card,.stage,.lesson-stage,.tray-hero{position:relative;max-width:100% !important;}" +
       ".button-row,.controls,.footerNav,.top-actions,.top-bar,.bottom-bar{gap:clamp(8px,2vw,14px) !important;flex-wrap:wrap !important;}" +
@@ -177,6 +178,8 @@
     if (!pageInstructionAudio) return;
     try { pageInstructionAudio.pause(); } catch (_) {}
     try { pageInstructionAudio.currentTime = 0; } catch (_) {}
+    try { pageInstructionAudio.muted = true; } catch (_) {}
+    try { pageInstructionAudio.volume = 0; } catch (_) {}
   }
 
   function installMediaPlaybackPatch() {
@@ -194,26 +197,11 @@
           const isRecordingPlayback = /recordingPlayback/i.test(String(media.id || ""));
 
           if (isInstructionAudio) {
-            media.muted = false;
-            media.volume = 0.28;
-            if (media.dataset && media.dataset.gpInstructionRepeatBound !== "1") {
-              media.dataset.gpInstructionRepeatBound = "1";
-              media.dataset.gpInstructionRepeatCount = "0";
-              media.addEventListener("ended", function repeatInstructionOnce() {
-                const count = Number(media.dataset.gpInstructionRepeatCount || "0");
-                if (count >= 1) return;
-                media.dataset.gpInstructionRepeatCount = String(count + 1);
-                window.setTimeout(() => {
-                  try {
-                    media.currentTime = 0;
-                    media.muted = false;
-                    media.volume = 0.28;
-                    const replay = originalPlay.call(media);
-                    if (replay && typeof replay.catch === "function") replay.catch(() => {});
-                  } catch (_) {}
-                }, 420);
-              });
-            }
+            media.pause();
+            media.currentTime = 0;
+            media.muted = true;
+            media.volume = 0;
+            return Promise.resolve(media);
           } else if (isVideo && !isRecordingPlayback) {
             media.volume = Math.min(Number.isFinite(media.volume) ? media.volume : 1, 0.3);
           }
@@ -224,6 +212,7 @@
   }
 
   function shouldAutoPlayPageInstructionAudio() {
+    return false;
     if (!isLevelLessonPage()) return false;
     if (window.__GP_AUTO_PAGE_INSTRUCTION_AUDIO__ === false) return false;
     if (hasPageManagedInstructionAudio()) return false;
@@ -1073,6 +1062,8 @@
       const conversationStatus = document.getElementById("conversationStatus") || document.querySelector(".conversation-status");
       const attempts = new Array(lines.length).fill(0);
       const starsAwarded = new Array(lines.length).fill(0);
+      let realtimeMicTimer = 0;
+      let lastRealtimeMicSignature = "";
       const successRemarks = [
         "Wow! You are super smart!",
         "Amazing Job",
@@ -1080,6 +1071,8 @@
       ];
       const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
+      const cheer = new Audio("../../../../assets/audio/sfx-cheer.mp3");
+      cheer.preload = "auto";
       const state = {
         fallbackActive: false,
         micStepIndex: 0,
@@ -1110,6 +1103,45 @@
         const el = starOutputs[index];
         if (!el) return;
         el.innerHTML = new Array(Math.max(0, count || 0)).fill("&#9733;").join("");
+      }
+
+      function scheduleRealtimeMicSave(completed) {
+        const totalStars = starsAwarded.reduce((sum, value) => sum + value, 0);
+        const maxStars = Math.max(1, lines.length * 3);
+        const score = Math.max(0, Math.min(100, Math.round((totalStars / maxStars) * 100)));
+        const payload = {
+          pageId: pageFile || "Activity",
+          level: inferLevelFromPage(pageFile),
+          week: inferWeekFromPage(),
+          activityType: "speaking",
+          score,
+          progress: score,
+          stars: Math.max(0, Math.min(3, totalStars)),
+          completed: !!completed,
+          skills: {
+            speaking: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0,
+            listening: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0
+          }
+        };
+        const signature = JSON.stringify([payload.score, payload.stars, payload.completed, payload.skills.speaking, state.micStepIndex]);
+        if (signature === lastRealtimeMicSignature) return;
+        lastRealtimeMicSignature = signature;
+        if (realtimeMicTimer) window.clearTimeout(realtimeMicTimer);
+        realtimeMicTimer = window.setTimeout(() => {
+          try {
+            if (typeof window.finishAndSave === "function") {
+              Promise.resolve(window.finishAndSave(payload)).catch(() => {});
+              return;
+            }
+            if (typeof window.finishActivity === "function") {
+              Promise.resolve(window.finishActivity(payload)).catch(() => {});
+              return;
+            }
+            if (typeof window.saveActivityResult === "function") {
+              Promise.resolve(window.saveActivityResult(payload)).catch(() => {});
+            }
+          } catch (_) {}
+        }, completed ? 40 : 140);
       }
 
       function highlightFallbackLine(index, on) {
@@ -1146,25 +1178,25 @@
         state.micDone = true;
         state.micBusy = false;
         highlightFallbackLine(state.micStepIndex, false);
-        const totalStars = starsAwarded.reduce((sum, value) => sum + value, 0);
+        const remark = successRemarks[Math.floor(Math.random() * successRemarks.length)];
         try {
           if (window.GPTracing && typeof window.GPTracing.playTraceCelebration === "function") {
             window.GPTracing.playTraceCelebration();
           }
-          if (totalStars > 0) {
-            const remark = successRemarks[Math.floor(Math.random() * successRemarks.length)];
-            try {
-              chime.currentTime = 0;
-              chime.play().catch(() => {});
-            } catch (_) {}
-            setConversationStatus(remark);
-            if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
-              window.GPTracing.speakText(remark, { rate: 0.94, pitch: 1.08 });
-            }
-          } else {
-            setConversationStatus("");
+          try {
+            cheer.currentTime = 0;
+            cheer.play().catch(() => {});
+          } catch (_) {}
+          try {
+            chime.currentTime = 0;
+            chime.play().catch(() => {});
+          } catch (_) {}
+          setConversationStatus(remark);
+          if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
+            window.GPTracing.speakText(remark, { rate: 0.94, pitch: 1.08, volume: 1 });
           }
         } catch (_) {}
+        scheduleRealtimeMicSave(true);
         window.dispatchEvent(new CustomEvent("gp:mic-complete"));
       }
 
@@ -1174,7 +1206,8 @@
         highlightFallbackLine(index, false);
         state.fallbackActive = true;
         state.micStepIndex = index;
-        state.micPhase = "repeat";
+        state.micPhase = "prompt";
+        state.micBusy = false;
         setConversationStatus(getConversationBubbleText(lines[index]));
         speakConversationBubble(lines[index]);
       }
@@ -1216,7 +1249,9 @@
           return;
         }
 
+        if (state.micPhase !== "prompt") return;
         state.micBusy = true;
+        state.micPhase = "listen";
         highlightFallbackLine(state.micStepIndex, true);
         setConversationStatus("Repeat after me.");
 
@@ -1225,8 +1260,9 @@
             setFallbackRepeat(state.micStepIndex, expected, true);
             starsAwarded[state.micStepIndex] = 3;
             setFallbackStars(state.micStepIndex, 3);
-              setConversationStatus("Great speaking. Get ready for the next bubble.");
-              window.setTimeout(moveFallbackToNextStep, 900);
+            scheduleRealtimeMicSave(false);
+            setConversationStatus("Great speaking. Get ready for the next bubble.");
+            window.setTimeout(moveFallbackToNextStep, 900);
             return;
           }
 
@@ -1236,7 +1272,17 @@
               setFallbackRepeat(state.micStepIndex, (said || expected).trim(), true);
               starsAwarded[state.micStepIndex] = window.GPTracing.rewardStars(tryNo);
               setFallbackStars(state.micStepIndex, starsAwarded[state.micStepIndex]);
-                    window.setTimeout(moveFallbackToNextStep, 900);
+              try {
+                chime.currentTime = 0;
+                chime.play().catch(() => {});
+              } catch (_) {}
+              try {
+                cheer.currentTime = 0;
+                cheer.play().catch(() => {});
+              } catch (_) {}
+              scheduleRealtimeMicSave(false);
+              setConversationStatus("Great speaking. Get ready for the next bubble.");
+              window.setTimeout(moveFallbackToNextStep, 900);
               return;
             }
 
@@ -1245,6 +1291,7 @@
               setConversationStatus("You did a good Job. Nice try!");
               starsAwarded[state.micStepIndex] = 0;
               setFallbackStars(state.micStepIndex, 0);
+              scheduleRealtimeMicSave(false);
               window.setTimeout(() => {
                 speakMicPrompt("You did a good Job. Nice try!", () => {
                   window.setTimeout(moveFallbackToNextStep, 900);
@@ -1254,12 +1301,15 @@
             }
 
             state.micBusy = false;
-            state.micPhase = "repeat";
+            state.micPhase = "prompt";
             highlightFallbackLine(state.micStepIndex, false);
             setFallbackRepeat(state.micStepIndex, "Sorry, try again!", false);
             setConversationStatus("Sorry, try again!");
             window.setTimeout(() => {
-              speakMicPrompt("Sorry, try again!");
+              speakMicPrompt("Sorry, try again!", () => {
+                state.micBusy = false;
+                state.micPhase = "prompt";
+              });
             }, 320);
           }, {
               timeoutMs: 6500,
@@ -1355,7 +1405,7 @@
           if (state.stalledClicks >= 1) {
             state.fallbackActive = true;
             state.micStepIndex = Math.max(0, currentVisible);
-            state.micPhase = "repeat";
+            state.micPhase = "prompt";
             runFallbackFlow();
           }
         }, hasCustomMicFlow ? 180 : 80);

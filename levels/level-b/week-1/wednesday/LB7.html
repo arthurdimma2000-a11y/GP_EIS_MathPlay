@@ -1,942 +1,493 @@
 <!doctype html>
 <html lang="en">
 <head>
-
-<style id="gpLessonPrehide">
-  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
-    font-size:clamp(13px,1.9vw,19px) !important;
-    line-height:1.24 !important;
-    max-width:min(52vw,420px) !important;
-    white-space:nowrap !important;
-    word-break:normal !important;
-    overflow-wrap:normal !important;
-  }
-  @media (max-width:780px){
-    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{
-      font-size:clamp(13px,3.6vw,17px) !important;
-      max-width:min(62vw,280px) !important;
-      line-height:1.2 !important;
-      white-space:nowrap !important;
-      word-break:normal !important;
-      overflow-wrap:normal !important;
-    }
-  }
-</style>
-
-
-
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Level B_Literacy Math: Repeat and Record Week 1</title>
+<title>LB7</title>
 <link rel="stylesheet" href="../../../../shared/css/base.css" />
 <link rel="stylesheet" href="../../../../shared/css/layout.css" />
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
-
 <style>
-  :root{
-    --ink:#2d2d2d;
-    --bg:#e4f6df;
-    --card:#f9f4ff;
-    --border:#d9b9f0;
-    --accent:#6c4bbf;
-    --bubble-kid:#d8ebff;
-    --bubble-baker:#fde3c4;
-    --btn-yellow:#f6da7b;
-    --btn-orange:#ff8a5b;
-    --btn-blue:#dfeaff;
-    --shadow:0 10px 24px rgba(0,0,0,.08);
-    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-  }
-
-  body{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:var(--bg);
-    padding:8px;
-    color:var(--ink);
-  }
-
-  .app{
-    width:min(1200px,99vw);
-    border-radius:16px;
-    padding:12px 12px 8px;
-  }
-
-  .home-btn{
-    right:8%;
-    top:8px;
-    z-index:5;
-  }
-
-  .board{
-    border:2px dashed var(--border);
-    border-radius:16px;
-    padding:12px;
-    background:
-      radial-gradient(circle at 18% 20%, rgba(255,185,210,.35) 0 52px, transparent 54px),
-      radial-gradient(circle at 82% 22%, rgba(210,240,255,.4) 0 58px, transparent 60px),
-      radial-gradient(circle at 30% 80%, rgba(255,225,150,.35) 0 56px, transparent 58px),
-      radial-gradient(circle at 72% 78%, rgba(190,255,210,.35) 0 54px, transparent 56px),
-      linear-gradient(180deg,#fff7fb 0%, #f6f7ff 50%, #fff5e8 100%);
-    min-height:calc(100vh - 170px);
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:10px;
-  }
-
-  .tray-hero{
-    display:flex;
-    justify-content:center;
-    margin:6px 0 8px;
-    width:100%;
-  }
-
-  .trace-wrap{
-    position:relative;
-    display:inline-block;
-  }
-
-  .tray-hero img{
-    width:min(676px,92%);
-    height:auto;
-    object-fit:contain;
-    display:block;
-    filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-    cursor:pointer;
-  }
-
-  .trace-wrap img{
-    position:relative;
-    z-index:1;
-  }
-
-  .trace-canvas{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    touch-action:none;
-    cursor:crosshair;
-    z-index:2;
-  }
-
-  .designer-text{
-    position:absolute;
-    right:38%;
-    top:8%;
-    transform:none;
-    font-size:2.2rem;
-    font-weight:800;
-    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-    color:#2d2d2d;
-    text-align:left;
-    opacity:0;
-    transition:opacity .25s ease, transform .25s ease;
-    z-index:3;
-    white-space:nowrap;
-    pointer-events:none;
-  }
-
-  .highlight-red{ color:#d62828; }
-  .highlight-blue{ color:#1d5fd6; }
-
-  .designer-text.show{ opacity:1; }
-
-  .row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin:10px 0;
-    width:100%;
-    justify-content:flex-start;
-    z-index:2;
-  }
-
-  .convo-line{
-    display:none !important;
-    position:absolute;
-    transform:translateY(-30%);
-  }
-
-  .convo-line.show{ display:flex !important; }
-
-  .line1{
-    left:13%;
-    top:16%;
-  }
-
-  .line2{
-    right:38%;
-    top:21%;
-  }
-
-  .row.right{ justify-content:flex-end; }
-
-  .avatar{
-    width:56px;
-    height:56px;
-    border-radius:50%;
-    background:#fff;
-    border:3px solid #fff;
-    box-shadow:0 4px 10px rgba(0,0,0,.1);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:10px;
-    color:#777;
-    overflow:hidden;
-  }
-
-  .avatar img{
-    width:100%;
-    height:100%;
-    border-radius:50%;
-    object-fit:cover;
-    display:block;
-  }
-
-  .name-tag{
-    font-size:.75rem;
-    font-weight:700;
-    text-transform:uppercase;
-    color:#666;
-    margin-top:4px;
-    text-align:center;
-  }
-
-  .bubble{
-    padding:10px 14px;
-    border-radius:16px;
-    position:relative;
-    font-size:1rem;
-    max-width:min(560px,70vw);
-    line-height:1.25;
-  }
-
-  .bubble-stack{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    align-items:flex-start;
-  }
-
-  .row.right .bubble-stack{ align-items:flex-end; }
-
-  .repeat-result{
-    margin-top:4px;
-    font-size:.95rem;
-    font-weight:700;
-    color:#2f9f5f;
-  }
-
-  .star-row{
-    display:flex;
-    gap:6px;
-    margin-top:4px;
-    font-weight:900;
-    font-size:1.2rem;
-    color:#ffd24a;
-    text-shadow:
-      0 2px 0 #b87900,
-      0 4px 0 #8a5a00,
-      0 8px 14px rgba(0,0,0,.28);
-  }
-
-  .cookie-row{
-    display:flex;
-    justify-content:center;
-    gap:18px;
-    margin:12px 0;
-  }
-
-  .cookie-row.hidden{ display:none; }
-
-  .cookie-row img{
-    width:min(220px,40vw);
-    height:auto;
-    display:block;
-    filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-  }
-
-  .bubble.kid{background:var(--bubble-kid);}
-  .bubble.baker{background:var(--bubble-baker);}
-
-  .bubble.sparkle{
-    background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
-    box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
-    animation: sparklePulse 1.2s ease-in-out infinite;
-  }
-
-  @keyframes sparklePulse{
-    0%,100%{filter:brightness(1);}
-    50%{filter:brightness(1.12);}
-  }
-
-  .bubble.kid::after{
-    content:"";
-    position:absolute;
-    right:-6px;
-    top:14px;
-    border-width:8px 0 8px 8px;
-    border-style:solid;
-    border-color:transparent transparent transparent var(--bubble-kid);
-  }
-
-  .bubble.baker::after{
-    content:"";
-    position:absolute;
-    left:-6px;
-    top:14px;
-    border-width:8px 8px 8px 0;
-    border-style:solid;
-    border-color:transparent var(--bubble-baker) transparent transparent;
-  }
-
-  .controls{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    flex-wrap:wrap;
-    z-index:3;
-    background:rgba(255,255,255,.92);
-    padding:4px 6px;
-    border-radius:16px;
-    box-shadow:0 8px 16px rgba(0,0,0,.18);
-    width:fit-content;
-    max-width:100%;
-    justify-content:center;
-    margin-top:2px;
-  }
-
-  .btn{
-    border:none;
-    border-radius:999px;
-    padding:8px 12px;
-    font-size:.9rem;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow:0 4px 0 rgba(0,0,0,.15);
-  }
-
-  .btn.prev{background:var(--btn-orange);color:#fff;}
-  .btn.next{background:var(--btn-orange);color:#fff;}
-  .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
-  .btn.read{background:var(--btn-orange);color:#fff;}
-  .btn.mic{
-    background:var(--btn-orange);
-    color:#fff;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-  }
-
-  .record-icon{
-    width:16px;
-    height:16px;
-    display:inline-block;
-    vertical-align:middle;
-  }
-
-  .record-icon path{ stroke:#fff; }
-
-  .mic-icon-btn img{
-    width:32px;
-    height:32px;
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
-  }
-
-  .recording{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-
-  .recording audio{ height:28px; }
-
-  .recording-status{
-    font-size:.85rem;
-    color:#555;
-  }
-
-  .conversation-status{
-    font-size:.95rem;
-    font-weight:800;
-    color:#6c4bbf;
-    min-height:1.2em;
-  }
-
-  .girl-spot{
-    position:absolute;
-    left:18px;
-    top:8px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    z-index:3;
-  }
-
-  .girl-spot img{
-    width:72px;
-    height:72px;
-    border-radius:18px;
-    object-fit:cover;
-    box-shadow:0 6px 14px rgba(0,0,0,.25);
-    border:4px solid #ffe3f7;
-    background:#ffd6f2;
-    cursor:pointer;
-  }
-
-  .girl-hint{
-    font-size:1.35rem;
-    font-weight:800;
-    color:#1d5fd6;
-    text-align:center;
-  }
-
-  @media (max-width:780px){
-    .row{gap:8px;}
-    .avatar{width:48px;height:48px;}
-    .bubble{font-size:.95rem;}
-  }
+:root{--ink:#2d2d2d;--bg:#e4f6df;--border:#d9b9f0;--accent:#6c4bbf;--bubble-kid:#d8ebff;--bubble-baker:#fde3c4;--btn-orange:#ff8a5b;--btn-yellow:#f6da7b;--btn-blue:#dfeaff;--shadow:0 10px 24px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,Arial,sans-serif}
+*{box-sizing:border-box} html,body{margin:0;max-width:100%;overflow-x:hidden;background:var(--bg);color:var(--ink)} body{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:10px}
+.app{position:relative;width:min(1180px,100%);background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:12px}
+.home-btn{position:absolute;right:10px;top:8px;width:66px;height:66px;z-index:20} .home-btn img{width:100%;height:100%}
+.board{position:relative;border:2px dashed var(--border);border-radius:18px;padding:12px;background:linear-gradient(180deg,#fff7fb 0%,#f6f7ff 50%,#fff5e8 100%)}
+.trace-wrap{position:relative;display:flex;justify-content:center;align-items:flex-start;width:min(760px,95%);max-width:100%;margin:0 auto}
+.trace-wrap img{width:100%;height:auto;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.12))}
+.trace-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;pointer-events:auto;z-index:3}
+.girl-spot{position:absolute;left:16px;top:12px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:6}
+.girl-spot img{width:72px;height:72px;border-radius:18px;object-fit:cover;border:4px solid #ffe3f7;background:#ffd6f2;box-shadow:0 6px 14px rgba(0,0,0,.25);cursor:pointer}
+.girl-hint{font-size:1rem;font-weight:900;color:#1d5fd6;text-align:center}
+.finger-cue{position:absolute;left:50%;top:-26px;transform:translateX(-50%);font-size:1.8rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));animation:fingerBob 1s ease-in-out infinite;display:none;pointer-events:none}
+.finger-cue.show{display:block}
+.mic-icon-btn{position:relative}
+@keyframes fingerBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+.designer-text{position:absolute;right:33%;top:9%;font-size:clamp(1.2rem,3.8vw,2.2rem);font-weight:900;opacity:0;transition:opacity .25s ease;z-index:4;white-space:nowrap}
+.designer-text.show{opacity:1}
+.progress-wrap{margin:12px auto 0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.progress-bar{width:min(520px,92%);height:12px;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15)}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3cc4ff,#7dffb3);transition:width .15s ease-out}
+.progress-text{font-size:.95rem;font-weight:800;color:#3b3b3b}
+.conversation-panel{margin-top:12px;border:2px dashed #d9b9f0;border-radius:16px;padding:14px 12px;background:linear-gradient(180deg,#fff,#f9f4ff);display:grid;gap:12px}
+.convo-line{display:none} .convo-line.show{display:flex} .convo-line.right{justify-content:flex-end}
+.bubble-stack{display:flex;flex-direction:column;gap:6px;max-width:min(100%,520px)} .convo-line.right .bubble-stack{align-items:flex-end;margin-left:auto}
+.bubble{position:relative;padding:12px 15px;border-radius:18px;box-shadow:0 8px 16px rgba(0,0,0,.12);font-size:clamp(1rem,2.2vw,1.2rem);line-height:1.3;font-weight:700}
+.bubble.kid{background:var(--bubble-kid)} .bubble.baker{background:var(--bubble-baker)}
+.bubble.kid:after{content:"";position:absolute;right:-7px;top:16px;border-width:8px 0 8px 8px;border-style:solid;border-color:transparent transparent transparent var(--bubble-kid)}
+.bubble.baker:after{content:"";position:absolute;left:-7px;top:16px;border-width:8px 8px 8px 0;border-style:solid;border-color:transparent var(--bubble-baker) transparent transparent}
+.bubble.sparkle{background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);box-shadow:0 0 12px rgba(255,214,0,.6),0 0 18px rgba(255,105,180,.45);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+.repeat-result{min-height:1.2em;font-size:clamp(1rem,3vw,1.4rem);font-weight:900;color:#2f9f5f} .star-row{min-height:1.2em;display:flex;gap:6px;font-size:clamp(1.2rem,4vw,1.9rem);color:#ffd24a;text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28)}
+.controls{margin-top:12px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{border:none;border-radius:999px;padding:10px 16px;font-size:.95rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15)} .btn.prev,.btn.next{background:var(--btn-orange);color:#fff} .btn.stop{background:var(--btn-blue);color:#1f3b6b}
+.mic-icon-btn{border:none;background:transparent;padding:0;cursor:pointer;border-radius:50%} .mic-icon-btn img{width:42px;height:42px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))} .mic-icon-btn.listening img{transform:scale(1.06)}
+.status{margin-top:8px;text-align:center;min-height:1.3em;font-size:1rem;font-weight:900;color:#6c4bbf}
+@media (max-width:760px){.girl-spot{position:static;margin:0 auto 8px} .designer-text{position:absolute;right:18%;top:8%;font-size:clamp(1rem,4.6vw,1.6rem)}}
 </style>
-
-  </head>
-
+</head>
 <body>
+<div class="app">
+  <a class="home-btn" href="../../../../index.html" aria-label="Home"><img src="../../../../assets/images/shapes/Home1.png" alt="Home"></a>
+  <div class="board">
+    <div class="girl-spot">
+      <span class="finger-cue show" id="girlFinger" aria-hidden="true">👇</span>
+      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Girl helper" id="girlBtn">
+      <div class="girl-hint">Tap the girl</div>
+    </div>
+    <div class="trace-wrap" id="traceWrap">
+      <img src="../../../../assets/images/shapes/ArithmeticPoster2.png" alt="Arithmetic poster" id="designImage">
+      <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the dotted numbers"></canvas>
+      <div class="designer-text" id="designerText">The designer is counting shapes.</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
 
-  <div class="app">
-    <a class="home-btn" href="../../../../index.html" aria-label="Home">
-      <img src="../../../../assets/images/shapes/Home1.png" alt="Home">
-    </a>
-
-    <div class="board" id="board">
-      <div class="tray-hero">
-        <div class="trace-wrap">
-          <img src="../../../../assets/images/shapes/ArithmeticPoster2.png" alt="Vertices board" id="designImage">
-          <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the dotted numbers"></canvas>
-          <div class="designer-text" id="designerText">The designer is counting shapes.</div>
-        </div>
+  <div class="conversation-panel">
+    <div class="convo-line" id="line0">
+      <div class="bubble-stack">
+        <div class="bubble baker" data-say="Look at the pentagons.">Look at the pentagons.</div>
+        <div class="repeat-result"></div>
+        <div class="star-row"></div>
       </div>
-
-      <div class="girl-spot" aria-label="Tap the girl">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Girl helper" id="girlBtn" class="tap-girl">
-        <div class="girl-hint">Tap the girl</div>
-      </div>
-
-      <div class="row convo-line line1">
-        <div class="bubble-stack">
-          <div class="bubble baker">Look at the pentagons.</div>
-          <div class="repeat-result" data-line="0"></div>
-          <div class="star-row" data-line="0"></div>
-        </div>
-      </div>
-
-      <div class="row right convo-line line2">
-        <div class="bubble-stack">
-          <div class="bubble kid">Subtract the numbers.</div>
-          <div class="repeat-result" data-line="1"></div>
-          <div class="star-row" data-line="1"></div>
-        </div>
-      </div>
-
-      <div class="conversation-status" id="conversationStatus"></div>
-
-      <div class="controls">
-        <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
-        <button class="btn next" id="nextBtn">Next page &#8594;</button>
-        <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
-          <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
-        </button>
-        <button class="btn stop" id="traceClearBtn" type="button">Clear trace</button>
+    </div>
+    <div class="convo-line right" id="line1">
+      <div class="bubble-stack">
+        <div class="bubble kid" data-say="Subtract the numbers.">Subtract the numbers.</div>
+        <div class="repeat-result"></div>
+        <div class="star-row"></div>
       </div>
     </div>
   </div>
 
-  
+  <div class="controls">
+    <button class="btn prev" id="prevBtn">← Previous page</button>
+    <button class="btn next" id="nextBtn">Next page →</button>
+    <button class="btn stop" id="traceClearBtn">Clear trace</button>
+    <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><span class="finger-cue" id="micFinger" aria-hidden="true">👇</span><img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone"></button>
+  </div>
+  <div class="status" id="statusEl"></div>
+</div>
 
-  <script src="../../../../shared/js/storage.js"></script>
-  <script src="../../../../shared/js/progress.js"></script>
-  <script src="../../../../shared/js/tracing.js"></script>
-  <script src="../../../../activity-standardizer.js"></script>
+<script>
 
-  <script>
-    const micIconBtn = document.getElementById("micIconBtn");
-    const traceClearBtn = document.getElementById("traceClearBtn");
-    const conversationStatus = document.getElementById("conversationStatus");
-    const designImage = document.getElementById("designImage");
-    const traceCanvas = document.getElementById("traceCanvas");
-    const designerText = document.getElementById("designerText");
-    const girlBtn = document.getElementById("girlBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const lines = Array.from(document.querySelectorAll(".convo-line"));
-    const repeatResults = Array.from(document.querySelectorAll(".repeat-result"));
-    const starRows = Array.from(document.querySelectorAll(".star-row"));
+function getRecognitionCtor(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+function getVoice(preferKid=false){
+  if(!('speechSynthesis' in window)) return null;
+  const voices = speechSynthesis.getVoices() || [];
+  const female = /female|woman|zira|jenny|aria|ava|allison|emma|olivia|serena|nova|stella|grace/i;
+  return voices.find(v => female.test(`${v.name} ${v.lang}`)) || voices.find(v => /en/i.test(v.lang||'')) || voices[0] || null;
+}
+function speak(text, opts={}){
+  return new Promise(resolve=>{
+    if(!('speechSynthesis' in window) || !text){ resolve(); return; }
+    try{ speechSynthesis.cancel(); }catch(_){}
+    const u = new SpeechSynthesisUtterance(text);
+    const voice = getVoice(opts.kid);
+    if(voice) u.voice = voice;
+    u.lang = 'en-US';
+    u.rate = typeof opts.rate === 'number' ? opts.rate : 0.92;
+    u.pitch = typeof opts.pitch === 'number' ? opts.pitch : (opts.kid ? 1.18 : 1.06);
+    u.onend = resolve;
+    u.onerror = resolve;
+    speechSynthesis.speak(u);
+  });
+}
+function normalizeText(text){
+  return String(text||'').toLowerCase().replace(/[^\w\s]|_/g,'').replace(/\s+/g,' ').trim();
+}
+function percentMatch(expected, heard){
+  const e = normalizeText(expected).split(' ').filter(Boolean);
+  const h = normalizeText(heard).split(' ').filter(Boolean);
+  if(!e.length) return 0;
+  let hits=0; e.forEach(w=>{ if(h.includes(w)) hits++; });
+  return Math.round((hits/e.length)*100);
+}
+function rewardStars(tryNo){ return tryNo===1?3:tryNo===2?2:tryNo===3?1:0; }
+function saveLocalProgress(pageId, payload){
+  try{
+    const store = JSON.parse(localStorage.getItem('gpProgressByPage') || '{}');
+    store[pageId] = payload;
+    localStorage.setItem('gpProgressByPage', JSON.stringify(store));
+    localStorage.setItem('gpLatestProgress', JSON.stringify(payload));
+  }catch(_){}
+  try{
+    if(window.GPTrack && typeof window.GPTrack.finish === 'function'){
+      window.GPTrack.finish(payload).catch?.(()=>{});
+    }
+  }catch(_){}
+}
+function listenOnce(button){
+  return new Promise(resolve=>{
+    const SR = getRecognitionCtor();
+    if(!SR){ resolve({supported:false, transcript:''}); return; }
+    const rec = new SR();
+    rec.lang='en-US';
+    rec.interimResults=false;
+    rec.maxAlternatives=3;
+    rec.continuous=false;
+    let done = false;
+    const finish = (text='')=>{
+      if(done) return;
+      done=true;
+      if(button) button.classList.remove('listening');
+      resolve({supported:true, transcript:(text||'').trim()});
+    };
+    rec.onstart = ()=> button && button.classList.add('listening');
+    rec.onresult = e => finish(Array.from(e.results||[]).map(r=>r&&r[0]&&r[0].transcript).filter(Boolean).join(' '));
+    rec.onerror = ()=>finish('');
+    rec.onnomatch = ()=>finish('');
+    rec.onend = ()=>finish('');
+    try{ rec.start(); }catch(_){ finish(''); }
+  });
+}
 
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-    chimeAudio.preload = "auto";
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
-    instructionAudio.preload = "auto";
 
-    let currentLineIndex = -1;
-    let micExpectingRepeat = false;
-    const expectedLines = [
-      "Look at the pentagons.",
-      "Subtract the numbers."
-    ];
-    const attempts = [0, 0];
-    const maxAttempts = 3;
-    let designerTimer = null;
-    let traceProgressUi = null;
-    let traceSaveTimer = null;
-    let traceProgressStarted = false;
-    let traceCelebrated = false;
-    let traceEncouraged = false;
-    let loadIntroStarted = false;
+function createMicController(config){
+  const {
+    pageId, level, micBtn, statusEl, remarkList, lines, onComplete, onRevealLine, onGirlTap
+  } = config;
+  let current = 0;
+  let phase = 'reveal'; // reveal -> coach -> listen
+  let busy = false;
+  let finished = false;
+  const attempts = lines.map(()=>0);
+  const stars = lines.map(()=>0);
 
-    function hideAllLines(){
-      lines.forEach(line => {
-        line.classList.remove("show");
-        line.hidden = true;
-        const bubble = line.querySelector(".bubble");
-        if (bubble) bubble.classList.remove("sparkle");
-      });
-      if (designerText) designerText.classList.remove("show");
+  function updateStatus(text){ if(statusEl) statusEl.textContent = text || ''; }
+  function setStars(i, n){ if(lines[i].starEl) lines[i].starEl.innerHTML = new Array(n).fill('★').join(''); }
+  function setResult(i, text, color){
+    if(lines[i].resultEl){
+      lines[i].resultEl.textContent = text || '';
+      lines[i].resultEl.style.color = color || '';
+    }
+  }
+  function showLine(i){
+    lines.forEach((line, idx)=>{
+      line.rowEl.classList.toggle('show', idx <= i);
+      if(idx !== i) line.bubbleEl.classList.remove('sparkle');
+    });
+  }
+  async function pushProgress(extra={}){
+    const payload = {
+      pageId, level, activityType:'speaking',
+      score: finished ? 100 : Math.min(95, Math.round((stars.reduce((a,b)=>a+b,0) * 10) + ((current/lines.length)*40))),
+      stars: stars.reduce((a,b)=>a+b,0),
+      completed: finished,
+      skills: { reading: onGirlTap && onGirlTap.used ? 1 : 0, writing:0, speaking: finished ? 3 : Math.min(2,current+1), listening: finished ? 3 : Math.min(2,current+1) },
+      ...extra
+    };
+    saveLocalProgress(pageId, payload);
+  }
+
+  async function handleClick(e){
+    e?.preventDefault?.();
+    if(busy || finished) return;
+    busy = true;
+
+    if(phase === 'reveal'){
+      showLine(current);
+      updateStatus(lines[current].say);
+      onRevealLine && onRevealLine(current);
+      await speak(lines[current].say, lines[current].voice || {});
+      phase = 'coach';
+      busy = false;
+      pushProgress();
+      return;
     }
 
-    function getSpeechVoice(role){
-      if (!("speechSynthesis" in window) || typeof window.speechSynthesis.getVoices !== "function") return null;
-      const voices = window.speechSynthesis.getVoices() || [];
-      if (!voices.length) return null;
-      const englishVoices = voices.filter((voice) => /^en(-|_)?/i.test(String(voice.lang || "")));
-      const pool = englishVoices.length ? englishVoices : voices;
-      const maleName = /(david|mark|george|daniel|fred|alex|guy|matthew|thomas|brian|christopher|male|man|boy)/i;
-      const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
-      const kidName = /(kids?|child|junior|young|ava|aria|allison|ellie|libby|olivia|emma|ivy|jenny|nova|grace)/i;
-
-      if (role === "girl") {
-        return pool.find((voice) => kidName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
-          || pool.find((voice) => femaleName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
-          || pool.find((voice) => !maleName.test(String(voice.name || "")))
-          || pool[0]
-          || null;
-      }
-
-      if (role === "female") {
-        return pool.find((voice) => femaleName.test(String(voice.name || "")) && !maleName.test(String(voice.name || "")))
-          || pool.find((voice) => !maleName.test(String(voice.name || "")))
-          || pool[0]
-          || null;
-      }
-
-      return pool[0] || null;
+    if(phase === 'coach'){
+      lines[current].bubbleEl.classList.add('sparkle');
+      updateStatus('Repeat after me. Tap the microphone again, then speak.');
+      await speak('Repeat after me.', {kid:true});
+      phase = 'listen';
+      busy = false;
+      return;
     }
 
-    function speakLine(text, onend, options){
-      if (!("speechSynthesis" in window)) {
-        if (onend) onend();
+    updateStatus('Now say the sentence.');
+    const heard = await listenOnce(micBtn);
+    const tryNo = ++attempts[current];
+    const transcript = (heard.transcript || '').trim();
+    const pass = heard.supported && percentMatch(lines[current].say, transcript) >= 50;
+
+    if(pass){
+      setResult(current, transcript || lines[current].say, '#23b060');
+      stars[current] = rewardStars(tryNo);
+      setStars(current, stars[current]);
+      lines[current].bubbleEl.classList.remove('sparkle');
+      await pushProgress();
+      current += 1;
+      if(current >= lines.length){
+        finished = true;
+        const remark = remarkList[Math.floor(Math.random()*remarkList.length)];
+        updateStatus(remark);
+        try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_){}
+        await speak(remark, {kid:true});
+        await pushProgress({score:100, completed:true});
+        onComplete && onComplete();
+        busy = false;
         return;
       }
-      window.speechSynthesis.cancel();
-      const opts = options || {};
-      const utter = new SpeechSynthesisUtterance(text);
-      const selectedVoice = getSpeechVoice(opts.role);
-      if (selectedVoice) utter.voice = selectedVoice;
-      utter.lang = opts.lang || "en-US";
-      utter.rate = typeof opts.rate === "number" ? opts.rate : 1.0;
-      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.1;
-      utter.volume = typeof opts.volume === "number" ? opts.volume : 1;
-      utter.onend = () => { if (onend) onend(); };
-      utter.onerror = () => { if (onend) onend(); };
-      window.speechSynthesis.speak(utter);
+      showLine(current);
+      updateStatus(lines[current].say);
+      onRevealLine && onRevealLine(current);
+      await speak(lines[current].say, lines[current].voice || {});
+      phase = 'coach';
+      busy = false;
+      return;
     }
 
-    function setConversationStatus(text){
-      if (!conversationStatus) return;
-      conversationStatus.textContent = text || "";
-    }
-
-    function highlightLine(index, on){
-      const line = lines[index];
-      if (!line) return;
-      const bubble = line.querySelector(".bubble");
-      if (!bubble) return;
-      bubble.classList.toggle("sparkle", on);
-    }
-
-    function normalizeSpeech(text){
-      return (text || "")
-        .toLowerCase()
-        .replace(/[^\w\s]|_/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-
-    function setStars(index, count){
-      const row = starRows[index];
-      if (!row) return;
-      row.innerHTML = new Array(count).fill("&#9733;").join("");
-    }
-
-    function showAndSpeakLine(index){
-      const line = lines[index];
-      if (!line) return;
-      line.hidden = false;
-      line.classList.add("show");
-      currentLineIndex = index;
-      micExpectingRepeat = true;
-      const bubble = line.querySelector(".bubble");
-      const text = bubble ? bubble.textContent.trim() : "";
-      speakLine(text);
-    }
-
-    // Legacy local mic flow removed; shared LA2/LB3 protocol owns mic click.
-
-
-    function setupTrace(canvas, image){
-      if (!canvas || !image) return;
-      let traceInitialized = false;
-
-      function initSharedTrace(){
-        if (traceInitialized) return;
-        if (!window.GPTracing || typeof window.GPTracing.createPathTracePad !== "function") {
-          window.setTimeout(initSharedTrace, 60);
-          return;
-        }
-        traceInitialized = true;
-
-        const boardEl = document.getElementById("board") || document.querySelector(".board") || canvas.parentElement;
-        const controlsEl = document.querySelector(".controls");
-        traceProgressUi = window.GPTracing.ensureTraceProgressUI({
-          container: boardEl,
-          before: controlsEl,
-          label: "Trace progress"
-        });
-
-        const reset = window.GPTracing.createPathTracePad({
-          canvas,
-          lineWidth: 12,
-          threshold: 20,
-          completionSnap: 96,
-          getPoints(){
-            const groups = [];
-            traceAnswerDigits.forEach((digits, index) => {
-              groups.push(...window.GPTracing.createDigitTraceGroups(digits, traceAnswerBoxes[index], {
-                gap: 0.08,
-                insetX: 0.14,
-                insetY: 0.08
-              }));
-            });
-            return groups;
-          },
-          onProgress(pct){
-            updateTraceProgress(pct, traceProgressStarted);
-            traceProgressStarted = true;
-          },
-          onTick(){
-            window.GPTracing.playTraceTick({ throttleMs: 82, frequency: 910, endFrequency: 660, volume: 0.06 });
-          }
-        });
-
-        window.__gpSharedTraceReset = function(){
-          traceProgressStarted = false;
-          traceCelebrated = false;
-          traceEncouraged = false;
-          if (typeof reset === "function") reset();
-          updateTraceProgress(0, false);
-        };
-
-        updateTraceProgress(0, false);
+    if(tryNo >= 3){
+      setResult(current, 'You did a good Job. Nice try!', '#b06a00');
+      setStars(current, 0);
+      lines[current].bubbleEl.classList.remove('sparkle');
+      await speak('You did a good Job. Nice try!', {kid:true});
+      await pushProgress();
+      current += 1;
+      if(current >= lines.length){
+        finished = true;
+        updateStatus('You did a good Job. Nice try!');
+        await pushProgress({completed:true});
+        onComplete && onComplete();
+        busy = false;
+        return;
       }
-
-      if (image.complete) initSharedTrace();
-      else image.addEventListener("load", initSharedTrace, { once: true });
-      window.addEventListener("load", initSharedTrace, { once: true });
+      showLine(current);
+      updateStatus(lines[current].say);
+      onRevealLine && onRevealLine(current);
+      await speak(lines[current].say, lines[current].voice || {});
+      phase = 'coach';
+      busy = false;
+      return;
     }
 
-    function clearTrace(){
-      if (typeof window.__gpSharedTraceReset === "function") {
-        window.__gpSharedTraceReset();
-      }
-    }
+    setResult(current, 'Sorry, try again!', '#c62828');
+    updateStatus('Sorry, try again!');
+    await speak('Sorry, try again!', {kid:true});
+    phase = 'coach';
+    busy = false;
+    pushProgress();
+  }
 
-    function runDesignerLines(){
-      if (designerTimer) clearTimeout(designerTimer);
-      hideAllLines();
-      if (designerText) {
-        designerText.textContent = "The designer is counting shapes.";
-        designerText.classList.add("show");
-      }
-      chimeAudio.currentTime = 0;
-      chimeAudio.play().catch(() => {});
-      speakLine("The designer is counting shapes.", () => {
-        designerTimer = setTimeout(() => {
-          if (lines[0]) {
-            const bubble = lines[0].querySelector(".bubble");
-            if (bubble) bubble.textContent = "Look at the pentagons.";
-            lines[0].hidden = false;
-            lines[0].classList.add("show");
-          }
-          speakLine("Look at the pentagons.", () => {
-            designerTimer = setTimeout(() => {
-              if (lines[1]) {
-                const bubble = lines[1].querySelector(".bubble");
-                if (bubble) bubble.textContent = "Subtract the numbers.";
-                lines[1].hidden = false;
-                lines[1].classList.add("show");
-              }
-              speakLine("Subtract the numbers.");
-            }, 500);
-          });
-        }, 500);
-      });
-    }
-
-    function playLoadInstructionSequence(){
-      if (loadIntroStarted) return;
-      loadIntroStarted = true;
-
-      hideAllLines();
-      if (designerText) designerText.classList.remove("show");
-      setConversationStatus("Listen carefully.");
-
-      const steps = [
-        () => {
-          if (lines[0]) {
-            lines[0].hidden = false;
-            lines[0].classList.add("show");
-          }
-          setConversationStatus("Look at the Pentagons.");
-          speakLine("Look at the Pentagons.", runNextStep, {
-            role: "female",
-            rate: 0.9,
-            pitch: 1.08,
-            volume: 1
-          });
-        },
-        () => {
-          if (lines[1]) {
-            lines[1].hidden = false;
-            lines[1].classList.add("show");
-          }
-          setConversationStatus("Subtract the numbers.");
-          speakLine("Subtract the numbers.", null, {
-            role: "girl",
-            rate: 1.0,
-            pitch: 1.36,
-            volume: 1
-          });
-        }
-      ];
-
-      let stepIndex = 0;
-      function runNextStep(){
-        const step = steps[stepIndex++];
-        if (step) window.setTimeout(step, 140);
-      }
-
-      const beginSpeech = () => window.setTimeout(runNextStep, 140);
-      const fallbackTimer = window.setTimeout(beginSpeech, 5200);
-
-      instructionAudio.onended = () => {
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      };
-      instructionAudio.onerror = () => {
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      };
-
-      try {
-        instructionAudio.currentTime = 0;
-        const playAttempt = instructionAudio.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {
-            window.clearTimeout(fallbackTimer);
-            beginSpeech();
-          });
-        }
-      } catch (_err) {
-        window.clearTimeout(fallbackTimer);
-        beginSpeech();
-      }
-    }
-
-    if (micIconBtn) {
-      // Mic click is handled by the shared LA2/LB3 unified protocol.
-    }
-
-    if (traceClearBtn) traceClearBtn.addEventListener("click", clearTrace);
-    setupTrace(traceCanvas, designImage);
-
-    if (girlBtn) {
-      girlBtn.addEventListener("click", runDesignerLines);
-    }
-
-    nextBtn.addEventListener("click", () => {
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      window.location.href = "../thursday/PentagonFairlyTale.html";
+  function reset(){
+    current = 0;
+    phase = 'reveal';
+    busy = false;
+    finished = false;
+    lines.forEach(line=>{
+      line.rowEl.classList.remove('show');
+      line.bubbleEl.classList.remove('sparkle');
+      if(line.resultEl){ line.resultEl.textContent=''; line.resultEl.style.color=''; }
+      if(line.starEl){ line.starEl.textContent=''; }
     });
+    updateStatus('');
+    pushProgress({score:0,stars:0,completed:false});
+  }
 
-    prevBtn.addEventListener("click", () => {
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      window.location.href = "LB3.html";
+  return { handleClick, reset, pushProgress };
+}
+
+
+function createTraceBoard({canvas, image, progressFill, progressText, pageId, level, targetLength=2500}){
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let total = 0;
+  let last = null;
+  let progress = 0;
+  let celebrated = false;
+
+  function syncCanvas(){
+    const rect = image.getBoundingClientRect();
+    canvas.style.left = image.offsetLeft + 'px';
+    canvas.style.top = image.offsetTop + 'px';
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    canvas.width = Math.max(1, Math.round(rect.width * window.devicePixelRatio));
+    canvas.height = Math.max(1, Math.round(rect.height * window.devicePixelRatio));
+    ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = Math.max(6, rect.width * 0.008);
+    ctx.strokeStyle = 'rgba(32,166,88,0.95)';
+  }
+  function pointFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+  function pointFromTouch(touch){
+    const rect = canvas.getBoundingClientRect();
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+  function updateProgress(){
+    progress = Math.max(progress, Math.min(100, (total / targetLength) * 100));
+    if(progressFill) progressFill.style.width = Math.round(progress) + '%';
+    if(progressText) progressText.textContent = Math.round(progress) + '%';
+    saveLocalProgress(pageId, {
+      pageId, level, activityType:'tracing', score: Math.round(progress), stars: progress >= 90 ? 3 : progress >= 65 ? 2 : progress >= 35 ? 1 : 0,
+      completed: progress >= 90, tracing: Math.round(progress),
+      skills: { reading:0, writing: progress >= 90 ? 3 : progress >= 35 ? 2 : 1, speaking:0, listening:0 }
     });
-
-    hideAllLines();
-    window.addEventListener("load", playLoadInstructionSequence, { once:true });
-  </script>
-
-  <script>
-    (function(){
-      const homeBtn = document.querySelector('.home-btn');
-      if(!homeBtn) return;
-
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
-      chime.preload = "auto";
-
-      homeBtn.addEventListener('click', () => {
-        try{
-          chime.currentTime = 0;
-          const p = chime.play();
-          if (p && typeof p.catch === "function") p.catch(() => {});
-        }catch(e){}
-      });
-    })();
-  </script>
-
-  
-
-  <script type="module">
-    import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-    window.GPProgress.installTracker({
-      saveActivityResult,
-      markLoginPing,
-      defaultPageId: "LB7",
-      defaultLevel: "B",
-      defaultActivityType: "lesson",
-      defaultScore: 100,
-      defaultStars: 1,
-      defaultSkills: {
-        reading: 1,
-        writing: 0,
-        speaking: 1,
-        listening: 1
-      }
-    });
-
-    function getStudentSession(){
-      try{
-        return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-      }catch(e){
-        return null;
-      }
+    if(progress >= 90 && !celebrated){
+      celebrated = true;
+      try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_){}
+      speak('Amazing job!', {kid:true});
     }
-
-    function inferProgressMeta(payload){
-      const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-      const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-      const level = (payload && payload.level)
-        || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-      const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-      const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-      const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-      const month = payload && payload.month != null ? Number(payload.month) : 1;
-      return {
-        pageId,
-        file,
-        level,
-        week: Number.isFinite(week) && week > 0 ? week : 1,
-        month: Number.isFinite(month) && month > 0 ? month : 1
-      };
+  }
+  function start(e){
+    e.preventDefault();
+    if(typeof canvas.setPointerCapture === 'function'){
+      try{ canvas.setPointerCapture(e.pointerId); }catch(_){}
     }
-
-    function getActivityStore(){
-      try{
-        return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-      }catch(e){
-        return {};
-      }
+    drawing = true;
+    last = pointFromEvent(e);
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+  }
+  function startAt(point){
+    drawing = true;
+    last = point;
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+  }
+  function move(e){
+    if(!drawing) return;
+    const p = pointFromEvent(e);
+    if(!last){ last = p; }
+    const dx = p.x - last.x, dy = p.y - last.y;
+    total += Math.hypot(dx, dy);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+    updateProgress();
+  }
+  function moveTo(point){
+    if(!drawing) return;
+    if(!last){ last = point; }
+    const dx = point.x - last.x, dy = point.y - last.y;
+    total += Math.hypot(dx, dy);
+    ctx.lineTo(point.x, point.y);
+    ctx.stroke();
+    last = point;
+    updateProgress();
+  }
+  function end(e){
+    if(typeof canvas.releasePointerCapture === 'function'){
+      try{ canvas.releasePointerCapture(e.pointerId); }catch(_){}
     }
+    drawing = false;
+    last = null;
+  }
+  function endStroke(){
+    drawing = false;
+    last = null;
+  }
+  function clear(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    total = 0;
+    progress = 0;
+    celebrated = false;
+    if(progressFill) progressFill.style.width = '0%';
+    if(progressText) progressText.textContent = '0%';
+    saveLocalProgress(pageId, {pageId, level, activityType:'tracing', score:0, stars:0, completed:false, tracing:0, skills:{reading:0,writing:0,speaking:0,listening:0}});
+  }
 
-    function setActivityStore(store){
-      try{
-        localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-      }catch(e){}
-    }
+  image.addEventListener('load', syncCanvas);
+  window.addEventListener('resize', syncCanvas);
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', syncCanvas);
+  canvas.addEventListener('pointerdown', start);
+  canvas.addEventListener('pointermove', move);
+  canvas.addEventListener('pointerup', end);
+  canvas.addEventListener('pointercancel', end);
+  canvas.addEventListener('pointerleave', end);
+  canvas.addEventListener('mousedown', (e)=>{ e.preventDefault(); startAt(pointFromEvent(e)); });
+  canvas.addEventListener('mousemove', (e)=>{ if(drawing) moveTo(pointFromEvent(e)); });
+  window.addEventListener('mouseup', endStroke);
+  canvas.addEventListener('touchstart', (e)=>{ if(!e.touches.length) return; e.preventDefault(); startAt(pointFromTouch(e.touches[0])); }, { passive:false });
+  canvas.addEventListener('touchmove', (e)=>{ if(!drawing || !e.touches.length) return; e.preventDefault(); moveTo(pointFromTouch(e.touches[0])); }, { passive:false });
+  canvas.addEventListener('touchend', endStroke, { passive:false });
+  canvas.addEventListener('touchcancel', endStroke, { passive:false });
+  syncCanvas();
+  clear();
+  return { clear };
+}
 
-    function saveLocalActivityFallback(payload){
-      const session = getStudentSession() || {};
-      const meta = inferProgressMeta(payload || {});
-      const score = payload && typeof payload.score === "number" ? payload.score : 0;
-      const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-      const tracing = payload && typeof payload.tracing === "number"
-        ? payload.tracing
-        : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-      const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-      const entry = {
-        pageId: meta.pageId,
-        file: meta.file,
-        level: meta.level,
-        type,
-        activityType: (payload && payload.activityType) || type,
-        score,
-        stars,
-        skills: payload && payload.skills ? payload.skills : {},
-        completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-        tracing,
-        week: meta.week,
-        month: meta.month,
-        classId: (payload && payload.classId) || session.classId || null,
-        studentId: (payload && payload.studentId) || session.studentId || null,
-        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-        savedAt: new Date().toISOString(),
-        ts: Date.now()
-      };
-      const store = getActivityStore();
-      store[meta.pageId] = {
-        ...(store[meta.pageId] || {}),
-        ...entry
-      };
-      setActivityStore(store);
-      try{
-        localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-      }catch(e){}
-      return store[meta.pageId];
-    }
-
-    async function finishAndSave(payload){
-      const session = getStudentSession() || {};
-      const fullPayload = {
-        ...(payload || {}),
-        classId: (payload && payload.classId) || session.classId || null,
-        studentId: (payload && payload.studentId) || session.studentId || null,
-        studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-      };
-
-      saveLocalActivityFallback(fullPayload);
-
-      if (typeof window.finishActivity === "function") {
-        try{
-          await window.finishActivity(fullPayload);
-        }catch(err){
-          console.warn("finishActivity failed, local fallback already saved:", err);
-        }
-      }
-
-      return fullPayload;
-    }
-
-    window.finishAndSave = finishAndSave;
-  </script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
+const PAGE_ID='LB7', LEVEL_ID='B';
+const girlBtn = document.getElementById('girlBtn');
+const designerText = document.getElementById('designerText');
+const girlFinger = document.getElementById('girlFinger');
+const micFinger = document.getElementById('micFinger');
+const statusEl = document.getElementById('statusEl');
+function setGuide(stage){
+  if(girlFinger) girlFinger.classList.toggle('show', stage === 'girl');
+  if(micFinger) micFinger.classList.toggle('show', stage === 'mic');
+}
+const mic = createMicController({
+  pageId:PAGE_ID, level:LEVEL_ID, micBtn:document.getElementById('micIconBtn'), statusEl:document.getElementById('statusEl'),
+  remarkList:['Wow! You are super smart!','Amazing Job!','Great! Keep it up!'],
+  lines:[
+    { rowEl:document.getElementById('line0'), bubbleEl:document.querySelector('#line0 .bubble'), resultEl:document.querySelector('#line0 .repeat-result'), starEl:document.querySelector('#line0 .star-row'), say:'Look at the pentagons.' },
+    { rowEl:document.getElementById('line1'), bubbleEl:document.querySelector('#line1 .bubble'), resultEl:document.querySelector('#line1 .repeat-result'), starEl:document.querySelector('#line1 .star-row'), say:'Subtract the numbers.' }
+  ],
+  onGirlTap: { used:false },
+  onRevealLine: ()=>{}
+});
+async function onMicClick(e){
+  if(!designerText.classList.contains('show')){
+    e?.preventDefault?.();
+    if(statusEl) statusEl.textContent = 'Tap the girl first.';
+    await speak('Tap the girl first.', {kid:true});
+    setGuide('girl');
+    return;
+  }
+  setGuide('');
+  return mic.handleClick(e);
+}
+document.getElementById('micIconBtn').addEventListener('click', onMicClick);
+girlBtn.addEventListener('click', async()=>{
+  designerText.classList.add('show');
+  if(statusEl) statusEl.textContent = 'The designer is counting shapes.';
+  await speak('The designer is counting shapes.', {kid:true});
+  if(statusEl) statusEl.textContent = 'Now tap the microphone.';
+  setGuide('mic');
+  await speak('Now tap the microphone.', {kid:true});
+});
+const trace = createTraceBoard({
+  canvas:document.getElementById('traceCanvas'),
+  image:document.getElementById('designImage'),
+  progressFill:document.getElementById('progressFill'),
+  progressText:document.getElementById('progressPercent'),
+  pageId:PAGE_ID, level:LEVEL_ID, targetLength:2600
+});
+document.getElementById('traceClearBtn').addEventListener('click', ()=>trace.clear());
+document.getElementById('prevBtn').addEventListener('click', ()=>{ try{speechSynthesis.cancel();}catch(_{}){} location.href='LB3.html'; });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ try{speechSynthesis.cancel();}catch(_{}){} location.href='../thursday/PentagonFairlyTale.html'; });
+setGuide('girl');
+if(statusEl) statusEl.textContent = 'Tap the girl to begin.';
+saveLocalProgress(PAGE_ID, {pageId:PAGE_ID, level:LEVEL_ID, activityType:'activity', score:0, stars:0, completed:false, skills:{reading:0,writing:0,speaking:0,listening:0}});
+</script>
 </body>
 </html>

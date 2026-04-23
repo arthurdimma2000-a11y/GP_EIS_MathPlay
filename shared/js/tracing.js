@@ -19,7 +19,8 @@
     style.textContent =
       "html,body{max-width:100%;overflow-x:hidden !important;overscroll-behavior-x:contain;-webkit-text-size-adjust:100%;text-size-adjust:100%;}" +
       "*,*::before,*::after{box-sizing:border-box;}" +
-      "img,video,canvas,svg,iframe{max-width:100%;height:auto;display:block;}" +
+      "img,video,svg,iframe{max-width:100%;height:auto;display:block;}" +
+      "canvas{display:block;}" +
       "body{padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));}" +
       ".app,.card,.page,.page-wrap,.board,.poster-area,.poster-wrap,.video-shell,.video-card,.stage,.lesson-stage,.tray-hero{position:relative;max-width:100% !important;}" +
       "button,[role='button'],.btn,.nav-btn,.mic-icon-btn,.ans,.choice{touch-action:manipulation;min-height:clamp(44px,7vw,60px);}" +
@@ -69,9 +70,11 @@
   let activeRecognition = null;
   let speechPatchInstalled = false;
   let speechCancelStamp = 0;
-  let traceAudioContext = null;
-  let lastTraceTickAt = 0;
-  let lastTraceCelebrationAt = 0;
+    let traceAudioContext = null;
+    let lastTraceTickAt = 0;
+    let lastTraceCelebrationAt = 0;
+    let sharedSuccessAudio = null;
+    let sharedCheerAudio = null;
 
   function isMobileSpeechDevice(){
     try {
@@ -152,12 +155,12 @@
         utterance.voice = null;
       }
       utterance.lang = "en-US";
-      if (typeof utterance.rate !== "number" || utterance.rate > 0.94 || utterance.rate < 0.86) {
-        utterance.rate = 0.9;
-      }
-      if (typeof utterance.pitch !== "number" || utterance.pitch > 1.28 || utterance.pitch <= 1.08) {
-        utterance.pitch = 1.18;
-      }
+        if (typeof utterance.rate !== "number" || utterance.rate > 0.94 || utterance.rate < 0.86) {
+          utterance.rate = 0.82;
+        }
+        if (typeof utterance.pitch !== "number" || utterance.pitch > 1.28 || utterance.pitch <= 1.08) {
+          utterance.pitch = 1.08;
+        }
       utterance.volume = 1;
     } catch (_err) {}
     return utterance;
@@ -296,7 +299,7 @@
     } catch (_err) {}
   }
 
-  function playTraceCelebration(options){
+    function playTraceCelebration(options){
     const opts = options || {};
     const now = Date.now();
     const throttleMs = typeof opts.throttleMs === "number" ? opts.throttleMs : 360;
@@ -335,8 +338,8 @@
         try { synth.cancel(); } catch (_err) {}
       }
       const utterance = new SpeechSynthesisUtterance(" " + normalizedText);
-      utterance.rate = typeof opts.rate === "number" ? opts.rate : 0.84;
-      utterance.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.04;
+        utterance.rate = typeof opts.rate === "number" ? opts.rate : 0.8;
+        utterance.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.0;
       utterance.volume = typeof opts.volume === "number" ? opts.volume : 1;
       utterance.lang = typeof opts.lang === "string" && opts.lang ? opts.lang : "en-US";
       if (typeof opts.onEnd === "function") utterance.onend = opts.onEnd;
@@ -535,12 +538,6 @@
     if (opts.promptFallback === true) return false;
     if (opts.promptFallback === false) return true;
     if (global.__GP_DISABLE_REPEAT_PROMPT_FALLBACK) return true;
-    const path = String((global.location && global.location.pathname) || "");
-    if (/[\\\/]levels[\\\/]level-[abc][\\\/]/i.test(path)) return true;
-    const body = global.document && global.document.body;
-    if (body && body.dataset && (body.dataset.gpUnifiedMicProtocol === "1" || body.dataset.gpForceLa2Mic === "1")) {
-      return true;
-    }
     return false;
   }
 
@@ -561,9 +558,9 @@
   function listenForRepeat(expectedText, onDone, options){
     const SpeechRecognition = global.SpeechRecognition || global.webkitSpeechRecognition;
     const opts = options || {};
-    const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 6500;
-    const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 1400;
-    const startDelayMs = typeof opts.startDelayMs === "number" ? opts.startDelayMs : 700;
+    const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 9000;
+    const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 1800;
+    const startDelayMs = typeof opts.startDelayMs === "number" ? opts.startDelayMs : 900;
     if (!SpeechRecognition) {
       promptRepeatFallback(expectedText, onDone, opts);
       return;
@@ -620,7 +617,7 @@
 
     recognition.lang = "en-US";
     recognition.interimResults = false;
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.maxAlternatives = 3;
     try {
       if ("speechSynthesis" in global) global.speechSynthesis.cancel();
@@ -661,6 +658,8 @@
       finish(percentWordMatch(expectedText, heard), heard);
     };
     recognition.onend = () => {
+      if (done) return;
+      if (!heard) return;
       finish(percentWordMatch(expectedText, heard), heard);
     };
 
@@ -669,7 +668,7 @@
         finish(percentWordMatch(expectedText, heard), heard);
         return;
       }
-      finishWithFallback();
+      finish(0, "");
     }, timeoutMs);
 
     global.setTimeout(() => {
@@ -740,7 +739,7 @@
     const sampleCount = opts.sampleCount || 1800;
     const threshold = typeof opts.threshold === "number"
       ? opts.threshold
-      : Math.max(9, Math.round(lineWidth * 1.2));
+      : Math.max(6, Math.round(lineWidth * 0.78));
     const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 96;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
     const onProgress = typeof opts.onProgress === "function" ? opts.onProgress : null;
@@ -761,6 +760,22 @@
     let completionNotified = false;
     let resizeObserver = null;
 
+    function distanceToNearestSample(x, y){
+      let min = Infinity;
+      for (let i = 0; i < samplePoints.length; i += 1) {
+        const dx = samplePoints[i].x - x;
+        const dy = samplePoints[i].y - y;
+        const dist2 = (dx * dx) + (dy * dy);
+        if (dist2 < min) min = dist2;
+      }
+      return Math.sqrt(min);
+    }
+
+    function isTracePointValid(point){
+      if (!point || !samplePoints.length) return false;
+      return distanceToNearestSample(point.x, point.y) <= threshold;
+    }
+
     function updateProgress(rawPercent){
       lastRawPercent = Math.max(0, Math.min(100, Math.round(rawPercent)));
       const scaled = Math.max(0, Math.min(maxPercent, Math.round(rawPercent * (maxPercent / 100))));
@@ -771,6 +786,8 @@
       if (lastRawPercent >= 100) {
         if (!completionNotified) {
           completionNotified = true;
+          playSuccessChime();
+          playCheerAudio();
           if (onComplete) onComplete(scaled, lastRawPercent);
         }
       } else {
@@ -866,13 +883,14 @@
 
     canvas.addEventListener("pointerdown", (event) => {
       event.preventDefault();
-      drawing = true;
       try{
         canvas.setPointerCapture(event.pointerId);
       }catch(_err){}
       const point = getPos(event);
+      drawing = isTracePointValid(point);
       lastPoint = point;
       lastMid = null;
+      if (!drawing) return;
       ctx.beginPath();
       ctx.moveTo(point.x, point.y);
       ctx.lineJoin = "round";
@@ -889,8 +907,14 @@
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.strokeStyle = strokeStyle;
+      const pointValid = isTracePointValid(point);
 
       if (prev) {
+        if (!pointValid) {
+          lastPoint = point;
+          lastMid = null;
+          return;
+        }
         const midX = (prev.x + point.x) / 2;
         const midY = (prev.y + point.y) / 2;
         if (!lastMid) {
@@ -903,6 +927,7 @@
         lastMid = { x: midX, y: midY };
         updateVisitedSegment(prev.x, prev.y, point.x, point.y);
       } else {
+        if (!pointValid) return;
         ctx.beginPath();
         ctx.moveTo(point.x, point.y);
         updateVisitedSegment(point.x, point.y, point.x, point.y);
@@ -971,7 +996,7 @@
       const lineWidth = opts.lineWidth || 12;
       const threshold = typeof opts.threshold === "number"
         ? opts.threshold
-        : Math.max(22, Math.round(lineWidth * 2.9));
+        : Math.max(7, Math.round(lineWidth * 0.72));
     const completionSnap = typeof opts.completionSnap === "number" ? opts.completionSnap : 90;
     const getMessage = typeof opts.getMessage === "function" ? opts.getMessage : null;
     const speak = typeof opts.speak === "function" ? opts.speak : null;
@@ -991,6 +1016,22 @@
     let lastRawPercent = 0;
     let completionNotified = false;
     let resizeObserver = null;
+
+    function distanceToNearestSample(x, y){
+      let min = Infinity;
+      for (let i = 0; i < samples.length; i += 1) {
+        const dx = samples[i].x - x;
+        const dy = samples[i].y - y;
+        const dist2 = (dx * dx) + (dy * dy);
+        if (dist2 < min) min = dist2;
+      }
+      return Math.sqrt(min);
+    }
+
+    function isTracePointValid(point){
+      if (!point || !samples.length) return false;
+      return distanceToNearestSample(point.x, point.y) <= threshold;
+    }
 
     function buildSamples(groups, width, height){
       const result = [];
@@ -1072,6 +1113,8 @@
         if (lastRawPercent >= 100) {
           if (!completionNotified) {
             completionNotified = true;
+            playSuccessChime();
+            playCheerAudio();
             if (onComplete) onComplete(lastRawPercent);
           }
         } else {
@@ -1116,6 +1159,12 @@
       }
       drawing = true;
       const point = getPos(event);
+      drawing = isTracePointValid(point);
+      if (!drawing) {
+        lastPoint = point;
+        lastMid = null;
+        return;
+      }
       ctx.beginPath();
       ctx.moveTo(point.x, point.y);
       lastPoint = point;
@@ -1130,12 +1179,19 @@
       const prev = lastPoint;
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = strokeStyle;
+      const pointValid = isTracePointValid(point);
 
       if (!prev) {
+        if (!pointValid) return;
         lastPoint = point;
         lastMid = point;
         updateVisitedSegment(point.x, point.y, point.x, point.y);
       } else {
+        if (!pointValid) {
+          lastPoint = point;
+          lastMid = null;
+          return;
+        }
         const midX = (prev.x + point.x) / 2;
         const midY = (prev.y + point.y) / 2;
         const start = lastMid || prev;
@@ -1381,6 +1437,46 @@
       } catch (_err) {}
     }
 
+    function getSharedAudio(src){
+      try {
+        const audio = new Audio(src);
+        audio.preload = "auto";
+        return audio;
+      } catch (_err) {}
+      return null;
+    }
+
+    function playSuccessChime(){
+      if (!sharedSuccessAudio) {
+        sharedSuccessAudio = getSharedAudio("../../../../assets/audio/chimes/chime.mp3");
+      }
+      if (!sharedSuccessAudio) {
+        playTraceCelebration({ volume: 0.12 });
+        return;
+      }
+      try {
+        sharedSuccessAudio.currentTime = 0;
+        sharedSuccessAudio.volume = 1;
+        sharedSuccessAudio.play().catch(() => {
+          playTraceCelebration({ volume: 0.12 });
+        });
+      } catch (_err) {
+        playTraceCelebration({ volume: 0.12 });
+      }
+    }
+
+    function playCheerAudio(){
+      if (!sharedCheerAudio) {
+        sharedCheerAudio = getSharedAudio("../../../../assets/audio/sfx-cheer.mp3");
+      }
+      if (!sharedCheerAudio) return;
+      try {
+        sharedCheerAudio.currentTime = 0;
+        sharedCheerAudio.volume = 1;
+        sharedCheerAudio.play().catch(() => {});
+      } catch (_err) {}
+    }
+
     function flushProgress(){
       pendingTimer = 0;
       const scores = collectProgressScores();
@@ -1468,6 +1564,30 @@
     global.setTimeout(scheduleFlush, 700);
     global.setTimeout(scheduleFlush, 1800);
     global.addEventListener("beforeunload", flushProgress);
+  }
+
+  function scheduleRealtimeMicProgressSync(payload){
+    if (!payload) return;
+    if (global.__gpRealtimeMicProgressTimer) global.clearTimeout(global.__gpRealtimeMicProgressTimer);
+    global.__gpRealtimeMicProgressTimer = global.setTimeout(() => {
+      try {
+        if (typeof global.finishAndSave === "function") {
+          Promise.resolve(global.finishAndSave(payload)).catch(() => {});
+          return;
+        }
+        if (typeof global.finishActivity === "function") {
+          Promise.resolve(global.finishActivity(payload)).catch(() => {});
+          return;
+        }
+        if (typeof global.saveActivityResult === "function") {
+          Promise.resolve(global.saveActivityResult(payload)).catch(() => {});
+          return;
+        }
+        if (global.GPTrack && typeof global.GPTrack.finish === "function") {
+          Promise.resolve(global.GPTrack.finish(payload)).catch(() => {});
+        }
+      } catch (_err) {}
+    }, payload.completed ? 40 : 140);
   }
 
   function buildIntroCandidateList(page, doc){
@@ -1800,22 +1920,37 @@
     function finishMicFlow(){
       micDone = true;
       const totalStars = starsAwarded.reduce((sum, value) => sum + value, 0);
-      if (totalStars > 0) {
-        const remarks = [
-          "Wow! You are super smart!",
-          "Amazing Job",
-          "Great Try! keep it up!!!"
-        ];
-        const remark = remarks[Math.floor(Math.random() * remarks.length)];
-        try {
-          chime.currentTime = 0;
-          chime.play().catch(() => {});
-        } catch (_err) {}
-        setConversationStatus(remark);
-        speakLine(remark);
-      } else {
-        setConversationStatus("");
-      }
+      const remarks = [
+        "Wow! You are super smart!",
+        "Amazing Job",
+        "Great Try! keep it up!!!"
+      ];
+      const remark = remarks[Math.floor(Math.random() * remarks.length)];
+      try {
+        chime.currentTime = 0;
+        chime.play().catch(() => {});
+      } catch (_err) {}
+      try {
+        cheer.currentTime = 0;
+        cheer.play().catch(() => {});
+      } catch (_err) {}
+      setConversationStatus(remark);
+      speakLine(remark);
+      scheduleRealtimeMicProgressSync({
+        pageId: getPageInfo().file.replace(/\.html$/i, "") || "Activity",
+        fileName: getPageInfo().file,
+        level: getPageInfo().level || null,
+        week: getPageInfo().week || null,
+        activityType: "speaking",
+        score: Math.max(0, Math.min(100, Math.round((totalStars / Math.max(1, expectedLines.length * 3)) * 100))),
+        progress: Math.max(0, Math.min(100, Math.round((totalStars / Math.max(1, expectedLines.length * 3)) * 100))),
+        stars: Math.max(0, Math.min(3, totalStars)),
+        completed: true,
+        skills: {
+          speaking: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0,
+          listening: totalStars >= 4 ? 3 : totalStars >= 2 ? 2 : totalStars >= 1 ? 1 : 0
+        }
+      });
     }
 
     function moveToNextMicStep(){
@@ -1863,7 +1998,24 @@
             }
             starsAwarded[micStepIndex] = rewardStars(tryNo);
             setStars(micStepIndex, starsAwarded[micStepIndex]);
+            playSuccessChime();
+            playCheerAudio();
             setConversationStatus("Great speaking. Get ready for the next bubble.");
+            scheduleRealtimeMicProgressSync({
+              pageId: getPageInfo().file.replace(/\.html$/i, "") || "Activity",
+              fileName: getPageInfo().file,
+              level: getPageInfo().level || null,
+              week: getPageInfo().week || null,
+              activityType: "speaking",
+              score: Math.max(0, Math.min(100, Math.round((starsAwarded.reduce((sum, value) => sum + value, 0) / Math.max(1, expectedLines.length * 3)) * 100))),
+              progress: Math.max(0, Math.min(100, Math.round((starsAwarded.reduce((sum, value) => sum + value, 0) / Math.max(1, expectedLines.length * 3)) * 100))),
+              stars: Math.max(0, Math.min(3, starsAwarded.reduce((sum, value) => sum + value, 0))),
+              completed: false,
+              skills: {
+                speaking: starsAwarded.reduce((sum, value) => sum + value, 0) >= 4 ? 3 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 2 ? 2 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 1 ? 1 : 0,
+                listening: starsAwarded.reduce((sum, value) => sum + value, 0) >= 4 ? 3 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 2 ? 2 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 1 ? 1 : 0
+              }
+            });
             global.setTimeout(() => { moveToNextMicStep(); }, 900);
             return;
           }
@@ -1875,6 +2027,21 @@
             }
             starsAwarded[micStepIndex] = 0;
             setStars(micStepIndex, 0);
+            scheduleRealtimeMicProgressSync({
+              pageId: getPageInfo().file.replace(/\.html$/i, "") || "Activity",
+              fileName: getPageInfo().file,
+              level: getPageInfo().level || null,
+              week: getPageInfo().week || null,
+              activityType: "speaking",
+              score: Math.max(0, Math.min(100, Math.round((starsAwarded.reduce((sum, value) => sum + value, 0) / Math.max(1, expectedLines.length * 3)) * 100))),
+              progress: Math.max(0, Math.min(100, Math.round((starsAwarded.reduce((sum, value) => sum + value, 0) / Math.max(1, expectedLines.length * 3)) * 100))),
+              stars: Math.max(0, Math.min(3, starsAwarded.reduce((sum, value) => sum + value, 0))),
+              completed: false,
+              skills: {
+                speaking: starsAwarded.reduce((sum, value) => sum + value, 0) >= 4 ? 3 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 2 ? 2 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 1 ? 1 : 0,
+                listening: starsAwarded.reduce((sum, value) => sum + value, 0) >= 4 ? 3 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 2 ? 2 : starsAwarded.reduce((sum, value) => sum + value, 0) >= 1 ? 1 : 0
+              }
+            });
             speakLine("You did a good Job. Nice try!", () => {
               global.setTimeout(() => { moveToNextMicStep(); }, 900);
             });
@@ -1888,7 +2055,9 @@
             repeatResults[micStepIndex].textContent = "Sorry, try again!";
           }
           setConversationStatus("Sorry, try again!");
-          speakLine("Sorry, try again!");
+          speakLine("Sorry, try again!", () => {
+            micBusy = false;
+          });
         }, {
             timeoutMs: 6500,
             settleMs: 1400,
@@ -1937,6 +2106,8 @@
     prepareMicSupport,
     playTraceTick,
     playTraceCelebration,
+    playSuccessChime,
+    playCheerAudio,
     speakText,
     listenForRepeat,
     fitElementToViewport,

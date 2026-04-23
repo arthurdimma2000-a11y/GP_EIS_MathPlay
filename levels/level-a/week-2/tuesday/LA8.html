@@ -1,24 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-<style id="gpLessonPrehide">
-  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
-  @media (max-width:780px){
-    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
-  }
-</style>
 <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Level A_Literacy Math: Repeat and Record Week 1</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA8</title>
+<style>
 
-  <style>
     :root{
       --ink:#2d2d2d;
       --bg:#e4f6df;
-      --card:#f9f4ff;
+      --card:#fff;
       --border:#d9b9f0;
       --accent:#6c4bbf;
       --bubble-kid:#d8ebff;
@@ -26,997 +17,910 @@
       --btn-yellow:#f6da7b;
       --btn-orange:#ff8a5b;
       --btn-blue:#dfeaff;
+      --success:#2f9f5f;
+      --danger:#c62828;
       --shadow:0 10px 24px rgba(0,0,0,.08);
-      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
     }
     *{box-sizing:border-box;}
-    html, body{
-      width:100%;
-      height:auto;
-      min-height:100%;
-      overflow-x:hidden;
-    }
-    body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      background:var(--bg);
-      padding:4px;
-      overflow-y:auto;
-      color:var(--ink);
-    }
-    body.intro-active{
-      overflow:hidden;
-    }
+    html,body{margin:0;width:100%;max-width:100%;overflow-x:hidden;background:var(--bg);color:var(--ink);}
+    body{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:10px;}
+    img,video{max-width:100%;height:auto;display:block;}
     .app{
-      width:min(980px,96vw);
-      background:#fff;
-      border-radius:16px;
-      box-shadow:var(--shadow);
-      padding:16px 16px 10px;
       position:relative;
-      transform-origin:top center;
-      will-change:transform;
+      width:min(960px,100%);
+      background:var(--card);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:12px 12px 10px;
+      overflow:hidden;
     }
     .home-btn{
-      position:absolute;
-      right:10px;
-      top:8px;
-      width:72px;
-      height:72px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      background:transparent;
-      border:none;
-      padding:0;
-      text-decoration:none;
-      z-index:5;
-      transform-origin:top center;
-      animation:homeSwing 2.4s ease-in-out infinite;
+      position:absolute; right:10px; top:6px; width:72px; height:72px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background:transparent; border:none; padding:0; text-decoration:none; z-index:20;
+      transform-origin:top center; animation:homeSwing 2.4s ease-in-out infinite;
     }
-    .home-btn img{
-      width:72px;
-      height:72px;
-      display:block;
-      filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));
-    }
-    @keyframes homeSwing{
-      0%{transform:rotate(-6deg);}
-      50%{transform:rotate(8deg);}
-      100%{transform:rotate(-6deg);}
-    }
-    .title{
-      font-size:1.25rem;
-      font-weight:800;
-      margin-bottom:10px;
-    }
+    .home-btn img{width:72px;height:72px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));}
+    @keyframes homeSwing{0%{transform:translateY(30%) rotate(-6deg);}50%{transform:translateY(30%) rotate(8deg);}100%{transform:translateY(30%) rotate(-6deg);}}
+    .title{font-size:clamp(1.25rem,4vw,3rem);font-weight:900;margin:0 0 10px;color:#3a2d5a;}
     .board{
-      border:2px dashed var(--border);
-      border-radius:16px;
-      padding:16px;
-      background:var(--card);
-      min-height:420px;
-      position:relative;
+      position:relative;border:2px dashed var(--border);border-radius:18px;padding:10px;overflow:hidden;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,209,229,.45) 0 60px, transparent 65px),
+        radial-gradient(circle at 85% 25%, rgba(255,236,180,.5) 0 70px, transparent 75px),
+        radial-gradient(circle at 35% 80%, rgba(210,244,255,.55) 0 80px, transparent 85px),
+        radial-gradient(circle at 80% 75%, rgba(214,255,220,.55) 0 70px, transparent 75px),
+        linear-gradient(180deg, #fef7ff 0%, #f7fbff 50%, #fff4df 100%);
     }
-    .tray-hero{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      margin:6px 0 14px;
-      position:relative;
-      gap:10px;
-    }
-    .tray-hero img{
-      width:min(420px,90%);
-      height:auto;
-      display:block;
-      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-    }
-    .convo-line{
-      display:none !important;
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-    }
-    .convo-line[hidden]{
-      display:none !important;
-    }
-    .convo-line.show{
-      display:block !important;
-    }
-    .row{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin:18px 0;
-    }
-    .row.right{
-      justify-content:flex-end;
-    }
-    .avatar{
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      background:#fff;
-      border:3px solid #fff;
-      box-shadow:0 4px 10px rgba(0,0,0,.1);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:10px;
-      color:#777;
-      overflow:hidden;
-    }
-    .avatar img{
-      width:100%;
-      height:100%;
-      border-radius:50%;
-      object-fit:cover;
-      display:block;
-    }
-    .name-tag{
-      font-size:.75rem;
-      font-weight:700;
-      text-transform:uppercase;
-      color:#666;
-      margin-top:4px;
-      text-align:center;
-    }
-    .bubble{
-      padding:10px 14px;
-      border-radius:16px;
-      position:relative;
-      font-size:1rem;
-      max-width:min(560px,70vw);
-      line-height:1.25;
-      white-space:nowrap;
-    }
-    .bubble-stack{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      align-items:flex-start;
-    }
-    .row.right .bubble-stack{
-      align-items:flex-end;
-    }
-    .repeat-result{
-      margin-top:4px;
-      font-size:.95rem;
-      font-weight:700;
-      color:#2f9f5f;
-    }
-    .star-row{
-      display:flex;
-      gap:6px;
-      margin-top:4px;
-      font-weight:900;
-      font-size:1.2rem;
-      color:#ffd24a;
-      text-shadow:
-        0 2px 0 #b87900,
-        0 4px 0 #8a5a00,
-        0 8px 14px rgba(0,0,0,.28);
-    }
-    .cookie-row{
-      display:flex;
-      justify-content:center;
-      gap:18px;
-      margin:12px 0;
-    }
-    .cookie-row.hidden{
-      display:none;
-    }
-    .cookie-row img{
-      width:min(220px,40vw);
-      height:auto;
-      display:block;
-      filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-    }
-    .triangle-answer{
+    .board-sky{position:absolute; inset:0; pointer-events:none; z-index:0;}
+    .sparkle-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 6px 10px rgba(0,0,0,.12);}
+    .sparkle-dot.s1{left:20%;top:22%;} .sparkle-dot.s2{left:70%;top:32%;} .sparkle-dot.s3{left:35%;top:62%;} .sparkle-dot.s4{left:82%;top:60%;}
+    .tray-hero{position:relative;z-index:1;display:flex;justify-content:center;margin:2px 0 6px;overflow:visible;}
+    .tray-hero img{filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));}
+    .tray-caption-center{position:absolute;left:50%;top:24%;transform:translateX(-50%);font-size:clamp(1.6rem,5vw,3.2rem);font-weight:1000;color:var(--accent);text-shadow:0 2px 6px rgba(255,255,255,.75);text-align:center;white-space:nowrap;max-width:92%;z-index:2;}
+    .convo-line{display:none;align-items:flex-start;justify-content:flex-start;position:relative;z-index:5;margin:8px 0;}
+    .convo-line.show{display:flex;}
+    .convo-line.right{justify-content:flex-end;}
+    .bubble-stack{display:flex;flex-direction:column;gap:6px;max-width:min(100%,480px);}
+    .convo-line.right .bubble-stack{margin-left:auto;align-items:flex-end;}
+    .bubble{position:relative;padding:12px 15px;border-radius:18px;box-shadow:0 8px 16px rgba(0,0,0,.12);font-size:clamp(1rem,2.3vw,1.3rem);line-height:1.3;white-space:normal;word-break:break-word;font-weight:700;}
+    .bubble.kid{background:var(--bubble-kid);} .bubble.baker{background:var(--bubble-baker);}
+    .bubble.kid::after{content:"";position:absolute;right:-7px;top:16px;border-width:8px 0 8px 8px;border-style:solid;border-color:transparent transparent transparent var(--bubble-kid);}
+    .bubble.baker::after{content:"";position:absolute;left:-7px;top:16px;border-width:8px 8px 8px 0;border-style:solid;border-color:transparent var(--bubble-baker) transparent transparent;}
+    .bubble.sparkle{background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);box-shadow:0 0 12px rgba(255,214,0,.6),0 0 18px rgba(255,105,180,.45);animation:sparklePulse 1.2s ease-in-out infinite;}
+    @keyframes sparklePulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.12);}}
+    .repeat-result{min-height:1.25em;font-size:clamp(1rem,3vw,1.7rem);line-height:1.15;font-weight:900;color:var(--success);}
+    .star-row{min-height:1.25em;display:flex;gap:6px;font-size:clamp(1.4rem,4vw,2.1rem);line-height:1;color:#ffd24a;text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);}
+    .controls{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;width:100%;}
+    .mascot-spot{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid #e8e0ff;border-radius:14px;padding:6px 10px;box-shadow:0 8px 16px rgba(0,0,0,.12);}
+    .girl-tap-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+    .tap-girl{width:46px;height:46px;border-radius:12px;object-fit:cover;cursor:pointer;display:block;}
+    .finger-cue{
       position:absolute;
       left:50%;
-      top:66%;
+      top:-26px;
       transform:translateX(-50%);
-      padding:8px 14px;
-      border-radius:12px;
-      background:rgba(255,255,255,.94);
-      color:#1f5ea8;
-      font-size:1.1rem;
-      font-weight:900;
-      box-shadow:0 6px 12px rgba(0,0,0,.16);
-      border:2px solid #b8d5ff;
-      display:none;
-      z-index:3;
-      pointer-events:none;
-      text-align:center;
-      white-space:nowrap;
-    }
-    .triangle-answer.show{
-      display:block;
-    }
-    .bubble.kid{background:var(--bubble-kid);}
-    .bubble.baker{background:var(--bubble-baker);}
-    .poster-bubble{
-      position:absolute;
-      max-width:min(420px,70vw);
-    }
-    .poster-dialogue-zone{
-      display:none;
-      width:min(460px,92%);
-      margin:2px auto 0;
-      padding:10px 12px;
-      border-radius:18px;
-      background:rgba(255,255,255,.94);
-      box-shadow:0 8px 18px rgba(0,0,0,.10);
-      border:2px solid rgba(108,75,191,.14);
-    }
-    .poster-dialogue-zone.active{
-      display:block;
-    }
-    .poster-dialogue-zone .convo-line{
-      position:static;
-      inset:auto;
-      width:100%;
-      margin:0;
+      font-size:1.7rem;
+      line-height:1;
+      filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));
+      animation:fingerBob 1s ease-in-out infinite;
       pointer-events:none;
     }
-    .poster-dialogue-zone .convo-line.show{
-      display:block !important;
+    @keyframes fingerBob{
+      0%,100%{transform:translateX(-50%) translateY(0);}
+      50%{transform:translateX(-50%) translateY(7px);}
     }
-    .poster-dialogue-zone .poster-bubble,
-    .poster-dialogue-zone .kid-bubble,
-    .poster-dialogue-zone .chef-bubble{
-      position:static;
-      right:auto;
-      left:auto;
-      top:auto;
-      transform:none;
-      max-width:100%;
-    }
-    .poster-dialogue-zone .bubble-stack{
-      width:100%;
-      align-items:flex-start;
-    }
-    .poster-dialogue-zone .bubble{
-      width:100%;
-      max-width:100%;
-      white-space:normal;
-    }
-    .kid-bubble{
-      right:10%;
-      top:58%;
-      transform:none;
-    }
-    .chef-bubble{
-      right:10%;
-      left:auto;
-      top:22%;
-      transform:none;
-    }
-    .tap-prompt{
-      position:absolute;
-      right:8%;
-      left:auto;
-      top:10%;
-      transform:none;
-      padding:8px 14px;
-      border-radius:12px;
-      background:rgba(255,255,255,.96);
-      color:#1e4d8f;
-      font-size:1.15rem;
-      font-weight:900;
-      box-shadow:0 6px 12px rgba(0,0,0,.16);
-      border:2px solid #b8d5ff;
-      display:none;
-      z-index:4;
-      pointer-events:none;
-      text-align:center;
-      white-space:nowrap;
-    }
-    .tap-prompt.show{
-      display:block;
-    }
-    .bubble.sparkle{
-      background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
-      box-shadow:0 0 12px rgba(255,214,0,.6), 0 0 18px rgba(255,105,180,.4);
-      animation: sparklePulse 1.2s ease-in-out infinite;
-    }
-    @keyframes sparklePulse{
-      0%,100%{filter:brightness(1);}
-      50%{filter:brightness(1.12);}
-    }
-    .bubble.kid::after{
-      content:"";
-      position:absolute;
-      right:-6px;
-      top:14px;
-      border-width:8px 0 8px 8px;
-      border-style:solid;
-      border-color:transparent transparent transparent var(--bubble-kid);
-    }
-    .bubble.baker::after{
-      content:"";
-      position:absolute;
-      left:-6px;
-      top:14px;
-      border-width:8px 8px 8px 0;
-      border-style:solid;
-      border-color:transparent var(--bubble-baker) transparent transparent;
-    }
-    .controls{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      margin-top:14px;
-      flex-wrap:wrap;
-    }
-    .btn{
-      border:none;
-      border-radius:999px;
-      padding:10px 16px;
-      font-size:.95rem;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 4px 0 rgba(0,0,0,.15);
-    }
+    .mascot-hint{font-size:.95rem;font-weight:900;color:#2f9f5f;white-space:nowrap;}
+    .btn,.mic-icon-btn{min-height:46px;min-width:46px;border:none;border-radius:999px;cursor:pointer;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:transform .12s ease, filter .12s ease;}
+    .btn{padding:10px 16px;font-size:.95rem;}
     .btn.prev{background:#f8f0c7;color:#9c7b2f;}
     .btn.next{background:var(--btn-yellow);color:#8b5a00;}
     .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
     .btn.read{background:var(--btn-orange);color:#fff;}
-    .btn.mic{
-      background:var(--btn-orange);
-      color:#fff;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+    .mic-icon-btn{background:transparent;padding:0;display:inline-flex;align-items:center;justify-content:center;box-shadow:none;}
+    .mic-icon-btn img{width:42px;height:42px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+    .mic-icon-btn.is-busy{opacity:.7;pointer-events:none;transform:scale(.97);}
+    .record-icon{width:16px;height:16px;vertical-align:middle;margin-right:6px;}
+    .recording audio{height:34px;max-width:240px;}
+    .status-wrap{display:grid;gap:6px;margin-top:8px;}
+    .conversation-status,.recording-status{min-height:1.25em;text-align:center;font-weight:900;}
+    .conversation-status{color:var(--accent);font-size:clamp(.95rem,2.5vw,1.1rem);}
+    .recording-status{color:#555;font-size:.92rem;}
+    .footer-note{margin-top:6px;text-align:center;color:#666;font-size:.92rem;}
+    .headline-line{opacity:0;transform:translateY(8px);transition:opacity .22s ease, transform .22s ease;}
+    .headline-line.show{opacity:1;transform:translateY(0);}
+    @media (max-width:520px){
+      body{padding:8px;}
+      .app{border-radius:14px;padding:10px 10px 12px;}
+      .title{font-size:1.4rem;margin-bottom:8px;}
+      .board{padding:10px;}
+      .home-btn,.home-btn img{width:62px;height:62px;}
+      .controls{gap:8px;}
+      .mascot-spot{width:100%;justify-content:center;}
     }
-    .record-icon{
-      width:16px;
-      height:16px;
-      display:inline-block;
-      vertical-align:middle;
+    
+
+    body{background:#e4f6df;}
+    .app{width:min(980px,96vw);}
+    .board{min-height:420px;padding:16px;}
+    .tray-hero{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:6px 0 14px;position:relative;gap:10px;}
+    .tray-hero img{width:min(420px,90%);}
+    .convo-line{position:absolute;inset:0;pointer-events:none;justify-content:flex-start;}
+    .convo-line .bubble-stack{position:absolute;}
+    .chef-bubble{right:10%;top:22%;max-width:42%;}
+    .kid-bubble{right:10%;top:58%;max-width:42%;align-items:flex-end;}
+    .poster-dialogue-zone{display:block;width:min(460px,92%);margin:2px auto 0;padding:10px 12px;border-radius:18px;background:rgba(255,255,255,.94);box-shadow:0 8px 18px rgba(0,0,0,.10);border:2px solid rgba(108,75,191,.14);}
+    .poster-dialogue-zone .convo-line{position:static;inset:auto;}
+    .poster-dialogue-zone .bubble-stack{position:static;max-width:100%;}
+    .poster-dialogue-zone .bubble{width:100%;max-width:100%;}
+    .tap-prompt,.triangle-answer{padding:8px 14px;border-radius:12px;background:rgba(255,255,255,.96);box-shadow:0 6px 12px rgba(0,0,0,.16);display:none;z-index:4;pointer-events:none;text-align:center;}
+    .tap-prompt{
+      position:absolute;
+      right:7%;
+      top:12%;
+      width:min(270px,40%);
+      color:#1e4d8f;
+      font-size:clamp(2rem,4.8vw,3.5rem);
+      line-height:1.02;
+      font-weight:1000;
+      border:3px solid #b8d5ff;
+      white-space:normal;
     }
-    .record-icon path{
-      stroke:#fff;
+    .triangle-answer{
+      position:absolute;
+      left:50%;
+      top:79%;
+      transform:translateX(-50%);
+      min-width:min(320px,64%);
+      color:#1f5ea8;
+      font-size:clamp(1.3rem,3vw,2rem);
+      font-weight:1000;
+      border:3px solid #b8d5ff;
+      white-space:nowrap;
     }
-    .mic-icon-btn{
-      border:none;
-      background:transparent;
-      padding:0;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
+    .tap-prompt.show,.triangle-answer.show{display:block;}
+    @media (max-width:700px){
+      .tap-prompt{right:4%;top:13%;width:min(220px,44%);font-size:clamp(1.6rem,5vw,2.4rem);}
+      .triangle-answer{top:76%;min-width:min(250px,74%);font-size:clamp(1rem,3.8vw,1.45rem);}
     }
-    .mic-icon-btn img{
-      width:38px;
-      height:38px;
-      display:block;
-      filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
-    }
-    .recording{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .recording audio{
-      height:32px;
-    }
-    .recording-status{
-      font-size:.85rem;
-      color:#555;
-    }
-    .conversation-status{
-      margin-top:8px;
-      font-size:.95rem;
-      font-weight:800;
-      color:#6c4bbf;
-      min-height:1.2em;
-    }
-    .footer-note{
-      margin-top:6px;
-      font-size:.9rem;
-      color:#666;
-    }
-    @media (max-width:780px){
-      .row{gap:8px;}
-      .avatar{width:48px;height:48px;}
-      .bubble{font-size:.95rem;}
-    }
-  </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+    
+</style>
 </head>
 <body>
-  <div class="app">
-    <a class="home-btn" href="../../../../index.html" aria-label="Home">
-      <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
-    </a>
-    <div class="title">Level A_Literacy Math: Repeat and Record Week 2</div>
 
-    <div class="board" id="board">
-      <div class="tray-hero">
-        <img src="../../../../assets/images/shapes/A8.png" alt="Poster">
-        <div class="convo-line" hidden>
-          <div class="bubble-stack poster-bubble chef-bubble">
-            <div class="bubble baker">Eat some cookies.</div>
-            <div class="repeat-result" data-line="0"></div>
-            <div class="star-row" data-line="0"></div>
-          </div>
-        </div>
-        <div class="convo-line" hidden>
-          <div class="bubble-stack poster-bubble kid-bubble">
-            <div class="bubble kid">Yes, I'm hungry.</div>
-            <div class="repeat-result" data-line="1"></div>
-            <div class="star-row" data-line="1"></div>
-          </div>
-        </div>
+<div class="app">
+  <a class="home-btn" id="homeBtn" href="../../../../index.html" aria-label="Home">
+    <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
+  </a>
+  <div class="title">Level A Literacy Math: Repeat and Record Week 2</div>
+
+  <div class="board">
+    <div class="tray-hero">
+      <img src="../../../../assets/images/shapes/A8.png" alt="Poster">
       <div class="tap-prompt" id="tapPrompt">Are you hungry?</div>
       <div class="triangle-answer" id="triangleAnswer">They are triangles.</div>
-      <div class="poster-dialogue-zone" id="posterDialogueZone" aria-live="polite"></div>
-    </div>
     </div>
 
-    <div class="controls">
-      <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
-      <button class="btn next" id="nextBtn">Next page &#8594;</button>
-      <button class="btn stop" id="clearBtn" type="button">Clear</button>
-      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
-        <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
-      </button>
-      <button class="btn read" id="recordBtn">
+    <div class="poster-dialogue-zone">
+      <div class="convo-line">
+        <div class="bubble-stack chef-bubble">
+          <div class="bubble baker">Yes, I'm hungry.</div>
+          <div class="repeat-result"></div>
+          <div class="star-row"></div>
+        </div>
+      </div>
+      <div class="convo-line right">
+        <div class="bubble-stack kid-bubble">
+          <div class="bubble kid">-Eat some cookies.</div>
+          <div class="repeat-result"></div>
+          <div class="star-row"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="mascot-spot">
+      <div class="girl-tap-wrap">
+        <span class="finger-cue" aria-hidden="true">👇</span>
+        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
+      </div>
+      <div class="mascot-hint">Tap the girl</div>
+    </div>
+    <button class="btn prev" id="prevBtn" type="button">← Previous page</button>
+    <button class="btn next" id="nextBtn" type="button">Next page →</button>
+    <button class="btn stop" id="clearBtn" type="button">Clear</button>
+    <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+      <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
+    </button>
+    <button class="btn read" id="recordBtn" type="button">
+      <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      </svg>Record
+    </button>
+    <div class="recording"><audio id="recordingPlayback" controls></audio></div>
+  </div>
+  <div class="status-wrap">
+    <div class="recording-status" id="recordingStatus"></div>
+    <div class="conversation-status" id="conversationStatus"></div>
+  </div>
+  <div class="footer-note">Background music removed. Mic steps now wait for the student instead of listening too early.</div>
+</div>
+
+<script>window.__PAGE_CONFIG__ = {"pageId": "LA8", "level": "A", "homeHref": "../../../../index.html", "prevHref": "../monday/GymClassWk2A.html", "nextHref": "../wednesday/LA9.html", "chimeSrc": "../../../../assets/audio/chimes/chime.mp3", "micLines": ["Yes, I'm hungry.", "Eat some cookies."], "girlTapSpeech": "Are you hungry?", "completionRemarks": ["Wow! You are super smart!", "Amazing Job!", "Great! Keep it up!"]};</script>
+
+<script>
+(function(){
+  "use strict";
+
+  const CONFIG = window.__PAGE_CONFIG__;
+  const app = document.querySelector(".app, .card");
+  const homeBtn = document.getElementById("homeBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const micBtn = document.getElementById("micIconBtn");
+  const girlBtn = document.getElementById("girlBtn") || document.getElementById("tapGirl");
+  const recordBtn = document.getElementById("recordBtn");
+  const recordPlayback = document.getElementById("recordingPlayback");
+  const recordingStatus = document.getElementById("recordingStatus");
+  const conversationStatus = document.getElementById("conversationStatus");
+  const tracePercentEl = document.getElementById("progressPercent");
+  const traceFillEl = document.getElementById("progressFill");
+  const tapPrompt = document.getElementById("tapPrompt");
+  const extraAnswer = document.getElementById("triangleAnswer");
+  const girlSentence = document.getElementById("girlSentence");
+  const circleReveal = document.getElementById("circleReveal");
+  const lines = Array.from(document.querySelectorAll(".convo-line"));
+  const repeatResults = lines.map(line => line.querySelector(".repeat-result"));
+  const starRows = lines.map(line => line.querySelector(".star-row"));
+  const bubbles = lines.map(line => line.querySelector(".bubble"));
+
+  let recorder = null;
+  let recordedChunks = [];
+  let recognitionToken = 0;
+  let tracePads = [];
+  let traceDoneCelebrated = false;
+  let girlTapped = false;
+  let triangleAnswerShown = false;
+
+  const micState = {
+    index: 0,
+    phase: "reveal", // reveal -> prompt -> listen
+    attempts: new Array((CONFIG.micLines || []).length).fill(0),
+    stars: new Array((CONFIG.micLines || []).length).fill(0),
+    done: false,
+    busy: false,
+    initialized: false
+  };
+
+  function escapeHtml(str){
+    return String(str || "").replace(/[&<>"]/g, ch => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"
+    }[ch]));
+  }
+
+  function pickVoice(){
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    return voices.find(v => /female|woman|zira|aria|samantha|ava|allison|jenny|serena|karen|moira/i.test(v.name + " " + v.lang))
+      || voices.find(v => /en-(us|gb|au|ca)|english/i.test(v.name + " " + v.lang))
+      || voices[0]
+      || null;
+  }
+
+  function speak(text){
+    return new Promise((resolve) => {
+      if (!text || !("speechSynthesis" in window)) {
+        resolve();
+        return;
+      }
+      try { window.speechSynthesis.cancel(); } catch(_) {}
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.88;
+      utter.pitch = 1.1;
+      utter.volume = 1;
+      utter.lang = "en-US";
+      const voice = pickVoice();
+      if (voice) utter.voice = voice;
+      utter.onend = resolve;
+      utter.onerror = resolve;
+      window.speechSynthesis.speak(utter);
+    });
+  }
+
+  function stopSpeaking(){
+    recognitionToken += 1;
+    try {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    } catch(_) {}
+  }
+
+  function playChime(){
+    try{
+      const audio = new Audio(CONFIG.chimeSrc);
+      audio.preload = "auto";
+      audio.play().catch(() => {});
+    }catch(_){}
+  }
+
+  function normalize(text){
+    return String(text || "")
+      .toLowerCase()
+      .replace(/[^\w\s]|_/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  const stopWords = new Set(["a","an","the","is","are","am","to","of","for","on","in","at","my","your","his","her","our","their","do","does","did","i","you","he","she","it","we","they","some"]);
+  function importantWords(text){
+    return normalize(text).split(" ").filter(Boolean).filter(w => !stopWords.has(w));
+  }
+
+  function matchPercent(expected, said){
+    const e = normalize(expected).split(" ").filter(Boolean);
+    const s = normalize(said).split(" ").filter(Boolean);
+    if (!e.length) return 0;
+    let hits = 0;
+    e.forEach(word => { if (s.includes(word)) hits += 1; });
+    return Math.round((hits / e.length) * 100);
+  }
+
+  function importantEnough(expected, said){
+    const needed = importantWords(expected);
+    if (!needed.length) return true;
+    const heard = normalize(said).split(" ").filter(Boolean);
+    const hits = needed.filter(word => heard.includes(word)).length;
+    return hits >= Math.max(1, Math.ceil(needed.length * 0.5));
+  }
+
+  function rewardStars(attemptNo){
+    if (attemptNo === 1) return 3;
+    if (attemptNo === 2) return 2;
+    if (attemptNo === 3) return 1;
+    return 0;
+  }
+
+  function setStatus(text){
+    if (conversationStatus) conversationStatus.textContent = text || "";
+  }
+
+  function showLine(index){
+    if (!lines[index]) return;
+    lines[index].classList.add("show");
+    lines[index].hidden = false;
+  }
+
+  function hideAllLines(){
+    lines.forEach(line => {
+      line.classList.remove("show");
+      line.hidden = true;
+    });
+  }
+
+  function clearBubbleHighlights(){
+    bubbles.forEach(b => b && b.classList.remove("sparkle"));
+  }
+
+  function setBubbleHighlight(index, on){
+    if (!bubbles[index]) return;
+    bubbles[index].classList.toggle("sparkle", !!on);
+  }
+
+  function setRepeatResult(index, text, color){
+    const el = repeatResults[index];
+    if (!el) return;
+    el.textContent = text || "";
+    el.style.color = color || "";
+  }
+
+  function setStars(index, count){
+    const el = starRows[index];
+    if (!el) return;
+    el.textContent = count > 0 ? "★".repeat(count) : "";
+  }
+
+  function updateMicButtonState(){
+    if (!micBtn) return;
+    micBtn.classList.toggle("is-busy", !!micState.busy);
+  }
+
+  function listenForSpeech(){
+    return new Promise((resolve) => {
+      const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Ctor) {
+        resolve({ supported:false, transcript:"" });
+        return;
+      }
+      const token = ++recognitionToken;
+      const rec = new Ctor();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.continuous = false;
+      rec.maxAlternatives = 3;
+      let finished = false;
+      function done(text){
+        if (finished || token !== recognitionToken) return;
+        finished = true;
+        resolve({ supported:true, transcript:(text || "").trim() });
+      }
+      rec.onresult = (event) => {
+        const txt = Array.from(event.results || []).map(r => r && r[0] && r[0].transcript).filter(Boolean).join(" ");
+        done(txt);
+      };
+      rec.onerror = () => done("");
+      rec.onnomatch = () => done("");
+      rec.onend = () => done("");
+      try {
+        rec.start();
+      } catch(_) {
+        done("");
+      }
+    });
+  }
+
+  async function saveProgress(overrides = {}){
+    const pageId = CONFIG.pageId;
+    const level = CONFIG.level;
+    const session = (() => {
+      try { return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null") || {}; } catch(_) { return {}; }
+    })();
+
+    const traceProgress = tracePads.length
+      ? Math.round(tracePads.reduce((sum, pad) => sum + pad.getProgress(), 0) / tracePads.length)
+      : 0;
+    const totalMicStars = micState.stars.reduce((a,b) => a+b, 0);
+    const micLinesDone = repeatResults.filter(el => {
+      const t = (el?.textContent || "").trim();
+      return t && t !== "Sorry, try again!" && t !== "You did a good Job. Nice try!";
+    }).length;
+    const inferredScore = tracePads.length
+      ? Math.max(traceProgress, Math.round((micLinesDone / Math.max(1, (CONFIG.micLines || []).length)) * 35 + totalMicStars * 5))
+      : Math.round((micLinesDone / Math.max(1, (CONFIG.micLines || []).length)) * 70 + totalMicStars * 5 + (girlTapped ? 10 : 0));
+
+    const payload = {
+      pageId,
+      file: pageId + ".html",
+      level,
+      type: CONFIG.trace ? "lesson" : "activity",
+      activityType: CONFIG.trace ? "lesson" : "speaking",
+      score: Math.max(0, Math.min(100, inferredScore)),
+      stars: totalMicStars,
+      tracing: traceProgress,
+      completed: !!(micState.done || traceProgress >= 90),
+      skills: {
+        reading: girlTapped ? 1 : 0,
+        writing: traceProgress >= 90 ? 3 : traceProgress >= 70 ? 2 : traceProgress > 0 ? 1 : 0,
+        speaking: micLinesDone >= (CONFIG.micLines || []).length ? 3 : micLinesDone > 0 ? 1 : 0,
+        listening: micLinesDone >= (CONFIG.micLines || []).length ? 3 : micLinesDone > 0 ? 1 : 0
+      },
+      week: 1,
+      month: 1,
+      classId: session.classId || null,
+      studentId: session.studentId || null,
+      studentName: session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now(),
+      ...overrides
+    };
+
+    try{
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+      store[payload.pageId] = { ...(store[payload.pageId] || {}), ...payload };
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE", payload.file);
+      localStorage.setItem("gpLatestProgress", JSON.stringify(payload));
+    }catch(_){}
+
+    try {
+      window.dispatchEvent(new CustomEvent("gp-progress-update", { detail: payload }));
+    } catch(_) {}
+
+    try {
+      if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+        await window.GPTrack.finish(payload);
+      }
+    } catch(_) {}
+
+    return payload;
+  }
+
+  async function finishMicSequence(){
+    micState.done = true;
+    micState.busy = false;
+    updateMicButtonState();
+    clearBubbleHighlights();
+    playChime();
+    const remark = CONFIG.completionRemarks[Math.floor(Math.random() * CONFIG.completionRemarks.length)];
+    setStatus(remark);
+    await speak(remark);
+    await saveProgress({ score:100, completed:true });
+  }
+
+  async function revealTriangleAnswer(){
+    if (!extraAnswer || triangleAnswerShown) return;
+    triangleAnswerShown = true;
+    extraAnswer.classList.add("show");
+    const text = (extraAnswer.textContent || "").trim();
+    if (text) {
+      setStatus(text);
+      await speak(text);
+    }
+  }
+
+  async function goNextMicLine(){
+    clearBubbleHighlights();
+    micState.busy = false;
+    micState.phase = "reveal";
+    updateMicButtonState();
+
+    if (micState.index >= (CONFIG.micLines.length - 1)) {
+      await revealTriangleAnswer();
+      await finishMicSequence();
+      return;
+    }
+
+    micState.index += 1;
+    showLine(micState.index);
+    setStatus(CONFIG.micLines[micState.index]);
+    await speak(CONFIG.micLines[micState.index]);
+    micState.phase = "prompt";
+    await saveProgress();
+  }
+
+  async function onMicClick(ev){
+    if (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+    if (micState.busy || micState.done) return;
+    if (!micState.initialized) {
+      hideAllLines();
+      showLine(0);
+      micState.initialized = true;
+      micState.index = 0;
+    }
+
+    const text = CONFIG.micLines[micState.index];
+
+    if (micState.phase === "reveal") {
+      clearBubbleHighlights();
+      setStatus(text);
+      await speak(text);
+      micState.phase = "prompt";
+      await saveProgress();
+      return;
+    }
+
+    if (micState.phase === "prompt") {
+      setBubbleHighlight(micState.index, true);
+      setStatus("Repeat after me.");
+      await speak("Repeat after me.");
+      setStatus("Now tap the microphone and speak.");
+      micState.phase = "listen";
+      await saveProgress();
+      return;
+    }
+
+    micState.busy = true;
+    updateMicButtonState();
+    setStatus("Speak now.");
+
+    const heard = await listenForSpeech();
+
+    if (!heard.supported) {
+      micState.busy = false;
+      updateMicButtonState();
+      setStatus("Speech check is not supported on this browser.");
+      setRepeatResult(micState.index, "Speech check is not supported on this browser.", "#b06a00");
+      return;
+    }
+
+    const tryNo = ++micState.attempts[micState.index];
+    const transcript = (heard.transcript || "").trim();
+    const pct = matchPercent(text, transcript);
+    const ok = pct >= 50 && importantEnough(text, transcript);
+
+    if (ok) {
+      setRepeatResult(micState.index, transcript || text, "#2f9f5f");
+      micState.stars[micState.index] = rewardStars(tryNo);
+      setStars(micState.index, micState.stars[micState.index]);
+      setStatus("Great! Get ready for the next sentence.");
+      await saveProgress();
+      await goNextMicLine();
+      return;
+    }
+
+    if (tryNo >= 3) {
+      micState.stars[micState.index] = 0;
+      setStars(micState.index, 0);
+      setRepeatResult(micState.index, "You did a good Job. Nice try!", "#b06a00");
+      setStatus("You did a good Job. Nice try!");
+      await saveProgress();
+      await speak("You did a good Job. Nice try!");
+      await goNextMicLine();
+      return;
+    }
+
+    micState.busy = false;
+    updateMicButtonState();
+    setRepeatResult(micState.index, "Sorry, try again!", "#c62828");
+    setStatus("Sorry, try again!");
+    await saveProgress();
+    await speak("Sorry, try again!");
+    setStatus("Tap the microphone and speak again.");
+  }
+
+  async function onGirlTap(){
+    girlTapped = true;
+    if (circleReveal) circleReveal.classList.add("show");
+    if (tapPrompt) tapPrompt.classList.add("show");
+
+    if (CONFIG.girlSpeechLines && girlSentence) {
+      girlSentence.innerHTML = CONFIG.girlSpeechLines.map((line, i) => `<div class="headline-line" data-line="${i}">${escapeHtml(line.html || line.text || line)}</div>`).join("");
+      const elements = Array.from(girlSentence.querySelectorAll(".headline-line"));
+      for (let i = 0; i < CONFIG.girlSpeechLines.length; i += 1) {
+        const lineCfg = CONFIG.girlSpeechLines[i];
+        if (elements[i]) elements[i].classList.add("show");
+        await speak(lineCfg.text || lineCfg.html || "");
+      }
+    } else if (CONFIG.girlTapSpeech) {
+      const promptText = (tapPrompt?.textContent || CONFIG.girlTapSpeech).trim();
+      await speak(promptText);
+    }
+
+    if (CONFIG.girlTapSpeech && !CONFIG.girlSpeechLines) {
+      setStatus((tapPrompt?.textContent || CONFIG.girlTapSpeech).trim());
+    }
+    await saveProgress();
+  }
+
+  async function toggleRecord(){
+    if (!recordBtn) return;
+
+    function setRecordLabel(label){
+      recordBtn.innerHTML = `
         <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z"
-                fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
           <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
           <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
           <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-        </svg>
-        Record
-      </button>
-      <div class="recording">
-        <audio id="recordingPlayback" controls></audio>
-      </div>
-    </div>
-    <div class="recording-status" id="recordingStatus"></div>
-    <div class="conversation-status" id="conversationStatus"></div>
-    <div class="footer-note">Tap the microphone to reveal the conversation line by line.</div>
-  </div>
-
-  <script>
-    const micIconBtn = document.getElementById("micIconBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const recordBtn = document.getElementById("recordBtn");
-    const recordingPlayback = document.getElementById("recordingPlayback");
-    const recordingStatus = document.getElementById("recordingStatus");
-    const conversationStatus = document.getElementById("conversationStatus");
-    const nextBtn = document.getElementById("nextBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const lines = Array.from(document.querySelectorAll(".convo-line"));
-    const repeatResults = Array.from(document.querySelectorAll(".repeat-result"));
-    const starRows = Array.from(document.querySelectorAll(".star-row"));
-    const cookieRow = document.getElementById("cookieRow");
-    const triangleAnswer = document.getElementById("triangleAnswer");
-    const tapPrompt = document.getElementById("tapPrompt");
-    const posterDialogueZone = document.getElementById("posterDialogueZone");
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
-
-    let recorder = null;
-    let recordedChunks = [];
-    let currentLineIndex = -1;
-    let micExpectingRepeat = false;
-    let tapRevealTimer = null;
-    let instructionStarted = false;
-    let introGuideStarted = false;
-    const expectedLines = [
-      "Eat some cookies.",
-      "Yes, I'm hungry."
-    ];
-    const attempts = [0, 0];
-    const maxAttempts = 3;
-    const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-    chimeAudio.preload = "auto";
-    instructionAudio.preload = "auto";
-    instructionAudio.volume = 0.28;
-
-    function ensureBubblesUnderPoster(){
-      if (!posterDialogueZone) return;
-      posterDialogueZone.classList.add("active");
-      lines.forEach((line) => {
-        if (line.parentElement !== posterDialogueZone) {
-          posterDialogueZone.appendChild(line);
-        }
-      });
+        </svg>${label}`;
     }
 
-    function hideAllLines(){
-      lines.forEach(line => {
-        line.classList.remove("show");
-        line.hidden = true;
-        const bubble = line.querySelector(".bubble");
-        if (bubble) bubble.classList.remove("sparkle");
-      });
-      if (posterDialogueZone) posterDialogueZone.classList.remove("active");
-      if (tapPrompt) tapPrompt.classList.remove("show");
-      if (triangleAnswer) triangleAnswer.classList.remove("show");
+    if (recorder && recorder.state === "recording") {
+      recorder.stop();
+      setRecordLabel("Record");
+      if (recordingStatus) recordingStatus.textContent = "Saved recording.";
+      return;
     }
 
-    function speakLine(text, onend){
-      if (window.GPTracing && typeof window.GPTracing.speakText === "function") {
-        window.GPTracing.speakText(text || "", {
-          rate: 0.92,
-          pitch: 1.06,
-          volume: 1,
-          lang: "en-US",
-          onEnd: onend,
-          onError: onend
-        });
+    try{
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (recordingStatus) recordingStatus.textContent = "Microphone not available in this browser.";
         return;
       }
-      if (!("speechSynthesis" in window)) {
-        if (onend) onend();
+      if (!window.MediaRecorder) {
+        if (recordingStatus) recordingStatus.textContent = "Recording not supported on this device.";
         return;
       }
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text || "");
-      utter.lang = "en-US";
-      utter.rate = 0.92;
-      utter.pitch = 1.06;
-      utter.volume = 1;
-      if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
-        window.GPTracing.applyPreferredVoice(utter);
-      }
-      utter.onend = () => { if (onend) onend(); };
-      utter.onerror = () => { if (onend) onend(); };
-      window.speechSynthesis.speak(utter);
-    }
-
-    function setConversationStatus(text){
-      if (!conversationStatus) return;
-      conversationStatus.textContent = text || "";
-    }
-
-    function highlightLine(index, on){
-      const line = lines[index];
-      if (!line) return;
-      const bubble = line.querySelector(".bubble");
-      if (!bubble) return;
-      bubble.classList.toggle("sparkle", on);
-    }
-
-    function normalizeSpeech(text){
-      return (text || "")
-        .toLowerCase()
-        .replace(/[^\w\s]|_/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-    function normalizeWords(text){
-      return normalizeSpeech(text).split(" ").filter(Boolean);
-    }
-    function matchPercent(expected, said){
-      const exp = normalizeWords(expected);
-      const act = normalizeWords(said);
-      if (!exp.length) return 0;
-      let match = 0;
-      exp.forEach((w) => { if (act.includes(w)) match += 1; });
-      return Math.round((match / exp.length) * 100);
-    }
-
-    function setStars(index, count){
-      const row = starRows[index];
-      if (!row) return;
-      row.innerHTML = new Array(count).fill("&#9733;").join("");
-    }
-
-    function showCookies(){
-      if (!cookieRow || !cookieRow.classList.contains("hidden")) return;
-      cookieRow.classList.remove("hidden");
-      chimeAudio.currentTime = 0;
-      chimeAudio.play().catch(() => {});
-    }
-
-    function showAndSpeakLine(index){
-      const line = lines[index];
-      if (!line) return;
-      ensureBubblesUnderPoster();
-      line.hidden = false;
-      line.classList.add("show");
-      currentLineIndex = index;
-      micExpectingRepeat = true;
-      const bubble = line.querySelector(".bubble");
-      const text = bubble ? bubble.textContent.trim() : "";
-      speakLine(text);
-    }
-
-    function handleRepeatResult(expectedText, pct, said){
-      attempts[currentLineIndex] += 1;
-      const finalSaid = (said || "").trim();
-      const finalPct = typeof pct === "number" ? pct : matchPercent(expectedText, finalSaid);
-      if (finalPct >= 50) {
-        highlightLine(currentLineIndex, false);
-        micExpectingRepeat = false;
-        const attemptCount = attempts[currentLineIndex];
-        const stars =
-          window.GPTracing && typeof window.GPTracing.rewardStars === "function"
-            ? window.GPTracing.rewardStars(attemptCount)
-            : (attemptCount === 1 ? 3 : (attemptCount === 2 ? 2 : 1));
-        setStars(currentLineIndex, stars);
-        if (repeatResults[currentLineIndex]) {
-          repeatResults[currentLineIndex].textContent = finalSaid || expectedText;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      recordedChunks = [];
+      recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+      recorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: recorder.mimeType || "audio/webm" });
+        if (recordPlayback) {
+          recordPlayback.src = URL.createObjectURL(blob);
+          recordPlayback.load();
         }
-        setConversationStatus("");
-        if (currentLineIndex === lines.length - 1) {
-          chimeAudio.currentTime = 0;
-          chimeAudio.play().catch(() => {});
-          speakLine("Wow! You are super smart!");
-          setConversationStatus("Wow! You are super smart!");
-          window.dispatchEvent(new CustomEvent("gp:mic-complete"));
-          return;
-        }
-        setConversationStatus("Great speaking. Get ready for the next bubble.");
-        currentLineIndex += 1;
-        window.setTimeout(() => { showAndSpeakLine(currentLineIndex); }, 900);
-        return;
-      }
-
-      if (attempts[currentLineIndex] >= maxAttempts) {
-        speakLine("Sorry, Study hard!");
-        setConversationStatus("Sorry, Study hard!");
-        if (repeatResults[currentLineIndex]) {
-          repeatResults[currentLineIndex].textContent = "Sorry, Study hard!";
-        }
-        setStars(currentLineIndex, 0);
-        micExpectingRepeat = false;
-        highlightLine(currentLineIndex, false);
-        if (currentLineIndex < lines.length - 1) {
-          setConversationStatus("Good try. Get ready for the next bubble.");
-          currentLineIndex += 1;
-          window.setTimeout(() => { showAndSpeakLine(currentLineIndex); }, 900);
-        } else {
-          chimeAudio.currentTime = 0;
-          chimeAudio.play().catch(() => {});
-          speakLine("Great try! Keep it up.");
-          window.dispatchEvent(new CustomEvent("gp:mic-complete"));
-        }
-        return;
-      }
-
-      speakLine("Sorry, try again!");
-      setConversationStatus("Sorry, try again!");
-      if (repeatResults[currentLineIndex]) {
-        repeatResults[currentLineIndex].textContent = "Sorry, try again!";
-      }
-    }
-
-    function listenForRepeat(expectedText){
-      if (window.GPTracing && typeof window.GPTracing.listenForRepeat === "function") {
-        window.GPTracing.listenForRepeat(expectedText, (pct, said) => {
-          handleRepeatResult(expectedText, pct, said);
-        }, {
-          timeoutMs: 6500,
-          settleMs: 1400,
-          startDelayMs: 700
-        });
-        return;
-      }
-
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        speakLine("Sorry, try again!");
-        setConversationStatus("Sorry, try again!");
-        return;
-      }
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.continuous = false;
-      recognition.maxAlternatives = 3;
-      recognition.onresult = (event) => {
-        const transcripts = [];
-        for (let i = 0; i < event.results.length; i += 1) {
-          const result = event.results[i];
-          if (!result || !result[0]) continue;
-          transcripts.push(result[0].transcript || "");
-        }
-        const said = (transcripts.join(" ").trim() || event.results[0][0].transcript || "").trim();
-        const pct = matchPercent(expectedText, said);
-        handleRepeatResult(expectedText, pct, said);
+        stream.getTracks().forEach(track => track.stop());
       };
-      recognition.onerror = () => {
-        speakLine("Sorry, try again!");
-        setConversationStatus("Sorry, try again!");
-      };
-      window.setTimeout(() => {
-        try {
-          recognition.start();
-        } catch (_) {
-          speakLine("Sorry, try again!");
-          setConversationStatus("Sorry, try again!");
-        }
-        }, 700);
+      recorder.start();
+      setRecordLabel("Stop");
+      if (recordingStatus) recordingStatus.textContent = "Recording... speak clearly.";
+    }catch(_){
+      if (recordingStatus) recordingStatus.textContent = "Microphone permission denied.";
     }
-
-    function playIntroGuideSequence(){
-      if (introGuideStarted) return;
-      introGuideStarted = true;
-      const steps = [
-        "Tap the microphone to reveal the bubble texts under the poster.",
-        "Listen carefully and repeat each sentence.",
-        "You can tap the picture to hear the page question."
-      ];
-      let index = 0;
-      const runNext = () => {
-        const line = steps[index++];
-        if (!line) {
-          setConversationStatus("Tap the microphone to begin.");
-          return;
-        }
-        setConversationStatus(line);
-        speakLine(line, () => {
-          window.setTimeout(runNext, 120);
-        });
-      };
-      runNext();
-    }
-
-    function playInstructionThenGuide(){
-      if (instructionStarted) return;
-      instructionStarted = true;
-      setConversationStatus("Listen to the instruction audio.");
-      instructionAudio.onended = () => {
-        playIntroGuideSequence();
-      };
-      instructionAudio.onerror = () => {
-        playIntroGuideSequence();
-      };
-      window.setTimeout(() => {
-        playIntroGuideSequence();
-      }, 3600);
-      try {
-        instructionAudio.currentTime = 0;
-        const playAttempt = instructionAudio.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.then(() => {
-            setConversationStatus("Instruction audio is playing.");
-          }).catch(() => {
-            playIntroGuideSequence();
-          });
-        }
-      } catch (_) {
-        playIntroGuideSequence();
-      }
-    }
-
-    function onMicClick(){
-      ensureBubblesUnderPoster();
-      if (currentLineIndex === -1) {
-        hideAllLines();
-        showAndSpeakLine(0);
-        setConversationStatus(expectedLines[0]);
-        return;
-      }
-      if (micExpectingRepeat) {
-        const bubble = lines[currentLineIndex]?.querySelector(".bubble");
-        if (!bubble) return;
-        highlightLine(currentLineIndex, true);
-        setConversationStatus("Repeat after me.");
-        speakLine("Repeat after me.", () => {
-          listenForRepeat(bubble.textContent || "");
-        });
-      }
-    }
-
-    function clearConversation(){
-      if (tapRevealTimer) {
-        clearTimeout(tapRevealTimer);
-        tapRevealTimer = null;
-      }
-      hideAllLines();
-      currentLineIndex = -1;
-      micExpectingRepeat = false;
-      attempts.forEach((_, i) => attempts[i] = 0);
-      repeatResults.forEach(el => { if (el) el.textContent = ""; });
-      starRows.forEach(el => { if (el) el.textContent = ""; });
-      if (cookieRow) cookieRow.classList.add("hidden");
-      setConversationStatus("");
-    }
-
-    function fitPageToViewport(){
-      const appEl = document.querySelector(".app");
-      if (!appEl) return;
-      const introActive =
-        document.body.classList.contains("intro-active") ||
-        document.documentElement.classList.contains("lesson-intro-video-pending");
-      if (!introActive) {
-        appEl.style.transform = "none";
-        return;
-      }
-      const vv = window.visualViewport;
-      const vw = Math.max(320, Math.floor(vv ? vv.width : window.innerWidth));
-      const vh = Math.max(420, Math.floor(vv ? vv.height : window.innerHeight));
-      const pad = 6;
-
-      appEl.style.transform = "none";
-      const targetW = Math.max(appEl.scrollWidth, Math.ceil(appEl.getBoundingClientRect().width));
-      const targetH = Math.max(appEl.scrollHeight, Math.ceil(appEl.getBoundingClientRect().height));
-      if (!targetW || !targetH) return;
-
-      const scaleW = (vw - pad) / targetW;
-      const scaleH = (vh - pad) / targetH;
-      const scale = Math.min(1, scaleW, scaleH);
-      appEl.style.transform = `scale(${Math.max(0.58, scale).toFixed(3)})`;
-    }
-
-    function onTapGirlClicked(){
-      if (tapRevealTimer) clearTimeout(tapRevealTimer);
-      hideAllLines();
-      setConversationStatus("");
-      currentLineIndex = -1;
-      micExpectingRepeat = false;
-      if (tapPrompt) tapPrompt.classList.add("show");
-      speakLine("Are you hungry?");
-      tapRevealTimer = setTimeout(() => {
-        if (triangleAnswer) triangleAnswer.classList.add("show");
-        speakLine("They are triangles.");
-      }, 3000);
-    }
-
-    function setRecordLabel(text){
-      recordBtn.innerHTML = '<svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">' +
-        '<path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>' +
-        '<path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' +
-        '<path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' +
-        '<path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' +
-        '</svg> ' + text;
-    }
-
-    async function toggleRecord(){
-      if (recorder && recorder.state === "recording") {
-        recorder.stop();
-        setRecordLabel("Record");
-        if (recordingStatus) recordingStatus.textContent = "Saved recording.";
-        return;
-      }
-      try{
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          if (recordingStatus) recordingStatus.textContent = "Microphone not available in this browser.";
-          return;
-        }
-        if (!window.MediaRecorder) {
-          if (recordingStatus) recordingStatus.textContent = "Recording not supported on this device.";
-          return;
-        }
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
-        });
-        recordedChunks = [];
-        const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-          ? "audio/webm;codecs=opus"
-          : (MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "");
-        recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-        recorder.ondataavailable = (e) => {
-          if (e.data.size > 0) recordedChunks.push(e.data);
-        };
-        recorder.onstop = () => {
-          const type = recorder.mimeType || "audio/webm";
-          const blob = new Blob(recordedChunks, { type });
-          recordingPlayback.src = URL.createObjectURL(blob);
-          recordingPlayback.muted = false;
-          recordingPlayback.volume = 1;
-          recordingPlayback.load();
-          stream.getTracks().forEach(t => t.stop());
-        };
-        recorder.start();
-        setRecordLabel("Stop recording");
-        if (recordingStatus) recordingStatus.textContent = "Recording... speak clearly.";
-      }catch(e){
-        setRecordLabel("Record");
-        if (recordingStatus) recordingStatus.textContent = "Microphone permission denied.";
-      }
-    }
-
-    window.__GP_FORCE_UNIFIED_MIC_PROTOCOL__ = true;
-    window.__GP_DISABLE_SHARED_MIC_GUIDE__ = true;
-    if (clearBtn) clearBtn.addEventListener("click", clearConversation);
-    recordBtn.addEventListener("click", toggleRecord);
-    document.addEventListener("click", (event) => {
-      const tap = event.target && event.target.closest
-        ? event.target.closest("#tapGirl, .tap-girl, .tapGirl")
-        : null;
-      if (!tap) return;
-      onTapGirlClicked();
-    });
-
-    nextBtn.addEventListener("click", () => {
-      try { instructionAudio.pause(); } catch (_) {}
-      try { instructionAudio.currentTime = 0; } catch (_) {}
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      window.location.href = "../wednesday/LA9.html";
-    });
-
-    prevBtn.addEventListener("click", () => {
-      try { instructionAudio.pause(); } catch (_) {}
-      try { instructionAudio.currentTime = 0; } catch (_) {}
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      window.location.href = "../monday/GymClassWk2A.html";
-    });
-
-    hideAllLines();
-    if (cookieRow) cookieRow.classList.add("hidden");
-    fitPageToViewport();
-    window.addEventListener("resize", fitPageToViewport);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", fitPageToViewport);
-    }
-    window.addEventListener("load", playInstructionThenGuide, { once: true });
-    window.addEventListener("pagehide", () => {
-      try { instructionAudio.pause(); } catch (_) {}
-      try { instructionAudio.currentTime = 0; } catch (_) {}
-      if ("speechSynthesis" in window) {
-        try { window.speechSynthesis.cancel(); } catch (_) {}
-      }
-    });
-  </script>
-<script>
-  (function(){
-    const homeBtn = document.querySelector('.home-btn');
-    if(!homeBtn) return;
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
-    chime.preload = "auto";
-    homeBtn.addEventListener('click', () => {
-      try{
-        chime.currentTime = 0;
-        const p = chime.play();
-        if (p && typeof p.catch === "function") p.catch(() => {});
-      }catch(e){}
-    });
-  })();
-</script>
-<script src="../../../../shared/js/bg-music-manager.js"></script>
-<script src="../../../../activity-standardizer.js"></script>
-<script>
-  window.addEventListener("load", () => {
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    GPTrack.start(pageFile || document.title || "Activity");
-  });
-
-  async function finishActivity(overrides = {}){
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
-      ? "A"
-      : (/^(LB|LevelB)/i.test(pageFile))
-        ? "B"
-        : (/^(LC|LevelC)/i.test(pageFile))
-          ? "C"
-          : null;
-
-    await GPTrack.finish({
-      pageId: pageFile || document.title || "Activity",
-      level: inferredLevel,
-      activityType: "activity",
-      score: null,
-      stars: 0,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
-      ...overrides
-    });
   }
+
+  function resizeCanvas(canvas){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(10, Math.round(rect.width * dpr));
+    const h = Math.max(10, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr, dpr);
+    return { ctx, width: rect.width, height: rect.height };
+  }
+
+  function sampleStroke(points, width, height, stepPx){
+    const samples = [];
+    points.forEach(polyline => {
+      for (let i = 0; i < polyline.length - 1; i += 1) {
+        const p0 = polyline[i], p1 = polyline[i+1];
+        const x0 = p0[0] * width, y0 = p0[1] * height;
+        const x1 = p1[0] * width, y1 = p1[1] * height;
+        const len = Math.hypot(x1 - x0, y1 - y0);
+        const steps = Math.max(1, Math.ceil(len / stepPx));
+        for (let s = 0; s <= steps; s += 1) {
+          const t = s / steps;
+          samples.push({ x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, hit:false });
+        }
+      }
+    });
+    return samples;
+  }
+
+  function distPointToSegment(px, py, ax, ay, bx, by){
+    const dx = bx - ax, dy = by - ay;
+    if (!dx && !dy) return Math.hypot(px - ax, py - ay);
+    const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx*dx + dy*dy)));
+    const x = ax + t * dx, y = ay + t * dy;
+    return Math.hypot(px - x, py - y);
+  }
+
+  function createTracePad(canvas, normalizedGroups, index){
+    const state = {
+      samples: [],
+      drawing: false,
+      prev:null,
+      progress:0
+    };
+
+    function rebuild(){
+      const { ctx, width, height } = resizeCanvas(canvas);
+      ctx.clearRect(0,0,width,height);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(31,94,168,0.95)";
+      ctx.lineWidth = Math.max(7, Math.min(width, height) * 0.09);
+      state.ctx = ctx;
+      state.cssWidth = width;
+      state.cssHeight = height;
+      state.samples = sampleStroke(normalizedGroups, width, height, Math.max(6, Math.min(width,height) * 0.05));
+      state.samples.forEach(s => s.hit = false);
+      state.progress = 0;
+    }
+
+    function updateProgress(){
+      const hitCount = state.samples.filter(s => s.hit).length;
+      state.progress = state.samples.length ? Math.round((hitCount / state.samples.length) * 100) : 0;
+      if (typeof CONFIG.onTraceProgress === "function") CONFIG.onTraceProgress(index, state.progress);
+      saveProgress();
+    }
+
+    function markHits(a, b){
+      const threshold = Math.max(12, Math.min(state.cssWidth, state.cssHeight) * 0.12);
+      for (const s of state.samples) {
+        if (s.hit) continue;
+        if (distPointToSegment(s.x, s.y, a.x, a.y, b.x, b.y) <= threshold) s.hit = true;
+      }
+    }
+
+    function getPoint(evt){
+      const rect = canvas.getBoundingClientRect();
+      return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+    }
+
+    canvas.style.touchAction = "none";
+
+    canvas.addEventListener("pointerdown", (evt) => {
+      evt.preventDefault();
+      canvas.setPointerCapture?.(evt.pointerId);
+      state.drawing = true;
+      state.prev = getPoint(evt);
+    });
+
+    canvas.addEventListener("pointermove", (evt) => {
+      if (!state.drawing) return;
+      evt.preventDefault();
+      const p = getPoint(evt);
+      const ctx = state.ctx;
+      ctx.beginPath();
+      ctx.moveTo(state.prev.x, state.prev.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      markHits(state.prev, p);
+      state.prev = p;
+      updateProgress();
+    });
+
+    function stop(evt){
+      if (!state.drawing) return;
+      evt.preventDefault();
+      state.drawing = false;
+      state.prev = null;
+    }
+
+    canvas.addEventListener("pointerup", stop);
+    canvas.addEventListener("pointercancel", stop);
+    canvas.addEventListener("pointerleave", stop);
+
+    rebuild();
+
+    return {
+      reset(){
+        rebuild();
+        updateProgress();
+      },
+      getProgress(){
+        return state.progress || 0;
+      },
+      resize(){
+        rebuild();
+        updateProgress();
+      }
+    };
+  }
+
+  function digitGroups(kind){
+    const map = {
+      "1":[[[0.38,0.18],[0.55,0.08],[0.55,0.9]]],
+      "2":[[[0.22,0.22],[0.36,0.10],[0.62,0.12],[0.76,0.28],[0.70,0.48],[0.46,0.64],[0.24,0.86],[0.80,0.86]]],
+      "3":[[[0.24,0.18],[0.44,0.10],[0.68,0.16],[0.72,0.34],[0.52,0.50],[0.72,0.66],[0.68,0.84],[0.40,0.90],[0.22,0.82]]]
+    };
+    return map[String(kind)] || [];
+  }
+
+  if (CONFIG.trace && Array.isArray(CONFIG.trace.canvases)) {
+    const progresses = new Array(CONFIG.trace.canvases.length).fill(0);
+
+    CONFIG.onTraceProgress = (index, pct) => {
+      progresses[index] = Math.max(0, Math.min(100, Math.round(pct)));
+      const avg = Math.round(progresses.reduce((a,b) => a+b, 0) / progresses.length);
+      if (tracePercentEl) tracePercentEl.textContent = avg + "%";
+      if (traceFillEl) traceFillEl.style.width = avg + "%";
+      if (avg >= 90 && !traceDoneCelebrated) {
+        traceDoneCelebrated = true;
+        playChime();
+        speak("Wow! Great job!");
+      }
+      if (avg < 90) traceDoneCelebrated = false;
+    };
+
+    CONFIG.trace.canvases.forEach((cfg, index) => {
+      const el = document.getElementById(cfg.id);
+      if (!el) return;
+      tracePads.push(createTracePad(el, digitGroups(cfg.kind), index));
+    });
+
+    function resizePads(){ tracePads.forEach(p => p.resize()); }
+    window.addEventListener("resize", resizePads);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", resizePads);
+  }
+
+  function resetPage(){
+    stopSpeaking();
+    micState.index = 0;
+    micState.phase = "reveal";
+    micState.attempts = new Array((CONFIG.micLines || []).length).fill(0);
+    micState.stars = new Array((CONFIG.micLines || []).length).fill(0);
+    micState.done = false;
+    micState.busy = false;
+    micState.initialized = false;
+    updateMicButtonState();
+    hideAllLines();
+    clearBubbleHighlights();
+    repeatResults.forEach(el => { if (el) { el.textContent = ""; el.style.color = ""; } });
+    starRows.forEach(el => { if (el) el.textContent = ""; });
+    if (tapPrompt) tapPrompt.classList.remove("show");
+    if (extraAnswer) extraAnswer.classList.remove("show");
+    triangleAnswerShown = false;
+    if (circleReveal) circleReveal.classList.remove("show");
+    if (girlSentence) girlSentence.innerHTML = "";
+    tracePads.forEach(p => p.reset());
+    setStatus("");
+    saveProgress({ score:0, stars:0, completed:false });
+  }
+
+  function go(url){
+    stopSpeaking();
+    window.location.href = url;
+  }
+
+  if (micBtn) micBtn.addEventListener("click", onMicClick, { passive:false });
+  if (clearBtn) clearBtn.addEventListener("click", resetPage);
+  if (girlBtn) girlBtn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); onGirlTap(); });
+  if (recordBtn) recordBtn.addEventListener("click", toggleRecord);
+  if (prevBtn) prevBtn.addEventListener("click", () => go(CONFIG.prevHref));
+  if (nextBtn) nextBtn.addEventListener("click", () => go(CONFIG.nextHref));
+  if (homeBtn) homeBtn.addEventListener("click", (e) => { e.preventDefault(); go(CONFIG.homeHref); });
+
+  hideAllLines();
+  saveProgress({ score:0, stars:0, completed:false });
+  window.addEventListener("beforeunload", stopSpeaking);
+})();
 </script>
+
 </body>
 </html>
-
-
-
-
-
