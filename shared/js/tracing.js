@@ -125,17 +125,20 @@
   function pickPreferredFemaleVoice(voices){
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|lisa|nancy|joanna|ivy|ruth|kendra|kimberly|salli|cora|luna|nova|stella|grace|amy)/i;
-    const childFriendlyName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|kids?|child|junior|young)/i;
+    const femaleName = /(jenny|aria|ava|samantha|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|ivy|ruth|salli|cora|luna|nova|stella|grace|amy|joanna|jessa|sara|hazel|michelle|nancy|kimberly|kendra|jane|lisa)/i;
+    const childFriendlyName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|kid|kids|child|junior|young|girl)/i;
     const maleName = /(davis|david|guy|man|male|boy|john|matthew|matt|michael|james|daniel|george|thomas|alex|arthur|fred|richard|jason|ryan|andrew|mark|paul|brian|steve|kevin|eric|christopher|roger|guy?l?e? ?male)/i;
     const americanLang = /^en[-_]us/i;
     const englishLang = /^en[-_]/i;
     const notMale = (voice) => !maleName.test(String(voice && voice.name || ""));
+    const warmName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|grace|luna|nova|stella|samantha|zira)/i;
     const matches = (langRe, nameRe) => list.find((voice) => langRe.test(voice.lang || "") && nameRe.test(voice.name || "") && notMale(voice));
 
     return (
+      matches(americanLang, warmName) ||
       matches(americanLang, childFriendlyName) ||
       matches(americanLang, femaleName) ||
+      matches(englishLang, warmName) ||
       matches(englishLang, childFriendlyName) ||
       matches(englishLang, femaleName) ||
       list.find((voice) => americanLang.test(voice.lang || "") && notMale(voice)) ||
@@ -155,11 +158,11 @@
         utterance.voice = null;
       }
       utterance.lang = "en-US";
-        if (typeof utterance.rate !== "number" || utterance.rate > 0.94 || utterance.rate < 0.86) {
-          utterance.rate = 0.82;
+        if (typeof utterance.rate !== "number" || utterance.rate > 0.96 || utterance.rate < 0.88) {
+          utterance.rate = 0.9;
         }
-        if (typeof utterance.pitch !== "number" || utterance.pitch > 1.28 || utterance.pitch <= 1.08) {
-          utterance.pitch = 1.08;
+        if (typeof utterance.pitch !== "number" || utterance.pitch > 1.22 || utterance.pitch < 1.12) {
+          utterance.pitch = 1.16;
         }
       utterance.volume = 1;
     } catch (_err) {}
@@ -338,8 +341,8 @@
         try { synth.cancel(); } catch (_err) {}
       }
       const utterance = new SpeechSynthesisUtterance(" " + normalizedText);
-        utterance.rate = typeof opts.rate === "number" ? opts.rate : 0.8;
-        utterance.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.0;
+        utterance.rate = typeof opts.rate === "number" ? opts.rate : 0.9;
+        utterance.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.16;
       utterance.volume = typeof opts.volume === "number" ? opts.volume : 1;
       utterance.lang = typeof opts.lang === "string" && opts.lang ? opts.lang : "en-US";
       if (typeof opts.onEnd === "function") utterance.onend = opts.onEnd;
@@ -1852,8 +1855,8 @@
       }
       const opts = options || {};
       speakText(normalizedText, {
-        rate: typeof opts.rate === "number" ? opts.rate : 0.88,
-        pitch: typeof opts.pitch === "number" ? opts.pitch : 1.38,
+        rate: typeof opts.rate === "number" ? opts.rate : 0.9,
+        pitch: typeof opts.pitch === "number" ? opts.pitch : 1.16,
         volume: typeof opts.volume === "number" ? opts.volume : 1,
         onEnd: () => { if (onend) onend(); },
         onError: () => { if (onend) onend(); }

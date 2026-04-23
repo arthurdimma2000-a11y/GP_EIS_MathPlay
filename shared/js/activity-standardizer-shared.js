@@ -12,6 +12,8 @@
   let pageInstructionAudioBound = false;
   let pageInstructionAudioStarted = false;
   let pageInstructionAudioFinished = false;
+  let pageOpeningHintScheduled = false;
+  let pageOpeningHintSpoken = false;
   let mediaPlaybackPatchInstalled = false;
 
   function ensureMobileViewportMeta() {
@@ -64,17 +66,20 @@
   function pickPreferredFemaleVoice(voices) {
     const list = Array.isArray(voices) ? voices : [];
     if (!list.length) return null;
-    const femaleName = /(jenny|aria|ava|samantha|sonia|natasha|sara|hazel|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|veena|jessa|michelle|jane|lisa|nancy|joanna|ivy|ruth|kendra|kimberly|salli|cora|luna|nova|stella|grace|amy)/i;
-    const childFriendlyName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|kids?|child|junior|young)/i;
+    const femaleName = /(jenny|aria|ava|samantha|female|zira|allison|ellie|libby|olivia|serena|emma|karen|moira|ivy|ruth|salli|cora|luna|nova|stella|grace|amy|joanna|jessa|sara|hazel|michelle|nancy|kimberly|kendra|jane|lisa)/i;
+    const childFriendlyName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|kid|kids|child|junior|young|girl)/i;
     const maleName = /(davis|david|guy|man|male|boy|john|matthew|matt|michael|james|daniel|george|thomas|alex|arthur|fred|richard|jason|ryan|andrew|mark|paul|brian|steve|kevin|eric|christopher|roger)/i;
     const americanLang = /^en[-_]us/i;
     const englishLang = /^en[-_]/i;
     const notMale = (voice) => !maleName.test(String(voice && voice.name || ""));
+    const warmName = /(jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|grace|luna|nova|stella|samantha|zira)/i;
     const matches = (langRe, nameRe) => list.find((voice) => langRe.test(voice.lang || "") && nameRe.test(voice.name || "") && notMale(voice));
 
     return (
+      matches(americanLang, warmName) ||
       matches(americanLang, childFriendlyName) ||
       matches(americanLang, femaleName) ||
+      matches(englishLang, warmName) ||
       matches(englishLang, childFriendlyName) ||
       matches(englishLang, femaleName) ||
       list.find((voice) => americanLang.test(voice.lang || "") && notMale(voice)) ||
@@ -108,8 +113,8 @@
               utterance.voice = null;
             }
             utterance.lang = "en-US";
-            if (typeof utterance.rate !== "number" || utterance.rate > 0.94 || utterance.rate < 0.86) utterance.rate = 0.9;
-            if (typeof utterance.pitch !== "number" || utterance.pitch > 1.28 || utterance.pitch <= 1.08) utterance.pitch = 1.18;
+            if (typeof utterance.rate !== "number" || utterance.rate > 0.96 || utterance.rate < 0.88) utterance.rate = 0.9;
+            if (typeof utterance.pitch !== "number" || utterance.pitch > 1.22 || utterance.pitch < 1.12) utterance.pitch = 1.16;
             utterance.volume = 1;
           }
         } catch (_) {}
@@ -212,7 +217,6 @@
   }
 
   function shouldAutoPlayPageInstructionAudio() {
-    return false;
     if (!isLevelLessonPage()) return false;
     if (window.__GP_AUTO_PAGE_INSTRUCTION_AUDIO__ === false) return false;
     if (hasPageManagedInstructionAudio()) return false;
@@ -284,6 +288,64 @@
         passive: eventName !== "keydown"
       });
     });
+  }
+
+  function normalizeOpeningHintText(text) {
+    return String(text || "")
+      .replace(/\s+/g, " ")
+      .replace(/^[\s,.;:!?-]+|[\s,.;:!?-]+$/g, "")
+      .trim();
+  }
+
+  function inferPageOpeningHint() {
+    const directTargets = [
+      "#conversationStatus",
+      ".conversation-status",
+      ".lesson-status",
+      ".footer-note",
+      ".note",
+      ".hint-clear",
+      ".girl-hint",
+      ".tap-label",
+      ".hero p",
+      ".hero .sub",
+      ".hero .subtitle",
+      ".subtitle",
+      ".subline",
+      ".instruction",
+      ".directions",
+      ".lesson-note",
+      ".status"
+    ];
+    const candidates = [];
+    directTargets.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        const text = normalizeOpeningHintText(el.textContent || "");
+        if (text) candidates.push(text);
+      });
+    });
+
+    const verbLine = candidates.find((text) => /tap|click|listen|repeat|trace|write|read|say|speak|match|choose|find|draw|count|record|touch/i.test(text) && text.length <= 160);
+    if (verbLine) return verbLine;
+
+    if (document.querySelector("#tapGirl, #girlBtn, .tap-girl, .girl-spot, .girl-inline, [aria-label='Tap the girl']")) {
+      if (document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic]")) {
+        return "Tap the girl first. Then tap the microphone and follow the lesson.";
+      }
+      return "Tap the girl to begin the lesson.";
+    }
+
+    if (document.querySelector("canvas.trace-canvas, canvas.draw-layer, .trace-wrap canvas, [data-trace-canvas]")) {
+      return "Trace the dashed lines carefully with your finger or mouse.";
+    }
+
+    if (document.querySelector("[contenteditable='true'], input[type='text'], textarea")) {
+      return "Write your answer in the boxes on the poster.";
+    }
+
+    const title = normalizeOpeningHintText((document.querySelector("h1") || {}).textContent || document.title || "");
+    if (title) return "Listen carefully and follow the activity on this page.";
+    return "";
   }
 
   function suppressWeek2LessonIntroVideos() {
@@ -610,7 +672,7 @@
         : getLessonAppAbsolute(levelPrefix + chain[index - 1]),
       home: getLessonAppAbsolute("index.html"),
       next: index === chain.length - 1
-        ? getLessonAppAbsolute("ProgressReport.html")
+        ? getLessonAppAbsolute("index.html")
         : getLessonAppAbsolute(levelPrefix + chain[index + 1])
     };
   }
@@ -1029,6 +1091,27 @@
       }
       if (done) done();
     }
+  }
+
+  function initPageOpeningVoiceHint() {
+    if (pageOpeningHintScheduled) return;
+    if (!isLevelLessonPage()) return;
+    if (window.__GP_AUTO_PAGE_OPENING_HINT__ === false) return;
+    pageOpeningHintScheduled = true;
+
+    const speakHint = function () {
+      if (pageOpeningHintSpoken) return;
+      const message = inferPageOpeningHint();
+      if (!message) return;
+      pageOpeningHintSpoken = true;
+      speakMicPrompt(message);
+    };
+
+    const delay = hasPageManagedInstructionAudio() ? 900 : 1800;
+    window.setTimeout(speakHint, delay);
+    window.addEventListener("load", function handleLoadHint() {
+      window.setTimeout(speakHint, delay);
+    }, { once: true });
   }
 
   function initUnifiedMicProtocol() {
@@ -1777,6 +1860,7 @@
     document.addEventListener("DOMContentLoaded", suppressWeek2LessonIntroVideos, { once: true });
     document.addEventListener("DOMContentLoaded", initAutoIntroVideo, { once: true });
     document.addEventListener("DOMContentLoaded", initPageInstructionAudio, { once: true });
+    document.addEventListener("DOMContentLoaded", initPageOpeningVoiceHint, { once: true });
     document.addEventListener("DOMContentLoaded", initUnifiedMicProtocol, { once: true });
     document.addEventListener("DOMContentLoaded", initGenericTraceCanvasAudio, { once: true });
     document.addEventListener("DOMContentLoaded", initHomeButtonRouting, { once: true });
@@ -1786,6 +1870,7 @@
     suppressWeek2LessonIntroVideos();
     initAutoIntroVideo();
     initPageInstructionAudio();
+    initPageOpeningVoiceHint();
     initUnifiedMicProtocol();
     initGenericTraceCanvasAudio();
     initHomeButtonRouting();

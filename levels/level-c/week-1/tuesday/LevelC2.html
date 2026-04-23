@@ -111,5 +111,8 @@ bubbleLeft.classList.remove('show'); bubbleRight.classList.remove('show');
 conversationStatus.textContent='Tap the girl to begin.';
 micIconBtn.addEventListener('click', async()=>{ if(!girlTapped){ conversationStatus.textContent='Tap the girl first.'; setGuide('girl'); await speak('Tap the girl first.'); return; } setGuide(''); return handleMic(); }); recordBtn.addEventListener('click', toggleRecord); if (girlBtn) girlBtn.addEventListener('click', async () => { girlTapped = true; showBubble(0); conversationStatus.textContent = expectedLines[0]; await speak(expectedLines[0]); conversationStatus.textContent='Now tap the microphone.'; setGuide('mic'); await speak('Now tap the microphone.'); }); prevBtn.addEventListener('click', ()=>{ try { speechSynthesis.cancel(); } catch(_) {} location.href = PREV_PAGE; }); nextBtn.addEventListener('click', ()=>{ try { speechSynthesis.cancel(); } catch(_) {} location.href = NEXT_PAGE; }); setGuide('girl'); window.addEventListener('load', () => { try { if (window.GPTrack) window.GPTrack.start(PAGE_ID); } catch(_) {} pushProgress({ score:0, stars:0, completed:false }); });
 </script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script src="../../../../shared/js/mic-lesson-helper.js"></script>
+<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
 </html>

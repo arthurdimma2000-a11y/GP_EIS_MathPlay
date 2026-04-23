@@ -19,9 +19,6 @@
 .girl-spot{position:absolute;left:16px;top:12px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:6}
 .girl-spot img{width:72px;height:72px;border-radius:18px;object-fit:cover;border:4px solid #ffe3f7;background:#ffd6f2;box-shadow:0 6px 14px rgba(0,0,0,.25);cursor:pointer}
 .girl-hint{font-size:1rem;font-weight:900;color:#1d5fd6;text-align:center}
-.finger-cue{position:absolute;left:50%;top:-26px;transform:translateX(-50%);font-size:1.8rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2));animation:fingerBob 1s ease-in-out infinite;display:none;pointer-events:none}
-.finger-cue.show{display:block}
-@keyframes fingerBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
 .designer-text,.designer-sub{position:absolute;left:50%;transform:translateX(-50%);font-size:clamp(1.2rem,3.8vw,2.2rem);font-weight:900;opacity:0;transition:opacity .25s ease;z-index:4;text-align:center}
 .designer-text{top:13.5%; width:min(520px,78%);} .designer-sub{top:20.5%; width:min(520px,78%); font-size:clamp(1rem,3.4vw,2rem);}
 .designer-text.show,.designer-sub.show{opacity:1}
@@ -51,7 +48,6 @@
   <a class="home-btn" href="../../../../index.html" aria-label="Home"><img src="../../../../assets/images/shapes/Home1.png" alt="Home"></a>
   <div class="board">
     <div class="girl-spot">
-      <span class="finger-cue show" id="girlFinger" aria-hidden="true">👇</span>
       <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Girl helper" id="girlBtn">
       <div class="girl-hint">Tap the girl</div>
     </div>
@@ -88,7 +84,7 @@
     <button class="btn prev" id="prevBtn">← Previous page</button>
     <button class="btn next" id="nextBtn">Next page →</button>
     <button class="btn stop" id="clearBtn">Clear</button>
-    <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><span class="finger-cue" id="micFinger" aria-hidden="true">👇</span><img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone"></button>
+    <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone"></button>
     <button class="btn read" id="recordBtn" type="button">Record</button>
     <div class="recording"><audio id="recordingPlayback" controls></audio></div>
   </div>
@@ -322,93 +318,199 @@ function createTraceBoard({canvas, image, progressFill, progressText, pageId, le
   let last = null;
   let progress = 0;
   let celebrated = false;
+  let rafId = 0;
+
+  function queueSync(){
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(syncCanvas);
+  }
 
   function syncCanvas(){
     const rect = image.getBoundingClientRect();
-    canvas.style.width = rect.width + 'px';
-    canvas.style.height = rect.height + 'px';
-    canvas.width = Math.max(1, Math.round(rect.width * window.devicePixelRatio));
-    canvas.height = Math.max(1, Math.round(rect.height * window.devicePixelRatio));
-    ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+    const wrapRect = image.parentElement ? image.parentElement.getBoundingClientRect() : rect;
+    const width = Math.max(1, Math.round(rect.width || image.clientWidth || image.naturalWidth || 1));
+    const height = Math.max(1, Math.round(rect.height || image.clientHeight || image.naturalHeight || 1));
+    const ratio = Math.max(1, window.devicePixelRatio || 1);
+
+    canvas.style.left = (rect.left - wrapRect.left) + 'px';
+    canvas.style.top = (rect.top - wrapRect.top) + 'px';
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    canvas.width = Math.max(1, Math.round(width * ratio));
+    canvas.height = Math.max(1, Math.round(height * ratio));
+
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.clearRect(0, 0, width, height);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineWidth = Math.max(6, rect.width * 0.008);
+    ctx.lineWidth = Math.max(8, width * 0.011);
     ctx.strokeStyle = 'rgba(32,166,88,0.95)';
   }
-  function pointFromEvent(e){
+
+  function pointFromClient(clientX, clientY){
     const rect = canvas.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    return { x: clientX - rect.left, y: clientY - rect.top };
   }
+
+  function pointFromEvent(e){
+    return pointFromClient(e.clientX, e.clientY);
+  }
+
+  function pointFromTouch(touch){
+    return pointFromClient(touch.clientX, touch.clientY);
+  }
+
   function updateProgress(){
     progress = Math.max(progress, Math.min(100, (total / targetLength) * 100));
-    if(progressFill) progressFill.style.width = Math.round(progress) + '%';
-    if(progressText) progressText.textContent = Math.round(progress) + '%';
+    const percent = Math.round(progress);
+    if(progressFill) progressFill.style.width = percent + '%';
+    if(progressText) progressText.textContent = percent + '%';
     saveLocalProgress(pageId, {
-      pageId, level, activityType:'tracing', score: Math.round(progress), stars: progress >= 90 ? 3 : progress >= 65 ? 2 : progress >= 35 ? 1 : 0,
-      completed: progress >= 90, tracing: Math.round(progress),
-      skills: { reading:0, writing: progress >= 90 ? 3 : progress >= 35 ? 2 : 1, speaking:0, listening:0 }
+      pageId,
+      level,
+      activityType:'tracing',
+      score: percent,
+      stars: percent >= 90 ? 3 : percent >= 65 ? 2 : percent >= 35 ? 1 : 0,
+      completed: percent >= 90,
+      tracing: percent,
+      skills: { reading:0, writing: percent >= 90 ? 3 : percent >= 35 ? 2 : 1, speaking:0, listening:0 }
     });
-    if(progress >= 90 && !celebrated){
+    if(percent >= 90 && !celebrated){
       celebrated = true;
       try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_){}
       speak('Amazing job!', {kid:true});
     }
   }
-  function start(e){
+
+  function beginStroke(point){
+    drawing = true;
+    last = point;
+    ctx.beginPath();
+    ctx.moveTo(point.x, point.y);
+  }
+
+  function drawTo(point){
+    if(!drawing) return;
+    if(!last){
+      beginStroke(point);
+      return;
+    }
+    const dx = point.x - last.x;
+    const dy = point.y - last.y;
+    const dist = Math.hypot(dx, dy);
+    if(dist < 0.25) return;
+    total += dist;
+    ctx.lineTo(point.x, point.y);
+    ctx.stroke();
+    last = point;
+    updateProgress();
+  }
+
+  function startPointer(e){
     e.preventDefault();
     if(typeof canvas.setPointerCapture === 'function'){
       try{ canvas.setPointerCapture(e.pointerId); }catch(_){}
     }
-    drawing = true;
-    last = pointFromEvent(e);
-    ctx.beginPath();
-    ctx.moveTo(last.x, last.y);
+    beginStroke(pointFromEvent(e));
   }
-  function move(e){
+
+  function movePointer(e){
     if(!drawing) return;
-    const p = pointFromEvent(e);
-    const dx = p.x - last.x, dy = p.y - last.y;
-    total += Math.hypot(dx, dy);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-    last = p;
-    updateProgress();
+    e.preventDefault();
+    drawTo(pointFromEvent(e));
   }
-  function end(e){
-    if(typeof canvas.releasePointerCapture === 'function'){
+
+  function endPointer(e){
+    if(e && typeof canvas.releasePointerCapture === 'function'){
       try{ canvas.releasePointerCapture(e.pointerId); }catch(_){}
     }
     drawing = false;
     last = null;
   }
+
   function clear(){
-    ctx.clearRect(0,0,canvas.width, canvas.height);
+    const ratio = Math.max(1, window.devicePixelRatio || 1);
+    const width = canvas.width / ratio;
+    const height = canvas.height / ratio;
+    ctx.clearRect(0, 0, width, height);
     total = 0;
     progress = 0;
     celebrated = false;
+    drawing = false;
+    last = null;
     if(progressFill) progressFill.style.width = '0%';
     if(progressText) progressText.textContent = '0%';
-    saveLocalProgress(pageId, {pageId, level, activityType:'tracing', score:0, stars:0, completed:false, tracing:0, skills:{reading:0,writing:0,speaking:0,listening:0}});
+    saveLocalProgress(pageId, {
+      pageId,
+      level,
+      activityType:'tracing',
+      score:0,
+      stars:0,
+      completed:false,
+      tracing:0,
+      skills:{reading:0,writing:0,speaking:0,listening:0}
+    });
   }
 
-  image.addEventListener('load', syncCanvas);
-  window.addEventListener('resize', syncCanvas);
-  if(window.visualViewport) window.visualViewport.addEventListener('resize', syncCanvas);
-  canvas.addEventListener('pointerdown', start);
-  canvas.addEventListener('pointermove', move);
-  canvas.addEventListener('pointerup', end);
-  canvas.addEventListener('pointercancel', end);
-  canvas.addEventListener('pointerleave', end);
-  syncCanvas();
+  if(image.complete){
+    queueSync();
+  }else{
+    image.addEventListener('load', queueSync, { once:true });
+  }
+  window.addEventListener('resize', queueSync);
+  window.addEventListener('orientationchange', queueSync);
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', queueSync);
+
+  canvas.addEventListener('pointerdown', startPointer);
+  canvas.addEventListener('pointermove', movePointer);
+  canvas.addEventListener('pointerup', endPointer);
+  canvas.addEventListener('pointercancel', endPointer);
+  canvas.addEventListener('pointerleave', endPointer);
+
+  canvas.addEventListener('mousedown', (e)=>{
+    if(window.PointerEvent) return;
+    e.preventDefault();
+    beginStroke(pointFromEvent(e));
+  });
+  canvas.addEventListener('mousemove', (e)=>{
+    if(window.PointerEvent || !drawing) return;
+    e.preventDefault();
+    drawTo(pointFromEvent(e));
+  });
+  window.addEventListener('mouseup', ()=>{
+    if(window.PointerEvent) return;
+    drawing = false;
+    last = null;
+  });
+
+  canvas.addEventListener('touchstart', (e)=>{
+    if(!e.touches.length) return;
+    e.preventDefault();
+    beginStroke(pointFromTouch(e.touches[0]));
+  }, { passive:false });
+  canvas.addEventListener('touchmove', (e)=>{
+    if(!drawing || !e.touches.length) return;
+    e.preventDefault();
+    drawTo(pointFromTouch(e.touches[0]));
+  }, { passive:false });
+  canvas.addEventListener('touchend', ()=>{
+    drawing = false;
+    last = null;
+  }, { passive:false });
+  canvas.addEventListener('touchcancel', ()=>{
+    drawing = false;
+    last = null;
+  }, { passive:false });
+
+  queueSync();
+  setTimeout(queueSync, 80);
+  setTimeout(queueSync, 240);
   clear();
-  return { clear };
+  return { clear, syncCanvas: queueSync };
 }
 
 const PAGE_ID='LB13', LEVEL_ID='B';
 const girlTapState = { used:false };
-const girlFinger = document.getElementById('girlFinger');
-const micFinger = document.getElementById('micFinger');
-function setGuide(stage){ if(girlFinger) girlFinger.classList.toggle('show', stage==='girl'); if(micFinger) micFinger.classList.toggle('show', stage==='mic'); }
 const mic = createMicController({
   pageId:PAGE_ID, level:LEVEL_ID, micBtn:document.getElementById('micIconBtn'), statusEl:document.getElementById('statusEl'),
   remarkList:['Wow! You are super smart!','Amazing Job!','Great! Keep it up!'],
@@ -418,8 +520,22 @@ const mic = createMicController({
   ],
   onGirlTap: girlTapState
 });
-document.getElementById('micIconBtn').addEventListener('click', async(e)=>{ if(!girlTapState.used){ e.preventDefault(); document.getElementById('statusEl').textContent='Tap the girl first.'; setGuide('girl'); await speak('Tap the girl first.', {kid:true}); return; } setGuide(''); return mic.handleClick(e); });
-document.getElementById('girlBtn').addEventListener('click', async()=>{ girlTapState.used = true; document.getElementById('designerText').classList.add('show'); await speak('Look at the hexagons.', {kid:true}); document.getElementById('designerSub').classList.add('show'); await speak('Subtract the even numbers.', {kid:true}); document.getElementById('statusEl').textContent='Now tap the microphone.'; setGuide('mic'); await speak('Now tap the microphone.', {kid:true}); });
+document.getElementById('micIconBtn').addEventListener('click', async(e)=>{
+  if(!girlTapState.used){
+    document.getElementById('statusEl').textContent = 'Tap the girl first.';
+    await speak('Tap the girl first.', {kid:true});
+    return;
+  }
+  return mic.handleClick(e);
+});
+document.getElementById('girlBtn').addEventListener('click', async()=>{
+  girlTapState.used = true;
+  document.getElementById('designerText').classList.add('show');
+  document.getElementById('designerSub').classList.add('show');
+  document.getElementById('statusEl').textContent = 'Now trace the numbers and watch the progress bar.';
+  await speak('Look at the hexagons.', {kid:true});
+  await speak('Subtract the even numbers.', {kid:true});
+});
 const trace = createTraceBoard({
   canvas:document.getElementById('traceCanvas'),
   image:document.getElementById('designImage'),
@@ -428,8 +544,8 @@ const trace = createTraceBoard({
   pageId:PAGE_ID, level:LEVEL_ID, targetLength:3200
 });
 document.getElementById('clearBtn').addEventListener('click', ()=>{ trace.clear(); mic.reset(); });
-document.getElementById('prevBtn').addEventListener('click', ()=>{ try{speechSynthesis.cancel();}catch(_{}){} location.href='LB9.html'; });
-document.getElementById('nextBtn').addEventListener('click', ()=>{ try{speechSynthesis.cancel();}catch(_{}){} location.href='../thursday/FairlyTaleWk2C.html'; });
+document.getElementById('prevBtn').addEventListener('click', ()=>{ try{speechSynthesis.cancel();}catch(_){} location.href='LB9.html'; });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ try{speechSynthesis.cancel();}catch(_){} location.href='../thursday/FairlyTaleWk2C.html'; });
 let recorder=null, recordedChunks=[];
 document.getElementById('recordBtn').addEventListener('click', async()=>{
   const btn = document.getElementById('recordBtn');
@@ -446,9 +562,11 @@ document.getElementById('recordBtn').addEventListener('click', async()=>{
     document.getElementById('statusEl').textContent='Microphone permission denied.';
   }
 });
-setGuide('girl');
-document.getElementById('statusEl').textContent='Tap the girl to begin.';
+document.getElementById('statusEl').textContent = 'Tap the girl, then trace the numbers.';
 saveLocalProgress(PAGE_ID, {pageId:PAGE_ID, level:LEVEL_ID, activityType:'activity', score:0, stars:0, completed:false, skills:{reading:0,writing:0,speaking:0,listening:0}});
 </script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script src="../../../../shared/js/mic-lesson-helper.js"></script>
+<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
 </html>

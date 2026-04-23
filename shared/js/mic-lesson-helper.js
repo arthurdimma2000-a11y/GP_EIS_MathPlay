@@ -9,14 +9,18 @@
   const girlTarget = document.querySelector('#tapGirl, #girlBtn, .tap-girl, .girl-spot, .girl-inline, [aria-label="Tap the girl"]');
   const statusEl = document.querySelector('#conversationStatus, .conversation-status, .status, .lesson-status, .footer-note, .note');
   const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+  const cheerAudio = new Audio("../../../../assets/audio/sfx-cheer.mp3");
   chimeAudio.preload = "auto";
+  cheerAudio.preload = "auto";
 
-  let pointerTarget = micBtn;
+  let pointerTarget = girlTarget || micBtn;
+  let girlActivated = !girlTarget;
   let micActivated = false;
   let micCompleted = false;
   let repeatPrompted = false;
   let introSpoken = false;
   let pointerEl = null;
+  let girlProxy = null;
   let mutationQueued = false;
   let pointerQueued = false;
   let completeCheckTimers = [];
@@ -60,6 +64,58 @@
       box-shadow:0 6px 14px rgba(0,0,0,.12);
       white-space:nowrap;
     }
+    .gp-shared-guide-dock{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:6px 10px;
+      margin:4px 8px 4px 0;
+      border-radius:999px;
+      background:rgba(255,255,255,.94);
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+      border:2px solid rgba(245,158,11,.22);
+    }
+    .gp-shared-guide-girl{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:none;
+      background:transparent;
+      padding:0;
+      cursor:pointer;
+      font:inherit;
+    }
+    .gp-shared-guide-girl img{
+      width:48px;
+      height:48px;
+      object-fit:contain;
+    }
+    .gp-shared-guide-girl-label{
+      font-size:.88rem;
+      font-weight:900;
+      color:#7c2d12;
+      white-space:nowrap;
+    }
+    .gp-shared-guide-girl-finger{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      background:#fff6cc;
+      color:#d97706;
+      box-shadow:0 6px 14px rgba(0,0,0,.12);
+      animation:gpMicGuideBounce 1.05s ease-in-out infinite;
+    }
+    .gp-shared-guide-hidden-source{
+      position:absolute !important;
+      width:1px !important;
+      height:1px !important;
+      overflow:hidden !important;
+      opacity:0 !important;
+      pointer-events:none !important;
+    }
     @keyframes gpMicGuideBounce{
       0%,100%{ transform:translate(0,0); }
       50%{ transform:translate(-8px,-4px); }
@@ -89,6 +145,9 @@
   }
 
   function chooseKidVoice(){
+    if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+      return null;
+    }
     const voices = getVoices();
     if (!voices.length) return null;
     const lower = (s) => String(s || "").toLowerCase();
@@ -103,12 +162,16 @@
     if (!("speechSynthesis" in window) || !text) return;
     try { window.speechSynthesis.cancel(); } catch(_err){}
     const utter = new SpeechSynthesisUtterance(text);
-    const voice = chooseKidVoice();
-    if (voice) utter.voice = voice;
     utter.lang = "en-US";
-    utter.rate = 0.82;
-    utter.pitch = 1.02;
+    utter.rate = 0.9;
+    utter.pitch = 1.16;
     utter.volume = 1;
+    if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+      window.GPTracing.applyPreferredVoice(utter);
+    } else {
+      const voice = chooseKidVoice();
+      if (voice) utter.voice = voice;
+    }
     window.speechSynthesis.speak(utter);
   }
 
@@ -125,8 +188,8 @@
         const voice = chooseKidVoice();
         if (voice) utterance.voice = voice;
         utterance.lang = "en-US";
-        utterance.rate = 0.82;
-        utterance.pitch = 1.02;
+        utterance.rate = 0.9;
+        utterance.pitch = 1.16;
         utterance.volume = 1;
         utterance.__gpMicAdjusted = true;
       }
@@ -143,7 +206,68 @@
   function updatePointerLabel(){
     const label = pointerEl && pointerEl.querySelector(".gp-shared-guide-label");
     if (!label) return;
-    label.textContent = pointerTarget === micBtn ? "Click the Mic icon" : "Tap the girl";
+    label.textContent = pointerTarget === micBtn ? "Tap the microphone" : "Tap the girl";
+  }
+
+  function resolveGirlTrigger() {
+    if (!girlTarget) return null;
+    if (girlTarget.matches("img,button")) return girlTarget;
+    return girlTarget.querySelector("img,button") || girlTarget;
+  }
+
+  function findGuideDockHost() {
+    const candidates = [
+      ".controls",
+      ".button-row",
+      ".footerNav",
+      ".top-actions",
+      ".bottom-bar",
+      ".top-nav-right",
+      ".top",
+      ".hud"
+    ];
+    for (const selector of candidates) {
+      const host = document.querySelector(selector);
+      if (host) return host;
+    }
+    return micBtn.parentElement || null;
+  }
+
+  function ensureGirlProxy() {
+    if (!girlTarget) return null;
+    if (girlProxy && document.body.contains(girlProxy)) return girlProxy;
+    const dockHost = findGuideDockHost();
+    if (!dockHost) return girlTarget;
+    if (dockHost.contains(girlTarget)) return girlTarget;
+
+    const trigger = resolveGirlTrigger();
+    const img = trigger && trigger.tagName === "IMG" ? trigger : (girlTarget.querySelector("img") || null);
+    const src = img ? img.getAttribute("src") || "" : "";
+    if (!src) return girlTarget;
+
+    const dock = document.createElement("div");
+    dock.className = "gp-shared-guide-dock";
+    dock.innerHTML = '<button type="button" class="gp-shared-guide-girl" aria-label="Tap the girl"><span class="gp-shared-guide-girl-finger" aria-hidden="true">👇</span><img alt="Tap the girl helper"><span class="gp-shared-guide-girl-label">Tap the girl</span></button>';
+    const button = dock.querySelector(".gp-shared-guide-girl");
+    const proxyImg = dock.querySelector("img");
+    proxyImg.src = src;
+    button.addEventListener("click", () => {
+      girlActivated = true;
+      pointTo(micBtn);
+      showHint("Now tap the microphone.");
+      window.setTimeout(() => speakFriendly("Now tap the microphone."), 120);
+      if (trigger && typeof trigger.click === "function") {
+        try { trigger.click(); } catch(_err){}
+      }
+      try {
+        trigger && trigger.dispatchEvent(new MouseEvent("click", { bubbles:true, cancelable:true, view:window }));
+      } catch(_err){}
+    }, true);
+    dockHost.insertBefore(dock, dockHost.firstChild);
+    const hideTarget = girlTarget.closest(".girl-spot, .girl-inline, .tap-girl") || girlTarget;
+    hideTarget.classList.add("gp-shared-guide-hidden-source");
+    girlProxy = button;
+    return girlProxy;
   }
 
   function positionPointer(){
@@ -175,8 +299,8 @@
     if (introSpoken) return;
     introSpoken = true;
     const message = girlTarget
-      ? "Click the Mic icon for the listening and speaking lesson activity. Then tap the girl."
-      : "Click the Mic icon for the listening and speaking lesson activity.";
+      ? "Tap the girl first. Then tap the microphone and follow the speaking lesson."
+      : "Tap the microphone and follow the speaking lesson.";
     showHint(message);
     window.setTimeout(() => speakFriendly(message), 1100);
   }
@@ -192,11 +316,13 @@
       chimeAudio.currentTime = 0;
       chimeAudio.play().catch(() => {});
     }catch(_err){}
-    if (girlTarget) {
-      pointTo(girlTarget);
-      showHint("Tap the girl.");
-      window.setTimeout(() => speakFriendly("Tap the girl."), 140);
-    }
+    try{
+      cheerAudio.currentTime = 0;
+      cheerAudio.play().catch(() => {});
+    }catch(_err){}
+    pointTo(micBtn);
+    showHint("Great job. You finished the microphone lesson.");
+    window.setTimeout(() => speakFriendly("Great job. You finished the microphone lesson."), 140);
   }
 
   function maybeCompleteFromDom(){
@@ -231,9 +357,18 @@
 
   observer.observe(document.body, { childList:true, subtree:true });
 
-  micBtn.addEventListener("click", () => {
+  micBtn.addEventListener("click", (ev) => {
+    if (girlTarget && !girlActivated) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (typeof ev.stopImmediatePropagation === "function") ev.stopImmediatePropagation();
+      pointTo(girlProxy || girlTarget);
+      showHint("Tap the girl first.");
+      window.setTimeout(() => speakFriendly("Tap the girl first."), 80);
+      return;
+    }
     if (micCompleted) {
-      if (girlTarget) pointTo(girlTarget);
+      pointTo(micBtn);
       return;
     }
     micActivated = true;
@@ -253,7 +388,10 @@
 
   if (girlTarget) {
     girlTarget.addEventListener("click", () => {
-      pointTo(girlTarget);
+      girlActivated = true;
+      pointTo(micBtn);
+      showHint("Now tap the microphone.");
+      window.setTimeout(() => speakFriendly("Now tap the microphone."), 120);
     }, true);
   }
 
@@ -270,11 +408,13 @@
   window.addEventListener("resize", queuePointerPosition);
   window.addEventListener("scroll", queuePointerPosition, true);
   window.addEventListener("load", () => {
-    pointTo(micBtn);
+    ensureGirlProxy();
+    pointTo(girlProxy || girlTarget || micBtn);
     maybeAnnounceIntro();
   }, { once:true });
   window.addEventListener("pagehide", cleanup, { once:true });
   window.addEventListener("beforeunload", cleanup, { once:true });
 
-  pointTo(micBtn);
+  ensureGirlProxy();
+  pointTo(girlProxy || girlTarget || micBtn);
 })();

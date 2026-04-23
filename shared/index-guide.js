@@ -105,16 +105,20 @@
 
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = "en-US";
-        utter.rate = 0.96;
-        utter.pitch = 1.12;
-        utter.volume = 0.9;
+        utter.rate = 0.9;
+        utter.pitch = 1.16;
+        utter.volume = 1;
 
-        const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-        const preferred =
-          voices.find(v => /en/i.test(v.lang) && /female|zira|aria|samantha|google us english/i.test(v.name)) ||
-          voices.find(v => /en/i.test(v.lang));
-
-        if (preferred) utter.voice = preferred;
+        if (window.GPTracing && typeof window.GPTracing.applyPreferredVoice === "function") {
+          window.GPTracing.applyPreferredVoice(utter);
+        } else {
+          const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+          const preferred =
+            voices.find(v => /^en[-_]?us/i.test(String(v.lang || "")) && /jenny|aria|ava|samantha|zira|allison|ellie|libby|olivia|emma|ivy|grace|nova|stella|female|girl/i.test(String(v.name || ""))) ||
+            voices.find(v => /^en[-_]?us/i.test(String(v.lang || "")) && !/male|man|boy|david|mark|tom|john|matthew|michael|james|daniel|george|thomas|alex|fred|jason|ryan|andrew|paul|brian|kevin|eric|christopher|roger/i.test(String(v.name || ""))) ||
+            voices.find(v => /^en/i.test(String(v.lang || "")));
+          if (preferred) utter.voice = preferred;
+        }
 
         window.speechSynthesis.speak(utter);
       } catch (_) {}

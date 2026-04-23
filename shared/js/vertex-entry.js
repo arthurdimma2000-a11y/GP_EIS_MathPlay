@@ -176,19 +176,41 @@
   }
 
   function playChime(){
-    try{
-      new Audio("../../../../assets/audio/chimes/chime.mp3").play().catch(() => {});
-    }catch(_e){}
+    if (global.GPAudio?.playSfx) {
+      global.GPAudio.playSfx("chime", 0.9);
+    } else {
+      try{
+        new Audio("../../../../assets/audio/chimes/chime.mp3").play().catch(() => {});
+      }catch(_e){}
+    }
     global.GPTracing?.playTraceCelebration?.();
+  }
+
+  function playCheer(){
+    if (global.GPTracing?.playCheerAudio) {
+      global.GPTracing.playCheerAudio();
+      return;
+    }
+    if (global.GPAudio?.playSfx) {
+      global.GPAudio.playSfx("cheer", 1);
+      return;
+    }
+    try{
+      new Audio("../../../../assets/audio/sfx-cheer.mp3").play().catch(() => {});
+    }catch(_e){}
   }
 
   function speak(text){
     if (!("speechSynthesis" in global) || !text) return;
     try{
+      if (global.GPTracing?.speakText) {
+        global.GPTracing.speakText(String(text), { rate: 0.9, pitch: 1.16, volume: 1 });
+        return;
+      }
       global.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(String(text));
-      u.rate = 0.86;
-      u.pitch = 1.22;
+      u.rate = 0.9;
+      u.pitch = 1.16;
       u.volume = 1;
       if (global.GPTracing?.applyPreferredVoice) {
         global.GPTracing.applyPreferredVoice(u);
@@ -315,6 +337,7 @@
       if (state.completed && !celebrated) {
         celebrated = true;
         playChime();
+        playCheer();
         speak(options.completeSpeech || "Excellent. You completed the tracing and vertex work.");
       }
       if (!state.completed) celebrated = false;

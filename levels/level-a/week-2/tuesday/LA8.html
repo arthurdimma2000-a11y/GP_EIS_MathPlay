@@ -73,7 +73,7 @@
     .repeat-result{min-height:1.25em;font-size:clamp(1rem,3vw,1.7rem);line-height:1.15;font-weight:900;color:var(--success);}
     .star-row{min-height:1.25em;display:flex;gap:6px;font-size:clamp(1.4rem,4vw,2.1rem);line-height:1;color:#ffd24a;text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);}
     .controls{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;width:100%;}
-    .mascot-spot{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid #e8e0ff;border-radius:14px;padding:6px 10px;box-shadow:0 8px 16px rgba(0,0,0,.12);}
+    .mascot-spot{position:relative;display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid #e8e0ff;border-radius:14px;padding:6px 10px;box-shadow:0 8px 16px rgba(0,0,0,.12);}
     .girl-tap-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
     .tap-girl{width:46px;height:46px;border-radius:12px;object-fit:cover;cursor:pointer;display:block;}
     .finger-cue{
@@ -98,7 +98,7 @@
     .btn.next{background:var(--btn-yellow);color:#8b5a00;}
     .btn.stop{background:var(--btn-blue);color:#1f3b6b;}
     .btn.read{background:var(--btn-orange);color:#fff;}
-    .mic-icon-btn{background:transparent;padding:0;display:inline-flex;align-items:center;justify-content:center;box-shadow:none;}
+    .mic-icon-btn{position:relative;background:transparent;padding:0;display:inline-flex;align-items:center;justify-content:center;box-shadow:none;}
     .mic-icon-btn img{width:42px;height:42px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
     .mic-icon-btn.is-busy{opacity:.7;pointer-events:none;transform:scale(.97);}
     .record-icon{width:16px;height:16px;vertical-align:middle;margin-right:6px;}
@@ -203,7 +203,7 @@
   <div class="controls">
     <div class="mascot-spot">
       <div class="girl-tap-wrap">
-        <span class="finger-cue" aria-hidden="true">👇</span>
+        <span class="finger-cue show" id="girlFinger" aria-hidden="true">👇</span>
         <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
       </div>
       <div class="mascot-hint">Tap the girl</div>
@@ -212,6 +212,7 @@
     <button class="btn next" id="nextBtn" type="button">Next page →</button>
     <button class="btn stop" id="clearBtn" type="button">Clear</button>
     <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+      <span class="finger-cue" id="micFinger" aria-hidden="true">👇</span>
       <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
     </button>
     <button class="btn read" id="recordBtn" type="button">
@@ -245,6 +246,8 @@
   const clearBtn = document.getElementById("clearBtn");
   const micBtn = document.getElementById("micIconBtn");
   const girlBtn = document.getElementById("girlBtn") || document.getElementById("tapGirl");
+  const girlFinger = document.getElementById("girlFinger");
+  const micFinger = document.getElementById("micFinger");
   const recordBtn = document.getElementById("recordBtn");
   const recordPlayback = document.getElementById("recordingPlayback");
   const recordingStatus = document.getElementById("recordingStatus");
@@ -369,6 +372,11 @@
     if (conversationStatus) conversationStatus.textContent = text || "";
   }
 
+  function setGuide(stage){
+    if (girlFinger) girlFinger.classList.toggle("show", stage === "girl");
+    if (micFinger) micFinger.classList.toggle("show", stage === "mic");
+  }
+
   function showLine(index){
     if (!lines[index]) return;
     lines[index].classList.add("show");
@@ -478,7 +486,7 @@
         speaking: micLinesDone >= (CONFIG.micLines || []).length ? 3 : micLinesDone > 0 ? 1 : 0,
         listening: micLinesDone >= (CONFIG.micLines || []).length ? 3 : micLinesDone > 0 ? 1 : 0
       },
-      week: 1,
+      week: 2,
       month: 1,
       classId: session.classId || null,
       studentId: session.studentId || null,
@@ -556,6 +564,12 @@
     if (ev) {
       ev.preventDefault();
       ev.stopPropagation();
+    }
+    if (!girlTapped) {
+      setStatus("Tap the girl first.");
+      setGuide("girl");
+      await speak("Tap the girl first.");
+      return;
     }
     if (micState.busy || micState.done) return;
     if (!micState.initialized) {
@@ -637,6 +651,7 @@
 
   async function onGirlTap(){
     girlTapped = true;
+    setGuide("");
     if (circleReveal) circleReveal.classList.add("show");
     if (tapPrompt) tapPrompt.classList.add("show");
 
@@ -656,6 +671,9 @@
     if (CONFIG.girlTapSpeech && !CONFIG.girlSpeechLines) {
       setStatus((tapPrompt?.textContent || CONFIG.girlTapSpeech).trim());
     }
+    setStatus("Now tap the microphone.");
+    setGuide("mic");
+    await speak("Now tap the microphone.");
     await saveProgress();
   }
 
@@ -899,7 +917,9 @@
     if (circleReveal) circleReveal.classList.remove("show");
     if (girlSentence) girlSentence.innerHTML = "";
     tracePads.forEach(p => p.reset());
-    setStatus("");
+    girlTapped = false;
+    setStatus("Tap the girl to begin.");
+    setGuide("girl");
     saveProgress({ score:0, stars:0, completed:false });
   }
 
@@ -922,5 +942,8 @@
 })();
 </script>
 
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script src="../../../../shared/js/mic-lesson-helper.js"></script>
+<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
 </html>

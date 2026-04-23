@@ -9,6 +9,7 @@
     activity: "/assets/audio/bg-activity.mp3",
     quiz: "/assets/audio/bg-quiz.mp3",
     tracing: "/assets/audio/bg-tracing.mp3",
+    chime: "/assets/audio/chimes/chime.mp3",
     success: "/assets/audio/sfx-success.mp3",
     tryAgain: "/assets/audio/sfx-try-again.mp3",
     click: "/assets/audio/sfx-click.mp3",
