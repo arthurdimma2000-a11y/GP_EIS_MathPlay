@@ -168,7 +168,7 @@
     <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Quiz 1 • Names</span></div>
     <div style="display:flex; gap:10px; flex-wrap:wrap">
       <a class="btn" href="LB_Game1.html">⬅ Back</a>
-      <a class="btn next" href="../../week-2/monday/GymClassWk2C.html">Week 2 ▶</a>
+      <a class="btn next" href="../../week-2/monday/GymClassWk2B.html">Week 2 ▶</a>
     </div>
   </div>
 
@@ -472,11 +472,11 @@ async function startQuiz(){
 startBtn.addEventListener("click", startQuiz);
 
 document.addEventListener("DOMContentLoaded", () => {
-  const week2Btn = document.querySelector('a.btn.next[href$="GymClassWk2C.html"]');
+  const week2Btn = document.querySelector('a.btn.next[href$="GymClassWk2B.html"]');
   if (!week2Btn) return;
   week2Btn.addEventListener("click", (event) => {
     event.preventDefault();
-    window.location.assign("../../week-2/monday/GymClassWk2C.html");
+    window.location.assign("../../week-2/monday/GymClassWk2B.html");
   }, { capture: true });
 });
 
