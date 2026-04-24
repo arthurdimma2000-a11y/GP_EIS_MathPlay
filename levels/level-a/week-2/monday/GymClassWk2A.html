@@ -655,5 +655,56 @@
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 <script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
+
+<style id="gpVideoAutoplayPatchStyle">
+  #lbIntroVideoOverlay{display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;}
+  #pageContent{opacity:1 !important; visibility:visible !important;}
+  body.intro-complete #pageContent{opacity:1 !important; visibility:visible !important;}
+  .side-nav{display:none !important;}
+</style>
+<script id="gpVideoAutoplayPatchScript">
+(function(){
+  const pageContent = document.getElementById('pageContent');
+  const introOverlay = document.getElementById('lbIntroVideoOverlay');
+  const introVideo = document.getElementById('lbIntroVideo');
+  const video = document.getElementById('lessonVideo');
+  if (!video) return;
+
+  document.body.classList.add('intro-complete');
+  if (pageContent) {
+    pageContent.style.opacity = '1';
+    pageContent.style.visibility = 'visible';
+  }
+  if (introOverlay) introOverlay.hidden = true;
+  if (introVideo) { try { introVideo.pause(); } catch (_err) {} }
+
+  const hint = document.querySelector('.bottom-bar .hint');
+  if (hint) hint.textContent = 'Video starts automatically. Tap the video or use controls for sound.';
+
+  video.autoplay = true;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.preload = 'auto';
+  video.setAttribute('autoplay','');
+  video.setAttribute('muted','');
+  video.setAttribute('playsinline','');
+
+  function tryPlay(){
+    const p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  }
+
+  ['loadedmetadata','canplay','canplaythrough','pageshow'].forEach((name) => {
+    window.addEventListener(name, tryPlay, { passive:true });
+    video.addEventListener(name, tryPlay, { passive:true });
+  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tryPlay(); });
+  window.setTimeout(tryPlay, 60);
+  window.setTimeout(tryPlay, 700);
+  window.setTimeout(tryPlay, 1600);
+})();
+</script>
+
 </body>
 </html>

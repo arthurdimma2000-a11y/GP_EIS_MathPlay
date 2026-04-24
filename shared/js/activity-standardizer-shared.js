@@ -531,11 +531,11 @@
         "week-1/thursday/PentagonFairlyTale.html",
         "week-1/friday/LB_Game1.html",
         "week-1/friday/LB_Quiz1.html",
-        "week-2/monday/GymClassWk2C.html",
+        "week-2/monday/GymClassWk2B.html",
         "week-2/tuesday/LB8.html",
         "week-2/wednesday/LB9.html",
         "week-2/wednesday/LB13.html",
-        "week-2/thursday/FairlyTaleWk2C.html",
+        "week-2/thursday/FairlyTaleWk2B.html",
         "week-2/friday/LB_Game2.html",
         "week-2/friday/LB_Quiz2.html",
         "week-3/tuesday/LB14.html",
@@ -666,12 +666,15 @@
     const index = chain.indexOf(current);
     if (index === -1) return null;
     const levelPrefix = "levels/level-" + level.toLowerCase() + "/";
+    const forceIndexNext = /(^|\/)week-2\/friday\/LevelC_Quiz2\.html$/i.test(current);
     return {
       prev: index === 0
         ? getLessonAppAbsolute("index.html")
         : getLessonAppAbsolute(levelPrefix + chain[index - 1]),
       home: getLessonAppAbsolute("index.html"),
-      next: index === chain.length - 1
+      next: forceIndexNext
+        ? getLessonAppAbsolute("index.html")
+        : index === chain.length - 1
         ? getLessonAppAbsolute("index.html")
         : getLessonAppAbsolute(levelPrefix + chain[index + 1])
     };
@@ -1116,14 +1119,11 @@
 
   function initUnifiedMicProtocol() {
       const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-      const forceLA2MicForLesson = !!(
+      const forceUnifiedMicForLesson = !!(
         isLevelLessonPage() &&
-        (
-          window.__GP_FORCE_UNIFIED_MIC_PROTOCOL__ === true ||
-          (document.body && document.body.dataset && document.body.dataset.gpForceUnifiedMic === "1")
-        )
+        window.__GP_FORCE_UNIFIED_MIC_PROTOCOL__ !== false &&
+        !(document.body && document.body.dataset && document.body.dataset.gpDisableUnifiedMic === "1")
       );
-      if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
 
     const micButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
     if (!micButton) return;
@@ -1308,14 +1308,14 @@
       }
 
         function runFallbackFlow() {
-          if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
+          if (!forceUnifiedMicForLesson) return;
           if (state.micDone || state.micBusy) return;
 
         if (!state.fallbackActive) {
           resetFallbackState();
           state.fallbackActive = true;
           lines.forEach(hideConversationLine);
-          state.micStepIndex = forceLA2MicForLesson ? 0 : Math.max(0, visibleIndex());
+          state.micStepIndex = Math.max(0, visibleIndex());
           state.micPhase = "reveal";
           showAndSpeakFallbackLine(state.micStepIndex);
           return;
@@ -1420,7 +1420,7 @@
         if (state.micDone) {
           resetFallbackState();
         }
-        if (forceLA2MicForLesson && !state.fallbackActive) {
+        if (forceUnifiedMicForLesson && !state.fallbackActive) {
           resetFallbackState();
         }
         runFallbackFlow();
@@ -1434,17 +1434,17 @@
 
         function forceOwnMicButton() {
           const liveMicButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
-          if (!liveMicButton || liveMicButton.dataset.gpStrictLa2MicBound === "1") return;
-          liveMicButton.dataset.gpStrictLa2MicBound = "1";
+          if (!liveMicButton || liveMicButton.dataset.gpStrictUnifiedMicBound === "1") return;
+          liveMicButton.dataset.gpStrictUnifiedMicBound = "1";
           if (liveMicButton.hasAttribute("onclick")) {
             liveMicButton.removeAttribute("onclick");
           }
           liveMicButton.addEventListener("click", handleForcedMicClick, true);
         }
 
-      if (forceLA2MicForLesson) {
+      if (forceUnifiedMicForLesson) {
         document.body.dataset.gpUnifiedMicProtocol = "1";
-        document.body.dataset.gpForceLa2Mic = "1";
+        document.body.dataset.gpForceUnifiedMic = "1";
         forceOwnMicButton();
         window.setTimeout(forceOwnMicButton, 0);
         window.setTimeout(forceOwnMicButton, 150);
@@ -1462,12 +1462,12 @@
       }
 
       document.addEventListener("click", (ev) => {
-          if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
+          if (!forceUnifiedMicForLesson) return;
           if (!getMicTarget(ev.target)) return;
           prepareMicSupport();
           const hadVisibleLine = lines.some(isConversationLineVisible);
           window.setTimeout(() => {
-            if (window.__GP_DISABLE_UNIFIED_MIC_PROTOCOL && !forceLA2MicForLesson) return;
+            if (!forceUnifiedMicForLesson) return;
             const hasVisibleLine = lines.some(isConversationLineVisible);
           if (state.fallbackActive) {
             runFallbackFlow();
@@ -1563,6 +1563,105 @@
         window.location.assign(homeTarget);
       }, true);
     });
+  }
+
+  function initLessonVideoAutoplayFix() {
+    if (!isLevelLessonPage()) return;
+
+    const introVideo = document.querySelector("#lbIntroVideo, #introVideo");
+    const lessonVideo = document.querySelector("#lessonVideo, #storyVideo");
+    if (!introVideo && !lessonVideo) return;
+
+    function normalizeVideo(video) {
+      if (!video) return;
+      video.preload = "auto";
+      video.autoplay = true;
+      video.playsInline = true;
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      const source = video.querySelector("source[src]");
+      if (!video.getAttribute("src") && source && source.getAttribute("src")) {
+        video.setAttribute("src", source.getAttribute("src"));
+      }
+      try { video.load(); } catch (_) {}
+    }
+
+    function tryPlay(video, withAudio) {
+      if (!video) return;
+      try {
+        video.defaultMuted = !withAudio;
+        video.muted = !withAudio;
+        if (withAudio) {
+          video.removeAttribute("muted");
+          video.volume = 0.85;
+        } else {
+          video.setAttribute("muted", "");
+          video.volume = 0;
+        }
+      } catch (_) {}
+      const playAttempt = video.play();
+      if (playAttempt && typeof playAttempt.catch === "function" && withAudio) {
+        playAttempt.catch(() => {
+          tryPlay(video, false);
+        });
+      }
+    }
+
+    function bindVideoRetries(video, withAudioPreferred) {
+      if (!video || video.dataset.gpVideoAutoFixed === "1") return;
+      video.dataset.gpVideoAutoFixed = "1";
+      normalizeVideo(video);
+      const replay = function () {
+        tryPlay(video, withAudioPreferred);
+      };
+      ["loadedmetadata", "loadeddata", "canplay", "canplaythrough"].forEach((eventName) => {
+        video.addEventListener(eventName, replay);
+      });
+      window.setTimeout(replay, 100);
+      window.setTimeout(replay, 900);
+      window.setTimeout(replay, 2200);
+      window.setTimeout(replay, 4200);
+    }
+
+    bindVideoRetries(introVideo, true);
+    bindVideoRetries(lessonVideo, true);
+
+    if (introVideo) {
+      ["ended", "error"].forEach((eventName) => {
+        introVideo.addEventListener(eventName, function () {
+          if (lessonVideo) tryPlay(lessonVideo, true);
+        });
+      });
+    } else if (lessonVideo) {
+      window.setTimeout(() => tryPlay(lessonVideo, true), 600);
+    }
+
+    window.addEventListener("gp:intro-end", function () {
+      if (lessonVideo) tryPlay(lessonVideo, true);
+    });
+    window.addEventListener("load", function () {
+      if (introVideo) tryPlay(introVideo, true);
+      if (lessonVideo && !introVideo) tryPlay(lessonVideo, true);
+    }, { once: true });
+
+    if (document.querySelector(".top-nav, .nav-controls, .video-controls") && document.querySelector(".side-btn, .side-nav")) {
+      document.querySelectorAll(".side-btn, .side-nav, .hint").forEach((el) => {
+        try { el.style.display = "none"; } catch (_) {}
+      });
+    }
+    if (document.querySelector(".tap-card") && document.querySelector(".nav-btn, .control-btn")) {
+      document.querySelectorAll(".tap-card").forEach((el) => {
+        try { el.style.display = "none"; } catch (_) {}
+      });
+    }
+    if (document.querySelector("#replayBtn") && document.querySelector("#restartBtn")) {
+      try { document.querySelector("#restartBtn").style.display = "none"; } catch (_) {}
+    }
+    if (document.querySelector(".nav-btn#fullscreenBtn") && document.querySelector(".control-btn#fullscreenBtn")) {
+      document.querySelectorAll(".control-btn#fullscreenBtn").forEach((el) => {
+        try { el.style.display = "none"; } catch (_) {}
+      });
+    }
   }
 
   function initAutoIntroVideo() {
@@ -1862,6 +1961,7 @@
     document.addEventListener("DOMContentLoaded", initPageInstructionAudio, { once: true });
     document.addEventListener("DOMContentLoaded", initPageOpeningVoiceHint, { once: true });
     document.addEventListener("DOMContentLoaded", initUnifiedMicProtocol, { once: true });
+    document.addEventListener("DOMContentLoaded", initLessonVideoAutoplayFix, { once: true });
     document.addEventListener("DOMContentLoaded", initGenericTraceCanvasAudio, { once: true });
     document.addEventListener("DOMContentLoaded", initHomeButtonRouting, { once: true });
     document.addEventListener("DOMContentLoaded", suppressLegacyLevelBGirlHelper, { once: true });
@@ -1872,6 +1972,7 @@
     initPageInstructionAudio();
     initPageOpeningVoiceHint();
     initUnifiedMicProtocol();
+    initLessonVideoAutoplayFix();
     initGenericTraceCanvasAudio();
     initHomeButtonRouting();
     suppressLegacyLevelBGirlHelper();

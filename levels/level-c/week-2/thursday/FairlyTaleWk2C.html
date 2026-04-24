@@ -438,8 +438,8 @@
     const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776516766/FairlyTaleC_sngw7q.mp4";
 
     const HOME_PAGE = "../../../../index.html";
-    const PREVIOUS_PAGE = "../wednesday/LevelC13.html";
-    const NEXT_PAGE = "../friday/LevelC_Game2.html";
+    const PREVIOUS_PAGE = "../wednesday/LB13.html";
+    const NEXT_PAGE = "../friday/LB_Game2.html";
 
     const video = document.getElementById("lessonVideo");
     const videoShell = document.getElementById("videoShell");
@@ -459,32 +459,6 @@
     const skipIntroBtn = document.getElementById("skipIntroBtn");
 
     let introFinished = false;
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
-    instructionAudio.preload = "auto";
-    instructionAudio.volume = 0.28;
-    let instructionAudioStarted = false;
-
-    function playInstructionBed() {
-      if (instructionAudioStarted) return;
-      try { instructionAudio.currentTime = 0; } catch (_err) {}
-      const playAttempt = instructionAudio.play();
-      if (playAttempt && typeof playAttempt.then === "function") {
-        playAttempt.then(() => {
-          instructionAudioStarted = true;
-        }).catch(() => {});
-      } else {
-        instructionAudioStarted = true;
-      }
-    }
-
-    window.addEventListener("load", playInstructionBed, { once: true });
-    ["pointerdown", "touchstart", "click", "keydown"].forEach((eventName) => {
-      document.addEventListener(eventName, playInstructionBed, {
-        once: true,
-        capture: true,
-        passive: eventName !== "keydown"
-      });
-    });
     let navTimer;
 
     function setVideoSource(videoEl, url) {
@@ -665,5 +639,56 @@
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 <script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
+
+<style id="gpVideoAutoplayPatchStyle">
+  #lbIntroVideoOverlay{display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;}
+  #pageContent{opacity:1 !important; visibility:visible !important;}
+  body.intro-complete #pageContent{opacity:1 !important; visibility:visible !important;}
+  .side-nav{display:none !important;}
+</style>
+<script id="gpVideoAutoplayPatchScript">
+(function(){
+  const pageContent = document.getElementById('pageContent');
+  const introOverlay = document.getElementById('lbIntroVideoOverlay');
+  const introVideo = document.getElementById('lbIntroVideo');
+  const video = document.getElementById('lessonVideo');
+  if (!video) return;
+
+  document.body.classList.add('intro-complete');
+  if (pageContent) {
+    pageContent.style.opacity = '1';
+    pageContent.style.visibility = 'visible';
+  }
+  if (introOverlay) introOverlay.hidden = true;
+  if (introVideo) { try { introVideo.pause(); } catch (_err) {} }
+
+  const hint = document.querySelector('.bottom-bar .hint');
+  if (hint) hint.textContent = 'Video starts automatically. Tap the video or use controls for sound.';
+
+  video.autoplay = true;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.preload = 'auto';
+  video.setAttribute('autoplay','');
+  video.setAttribute('muted','');
+  video.setAttribute('playsinline','');
+
+  function tryPlay(){
+    const p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  }
+
+  ['loadedmetadata','canplay','canplaythrough','pageshow'].forEach((name) => {
+    window.addEventListener(name, tryPlay, { passive:true });
+    video.addEventListener(name, tryPlay, { passive:true });
+  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tryPlay(); });
+  window.setTimeout(tryPlay, 60);
+  window.setTimeout(tryPlay, 700);
+  window.setTimeout(tryPlay, 1600);
+})();
+</script>
+
 </body>
 </html>

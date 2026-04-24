@@ -979,5 +979,191 @@
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 <script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
+
+<style id="gpLa3TraceFallbackStyle">
+  .gp-zero-trace-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.86);box-shadow:0 8px 18px rgba(0,0,0,.08);}
+  .gp-zero-trace-title{font-weight:800;color:#2d2d2d;font-size:1rem;text-align:center;}
+  .gp-zero-trace-box{width:min(180px,42vw);aspect-ratio:1/1;border:2px dashed #9cb3d1;border-radius:16px;background:#fff;position:relative;overflow:hidden;}
+  .gp-zero-trace-box canvas{width:100%;height:100%;display:block;touch-action:none;}
+  .gp-zero-trace-note{font-size:.92rem;font-weight:700;color:#456; text-align:center;}
+</style>
+<script id="gpLa3TraceFallbackScript">
+(function(){
+  const miniCanvasIds = ['miniTrace1','miniTrace2','miniTrace3','miniTrace4'];
+  const pctIds = ['miniPct1','miniPct2','miniPct3','miniPct4'];
+  const fillIds = ['miniFill1','miniFill2','miniFill3','miniFill4'];
+  const progressPercentEl = document.getElementById('progressPercent');
+  const progressFillEl = document.getElementById('progressFill');
+  const progressMessageEl = document.getElementById('progressMessage');
+  const progressMessageOverlayEl = document.getElementById('progressMessageOverlay');
+  const mount = document.getElementById('vertexEntryMount');
+  const pads = [];
+  let zeroPad = null;
+
+  function setupCanvas(canvas){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const width = Math.max(120, Math.round(rect.width * dpr));
+    const height = Math.max(120, Math.round(rect.height * dpr));
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    const ctx = canvas.getContext('2d');
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    return { ctx, dpr, width, height };
+  }
+
+  function makeTracePad(canvas, shape){
+    if (!canvas) return null;
+    const state = { drawing:false, visited:[], samples:[], pct:0 };
+    let ctxInfo = setupCanvas(canvas);
+    const ctx = () => ctxInfo.ctx;
+
+    function rebuild(){
+      ctxInfo = setupCanvas(canvas);
+      state.visited = [];
+      state.samples = [];
+      const w = ctxInfo.width, h = ctxInfo.height;
+      const cx = w / 2, cy = h / 2;
+      if (shape === 'circle') {
+        const r = Math.min(w, h) * 0.39;
+        for (let a = 0; a < 360; a += 3) {
+          const rad = a * Math.PI / 180;
+          state.samples.push({ x: cx + Math.cos(rad) * r, y: cy + Math.sin(rad) * r });
+          state.visited.push(false);
+        }
+      } else {
+        const rx = Math.min(w, h) * 0.22;
+        const ry = Math.min(w, h) * 0.34;
+        for (let a = 0; a < 360; a += 3) {
+          const rad = a * Math.PI / 180;
+          state.samples.push({ x: cx + Math.cos(rad) * rx, y: cy + Math.sin(rad) * ry });
+          state.visited.push(false);
+        }
+      }
+      redraw();
+    }
+
+    function redraw(){
+      ctx().clearRect(0, 0, ctxInfo.width, ctxInfo.height);
+    }
+
+    function eventPoint(ev){
+      const rect = canvas.getBoundingClientRect();
+      const point = ev.touches && ev.touches[0] ? ev.touches[0] : ev;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return { x: (point.clientX - rect.left) * scaleX, y: (point.clientY - rect.top) * scaleY };
+    }
+
+    function mark(pos){
+      const threshold = Math.max(20, Math.min(canvas.width, canvas.height) * 0.09);
+      const threshold2 = threshold * threshold;
+      let changed = false;
+      for (let i = 0; i < state.samples.length; i++) {
+        if (state.visited[i]) continue;
+        const dx = state.samples[i].x - pos.x;
+        const dy = state.samples[i].y - pos.y;
+        if ((dx * dx) + (dy * dy) <= threshold2) {
+          state.visited[i] = true;
+          changed = true;
+        }
+      }
+      if (changed) {
+        const raw = state.visited.filter(Boolean).length / Math.max(1, state.visited.length);
+        state.pct = Math.round(raw * 100);
+      }
+      return changed;
+    }
+
+    let last = null;
+    function start(ev){ ev.preventDefault(); state.drawing = true; last = eventPoint(ev); mark(last); }
+    function move(ev){
+      if (!state.drawing) return;
+      ev.preventDefault();
+      const point = eventPoint(ev);
+      ctx().strokeStyle = '#2f7dd1';
+      ctx().lineWidth = Math.max(10, Math.min(canvas.width, canvas.height) * 0.07);
+      ctx().beginPath();
+      ctx().moveTo(last.x, last.y);
+      ctx().lineTo(point.x, point.y);
+      ctx().stroke();
+      last = point;
+      if (mark(point)) updateAllProgress();
+    }
+    function end(){ state.drawing = false; last = null; updateAllProgress(); }
+
+    canvas.addEventListener('pointerdown', start, { passive:false });
+    canvas.addEventListener('pointermove', move, { passive:false });
+    window.addEventListener('pointerup', end, { passive:true });
+    canvas.addEventListener('touchstart', start, { passive:false });
+    canvas.addEventListener('touchmove', move, { passive:false });
+    window.addEventListener('touchend', end, { passive:true });
+
+    rebuild();
+    window.addEventListener('resize', rebuild);
+
+    return {
+      getProgress(){ return state.pct; },
+      reset(){ state.pct = 0; rebuild(); }
+    };
+  }
+
+  function ensureZeroTraceFallback(){
+    if (!mount) return;
+    if (mount.querySelector('input, textarea, canvas')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'gp-zero-trace-wrap';
+    wrap.innerHTML = '<div class="gp-zero-trace-title">Trace the number 0</div><div class="gp-zero-trace-box"><canvas id="gpZeroTraceCanvas"></canvas></div><div class="gp-zero-trace-note">A circle has 0 vertices.</div>';
+    mount.appendChild(wrap);
+    zeroPad = makeTracePad(document.getElementById('gpZeroTraceCanvas'), 'zero');
+    updateAllProgress();
+  }
+
+  function saveProgress(score){
+    if (typeof window.finishAndSave === 'function') {
+      window.finishAndSave({
+        pageId:'LA3',
+        level:'A',
+        activityType:'lesson',
+        score: score,
+        tracing: score,
+        stars: score >= 93 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0,
+        completed: score >= 93,
+        skills:{ reading:1, writing:1, speaking:1, listening:1 }
+      }).catch(() => {});
+    }
+  }
+
+  function updateAllProgress(){
+    let total = 0;
+    pads.forEach((pad, index) => {
+      const circleScore = Math.round((pad.getProgress() / 100) * 25);
+      total += circleScore;
+      const pctEl = document.getElementById(pctIds[index]);
+      const fillEl = document.getElementById(fillIds[index]);
+      if (pctEl) pctEl.textContent = circleScore + '%';
+      if (fillEl) fillEl.style.width = circleScore + '%';
+    });
+    if (zeroPad) total += Math.round((zeroPad.getProgress() / 100) * 20);
+    total = Math.max(0, Math.min(100, total));
+    if (progressPercentEl) progressPercentEl.textContent = total + '%';
+    if (progressFillEl) progressFillEl.style.width = total + '%';
+    if (progressMessageEl) progressMessageEl.textContent = total >= 93 ? 'Wow! you are super smart!' : total >= 65 ? 'Great tracing! Keep going!' : '';
+    if (progressMessageOverlayEl) progressMessageOverlayEl.textContent = progressMessageEl ? progressMessageEl.textContent : '';
+    saveProgress(total);
+  }
+
+  miniCanvasIds.forEach((id) => {
+    const canvas = document.getElementById(id);
+    if (canvas) pads.push(makeTracePad(canvas, 'circle'));
+  });
+  updateAllProgress();
+  window.setTimeout(ensureZeroTraceFallback, 900);
+})();
+</script>
+
 </body>
 </html>

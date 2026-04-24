@@ -862,34 +862,15 @@
       return { x: event.clientX - rect.left, y: event.clientY - rect.top };
     }
 
-    function endDraw(event){
-      if (!drawing) return;
-      if (event) event.preventDefault();
-      drawing = false;
-      try{
-        if (event && typeof event.pointerId === "number") {
-          canvas.releasePointerCapture(event.pointerId);
-        }
-      }catch(_err){}
-      lastPoint = null;
-      lastMid = null;
-
-      if (getMessage) {
-        const message = getMessage(lastPercent);
-        if (messageEl) {
-          messageEl.textContent = message;
-          messageEl.classList.add("show");
-        }
-        if (speak && message) speak(message);
-      }
+    function getTouchPos(event){
+      const touch = event && event.touches && event.touches[0]
+        ? event.touches[0]
+        : (event && event.changedTouches && event.changedTouches[0] ? event.changedTouches[0] : null);
+      return touch ? getPos(touch) : null;
     }
 
-    canvas.addEventListener("pointerdown", (event) => {
-      event.preventDefault();
-      try{
-        canvas.setPointerCapture(event.pointerId);
-      }catch(_err){}
-      const point = getPos(event);
+    function startStroke(point){
+      if (!point) return;
       drawing = isTracePointValid(point);
       lastPoint = point;
       lastMid = null;
@@ -899,13 +880,11 @@
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
       updateVisitedSegment(point.x, point.y, point.x, point.y);
-    });
+    }
 
-    canvas.addEventListener("pointermove", (event) => {
-      if (!drawing) return;
-      event.preventDefault();
+    function moveStroke(point){
+      if (!drawing || !point) return;
       const prev = lastPoint;
-      const point = getPos(event);
       ctx.lineWidth = lineWidth;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -939,12 +918,74 @@
       lastPoint = point;
       if (onTick) onTick(lastPercent, lastRawPercent);
       else playTraceTick();
+    }
+
+    function endDraw(event){
+      if (!drawing) return;
+      if (event) event.preventDefault();
+      drawing = false;
+      try{
+        if (event && typeof event.pointerId === "number") {
+          canvas.releasePointerCapture(event.pointerId);
+        }
+      }catch(_err){}
+      lastPoint = null;
+      lastMid = null;
+
+      if (getMessage) {
+        const message = getMessage(lastPercent);
+        if (messageEl) {
+          messageEl.textContent = message;
+          messageEl.classList.add("show");
+        }
+        if (speak && message) speak(message);
+      }
+    }
+
+    canvas.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      try{
+        canvas.setPointerCapture(event.pointerId);
+      }catch(_err){}
+      startStroke(getPos(event));
+    });
+
+    canvas.addEventListener("pointermove", (event) => {
+      if (!drawing) return;
+      event.preventDefault();
+      moveStroke(getPos(event));
     });
 
     canvas.addEventListener("pointerup", endDraw);
     canvas.addEventListener("pointerleave", endDraw);
     canvas.addEventListener("pointercancel", endDraw);
     canvas.addEventListener("lostpointercapture", endDraw);
+    canvas.addEventListener("mousedown", (event) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      startStroke(getPos(event));
+    });
+    canvas.addEventListener("mousemove", (event) => {
+      if (!drawing) return;
+      event.preventDefault();
+      moveStroke(getPos(event));
+    });
+    canvas.addEventListener("touchstart", (event) => {
+      const point = getTouchPos(event);
+      if (!point) return;
+      event.preventDefault();
+      startStroke(point);
+    }, { passive:false });
+    canvas.addEventListener("touchmove", (event) => {
+      if (!drawing) return;
+      const point = getTouchPos(event);
+      if (!point) return;
+      event.preventDefault();
+      moveStroke(point);
+    }, { passive:false });
+    ["mouseup", "touchend", "touchcancel"].forEach((eventName) => {
+      global.addEventListener(eventName, endDraw, { passive:false });
+    });
     global.addEventListener("blur", endDraw);
     global.addEventListener("resize", resize);
 
@@ -954,6 +995,9 @@
     }
 
     function teardown(){
+      ["mouseup", "touchend", "touchcancel"].forEach((eventName) => {
+        global.removeEventListener(eventName, endDraw, { passive:false });
+      });
       global.removeEventListener("blur", endDraw);
       global.removeEventListener("resize", resize);
       global.removeEventListener("pagehide", teardown);
@@ -1134,35 +1178,18 @@
       };
     }
 
-    function endDraw(event){
-      if (!drawing) return;
-      if (event) event.preventDefault();
-      drawing = false;
-      lastPoint = null;
-      lastMid = null;
-      if (canvas.releasePointerCapture && event) {
-        try{
-          canvas.releasePointerCapture(event.pointerId);
-        }catch(_err){}
-      }
-      if (getMessage) {
-        let pct = Math.round((visitedCount / Math.max(1, samples.length)) * 100);
-        if (pct >= completionSnap) pct = 100;
-        const message = getMessage(pct);
-        if (speak && message) speak(message);
-      }
+    function getTouchPos(event){
+      const touch = event && event.touches && event.touches[0]
+        ? event.touches[0]
+        : (event && event.changedTouches && event.changedTouches[0] ? event.changedTouches[0] : null);
+      return touch ? getPos(touch) : null;
     }
 
-    canvas.addEventListener("pointerdown", (event) => {
-      event.preventDefault();
-      if (canvas.setPointerCapture) {
-        try{
-          canvas.setPointerCapture(event.pointerId);
-        }catch(_err){}
-      }
+    function startStroke(point){
+      if (!point) return;
       drawing = true;
-      const point = getPos(event);
-      drawing = isTracePointValid(point);
+      const valid = isTracePointValid(point);
+      drawing = valid;
       if (!drawing) {
         lastPoint = point;
         lastMid = null;
@@ -1173,12 +1200,10 @@
       lastPoint = point;
       lastMid = point;
       updateVisitedSegment(point.x, point.y, point.x, point.y);
-    });
+    }
 
-    canvas.addEventListener("pointermove", (event) => {
-      if (!drawing) return;
-      event.preventDefault();
-      const point = getPos(event);
+    function moveStroke(point){
+      if (!drawing || !point) return;
       const prev = lastPoint;
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = strokeStyle;
@@ -1209,10 +1234,71 @@
 
       if (onTick) onTick(lastRawPercent);
       else playTraceTick();
+    }
+
+    function endDraw(event){
+      if (!drawing) return;
+      if (event) event.preventDefault();
+      drawing = false;
+      lastPoint = null;
+      lastMid = null;
+      if (canvas.releasePointerCapture && event) {
+        try{
+          canvas.releasePointerCapture(event.pointerId);
+        }catch(_err){}
+      }
+      if (getMessage) {
+        let pct = Math.round((visitedCount / Math.max(1, samples.length)) * 100);
+        if (pct >= completionSnap) pct = 100;
+        const message = getMessage(pct);
+        if (speak && message) speak(message);
+      }
+    }
+
+    canvas.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      if (canvas.setPointerCapture) {
+        try{
+          canvas.setPointerCapture(event.pointerId);
+        }catch(_err){}
+      }
+      startStroke(getPos(event));
+    });
+
+    canvas.addEventListener("pointermove", (event) => {
+      if (!drawing) return;
+      event.preventDefault();
+      moveStroke(getPos(event));
     });
 
     canvas.addEventListener("pointerup", endDraw);
     canvas.addEventListener("pointercancel", endDraw);
+    canvas.addEventListener("mousedown", (event) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      startStroke(getPos(event));
+    });
+    canvas.addEventListener("mousemove", (event) => {
+      if (!drawing) return;
+      event.preventDefault();
+      moveStroke(getPos(event));
+    });
+    canvas.addEventListener("touchstart", (event) => {
+      const point = getTouchPos(event);
+      if (!point) return;
+      event.preventDefault();
+      startStroke(point);
+    }, { passive:false });
+    canvas.addEventListener("touchmove", (event) => {
+      if (!drawing) return;
+      const point = getTouchPos(event);
+      if (!point) return;
+      event.preventDefault();
+      moveStroke(point);
+    }, { passive:false });
+    ["mouseup", "touchend", "touchcancel"].forEach((eventName) => {
+      global.addEventListener(eventName, endDraw, { passive:false });
+    });
 
     if ("ResizeObserver" in global && canvas.parentElement) {
       resizeObserver = new ResizeObserver(() => resize());
@@ -1221,6 +1307,9 @@
     global.addEventListener("resize", resize);
 
     function teardown(){
+      ["mouseup", "touchend", "touchcancel"].forEach((eventName) => {
+        global.removeEventListener(eventName, endDraw, { passive:false });
+      });
       global.removeEventListener("resize", resize);
       global.removeEventListener("pagehide", teardown);
       global.removeEventListener("beforeunload", teardown);

@@ -560,10 +560,8 @@
       setBubbleHighlight(micState.index, true);
       setStatus("Repeat after me.");
       await speak("Repeat after me.");
-      setStatus("Now tap the microphone and speak.");
       micState.phase = "listen";
       await saveProgress();
-      return;
     }
 
     micState.busy = true;

@@ -220,11 +220,9 @@ function createMicController(config){
 
     if(phase === 'coach'){
       lines[current].bubbleEl.classList.add('sparkle');
-      updateStatus('Repeat after me. Tap the microphone again, then speak.');
+      updateStatus('Repeat after me.');
       await speak('Repeat after me.', {kid:true});
       phase = 'listen';
-      busy = false;
-      return;
     }
 
     updateStatus('Now say the sentence.');
