@@ -27,7 +27,8 @@
       ".mic-icon-btn{min-width:clamp(52px,10vw,76px) !important;min-height:clamp(52px,10vw,76px) !important;}" +
       ".mic-icon-btn img{width:clamp(32px,7vw,54px) !important;height:clamp(32px,7vw,54px) !important;}" +
       ".bubble,.speech-bubble,.dialog-bubble,.convo-bubble,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight,.headline-line,.sentence-line{font-size:clamp(16px,2.7vw,24px) !important;line-height:1.28 !important;max-width:min(92vw,760px) !important;white-space:normal !important;overflow-wrap:anywhere !important;word-break:normal !important;}" +
-      "canvas,.draw-layer,.trace-canvas{touch-action:none !important;}" +
+        "canvas,.draw-layer,.trace-canvas{touch-action:none !important;}" +
+        ".star-row,.stars,.bubble-stars,[data-stars],#stars,.score-big,[aria-label*='stars' i]{color:#f7c948 !important;text-shadow:0 1px 0 #8b5a00,0 3px 8px rgba(0,0,0,.18) !important;}" +
       "@media (max-width:900px){.app,.card,.page,.page-wrap{width:min(100%,calc(100vw - 12px)) !important;max-width:100% !important;}}";
     (document.head || document.documentElement).appendChild(style);
   }

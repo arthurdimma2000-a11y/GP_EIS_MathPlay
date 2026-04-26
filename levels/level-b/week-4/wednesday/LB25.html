@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script>
+  window.__GP_FORCE_UNIFIED_MIC_PROTOCOL__ = true;
+  window.__GP_ENABLE_AUTO_INTRO_VIDEOS__ = false;
+  window.__GP_AUTO_PAGE_OPENING_HINT__ = true;
+</script>
 
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
@@ -14,7 +19,7 @@
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Level B • Polygons</title>
+  <title>Level B • Even Numbers</title>
 
   <style>
     :root{
@@ -22,7 +27,6 @@
       --bg:#e4f6df;
       --border:#d9b9f0;
       --bubble-left:#fde3c4;
-      --bubble-right:#d8ebff;
       --btn-orange:#ff8a5b;
       --btn-blue:#dfeaff;
       --shadow:0 10px 24px rgba(0,0,0,.08);
@@ -70,30 +74,12 @@
       margin:6px 0 8px;
       width:100%;
     }
-    .trace-wrap{
-      position:relative;
-      display:inline-block;
-    }
     .tray-hero img{
       width:min(676px,92%);
       height:auto;
       object-fit:contain;
       display:block;
       filter:drop-shadow(0 8px 12px rgba(0,0,0,.12));
-      cursor:pointer;
-    }
-    .trace-wrap img{
-      position:relative;
-      z-index:1;
-    }
-    .trace-canvas{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      touch-action:none;
-      cursor:crosshair;
-      z-index:2;
     }
     .row{
       display:flex;
@@ -116,13 +102,6 @@
       left:10%;
       top:16%;
     }
-    .line2{
-      right:14%;
-      top:30%;
-    }
-    .row.right{
-      justify-content:flex-end;
-    }
     .bubble{
       padding:10px 14px;
       border-radius:16px;
@@ -130,10 +109,9 @@
       font-size:1rem;
       max-width:min(560px,70vw);
       line-height:1.25;
+      background:var(--bubble-left);
     }
-    .bubble.left{background:var(--bubble-left);}
-    .bubble.right{background:var(--bubble-right);}
-    .bubble.left::after{
+    .bubble::after{
       content:"";
       position:absolute;
       left:-6px;
@@ -141,15 +119,6 @@
       border-width:8px 8px 8px 0;
       border-style:solid;
       border-color:transparent var(--bubble-left) transparent transparent;
-    }
-    .bubble.right::after{
-      content:"";
-      position:absolute;
-      right:-6px;
-      top:14px;
-      border-width:8px 0 8px 8px;
-      border-style:solid;
-      border-color:transparent transparent transparent var(--bubble-right);
     }
     .bubble.sparkle{
       background: linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
@@ -159,24 +128,6 @@
     @keyframes sparklePulse{
       0%,100%{filter:brightness(1);}
       50%{filter:brightness(1.12);}
-    }
-    .repeat-result{
-      margin-top:4px;
-      font-size:.95rem;
-      font-weight:700;
-      color:#2f9f5f;
-    }
-    .star-row{
-      display:flex;
-      gap:6px;
-      margin-top:4px;
-      font-weight:900;
-      font-size:1.2rem;
-      color:#ffd24a;
-      text-shadow:
-        0 2px 0 #b87900,
-        0 4px 0 #8a5a00,
-        0 8px 14px rgba(0,0,0,.28);
     }
     .controls{
       display:flex;
@@ -220,102 +171,126 @@
       display:block;
       filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
     }
-    .conversation-status{
-      font-size:.95rem;
-      font-weight:800;
-      color:#6c4bbf;
+    .target{
+      position:absolute;
+      width:70px;
+      height:70px;
+      border-radius:50%;
+      border:3px dashed transparent;
+      cursor:pointer;
+      z-index:4;
+    }
+    .target.circled{
+      border-color:#ff3b5b;
+      box-shadow:0 0 0 2px rgba(255,59,91,.3);
+    }
+    .target.wrong{
+      border-color:#d62828;
+      box-shadow:0 0 0 2px rgba(214,40,40,.35);
+    }
+    .feedback{
+      font-size:1rem;
+      font-weight:900;
+      color:#2f9f5f;
       min-height:1.2em;
     }
+    .highlight-red{ color:#d62828; }
+
+    /* Intro Video Overlay Styles */
+    #lbIntroVideoOverlay{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.9);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+    #lbIntroVideoOverlay.hidden{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity 0.3s ease-out;
+    }
+    .intro-video-container{
+      max-width:90vw;
+      max-height:90vh;
+      position:relative;
+    }
+    #introVideo{
+      display:block;
+      width:100%;
+      height:auto;
+      border-radius:8px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.4);
+    }
+    .intro-controls{
+      margin-top:20px;
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .intro-btn{
+      border:none;
+      border-radius:999px;
+      padding:12px 24px;
+      font-size:1rem;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 4px 0 rgba(0,0,0,.25);
+      transition:transform 0.1s;
+    }
+    .intro-btn:active{
+      transform:translateY(2px);
+    }
+    .intro-btn.sound{
+      background:var(--btn-orange);
+      color:#fff;
+    }
+    .intro-btn.skip{
+      background:var(--btn-blue);
+      color:#1f3b6b;
+    }
   </style>
-<style id="lbIntroVideoOverlayStyles">
-  #lbIntroVideoOverlay{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,.78);
-    z-index:2147483647;
-    padding:16px;
-    flex-direction:column;
-    gap:14px;
-  }
-  #lbIntroVideoOverlay.active{display:flex;}
-  #lbIntroVideoOverlay video{
-    width:min(92vw,980px);
-    max-height:82vh;
-    height:auto;
-    border-radius:14px;
-    background:#000;
-    opacity:0;
-    transition:opacity .18s ease;
-    box-shadow:0 18px 48px rgba(0,0,0,.45);
-  }
-  #lbIntroStartBtn{
-    border:none;
-    border-radius:999px;
-    padding:14px 22px;
-    font-size:1rem;
-    font-weight:800;
-    cursor:pointer;
-    background:linear-gradient(180deg,#fffad7,#ffd86a);
-    color:#8b5a00;
-    box-shadow:0 6px 0 rgba(0,0,0,.22);
-  }
-  #lbIntroSkipBtn{
-    border:none;
-    border-radius:999px;
-    padding:14px 22px;
-    font-size:1rem;
-    font-weight:800;
-    cursor:pointer;
-    background:#dfeaff;
-    color:#1f3b6b;
-    box-shadow:0 6px 0 rgba(0,0,0,.22);
-  }
-  #lbIntroHelp{
-    color:#fff;
-    font-weight:800;
-    font-size:1rem;
-    text-align:center;
-    text-shadow:0 2px 8px rgba(0,0,0,.45);
-  }
-  #lbIntroActions{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    justify-content:center;
-  }
-</style>
 </head>
-<body>
+<body data-progress-required="circle">
+  <!-- Intro Video Overlay -->
   <div class="app">
     <div class="board" id="board">
       <div class="tray-hero">
-        <div class="trace-wrap">
-          <img src="../../../../assets/images/shapes/B23.png" alt="Poster" id="designImage">
-          <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the dotted numbers"></canvas>
-        </div>
+        <img src="../../../../assets/images/shapes/B25.png" alt="Poster" id="designImage">
       </div>
 
       <div class="row convo-line line1">
-        <div class="bubble left">Let’s find the polygons.</div>
-        <div class="repeat-result" data-line="0"></div>
-        <div class="star-row" data-line="0"></div>
+        <div class="bubble">Find and circle all of the <span class="highlight-red">even numbers</span>.</div>
       </div>
 
-      <div class="row right convo-line line2">
-        <div class="bubble right">They are<br>jewelry.</div>
-        <div class="repeat-result" data-line="1"></div>
-        <div class="star-row" data-line="1"></div>
-      </div>
+      <div class="feedback" id="feedback"></div>
 
-      <div class="conversation-status" id="conversationStatus"></div>
+      <!-- targets (approx positions) -->
+      <button class="target" data-num="2" data-correct="true" style="left:18%; top:36%;"></button>
+      <button class="target" data-num="4" data-correct="true" style="left:46%; top:36%;"></button>
+      <button class="target" data-num="6" data-correct="true" style="left:72%; top:36%;"></button>
+      <button class="target" data-num="8" data-correct="true" style="left:22%; top:70%;"></button>
+      <button class="target" data-num="10" data-correct="true" style="left:40%; top:56%;"></button>
+      <button class="target" data-num="7" data-correct="false" style="left:24%; top:52%;"></button>
+      <button class="target" data-num="9" data-correct="false" style="left:58%; top:56%;"></button>
+      <button class="target" data-num="1" data-correct="false" style="left:74%; top:52%;"></button>
+      <button class="target" data-num="3" data-correct="false" style="left:78%; top:72%;"></button>
+      <button class="target" data-num="5" data-correct="false" style="left:52%; top:76%;"></button>
 
       <div class="controls">
         <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
         <button class="btn next" id="nextBtn">Next page &#8594;</button>
-        <button class="btn stop" id="traceClearBtn" type="button">Clear trace</button>
+        <button class="btn stop" id="clearBtn" type="button">Clear circles</button>
         <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
           <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
         </button>
@@ -332,7 +307,7 @@
   window.GPProgress.installTracker({
     saveActivityResult,
     markLoginPing,
-    defaultPageId: "LB23",
+    defaultPageId: "LB25",
     defaultLevel: "B",
     defaultActivityType: "lesson",
     defaultScore: 100,
@@ -456,29 +431,3 @@
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

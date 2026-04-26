@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA21 - Trace Shapes</title>
+<style>
+  :root{--sky:#bfe9fb;--panel:#ffffff;--ink:#3b3b3b;--red:#d62828;--shadow:0 20px 40px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box;}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--sky);padding:18px;}
+  .card{width:min(980px,96vw);background:var(--panel);border-radius:18px;padding:18px 18px 28px;box-shadow:var(--shadow);}  
+  .poster-area{position:relative;width:min(900px,100%);margin:0 auto;touch-action:none;}
+  .poster-img{width:100%;height:auto;display:block;pointer-events:none;}
+  .trace-layer{position:absolute;inset:0;pointer-events:auto;z-index:5;}
+  .trace-canvas{position:absolute;pointer-events:auto;touch-action:none;z-index:6;background:transparent;}
+  #circleTrace{left:34%;top:21%;width:58%;height:19%;}
+  #triTrace{left:34%;top:46%;width:58%;height:19%;}
+  #squareTrace{left:34%;top:71%;width:58%;height:19%;}
+  .answer{position:absolute;left:8%;width:22%;min-height:18%;font-size:1.25rem;font-weight:800;color:var(--ink);}  
+  #circleAnswer{top:20%;}
+  #triAnswer{top:45%;}
+  #squareAnswer{top:70%;}
+  .red{color:var(--red);}  
+  .tap-row{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;}
+  .tap-girl{width:82px;height:82px;border-radius:22px;box-shadow:0 6px 14px rgba(0,0,0,.2);border:4px solid #ffe3f7;cursor:pointer;}
+  .tap-label{font-weight:700;color:#d62828;}
+  .sentence{position:absolute;top:6%;left:44%;width:46%;min-height:2.4em;font-weight:800;font-size:1.85rem;text-align:center;z-index:7;}
+  .line{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
+  .line.show{opacity:1;transform:translateY(0);}  
+  .controls{margin-top:12px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+  .guide-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#d62828;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:8;pointer-events:none;}
+</style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+</head>
+<body>
+  <div class="card">
+    <div class="poster-area" id="posterArea">
+      <img class="poster-img" src="../../../../assets/images/shapes/A21.png" alt="Shapes poster">
+      <div class="trace-layer">
+        <canvas class="trace-canvas" id="circleTrace"></canvas>
+        <canvas class="trace-canvas" id="triTrace"></canvas>
+        <canvas class="trace-canvas" id="squareTrace"></canvas>
+        <div class="guide-dot" style="left:63%;top:20%;"></div>
+        <div class="guide-dot" style="left:82%;top:30%;"></div>
+        <div class="guide-dot" style="left:63%;top:40%;"></div>
+        <div class="guide-dot" style="left:44%;top:30%;"></div>
+        <div class="guide-dot" style="left:63%;top:46%;"></div>
+        <div class="guide-dot" style="left:44%;top:66%;"></div>
+        <div class="guide-dot" style="left:82%;top:66%;"></div>
+        <div class="guide-dot" style="left:44%;top:71%;"></div>
+        <div class="guide-dot" style="left:82%;top:71%;"></div>
+        <div class="guide-dot" style="left:82%;top:90%;"></div>
+        <div class="guide-dot" style="left:44%;top:90%;"></div>
+      </div>
+      <div class="answer" id="circleAnswer"></div>
+      <div class="answer" id="triAnswer"></div>
+      <div class="answer" id="squareAnswer"></div>
+    </div>
+    <div class="tap-row" id="tapRow">
+      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn" class="tap-girl">
+      <div class="tap-label">Tap the girl</div>
+    </div>
+    <div class="sentence" id="girlSentence"></div>
+    <div id="vertexEntryMount"></div>
+    <div class="controls">
+      <button class="btn prev" id="prevBtn">← Previous page</button>
+      <button class="btn next" id="nextBtn">Next page →</button>
+    </div>
+  </div>
+
+<script src="../../../../shared/js/tracing.js"></script>
+<script src="../../../../shared/js/vertex-entry.js"></script>
+<script>
+  const girlBtn = document.getElementById('girlBtn');
+  const tapRow = document.getElementById('tapRow');
+  const girlSentenceEl = document.getElementById('girlSentence');
+  const circleAnswer = document.getElementById('circleAnswer');
+  const triAnswer = document.getElementById('triAnswer');
+  const squareAnswer = document.getElementById('squareAnswer');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const controls = document.querySelector('.controls');
+  const posterArea = document.getElementById('posterArea');
+  if (tapRow && controls) controls.insertBefore(tapRow, controls.firstChild || null);
+  if (girlSentenceEl && posterArea) posterArea.appendChild(girlSentenceEl);
+
+  function speak(text){
+    if(!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0; u.pitch = 1.05; u.volume = 1.0;
+    if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
+    window.speechSynthesis.speak(u);
+  }
+  function typeLine(el, html){
+    el.innerHTML = '';
+    let i = 0;
+    el.classList.add('show');
+    const step = () => {
+      el.innerHTML = html.slice(0, i);
+      i += 1;
+      if(i <= html.length){ setTimeout(step, 18); }
+    };
+    step();
+  }
+
+  const shapePercents = { circle: 0, triangle: 0, square: 0 };
+  let realtimeSaveTimer = null;
+  function scheduleRealtimeSave(score){
+    if (typeof window.finishAndSave !== 'function') return;
+    if (realtimeSaveTimer) window.clearTimeout(realtimeSaveTimer);
+    realtimeSaveTimer = window.setTimeout(() => {
+      window.finishAndSave({
+        pageId: 'LA21',
+        level: 'A',
+        activityType: 'lesson',
+        score: Math.max(0, Math.min(100, Math.round(score))),
+        tracing: Math.max(0, Math.min(100, Math.round(score))),
+        stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
+      }).catch(() => {});
+    }, 250);
+  }
+
+  const vertexEntry = window.GPVertexEntry?.create({
+    mount: "#vertexEntryMount",
+    title: "Write the number of vertices",
+    prompt: "Write the number of vertices for each shape you trace.",
+    showProgress: true,
+    progressLabel: "Shape and vertex progress",
+    items: [
+      { id: "circleVertices", label: "Circle", answer: 0, hint: "Write 0", successSpeech: "Correct. A circle has 0 vertices." },
+      { id: "triangleVertices", label: "Triangle", answer: 3, hint: "Write 3", successSpeech: "Correct. A triangle has 3 vertices." },
+      { id: "squareVertices", label: "Square", answer: 4, hint: "Write 4", successSpeech: "Correct. A square has 4 vertices." }
+    ],
+    onProgress(state){
+      scheduleRealtimeSave(state.totalProgress);
+    }
+  }) || null;
+
+  function updateTraceScore(kind, pct){
+    shapePercents[kind] = pct;
+    const total = Math.round((shapePercents.circle + shapePercents.triangle + shapePercents.square) / 3);
+    if (vertexEntry) vertexEntry.setBaseProgress(total);
+    else scheduleRealtimeSave(total);
+  }
+
+  girlBtn.addEventListener('click', () => {
+    girlSentenceEl.innerHTML = '<div class="line">Practice drawing shapes and counting points.</div>';
+    const line = girlSentenceEl.querySelector('.line');
+    line.classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    speak('Practice drawing shapes and counting points.');
+  });
+
+  function setupTrace(canvasId, kind, onDone){
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    let drawing=false; let visited=[]; let samples=[]; let done=false; let lastPoint=null;
+    let lastTraceTick = 0;
+    function resize(){
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width; canvas.height = rect.height;
+      samples = buildSamples(kind, canvas);
+      visited = new Array(samples.length).fill(false);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      updateTraceScore(kind, 0);
+    }
+    function buildSamples(kind, canvas){
+      const s=[];
+      if(kind==='circle'){
+        const cx=canvas.width/2, cy=canvas.height/2; const r=Math.min(cx,cy)*0.8;
+        const steps=720;
+        for(let i=0;i<=steps;i++){
+          const t=(i/steps)*Math.PI*2;
+          s.push({x:cx+Math.cos(t)*r, y:cy+Math.sin(t)*r});
+        }
+      } else if(kind==='triangle'){
+        const pts=[{x:canvas.width*0.5,y:canvas.height*0.15},{x:canvas.width*0.2,y:canvas.height*0.85},{x:canvas.width*0.8,y:canvas.height*0.85}];
+        for(let i=0;i<3;i++){
+          const a=pts[i], b=pts[(i+1)%3];
+          const dist=Math.hypot(b.x-a.x,b.y-a.y);
+          const steps=Math.max(240, Math.round(dist * 4));
+          for(let k=0;k<=steps;k++){ const t=k/steps; s.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}); }
+        }
+      } else if(kind==='square'){
+        const pts=[{x:canvas.width*0.2,y:canvas.height*0.2},{x:canvas.width*0.8,y:canvas.height*0.2},{x:canvas.width*0.8,y:canvas.height*0.8},{x:canvas.width*0.2,y:canvas.height*0.8}];
+        for(let i=0;i<4;i++){
+          const a=pts[i], b=pts[(i+1)%4];
+          const dist=Math.hypot(b.x-a.x,b.y-a.y);
+          const steps=Math.max(240, Math.round(dist * 4));
+          for(let k=0;k<=steps;k++){ const t=k/steps; s.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}); }
+        }
+      }
+      return s;
+    }
+    function updateVisited(curr, prev){
+      const thr=14; const thr2=thr*thr; let changed=false;
+      const a = prev || curr;
+      const b = curr;
+      const abx = b.x - a.x;
+      const aby = b.y - a.y;
+      const ab2 = (abx * abx) + (aby * aby) || 1;
+      for(let i=0;i<samples.length;i++){
+        if(visited[i]) continue;
+        const px = samples[i].x;
+        const py = samples[i].y;
+        let t = ((px - a.x) * abx + (py - a.y) * aby) / ab2;
+        t = Math.max(0, Math.min(1, t));
+        const qx = a.x + t * abx;
+        const qy = a.y + t * aby;
+        const dx = px - qx;
+        const dy = py - qy;
+        if(dx*dx+dy*dy<=thr2){ visited[i]=true; changed=true; }
+      }
+      if(changed){
+        let pct = Math.round((visited.filter(Boolean).length / samples.length) * 100);
+        if (pct >= 98) pct = 100;
+        updateTraceScore(kind, pct);
+        if(pct>=90 && !done){ done=true; onDone(); }
+      }
+    }
+    function getPos(e){ const rect=canvas.getBoundingClientRect(); return {x:e.clientX-rect.left, y:e.clientY-rect.top}; }
+    canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); drawing=true; const point=getPos(e); lastPoint=point; ctx.beginPath(); ctx.moveTo(point.x,point.y); updateVisited(point, point); });
+    canvas.addEventListener('pointermove', e=>{ if(!drawing) return; e.preventDefault(); const point=getPos(e); const prev = lastPoint || point; ctx.lineTo(point.x,point.y); ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#ff4d4d'; ctx.stroke(); const now = performance.now(); if(now-lastTraceTick>120){ lastTraceTick=now; window.GPTracing?.playTraceTick?.({ throttleMs: 120 }); } updateVisited(point, prev); lastPoint=point; });
+    const endDraw=e=>{ if(!drawing) return; e && e.preventDefault(); drawing=false; lastPoint=null; };
+    canvas.addEventListener('pointerup', endDraw); canvas.addEventListener('pointerleave', endDraw); canvas.addEventListener('pointercancel', endDraw);
+    resize(); window.addEventListener('resize', resize);
+  }
+
+  setupTrace('circleTrace','circle', () => {
+    const html='A <span class="red">circle</span> has 0 <span class="red">vertices</span>.';
+    circleAnswer.innerHTML = `<div class="line">${html}</div>`;
+    circleAnswer.querySelector('.line').classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    window.GPTracing?.playCheerAudio?.();
+    speak('A circle has 0 vertices.');
+  });
+  setupTrace('triTrace','triangle', () => {
+    const html='A <span class="red">triangle</span> has 3 <span class="red">vertices</span>.';
+    triAnswer.innerHTML = `<div class="line">${html}</div>`;
+    triAnswer.querySelector('.line').classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    window.GPTracing?.playCheerAudio?.();
+    speak('A triangle has 3 vertices.');
+  });
+  setupTrace('squareTrace','square', () => {
+    const html='A <span class="red">square</span> has 4 <span class="red">vertices</span>.';
+    squareAnswer.innerHTML = `<div class="line">${html}</div>`;
+    squareAnswer.querySelector('.line').classList.add('show');
+    if(window.startTypingSound) window.startTypingSound(900);
+    window.GPTracing?.playCheerAudio?.();
+    speak('A square has 4 vertices.');
+  });
+
+  prevBtn.addEventListener('click', () => { window.location.href = 'LA20.html'; });
+  nextBtn.addEventListener('click', () => { window.location.href = '../tuesday/LA22.html'; });
+</script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA21",
+    defaultLevel: "A",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

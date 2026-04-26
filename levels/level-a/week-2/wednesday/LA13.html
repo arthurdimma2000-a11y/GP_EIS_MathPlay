@@ -570,16 +570,8 @@
 
     const heard = await listenForSpeech();
 
-    if (!heard.supported) {
-      micState.busy = false;
-      updateMicButtonState();
-      setStatus("Speech check is not supported on this browser.");
-      setRepeatResult(micState.index, "Speech check is not supported on this browser.", "#b06a00");
-      return;
-    }
-
-    const tryNo = ++micState.attempts[micState.index];
-    const transcript = (heard.transcript || "").trim();
+      const tryNo = ++micState.attempts[micState.index];
+      const transcript = (heard.transcript || "").trim();
     const pct = matchPercent(text, transcript);
     const ok = pct >= 50 && importantEnough(text, transcript);
 
@@ -909,7 +901,5 @@
 </script>
 
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
-<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
-
+<head>
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -10,8 +9,552 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+<meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Level C20 - Shape Sides</title>
+  <link rel="stylesheet" href="../../../../shared/css/base.css" />
+  <link rel="stylesheet" href="../../../../shared/css/layout.css" />
+  <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+  <style>
+    :root{
+      font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+      --ink:#2d2d2d;
+      --bubble-left:#dff1ff;
+      --bubble-right:#ffe7d8;
+      --red:#d62828;
+      --shadow:0 20px 40px rgba(0,0,0,.12);
+    }
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#e7f7e7;
+      padding:6px;
+      color:var(--ink);
+    }
+    .card{
+      width:min(1280px,99vw);min-height:calc(100vh - 12px);
+      border-radius:18px;
+      padding:14px 14px 18px;
+    }
+    .poster-area{
+      position:relative;
+      width:100%;max-width:1120px;
+      margin:0 auto;
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .poster-img{width:100%;height:auto;display:block;}
+    .bubble{
+      position:absolute;
+      padding:10px 14px;
+      border-radius:16px;
+      font-weight:700;
+      font-size:1.35rem;
+      max-width:230px;
+      line-height:1.2;
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+      background:var(--bubble-left);
+      opacity:0;
+      transition:opacity .2s ease;
+    }
+    .bubble.show{opacity:1;}
+    .bubble::after{
+      content:"";
+      position:absolute;
+      left:12px;
+      bottom:-10px;
+      border-width:10px 8px 0 8px;
+      border-style:solid;
+      border-color:var(--bubble-left) transparent transparent transparent;
+    }
+    .animal-line{
+      position:absolute;
+      padding:8px 12px;
+      border-radius:16px;
+      font-weight:800;
+      font-size:1.25rem;
+      line-height:1.2;
+      background:var(--bubble-right);
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+      opacity:0;
+      transition:opacity .2s ease;
+    }
+    .animal-line.show{opacity:1;}
+    .animal-line::after{
+      content:"";
+      position:absolute;
+      right:14px;
+      bottom:-10px;
+      border-width:10px 8px 0 8px;
+      border-style:solid;
+      border-color:var(--bubble-right) transparent transparent transparent;
+    }
+    .red{color:var(--red);}
 
+    .girl-spot{
+      position:absolute;
+      left:16px;
+      top:12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      z-index:3;
+    }
+    .girl-spot img{
+      width:64px;
+      height:64px;
+      border-radius:16px;
+      object-fit:cover;
+      box-shadow:0 6px 14px rgba(0,0,0,.25);
+      border:4px solid #ffe3f7;
+      background:#ffd6f2;
+      cursor:pointer;
+    }
+    .girl-hint{font-weight:800;color:#d62828;font-size:.9rem;}
+
+    .reveal-top{
+      position:absolute;
+      top:12%;
+      left:18%;
+      right:18%;
+      text-align:center;
+      font-size:2.8rem;
+      font-weight:800;
+      color:#2d2d2d;
+      opacity:0;
+      transform:translateY(-6px);
+      transition:opacity .25s ease, transform .25s ease;
+      z-index:3;
+    }
+    .reveal-top.show{opacity:1;transform:translateY(0);}
+
+    .controls{
+      margin-top:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:.9rem;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 4px 0 rgba(0,0,0,.15);
+      background:#ff8a5b;
+      color:#fff;
+    }
+    .mic-icon-btn img{
+      width:32px;
+      height:32px;
+      filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
+    }
+    .record-icon{width:16px;height:16px;display:inline-block;vertical-align:middle;}
+    .recording{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .recording audio{height:28px;}
+    .recording-status,.conversation-status{font-size:.9rem;font-weight:700;color:#555;}
+  </style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+</head>
+<body>
+  <div class="card">
+    <div class="poster-area" id="posterArea">
+      <img class="poster-img" src="../../../../assets/images/shapes/C20.png" alt="Shape Sides poster">
+
+      <div class="bubble speakable" data-text="Let’s play with the bird together." style="left:19%; top:28%;">Let’s play with<br>the bird together.</div>
+      <div class="animal-line speakable" data-text="The bird's body is 0 sides." data-html="The bird's body is<br><span class=\"red\">0 sides</span>." style="left:68%; top:32%;">The bird's body is<br><span class="red">0 sides</span>.</div>
+
+      <div class="bubble speakable" data-text="Let’s play with the horse together." style="left:19%; top:49%;">Let’s play with the<br>horse together.</div>
+      <div class="animal-line speakable" data-text="The horse's body is 5 sides." data-html="The horse's body is<br><span class=\"red\">5 sides</span>." style="left:72%; top:47%;">The horse's body is<br><span class="red">5 sides</span>.</div>
+
+      <div class="bubble speakable" data-text="Let’s play with the cat together." style="left:19%; top:70%;">Let’s play with the<br>cat together.</div>
+      <div class="animal-line speakable" data-text="The cat's body is 6 sides." data-html="The cat's body is<br><span class=\"red\">6 sides</span>." style="left:72%; top:62%;">The cat's body is<br><span class="red">6 sides</span>.</div>
+
+      <div class="bubble speakable" data-text="Let’s play with the dog together." style="left:19%; top:88%;">Let’s play with the<br>dog together.</div>
+      <div class="animal-line speakable" data-text="The dog's body is 8 sides." data-html="The dog's body is<br><span class=\"red\">8 sides</span>." style="left:72%; top:77%;">The dog's body is<br><span class="red">8 sides</span>.</div>
+
+      <div class="girl-spot" aria-label="Tap the girl">
+        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
+        <div class="girl-hint">Tap the girl</div>
+      </div>
+
+      <div class="reveal-top" id="topLine"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
+      <button class="btn" id="resetBtn">Reset</button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+        <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
+      </button>
+      <button class="btn" id="recordBtn">
+        <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M32 40c6.6 0 12-5.4 12-12V18c0-6.6-5.4-12-12-12S20 11.4 20 18v10c0 6.6 5.4 12 12 12Z"
+                fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M14 28c0 9.9 8.1 18 18 18s18-8.1 18-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M32 46v10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M24 56h16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        </svg> Record Practice
+      </button>
+      <button class="btn next" id="nextBtn">Next page &#8594;</button>
+      <div class="recording">
+        <audio id="recordingPlayback" controls></audio>
+      </div>
+    </div>
+    <div class="recording-status" id="recordingStatus"></div>
+    <div class="conversation-status" id="conversationStatus"></div>
+  </div>
+
+  <script>
+    const girlBtn = document.getElementById('girlBtn');
+    const topLine = document.getElementById('topLine');
+    const micIconBtn = document.getElementById('micIconBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const recordBtn = document.getElementById('recordBtn');
+    const recordingPlayback = document.getElementById('recordingPlayback');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const conversationStatus = document.getElementById('conversationStatus');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const speakables = Array.from(document.querySelectorAll('.speakable'));
+    const starsDisplay = document.createElement('div');
+    starsDisplay.className = 'conversation-status';
+    starsDisplay.id = 'starsDisplay';
+    document.querySelector('.card').appendChild(starsDisplay);
+    const speaker1 = speakables[0];
+    const birdLine = speakables[1];
+    const speaker2 = speakables[2];
+    const horseLine = speakables[3];
+    const speaker3 = speakables[4];
+    const catLine = speakables[5];
+    const speaker4 = speakables[6];
+    const dogLine = speakables[7];
+    let micStep = 0;
+    let attempts = 0;
+    let recorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+    function speak(text){
+      if(!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.0;
+      u.pitch = 1.05;
+      u.volume = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+    function typeLine(el, text, done){
+      el.textContent = '';
+      let i = 0;
+      el.classList.add('show');
+      const step = () => {
+        el.textContent = text.slice(0, i);
+        i += 1;
+        if(i <= text.length){
+          setTimeout(step, 28);
+        } else if (done) {
+          done();
+        }
+      };
+      step();
+    }
+
+    function typeAndSpeak(el, text, delay){
+      setTimeout(() => {
+        typeLine(el, text, () => {
+          const html = el.dataset.html;
+          if(html){
+            el.innerHTML = html;
+          }
+        });
+        speak(text);
+      }, delay);
+    }
+
+    function resetBubbles(){
+      speakables.forEach(el => {
+        el.classList.remove('show');
+      });
+      topLine.textContent = '';
+      topLine.classList.remove('show');
+      conversationStatus.textContent = '';
+      starsDisplay.textContent = '';
+      window.speechSynthesis && window.speechSynthesis.cancel();
+    }
+    girlBtn.addEventListener('click', () => {
+      typeLine(topLine, "Let’s play with the animals together.");
+      speak("Let’s play with the animals together.");
+    });
+
+    function normalizeWords(text){
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .split(/\s+/)
+        .filter(Boolean);
+    }
+
+    function wordMatchRatio(spoken, target){
+      const targetWords = normalizeWords(target);
+      const spokenWords = normalizeWords(spoken);
+      if(targetWords.length === 0) return 0;
+      let match = 0;
+      targetWords.forEach(word => {
+        if(spokenWords.includes(word)) match += 1;
+      });
+      return match / targetWords.length;
+    }
+
+    function listenFor(targetText, onSuccess, onFail){
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if(!SpeechRecognition){
+        onFail("Speech recognition not supported.");
+        return;
+      }
+      const rec = new SpeechRecognition();
+      rec.lang = 'en-US';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript || '';
+        const ratio = wordMatchRatio(transcript, targetText);
+        if(ratio >= 0.7){
+          onSuccess();
+        } else {
+          onFail(`Heard: "${transcript}"`);
+        }
+      };
+      rec.onerror = () => onFail("No speech detected.");
+      rec.start();
+    }
+
+    function awardStars(attempt){
+      if(attempt === 1) return "★★★";
+      if(attempt === 2) return "★★";
+      if(attempt === 3) return "★";
+      return "";
+    }
+
+    function startRepeatCycle(targetText, onPass){
+      conversationStatus.textContent = "Repeat after me!";
+      speak("Repeat after me!");
+      listenFor(targetText, () => {
+        const stars = awardStars(attempts + 1);
+        starsDisplay.textContent = `Great! ${stars}`;
+        attempts = 0;
+        onPass();
+      }, () => {
+        attempts += 1;
+        const stars = awardStars(attempts);
+        starsDisplay.textContent = stars ? `Try again ${stars}` : '';
+        if(attempts >= 4){
+          conversationStatus.textContent = "Restarting...";
+          resetBubbles();
+          micStep = 0;
+          attempts = 0;
+          return;
+        }
+        speak("Try again.");
+        startRepeatCycle(targetText, onPass);
+      });
+    }
+
+    function revealStep(el, nextFn){
+      typeAndSpeak(el, el.dataset.text, 0);
+      startRepeatCycle(el.dataset.text, nextFn);
+    }
+
+    // Mic click is handled by activity-standardizer unified protocol.
+
+    resetBtn.addEventListener('click', () => {
+      resetBubbles();
+      micStep = 0;
+    });
+
+    function toggleRecord(){
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        recordingStatus.textContent = "Recording not supported in this browser.";
+        return;
+      }
+      if(isRecording){
+        recorder && recorder.stop();
+        return;
+      }
+      navigator.mediaDevices.getUserMedia({ audio:true })
+        .then(stream => {
+          recorder = new MediaRecorder(stream);
+          recordedChunks = [];
+          recorder.ondataavailable = e => {
+            if(e.data && e.data.size > 0) recordedChunks.push(e.data);
+          };
+          recorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+            recordingPlayback.src = URL.createObjectURL(blob);
+            recordingStatus.textContent = "Recording ready.";
+            stream.getTracks().forEach(t => t.stop());
+            isRecording = false;
+            recordBtn.textContent = "Record Practice";
+          };
+          recorder.start();
+          isRecording = true;
+          recordingStatus.textContent = "Recording...";
+          recordBtn.textContent = "Stop Recording";
+        })
+        .catch(() => {
+          recordingStatus.textContent = "Microphone permission denied.";
+        });
+    }
+
+    recordBtn.addEventListener('click', toggleRecord);
+    if(prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../../week-3/friday/LevelC_Quiz3.html'; });
+    if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = 'LevelC21.html'; });
+  </script>
+    <script src="../../../../activity-standardizer.js"></script>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LevelC20",
+    defaultLevel: "C",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

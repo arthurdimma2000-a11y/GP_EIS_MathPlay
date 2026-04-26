@@ -47,8 +47,6 @@
   .repeat-result,.star-row,.conversation-status{min-height:1.2em;text-align:center;font-weight:700;}
   button{border:none;border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer;background:linear-gradient(180deg,#fffad7,#ffd86a);color:#8b5a00;box-shadow:0 4px 0 rgba(0,0,0,.2);}
   button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2);}
-  .highlight-overlay{position:absolute;pointer-events:none;border-radius:12px;transition:all .4s ease;opacity:0;box-shadow:inset 0 0 0 3px rgba(255,165,0,.7);}
-  .highlight-overlay.active{opacity:1;}
 </style>
 <style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
@@ -57,8 +55,6 @@
     <div class="poster-area" id="posterArea">
       <div class="girl-spot"><span class="finger-cue show" id="girlFinger" aria-hidden="true">👇</span><img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn"><div class="girl-hint">Tap the girl</div></div>
       <img class="poster-img" src="../../../../assets/images/shapes/LevelC8.png" alt="Understanding Shapes poster">
-      <div class="highlight-overlay" id="browniesOverlay" style="left:8%;top:20%;width:30%;height:35%;"></div>
-      <div class="highlight-overlay" id="muffinsOverlay" style="right:8%;top:20%;width:30%;height:35%;"></div>
       <div class="row convo-line line1">
         <div class="bubble-stack">
           <div class="bubble baker big">Let's eat brownies together.</div>
@@ -178,16 +174,11 @@
 
   function speakIntro(){
     let i = 0;
-    const browniesOverlay = document.getElementById('browniesOverlay');
-    const muffinsOverlay = document.getElementById('muffinsOverlay');
-    
-    const next = () => {
-      if(i >= introLines.length) return;
-      
-      // Hide all conversation lines and overlays first
-      lines.forEach(line => line.classList.remove('show'));
-      if (browniesOverlay) browniesOverlay.classList.remove('active');
-      if (muffinsOverlay) muffinsOverlay.classList.remove('active');
+      const next = () => {
+        if(i >= introLines.length) return;
+        
+        // Hide all conversation lines first
+        lines.forEach(line => line.classList.remove('show'));
       
       // Step 1: "What shall we eat?" (no bubble highlight, 2 sec pause after)
       if(i === 0){
@@ -222,13 +213,9 @@
       if(i === 3){
         lines[2].classList.add('show');
         highlightBubble(lines[2].querySelector('.bubble'), 2400);
-        if (browniesOverlay) browniesOverlay.classList.add('active');
-        if (muffinsOverlay) muffinsOverlay.classList.add('active');
-        playKidEngineSound();
-        speak(introLines[i], () => {
-          if (browniesOverlay) browniesOverlay.classList.remove('active');
-          if (muffinsOverlay) muffinsOverlay.classList.remove('active');
-        }, { role: 'female', rate: 0.93, pitch: 1.05 });
+          playKidEngineSound();
+          speak(introLines[i], () => {
+          }, { role: 'female', rate: 0.93, pitch: 1.05 });
         i += 1;
         return;
       }
@@ -238,11 +225,6 @@
 
   function playLoadInstructionSequence(){
     lines.forEach(line => line.classList.remove('show'));
-    const browniesOverlay = document.getElementById('browniesOverlay');
-    const muffinsOverlay = document.getElementById('muffinsOverlay');
-    if (browniesOverlay) browniesOverlay.classList.remove('active');
-    if (muffinsOverlay) muffinsOverlay.classList.remove('active');
-    
     const beginSpeech = () => setTimeout(speakIntro, 140);
     const fallbackTimer = setTimeout(beginSpeech, 5200);
     
@@ -638,390 +620,5 @@
 
 </script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
-<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
-
-<style id="gpMicProtocolPatchStyle">
-  .gp-mic-patch-active{
-    outline: 3px solid rgba(255,165,0,.75) !important;
-    box-shadow: 0 0 0 6px rgba(255,215,0,.18), 0 12px 24px rgba(0,0,0,.16) !important;
-    transform: scale(1.02);
-  }
-</style>
-<script id="gpMicProtocolPatchScript">
-(function(){
-  const micBtnOld = document.getElementById('micIconBtn');
-  if (!micBtnOld) return;
-
-  const micBtn = micBtnOld.cloneNode(true);
-  micBtnOld.replaceWith(micBtn);
-
-  const girlBtn = document.getElementById('girlBtn') || document.getElementById('tapGirl');
-  const clearBtn = document.getElementById('clearBtn');
-  const micFinger = document.getElementById('micFinger');
-  const girlFinger = document.getElementById('girlFinger');
-  const statusEl = document.getElementById('conversationStatus') || document.querySelector('.conversation-status');
-  const repeatResults = Array.from(document.querySelectorAll('.repeat-result'));
-  const starRows = Array.from(document.querySelectorAll('.star-row'));
-  const bubbleNodes = Array.from(document.querySelectorAll('.bubble'));
-  const lineNodes = Array.from(document.querySelectorAll('.convo-line, .bubble-line, .speech-line, .dialog-line, .row.convo-line'));
-  const pageId = (window.__PAGE_CONFIG__ && window.__PAGE_CONFIG__.pageId) || ((document.title || 'Activity').replace(/\s+/g,'').trim()) || 'Activity';
-  const level = (window.__PAGE_CONFIG__ && window.__PAGE_CONFIG__.level) || (/^LA/i.test(pageId) ? 'A' : /^LB/i.test(pageId) ? 'B' : 'C');
-  const completionRemarks = (window.__PAGE_CONFIG__ && window.__PAGE_CONFIG__.completionRemarks) || ['Wow! You are super smart!', 'Amazing Job!', 'Great! Keep it up!'];
-  const expectedLines = bubbleNodes.map(el => (el.textContent || '').replace(/\s+/g,' ').trim()).filter(Boolean);
-  if (!expectedLines.length) return;
-
-  let recognitionToken = 0;
-  let girlTapped = false;
-  let state = makeInitialState();
-
-  function makeInitialState(){
-    return {
-      index: 0,
-      phase: 'reveal',
-      busy: false,
-      done: false,
-      initialized: false,
-      attempts: new Array(expectedLines.length).fill(0),
-      stars: new Array(expectedLines.length).fill(0)
-    };
-  }
-
-  function setGuide(which){
-    if (girlFinger) girlFinger.classList.toggle('show', which === 'girl');
-    if (micFinger) micFinger.classList.toggle('show', which === 'mic');
-  }
-
-  function setStatus(text){
-    if (statusEl) statusEl.textContent = text || '';
-  }
-
-  function escapeHtml(text){
-    return String(text || '').replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch] || ch));
-  }
-
-  function normalize(text){
-    return String(text || '')
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  function matchPercent(expected, actual){
-    const a = normalize(expected);
-    const b = normalize(actual);
-    if (!a || !b) return 0;
-    if (a === b) return 100;
-    const aw = a.split(' ');
-    const bw = b.split(' ');
-    let hits = 0;
-    aw.forEach(word => { if (bw.includes(word)) hits += 1; });
-    const wordScore = (hits / Math.max(1, aw.length)) * 100;
-    let charHits = 0;
-    for (const ch of a) if (b.includes(ch)) charHits += 1;
-    const charScore = (charHits / Math.max(1, a.length)) * 100;
-    return Math.round((wordScore * 0.75) + (charScore * 0.25));
-  }
-
-  function rewardStars(attempt){
-    if (attempt <= 1) return 3;
-    if (attempt === 2) return 2;
-    if (attempt === 3) return 1;
-    return 0;
-  }
-
-  function getBubble(index){ return bubbleNodes[index] || null; }
-  function getLine(index){ return lineNodes[index] || bubbleNodes[index] && bubbleNodes[index].closest('.convo-line, .bubble-line, .speech-line, .dialog-line, .row') || null; }
-  function getResult(index){ return repeatResults[index] || null; }
-  function getStars(index){ return starRows[index] || null; }
-
-  function showLine(index){
-    const line = getLine(index);
-    if (line) line.classList.add('show');
-  }
-
-  function hideAllLines(){
-    lineNodes.forEach(line => line.classList.remove('show'));
-  }
-
-  function setBubbleHighlight(index, on){
-    const bubble = getBubble(index);
-    if (!bubble) return;
-    bubble.classList.toggle('gp-mic-patch-active', !!on);
-    bubble.classList.toggle('highlight', !!on);
-    bubble.classList.toggle('sparkle', !!on);
-  }
-
-  function clearBubbleHighlights(){
-    bubbleNodes.forEach((bubble) => {
-      bubble.classList.remove('gp-mic-patch-active', 'highlight', 'sparkle');
-    });
-  }
-
-  function setRepeatResult(index, text, color){
-    const el = getResult(index);
-    if (!el) return;
-    el.innerHTML = escapeHtml(text || '');
-    if (color) el.style.color = color;
-  }
-
-  function setStars(index, count){
-    const el = getStars(index);
-    if (!el) return;
-    el.textContent = count > 0 ? '⭐'.repeat(count) : '';
-  }
-
-  function delay(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
-
-  function chooseVoice(role){
-    if (!('speechSynthesis' in window) || typeof speechSynthesis.getVoices !== 'function') return null;
-    const voices = speechSynthesis.getVoices() || [];
-    if (!voices.length) return null;
-    const english = voices.filter(v => /^en(-|_)?/i.test(String(v.lang || '')));
-    const pool = english.length ? english : voices;
-    if (role === 'female') {
-      const femaleName = /(samantha|victoria|zira|jenny|aria|ava|allison|ellie|libby|olivia|serena|emma|ivy|nova|stella|grace|female|woman|girl)/i;
-      return pool.find(v => femaleName.test(String(v.name || ''))) || pool[0] || null;
-    }
-    return pool[0] || null;
-  }
-
-  function speak(text, opts){
-    return new Promise((resolve) => {
-      if (!text) return resolve();
-      if (!('speechSynthesis' in window)) return resolve();
-      try { window.speechSynthesis.cancel(); } catch (_err) {}
-      const utter = new SpeechSynthesisUtterance(String(text));
-      const options = opts || {};
-      const voice = chooseVoice(options.role || 'female');
-      if (voice) utter.voice = voice;
-      utter.lang = options.lang || 'en-US';
-      utter.rate = typeof options.rate === 'number' ? options.rate : 0.95;
-      utter.pitch = typeof options.pitch === 'number' ? options.pitch : 1.04;
-      utter.onend = () => resolve();
-      utter.onerror = () => resolve();
-      speechSynthesis.speak(utter);
-    });
-  }
-
-  function listenForSpeech(timeoutMs){
-    return new Promise((resolve) => {
-      const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!Ctor) {
-        resolve({ supported:false, transcript:'' });
-        return;
-      }
-      const token = ++recognitionToken;
-      const rec = new Ctor();
-      rec.lang = 'en-US';
-      rec.interimResults = false;
-      rec.continuous = false;
-      rec.maxAlternatives = 3;
-      let finished = false;
-      const timer = setTimeout(() => {
-        try { rec.stop(); } catch (_err) {}
-      }, timeoutMs || 6500);
-      function done(text){
-        if (finished || token !== recognitionToken) return;
-        finished = true;
-        clearTimeout(timer);
-        resolve({ supported:true, transcript:(text || '').trim() });
-      }
-      rec.onresult = (event) => {
-        const transcript = Array.from(event.results || []).map(r => r && r[0] && r[0].transcript).filter(Boolean).join(' ');
-        done(transcript);
-      };
-      rec.onerror = () => done('');
-      rec.onnomatch = () => done('');
-      rec.onend = () => done('');
-      try { rec.start(); } catch (_err) { done(''); }
-    });
-  }
-
-  async function persist(extra){
-    const totalStars = state.stars.reduce((a,b) => a + b, 0);
-    const completedLines = repeatResults.filter(el => {
-      const text = (el && el.textContent || '').trim();
-      return text && !/sorry, try again|nice try/i.test(text);
-    }).length;
-    const baseScore = Math.min(100, Math.round((completedLines / Math.max(1, expectedLines.length)) * 85 + totalStars * 5));
-    const payload = Object.assign({
-      pageId: pageId,
-      file: pageId + '.html',
-      level: level,
-      activityType: 'lesson',
-      type: 'lesson',
-      score: baseScore,
-      tracing: 0,
-      stars: totalStars,
-      completed: state.done,
-      skills: { speaking: completedLines ? 2 : 1, listening: girlTapped ? 2 : 1, reading: 1, writing: 0 }
-    }, extra || {});
-    if (typeof window.finishAndSave === 'function') {
-      try { await window.finishAndSave(payload); return; } catch (_err) {}
-    }
-    try {
-      const store = JSON.parse(localStorage.getItem('GP_EIS_ACTIVITY_RESULTS') || '{}');
-      store[payload.pageId] = Object.assign({}, store[payload.pageId] || {}, payload, { savedAt: new Date().toISOString(), ts: Date.now() });
-      localStorage.setItem('GP_EIS_ACTIVITY_RESULTS', JSON.stringify(store));
-      localStorage.setItem('GP_EIS_LAST_FILE', payload.file);
-    } catch (_err) {}
-  }
-
-  function resetMicState(){
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (_err) {}
-    recognitionToken += 1;
-    state = makeInitialState();
-    girlTapped = false;
-    hideAllLines();
-    clearBubbleHighlights();
-    repeatResults.forEach(el => { if (el) { el.textContent = ''; el.style.color = ''; }});
-    starRows.forEach(el => { if (el) el.textContent = ''; });
-    setStatus('Tap the girl to begin.');
-    setGuide('girl');
-    persist({ score:0, stars:0, completed:false });
-  }
-
-  function maybeRevealGirlElements(){
-    ['designerText','designerSub','circleReveal','tapPrompt'].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('show');
-    });
-    const girlSentence = document.getElementById('girlSentence');
-    if (girlSentence) {
-      girlSentence.classList.add('show');
-      girlSentence.querySelectorAll('.headline-line').forEach((el) => el.classList.add('show'));
-    }
-  }
-
-  async function advanceOrFinish(successMessage){
-    clearBubbleHighlights();
-    if (state.index >= expectedLines.length - 1) {
-      state.done = true;
-      const remark = completionRemarks[Math.floor(Math.random() * completionRemarks.length)] || 'Great job!';
-      setStatus(remark);
-      await speak(remark, { role:'female' });
-      setGuide('');
-      await persist({ completed:true, score:100 });
-      return;
-    }
-    state.index += 1;
-    state.phase = 'reveal';
-    state.busy = false;
-    showLine(state.index);
-    setStatus(successMessage || 'Tap the microphone for the next sentence.');
-    setGuide('mic');
-    await persist();
-  }
-
-  if (girlBtn) {
-    girlBtn.addEventListener('click', () => {
-      girlTapped = true;
-      state.done = false;
-      state.phase = 'reveal';
-      state.initialized = false;
-      state.index = 0;
-      maybeRevealGirlElements();
-      setGuide('mic');
-      window.setTimeout(() => setStatus('Now tap the microphone.'), 60);
-    });
-  }
-
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      window.setTimeout(resetMicState, 0);
-    });
-  }
-
-  micBtn.addEventListener('click', async function(ev){
-    ev.preventDefault();
-    ev.stopPropagation();
-
-    if (!girlTapped) {
-      setStatus('Tap the girl first.');
-      setGuide('girl');
-      await speak('Tap the girl first.', { role:'female' });
-      return;
-    }
-    if (state.busy || state.done) return;
-
-    if (!state.initialized) {
-      hideAllLines();
-      showLine(0);
-      state.index = 0;
-      state.initialized = true;
-      state.phase = 'reveal';
-    }
-
-    const expected = expectedLines[state.index];
-    if (!expected) return;
-
-    if (state.phase === 'reveal') {
-      clearBubbleHighlights();
-      showLine(state.index);
-      setStatus(expected);
-      await speak(expected, { role:'female' });
-      state.phase = 'prompt';
-      setStatus('Tap the microphone to repeat.');
-      await persist();
-      return;
-    }
-
-    state.busy = true;
-    setBubbleHighlight(state.index, true);
-    setStatus('Repeat after me.');
-    await speak('Repeat after me.', { role:'female' });
-    await delay(180);
-    await speak(expected, { role:'female' });
-    await delay(250);
-    setStatus('Now say the sentence.');
-    const heard = await listenForSpeech(7000);
-    state.busy = false;
-
-    if (!heard.supported) {
-      setStatus('Speech check is not supported on this browser.');
-      setRepeatResult(state.index, 'Use Chrome or Edge for mic practice.', '#b06a00');
-      return;
-    }
-
-    const transcript = (heard.transcript || '').trim();
-    const tryNo = ++state.attempts[state.index];
-    const pct = matchPercent(expected, transcript);
-    const ok = pct >= 50 || (expected.split(/\s+/).length <= 3 && pct >= 45);
-
-    if (ok) {
-      const stars = rewardStars(tryNo);
-      state.stars[state.index] = stars;
-      setRepeatResult(state.index, transcript || expected, '#2f9f5f');
-      setStars(state.index, stars);
-      const praise = stars === 3 ? 'Excellent!' : stars === 2 ? 'Great job!' : 'Good work!';
-      setStatus(praise);
-      await speak(praise, { role:'female' });
-      await advanceOrFinish('Tap the microphone for the next sentence.');
-      return;
-    }
-
-    if (tryNo >= 3) {
-      setRepeatResult(state.index, 'You did a good job. Nice try!', '#b06a00');
-      setStars(state.index, 0);
-      setStatus('You did a good job. Nice try!');
-      await speak('You did a good job. Nice try!', { role:'female' });
-      await advanceOrFinish('Tap the microphone for the next sentence.');
-      return;
-    }
-
-    setRepeatResult(state.index, 'Sorry, try again!', '#c62828');
-    setStatus('Sorry, try again!');
-    await speak('Sorry, try again!', { role:'female' });
-    state.phase = 'prompt';
-    setStatus('Tap the microphone and try again.');
-    await persist();
-  }, { passive:false });
-
-  resetMicState();
-})();
-</script>
-
 </body>
 </html>

@@ -49,6 +49,80 @@
     (document.head || document.documentElement).appendChild(style);
   }
 
+  function ensureGlobalGirlDockStyles() {
+    if (typeof document === "undefined" || document.getElementById("gpGlobalGirlDockStyles")) return;
+    const style = document.createElement("style");
+    style.id = "gpGlobalGirlDockStyles";
+    style.textContent =
+      "[data-gp-docked-girl='1']{position:relative !important;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;transform:none !important;margin:0 !important;z-index:3 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;flex-direction:column !important;gap:6px !important;}" +
+      "[data-gp-docked-girl='1'].tap-row,[data-gp-docked-girl='1'].girl-inline,[data-gp-docked-girl='1'].girl-spot,[data-gp-docked-girl='1'][aria-label='Tap the girl']{padding:0 4px !important;}" +
+      "[data-gp-docked-girl='1'] img,[data-gp-docked-girl='1'] .tap-girl{width:clamp(46px,8vw,72px) !important;height:clamp(46px,8vw,72px) !important;object-fit:contain !important;}" +
+      "[data-gp-docked-girl='1'] .girl-hint,[data-gp-docked-girl='1'] .tap-label,[data-gp-docked-girl='1'] span:last-child{font-size:clamp(.82rem,2.2vw,.98rem) !important;font-weight:900 !important;text-align:center !important;white-space:nowrap !important;}" +
+      "[data-gp-docked-girl='1'] .finger-cue{top:-18px !important;}" +
+      ".controls [data-gp-docked-girl='1'],.controls-row [data-gp-docked-girl='1'],.button-row [data-gp-docked-girl='1'],.pill [data-gp-docked-girl='1']{order:2;align-self:center !important;}" +
+      ".gp-global-finger-cue{position:absolute !important;top:-18px !important;left:50% !important;transform:translateX(-50%) !important;font-size:clamp(22px,3vw,30px) !important;line-height:1 !important;pointer-events:none !important;z-index:6 !important;filter:drop-shadow(0 3px 6px rgba(0,0,0,.22));animation:gpFingerBob 1.2s ease-in-out infinite !important;}" +
+      ".mic-icon-btn,.mic-btn,[data-mic],[data-gp-docked-girl='1'],#girlBtn,.tap-girl,.girl-spot,.girl-inline,.tap-row{position:relative !important;}" +
+      ".mic-icon-btn .gp-global-finger-cue,.mic-btn .gp-global-finger-cue,[data-mic] .gp-global-finger-cue{top:-20px !important;}" +
+      "@keyframes gpFingerBob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(4px);}}";
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  function ensureFingerCue(target) {
+    if (!target || target.querySelector(".gp-global-finger-cue, .finger-cue, .gp-shared-guide-girl-finger, .gp-shared-guide-finger")) return;
+    const cue = document.createElement("span");
+    cue.className = "gp-global-finger-cue";
+    cue.setAttribute("aria-hidden", "true");
+    cue.textContent = "👇";
+    target.insertBefore(cue, target.firstChild || null);
+  }
+
+  function initDockedGirlHelper() {
+    if (typeof document === "undefined") return;
+    const trigger = document.querySelector("#tapGirl, #girlBtn, .tap-girl, .girl-spot, .girl-inline, .tap-row, [aria-label='Tap the girl']");
+    if (!trigger) return;
+
+    const host =
+      document.querySelector(".controls .pill") ||
+        document.querySelector(".button-row") ||
+        document.querySelector(".controls-row") ||
+        document.querySelector(".controls") ||
+        document.querySelector(".footerNav") ||
+        document.querySelector(".top-actions") ||
+        document.querySelector(".bottom-bar");
+    if (!host) return;
+
+    const dockNode =
+      trigger.closest(".girl-spot, .girl-inline, .tap-row, [aria-label='Tap the girl']") ||
+      trigger.parentElement ||
+      trigger;
+    if (!dockNode || host.contains(dockNode)) {
+      if (dockNode) dockNode.setAttribute("data-gp-docked-girl", "1");
+      return;
+    }
+
+    ensureGlobalGirlDockStyles();
+    dockNode.setAttribute("data-gp-docked-girl", "1");
+    ensureFingerCue(dockNode);
+
+    const prevBtn = host.querySelector("#prevBtn");
+    const nextBtn = host.querySelector("#nextBtn");
+    if (prevBtn) {
+      host.insertBefore(dockNode, prevBtn);
+    } else if (nextBtn) {
+      host.insertBefore(dockNode, nextBtn);
+    } else {
+      host.insertBefore(dockNode, host.firstChild);
+    }
+  }
+
+  function initMicFingerCue() {
+    if (typeof document === "undefined") return;
+    ensureGlobalGirlDockStyles();
+    const micButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='microphone' i]");
+    if (!micButton) return;
+    ensureFingerCue(micButton);
+  }
+
   function isMobileSpeechDevice() {
     try {
       const ua = String((window.navigator && window.navigator.userAgent) || "");
@@ -167,6 +241,158 @@
 
   window.__GP_STOP_INTRO_MEDIA = stopIntroMedia;
 
+  function installRealtimeProgressBridge() {
+    const STORAGE_RESULTS_KEY = "GP_EIS_ACTIVITY_RESULTS";
+    const STORAGE_PROGRESS_KEY = "GP_EIS_PROGRESS_MAP";
+    const STORAGE_PAGE_KEY = "gpProgressByPage";
+    const STORAGE_LATEST_KEY = "gpLatestProgress";
+
+    function safeReadObject(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function safeWriteObject(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value || {}));
+      } catch (_) {}
+    }
+
+    function inferPayloadMeta(payload) {
+      const pageId = String((payload && (payload.pageId || payload.file)) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+      const file = String((payload && (payload.file || payload.fileName)) || (pageId + ".html"));
+      const level = String((payload && payload.level) || inferLevelFromPage(pageId) || "A").toUpperCase();
+      const week = Number((payload && payload.week) || inferWeekFromPage() || 1);
+      const monthMatch = String(location.pathname || "").match(/week-(\d+)/i);
+      const month = Number((payload && payload.month) || (monthMatch ? Number(monthMatch[1]) : 1) || 1);
+      return {
+        pageId,
+        file,
+        level,
+        week: Number.isFinite(week) && week > 0 ? week : 1,
+        month: Number.isFinite(month) && month > 0 ? month : 1
+      };
+    }
+
+    function normalizeType(payload, meta) {
+      const explicit = String((payload && (payload.activityType || payload.type)) || "").toLowerCase();
+      if (explicit) return explicit;
+      const file = String(meta.file || meta.pageId || "").toLowerCase();
+      if (file.includes("quiz")) return "quiz";
+      if (file.includes("game")) return "game";
+      if (file.includes("revision")) return "revision";
+      return "lesson";
+    }
+
+    function buildProgressMap(resultsStore) {
+      const map = {
+        A: { openWeeks: 3, lessons: 0, quizzes: 0, tracing: 0 },
+        B: { openWeeks: 3, lessons: 0, quizzes: 0, tracing: 0 },
+        C: { openWeeks: 3, lessons: 0, quizzes: 0, tracing: 0 }
+      };
+      ["A", "B", "C"].forEach((level) => {
+        const entries = Object.values(resultsStore || {}).filter((item) => String((item && item.level) || "").toUpperCase() === level);
+        if (!entries.length) return;
+        const completed = entries.filter((item) => item && (item.completed === true || Number(item.score || 0) > 0 || Number(item.tracing || item.progress || 0) > 0));
+        const highestWeek = completed.reduce((maxWeek, item) => Math.max(maxWeek, Math.min(3, Number(item.week || 1) || 1)), 1);
+        const lessonScores = completed.filter((item) => !/quiz|game/i.test(String(item.activityType || item.type || ""))).map((item) => Number(item.score || item.progress || 0)).filter(Number.isFinite);
+        const quizScores = completed.filter((item) => /quiz|game/i.test(String(item.activityType || item.type || ""))).map((item) => Number(item.score || item.progress || 0)).filter(Number.isFinite);
+        const tracingScores = completed.map((item) => Number(item.tracing || item.progress || 0)).filter(Number.isFinite);
+        map[level] = {
+          openWeeks: Math.max(1, Math.min(3, highestWeek)),
+          lessons: lessonScores.length ? Math.round(lessonScores.reduce((a, b) => a + b, 0) / lessonScores.length) : 0,
+          quizzes: quizScores.length ? Math.round(quizScores.reduce((a, b) => a + b, 0) / quizScores.length) : 0,
+          tracing: tracingScores.length ? Math.round(tracingScores.reduce((a, b) => a + b, 0) / tracingScores.length) : 0
+        };
+      });
+      return map;
+    }
+
+    function persistProgressPayload(payload) {
+      const meta = inferPayloadMeta(payload || {});
+      const tracing = Number((payload && (payload.tracing != null ? payload.tracing : payload.progress)) || 0);
+      const score = Number((payload && (payload.score != null ? payload.score : payload.progress)) || 0);
+      const normalized = {
+        ...(payload || {}),
+        pageId: meta.pageId,
+        file: meta.file,
+        level: meta.level,
+        week: meta.week,
+        month: meta.month,
+        activityType: normalizeType(payload, meta),
+        score: Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : 0,
+        tracing: Number.isFinite(tracing) ? Math.max(0, Math.min(100, Math.round(tracing))) : 0,
+        stars: Math.max(0, Number((payload && payload.stars) || 0) || 0),
+        completed: !!(payload && payload.completed),
+        savedAt: new Date().toISOString(),
+        ts: Date.now()
+      };
+
+      const resultsStore = safeReadObject(STORAGE_RESULTS_KEY);
+      resultsStore[meta.pageId] = normalized;
+      safeWriteObject(STORAGE_RESULTS_KEY, resultsStore);
+
+      const pageStore = safeReadObject(STORAGE_PAGE_KEY);
+      pageStore[meta.pageId] = normalized;
+      safeWriteObject(STORAGE_PAGE_KEY, pageStore);
+      try { localStorage.setItem(STORAGE_LATEST_KEY, JSON.stringify(normalized)); } catch (_) {}
+
+      const progressMap = buildProgressMap(resultsStore);
+      safeWriteObject(STORAGE_PROGRESS_KEY, progressMap);
+
+      try {
+        window.dispatchEvent(new CustomEvent("gp:progress-updated", {
+          detail: { payload: normalized, progressMap }
+        }));
+      } catch (_) {}
+
+      return normalized;
+    }
+
+    window.__GP_PERSIST_PROGRESS_PAYLOAD__ = persistProgressPayload;
+
+    const originalFinishAndSave = typeof window.finishAndSave === "function" ? window.finishAndSave.bind(window) : null;
+    window.finishAndSave = async function sharedFinishAndSave(payload) {
+      const normalized = persistProgressPayload(payload || {});
+      if (!originalFinishAndSave) return normalized;
+      try {
+        const result = await originalFinishAndSave(normalized);
+        return result || normalized;
+      } catch (_) {
+        return normalized;
+      }
+    };
+
+    if (typeof window.finishActivity !== "function") {
+      window.finishActivity = async function sharedFinishActivity(payload) {
+        return persistProgressPayload(payload || {});
+      };
+    } else {
+      const originalFinishActivity = window.finishActivity.bind(window);
+      window.finishActivity = async function wrappedFinishActivity(payload) {
+        const normalized = persistProgressPayload(payload || {});
+        try {
+          const result = await originalFinishActivity(normalized);
+          return result || normalized;
+        } catch (_) {
+          return normalized;
+        }
+      };
+    }
+
+    if (typeof window.saveActivityResult !== "function") {
+      window.saveActivityResult = async function sharedSaveActivityResult(payload) {
+        return persistProgressPayload(payload || {});
+      };
+    }
+  }
+
   function hasPageManagedInstructionAudio() {
     if (document.querySelector("#instructionAudio, audio[src*='InstructionAudio.mp3' i], source[src*='InstructionAudio.mp3' i]")) {
       return true;
@@ -219,6 +445,7 @@
   function shouldAutoPlayPageInstructionAudio() {
     if (!isLevelLessonPage()) return false;
     if (window.__GP_AUTO_PAGE_INSTRUCTION_AUDIO__ === false) return false;
+    if (isLikelyVideoLessonPage()) return false;
     if (hasPageManagedInstructionAudio()) return false;
     const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
     if (/quiz|game|revision|finalquiz/i.test(pageFile)) {
@@ -236,7 +463,7 @@
     pageInstructionAudioBound = true;
     pageInstructionAudio = new Audio(instructionAudioSrc);
     pageInstructionAudio.preload = "auto";
-    pageInstructionAudio.volume = 0.28;
+    pageInstructionAudio.volume = 0.62;
 
     const markFinished = function () {
       pageInstructionAudioFinished = true;
@@ -252,7 +479,7 @@
       window.setTimeout(() => {
         try {
           pageInstructionAudio.currentTime = 0;
-            pageInstructionAudio.volume = 0.28;
+            pageInstructionAudio.volume = 0.62;
           const replay = pageInstructionAudio.play();
           if (replay && typeof replay.catch === "function") {
             replay.catch(() => {
@@ -268,7 +495,7 @@
     function tryPlayInstructionAudio() {
       if (!pageInstructionAudio || pageInstructionAudioFinished || pageInstructionAudioStarted) return;
       try { pageInstructionAudio.currentTime = 0; } catch (_) {}
-        pageInstructionAudio.volume = 0.28;
+        pageInstructionAudio.volume = 0.62;
       const playAttempt = pageInstructionAudio.play();
       if (playAttempt && typeof playAttempt.then === "function") {
         playAttempt.then(function () {
@@ -298,6 +525,20 @@
   }
 
   function inferPageOpeningHint() {
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    if (/quiz|game|revision|finalquiz/i.test(pageFile)) {
+      const title = normalizeOpeningHintText(
+        (document.querySelector(".top-title h1, h1, h2") || {}).textContent || document.title || ""
+      );
+      const summary = normalizeOpeningHintText(
+        (document.querySelector(".top-title div, .rule-box, .directions, .instruction, .prompt, .question, .task, .help-item, .tap-hint") || {}).textContent || ""
+      );
+      const quizHint = [title, summary].filter(Boolean).join(". ").replace(/\s+/g, " ").trim();
+      if (quizHint) return quizHint;
+      if (/quiz/i.test(pageFile)) return "Listen to the question carefully, then tap the correct answer.";
+      return "Listen carefully and follow the game task on this page.";
+    }
+
     const directTargets = [
       "#conversationStatus",
       ".conversation-status",
@@ -348,9 +589,21 @@
     return "";
   }
 
+  function isLikelyVideoLessonPage() {
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    if (/ArtClass|FairlyTale|FairyTale|GymClass/i.test(pageFile)) return true;
+    if (document.querySelector("#introVideo, #introVideoWrap, .intro-video-wrap, #lbIntroVideoOverlay, video.autoplay-intro, .autoplay-intro")) {
+      return true;
+    }
+    const introCandidates = [];
+    collectExistingIntroSources().forEach((src) => pushUniqueCandidate(introCandidates, src));
+    getAutoIntroCandidates(pageFile).forEach((src) => pushUniqueCandidate(introCandidates, src));
+    return introCandidates.length > 0 && !/quiz|game|revision|finalquiz/i.test(pageFile);
+  }
+
   function suppressWeek2LessonIntroVideos() {
-    if (!isLevelLessonPage()) return;
-    if (inferWeekFromPage() !== 2) return;
+      if (!isLevelLessonPage()) return;
+      if (window.__GP_DISABLE_INTRO_VIDEOS__ !== true) return;
 
     stopIntroMedia();
 
@@ -504,22 +757,16 @@
         "week-2/thursday/FairlyTaleWk2A.html",
         "week-2/friday/LA_Game2.html",
         "week-2/friday/LA_Quiz2.html",
+        "week-3/monday/ScienceClassWk3A.html",
         "week-3/tuesday/LA14.html",
-        "week-3/tuesday/LA15.html",
-        "week-3/wednesday/LA16.html",
-        "week-3/wednesday/LA17.html",
-        "week-3/tuesday/LA18.html",
-        "week-3/tuesday/LA19.html",
-        "week-3/friday/LA_Revision3.html",
+        "week-3/wednesday/LA15.html",
+        "week-3/wednesday/LA19.html",
+        "week-3/thursday/FairlyTaleWk3A.html",
         "week-3/friday/LA_Game3.html",
         "week-3/friday/LA_Quiz3.html",
         "week-4/tuesday/LA20.html",
-        "week-4/tuesday/LA21.html",
-        "week-4/wednesday/LA22.html",
-        "week-4/wednesday/LA23.html",
-        "week-4/tuesday/LA24.html",
-        "week-4/tuesday/LA25.html",
-        "week-4/friday/LA_Revision4.html",
+        "week-4/wednesday/LA21.html",
+        "week-4/wednesday/LA25.html",
         "week-4/friday/LA_Game4.html",
         "week-4/friday/LA_FinalQuiz.html"
       ],
@@ -538,21 +785,17 @@
         "week-2/thursday/FairlyTaleWk2B.html",
         "week-2/friday/LB_Game2.html",
         "week-2/friday/LB_Quiz2.html",
+        "week-3/monday/ScienceClassWk3B.html",
         "week-3/tuesday/LB14.html",
-        "week-3/tuesday/LB15.html",
-        "week-3/wednesday/LB16.html",
-        "week-3/wednesday/LB17.html",
-        "week-3/tuesday/LB18.html",
-        "week-3/tuesday/LB19.html",
+        "week-3/wednesday/LB15.html",
+        "week-3/wednesday/LB19.html",
+        "week-3/thursday/FairlyTaleWk3B.html",
         "week-3/friday/LB_Revision3.html",
         "week-3/friday/LB_Game3.html",
         "week-3/friday/LB_Quiz3.html",
         "week-4/tuesday/LB20.html",
-        "week-4/tuesday/LB21.html",
-        "week-4/wednesday/LB22.html",
-        "week-4/wednesday/LB23.html",
-        "week-4/tuesday/LB24.html",
-        "week-4/tuesday/LB25.html",
+        "week-4/wednesday/LB21.html",
+        "week-4/wednesday/LB25.html",
         "week-4/friday/LB_Revision4.html",
         "week-4/friday/LA_Quiz4.html",
         "week-4/friday/LB_FinalQuiz.html"
@@ -572,21 +815,16 @@
         "week-2/thursday/FairlyTaleWk2C.html",
         "week-2/friday/LevelC_Game2.html",
         "week-2/friday/LevelC_Quiz2.html",
+        "week-3/monday/ScienceClassWk3C.html",
         "week-3/tuesday/LevelC14.html",
-        "week-3/tuesday/LevelC15.html",
-        "week-3/wednesday/LevelC16.html",
-        "week-3/wednesday/LevelC17.html",
-        "week-3/tuesday/LevelC18.html",
-        "week-3/tuesday/LevelC19.html",
-        "week-3/friday/LevelC_Revision3.html",
+        "week-3/wednesday/LevelC15.html",
+        "week-3/wednesday/LevelC19.html",
+        "week-3/thursday/FairlyTaleWk3C.html",
         "week-3/friday/LevelC_Game3.html",
         "week-3/friday/LevelC_Quiz3.html",
         "week-4/tuesday/LevelC20.html",
-        "week-4/tuesday/LevelC21.html",
-        "week-4/wednesday/LevelC22.html",
-        "week-4/wednesday/LevelC23.html",
-        "week-4/tuesday/LevelC24.html",
-        "week-4/tuesday/LevelC25.html",
+        "week-4/wednesday/LevelC21.html",
+        "week-4/wednesday/LevelC25.html",
         "week-4/friday/LevelC_Revision4.html",
         "week-4/friday/LevelC_Game4.html",
         "week-4/friday/LevelC_Quiz4.html"
@@ -666,18 +904,15 @@
     const index = chain.indexOf(current);
     if (index === -1) return null;
     const levelPrefix = "levels/level-" + level.toLowerCase() + "/";
-    const forceIndexNext = /(^|\/)week-2\/friday\/LevelC_Quiz2\.html$/i.test(current);
-    return {
-      prev: index === 0
+      return {
+        prev: index === 0
         ? getLessonAppAbsolute("index.html")
-        : getLessonAppAbsolute(levelPrefix + chain[index - 1]),
-      home: getLessonAppAbsolute("index.html"),
-      next: forceIndexNext
-        ? getLessonAppAbsolute("index.html")
-        : index === chain.length - 1
-        ? getLessonAppAbsolute("index.html")
-        : getLessonAppAbsolute(levelPrefix + chain[index + 1])
-    };
+          : getLessonAppAbsolute(levelPrefix + chain[index - 1]),
+        home: getLessonAppAbsolute("index.html"),
+       next: index === chain.length - 1
+         ? getLessonAppAbsolute("index.html")
+          : getLessonAppAbsolute(levelPrefix + chain[index + 1])
+      };
   }
 
   function detectNavKind(hit) {
@@ -854,9 +1089,9 @@
       style.id = "gpAutoIntroStyles";
       style.textContent =
         "html.lesson-intro-video-pending body > *:not(#gpAutoIntroOverlay):not(#introVideoWrap){visibility:hidden !important;}" +
-        "#gpAutoIntroOverlay,.intro-video-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000;z-index:2147483647;padding:0;margin:0;overflow:hidden;}" +
+        "#gpAutoIntroOverlay,.intro-video-wrap{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:2147483647;padding:16px;margin:0;overflow:hidden;}" +
         "#gpAutoIntroOverlay.active,.intro-video-wrap.active,#introVideoWrap.active,#lbIntroVideoOverlay.active{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:auto !important;}" +
-        "#gpAutoIntroOverlay video,.intro-video-wrap video{width:100vw;height:100vh;max-width:100vw;max-height:100vh;object-fit:contain;object-position:center center;border-radius:0;background:#000;box-shadow:none;display:block;}";
+        "#gpAutoIntroOverlay video,.intro-video-wrap video{width:min(92vw,980px);height:auto;max-width:92vw;max-height:82vh;object-fit:contain;object-position:center center;border-radius:14px;background:#000;box-shadow:0 18px 48px rgba(0,0,0,.45);display:block;}";
       document.head.appendChild(style);
     }
 
@@ -874,7 +1109,7 @@
         ".convo-line .bubble-stack,.speech-line .bubble-stack,.dialog-line .bubble-stack,.bubble-line .bubble-stack{display:flex !important;flex-direction:column !important;gap:6px !important;}" +
         ".bubble.mic-highlight,.speech-bubble.mic-highlight,.dialog-bubble.mic-highlight,.convo-bubble.mic-highlight,.bubble-left.mic-highlight,.bubble-right.mic-highlight,#bubbleLeft.mic-highlight,#bubbleRight.mic-highlight,.headline-line.mic-highlight,.sentence-line.mic-highlight,.bubble.sparkle,.speech-bubble.sparkle,.dialog-bubble.sparkle,.convo-bubble.sparkle,.bubble-left.sparkle,.bubble-right.sparkle,#bubbleLeft.sparkle,#bubbleRight.sparkle,.headline-line.sparkle,.sentence-line.sparkle{background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff) !important;box-shadow:0 0 12px rgba(255,214,0,.6),0 0 18px rgba(255,105,180,.4) !important;animation:gpMicSparklePulse 1.2s ease-in-out infinite !important;}" +
         "@keyframes gpMicSparklePulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.12);}}" +
-        ".star-row,.stars,.bubble-stars,[data-stars]{font-size:2.35rem !important;line-height:1 !important;}" +
+        ".star-row,.stars,.bubble-stars,[data-stars],#stars,.score-big,[aria-label*='stars' i]{font-size:2.35rem !important;line-height:1 !important;color:#f7c948 !important;text-shadow:0 1px 0 #8b5a00,0 3px 8px rgba(0,0,0,.18) !important;}" +
         ".repeat-result,.bubble-result,[data-repeat-result]{font-size:2.1rem !important;line-height:1.1 !important;}" +
         ".girl-sentence,#girlSentence,.big-note,.belly-note,.prompt-line,.headline-line{font-size:clamp(28px,5vw,56px) !important;line-height:1.15 !important;font-weight:900 !important;text-align:center !important;}" +
         ".girl-sentence,#girlSentence{width:min(92%,900px) !important;margin:12px auto 0 !important;min-height:2.4em !important;transform:none !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;}" +
@@ -1100,6 +1335,7 @@
     if (pageOpeningHintScheduled) return;
     if (!isLevelLessonPage()) return;
     if (window.__GP_AUTO_PAGE_OPENING_HINT__ === false) return;
+    if (isLikelyVideoLessonPage()) return;
     pageOpeningHintScheduled = true;
 
     const speakHint = function () {
@@ -1186,6 +1422,108 @@
         const el = starOutputs[index];
         if (!el) return;
         el.innerHTML = new Array(Math.max(0, count || 0)).fill("&#9733;").join("");
+      }
+
+      function normalizeMicTranscript(text) {
+        return String(text || "")
+          .toLowerCase()
+          .replace(/[^\w\s]|_/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function percentMicWordMatch(expectedText, saidText) {
+        const expected = normalizeMicTranscript(expectedText).split(" ").filter(Boolean);
+        const actual = normalizeMicTranscript(saidText).split(" ").filter(Boolean);
+        if (!expected.length) return 0;
+        let hits = 0;
+        expected.forEach((word) => {
+          if (actual.includes(word)) hits += 1;
+        });
+        return Math.round((hits / expected.length) * 100);
+      }
+
+      function rewardMicStars(attempt) {
+        if (attempt === 1) return 3;
+        if (attempt === 2) return 2;
+        if (attempt === 3) return 1;
+        return 0;
+      }
+
+      function listenForRepeatShared(expectedText, onDone, options) {
+        if (window.GPTracing && typeof window.GPTracing.listenForRepeat === "function") {
+          window.GPTracing.listenForRepeat(expectedText, onDone, options);
+          return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const opts = options || {};
+        const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 6500;
+        const settleMs = typeof opts.settleMs === "number" ? opts.settleMs : 1400;
+        const startDelayMs = typeof opts.startDelayMs === "number" ? opts.startDelayMs : 700;
+        if (!SpeechRecognition) {
+          if (onDone) {
+            window.setTimeout(() => onDone(0, ""), 120);
+          }
+          return;
+        }
+
+        let done = false;
+        let heard = "";
+        let settleTimer = 0;
+        let timeoutTimer = 0;
+        const recognition = new SpeechRecognition();
+
+        function finish(pct, said) {
+          if (done) return;
+          done = true;
+          if (settleTimer) window.clearTimeout(settleTimer);
+          if (timeoutTimer) window.clearTimeout(timeoutTimer);
+          try { recognition.onresult = null; } catch (_) {}
+          try { recognition.onerror = null; } catch (_) {}
+          try { recognition.onnomatch = null; } catch (_) {}
+          try { recognition.onend = null; } catch (_) {}
+          try { recognition.stop(); } catch (_) {}
+          if (onDone) onDone(pct, said);
+        }
+
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        recognition.continuous = true;
+        recognition.maxAlternatives = 3;
+        recognition.onresult = (event) => {
+          const transcripts = [];
+          for (let i = 0; i < event.results.length; i += 1) {
+            const result = event.results[i];
+            if (!result || !result[0]) continue;
+            transcripts.push(result[0].transcript || "");
+            if (result.isFinal) heard = transcripts.join(" ").trim();
+          }
+          if (!heard) heard = transcripts.join(" ").trim();
+          if (settleTimer) window.clearTimeout(settleTimer);
+          settleTimer = window.setTimeout(() => {
+            finish(percentMicWordMatch(expectedText, heard), heard);
+          }, settleMs);
+          const last = event.results[event.results.length - 1];
+          if (last && last.isFinal) {
+            finish(percentMicWordMatch(expectedText, heard), heard);
+          }
+        };
+        recognition.onerror = () => finish(percentMicWordMatch(expectedText, heard), heard);
+        recognition.onnomatch = () => finish(percentMicWordMatch(expectedText, heard), heard);
+        recognition.onend = () => {
+          if (done) return;
+          finish(percentMicWordMatch(expectedText, heard), heard);
+        };
+
+        timeoutTimer = window.setTimeout(() => {
+          finish(percentMicWordMatch(expectedText, heard), heard);
+        }, timeoutMs);
+
+        window.setTimeout(() => {
+          if (done) return;
+          try { recognition.start(); } catch (_) { finish(0, ""); }
+        }, Math.max(0, startDelayMs));
       }
 
       function scheduleRealtimeMicSave(completed) {
@@ -1339,21 +1677,13 @@
         setConversationStatus("Repeat after me.");
 
         speakMicPrompt("Repeat after me.", () => {
-          if (!window.GPTracing || typeof window.GPTracing.listenForRepeat !== "function") {
-            setFallbackRepeat(state.micStepIndex, expected, true);
-            starsAwarded[state.micStepIndex] = 3;
-            setFallbackStars(state.micStepIndex, 3);
-            scheduleRealtimeMicSave(false);
-            setConversationStatus("Great speaking. Get ready for the next bubble.");
-            window.setTimeout(moveFallbackToNextStep, 900);
-            return;
-          }
-
-          window.GPTracing.listenForRepeat(expected, (pct, said) => {
+          listenForRepeatShared(expected, (pct, said) => {
             const tryNo = ++attempts[state.micStepIndex];
             if (pct >= 50) {
               setFallbackRepeat(state.micStepIndex, (said || expected).trim(), true);
-              starsAwarded[state.micStepIndex] = window.GPTracing.rewardStars(tryNo);
+              starsAwarded[state.micStepIndex] = window.GPTracing && typeof window.GPTracing.rewardStars === "function"
+                ? window.GPTracing.rewardStars(tryNo)
+                : rewardMicStars(tryNo);
               setFallbackStars(state.micStepIndex, starsAwarded[state.micStepIndex]);
               try {
                 chime.currentTime = 0;
@@ -1433,12 +1763,17 @@
       }
 
         function forceOwnMicButton() {
-          const liveMicButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
-          if (!liveMicButton || liveMicButton.dataset.gpStrictUnifiedMicBound === "1") return;
-          liveMicButton.dataset.gpStrictUnifiedMicBound = "1";
-          if (liveMicButton.hasAttribute("onclick")) {
-            liveMicButton.removeAttribute("onclick");
+          let liveMicButton = document.querySelector("#micIconBtn, #micBtn, .mic-icon-btn, .mic-btn, [data-mic], [aria-label*='Repeat conversation' i], [aria-label*='Repeat instruction' i], [aria-label*='Repeat after me' i], [aria-label*='speaking activity' i], [aria-label*='microphone' i]");
+          if (!liveMicButton) return;
+          if (liveMicButton.dataset.gpStrictUnifiedMicOwner !== "1") {
+            const replacement = liveMicButton.cloneNode(true);
+            try { replacement.removeAttribute("onclick"); } catch (_) {}
+            replacement.dataset.gpStrictUnifiedMicOwner = "1";
+            liveMicButton.replaceWith(replacement);
+            liveMicButton = replacement;
           }
+          if (liveMicButton.dataset.gpStrictUnifiedMicBound === "1") return;
+          liveMicButton.dataset.gpStrictUnifiedMicBound = "1";
           liveMicButton.addEventListener("click", handleForcedMicClick, true);
         }
 
@@ -1571,6 +1906,19 @@
     const introVideo = document.querySelector("#lbIntroVideo, #introVideo");
     const lessonVideo = document.querySelector("#lessonVideo, #storyVideo");
     if (!introVideo && !lessonVideo) return;
+    if (window.__GP_DISABLE_INTRO_VIDEOS__ === true && introVideo) {
+      try { introVideo.pause(); } catch (_) {}
+      try { introVideo.currentTime = 0; } catch (_) {}
+      try { introVideo.muted = true; } catch (_) {}
+      const introWrap = introVideo.closest("#introVideoWrap, .intro-video-wrap, #lbIntroVideoOverlay, #gpAutoIntroOverlay");
+      if (introWrap) {
+        try { introWrap.style.display = "none"; } catch (_) {}
+        try { introWrap.style.visibility = "hidden"; } catch (_) {}
+        try { introWrap.style.opacity = "0"; } catch (_) {}
+        try { introWrap.style.pointerEvents = "none"; } catch (_) {}
+      }
+      if (!lessonVideo) return;
+    }
 
     function normalizeVideo(video) {
       if (!video) return;
@@ -1665,6 +2013,7 @@
   }
 
   function initAutoIntroVideo() {
+    if (window.__GP_DISABLE_INTRO_VIDEOS__ === true) return;
     if (isLevelLessonPage()) return;
     const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
     const candidates = [];
@@ -1746,14 +2095,14 @@
       video.controls = false;
       video.loop = false;
       video.playsInline = true;
-      video.style.width = "100vw";
-      video.style.height = "100vh";
-      video.style.maxWidth = "100vw";
-      video.style.maxHeight = "100vh";
+      video.style.width = "min(92vw, 980px)";
+      video.style.height = "auto";
+      video.style.maxWidth = "92vw";
+      video.style.maxHeight = "82vh";
       video.style.objectFit = "contain";
       video.style.objectPosition = "center center";
       video.style.background = "#000";
-      video.style.borderRadius = "0";
+      video.style.borderRadius = "14px";
       video.setAttribute("playsinline", "");
       video.setAttribute("webkit-playsinline", "");
       let candidateIndex = 0;
@@ -1953,6 +2302,7 @@
   installMediaPlaybackPatch();
   ensureMobileViewportMeta();
   ensureGlobalLessonRuntimeStyles();
+  ensureGlobalGirlDockStyles();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initExpectedLessonNavigation, { once: true });
@@ -1963,18 +2313,24 @@
     document.addEventListener("DOMContentLoaded", initUnifiedMicProtocol, { once: true });
     document.addEventListener("DOMContentLoaded", initLessonVideoAutoplayFix, { once: true });
     document.addEventListener("DOMContentLoaded", initGenericTraceCanvasAudio, { once: true });
+    document.addEventListener("DOMContentLoaded", installRealtimeProgressBridge, { once: true });
     document.addEventListener("DOMContentLoaded", initHomeButtonRouting, { once: true });
     document.addEventListener("DOMContentLoaded", suppressLegacyLevelBGirlHelper, { once: true });
+    document.addEventListener("DOMContentLoaded", initDockedGirlHelper, { once: true });
+    document.addEventListener("DOMContentLoaded", initMicFingerCue, { once: true });
   } else {
     initExpectedLessonNavigation();
     suppressWeek2LessonIntroVideos();
     initAutoIntroVideo();
     initPageInstructionAudio();
     initPageOpeningVoiceHint();
-    initUnifiedMicProtocol();
-    initLessonVideoAutoplayFix();
-    initGenericTraceCanvasAudio();
-    initHomeButtonRouting();
+      initUnifiedMicProtocol();
+      initLessonVideoAutoplayFix();
+      initGenericTraceCanvasAudio();
+      installRealtimeProgressBridge();
+      initHomeButtonRouting();
     suppressLegacyLevelBGirlHelper();
+    initDockedGirlHelper();
+    initMicFingerCue();
   }
 })();

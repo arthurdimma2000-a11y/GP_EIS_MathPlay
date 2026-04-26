@@ -12,18 +12,26 @@
   .card{width:min(1280px,99vw);min-height:calc(100vh - 16px);background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:12px 12px 18px}
   .poster-wrap{position:relative;width:min(100%, 960px);margin:0 auto}
   .poster-img{display:block;width:100%;height:auto;border-radius:18px;user-select:none;-webkit-user-drag:none}
-  .write-box{position:absolute;border:3px solid rgba(255,164,177,.95);background:rgba(255,255,255,.92);border-radius:12px;box-shadow:0 6px 12px rgba(0,0,0,.04);padding:8px 10px 6px;color:#666;font-size:clamp(24px,3.2vw,34px);line-height:1.1;text-align:center;outline:none;min-height:46px;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap}
+  .write-box{position:absolute;border:3px solid rgba(255,164,177,.95);background:rgba(255,255,255,.96);border-radius:12px;box-shadow:0 6px 12px rgba(0,0,0,.04);padding:8px 12px 6px;color:#666;font-size:clamp(21px,3vw,31px);line-height:1.1;text-align:center;outline:none;min-height:52px;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap}
   .write-box::before{content:"";position:absolute;left:10px;right:10px;bottom:8px;border-bottom:3px dotted rgba(120,120,120,.35);pointer-events:none}
   .write-box:empty::after{content:attr(data-placeholder);color:rgba(80,80,80,.35);font-size:clamp(18px,2.4vw,24px);position:relative;z-index:1;white-space:nowrap}
   .write-box:focus{border-color:#7db4ff;box-shadow:0 0 0 5px rgba(125,180,255,.18)}
-  .box-square{left:13.6%;top:38.7%;width:20.5%}.box-parallelogram{left:21.0%;top:63.9%;width:29.8%}.box-triangle{left:29.1%;top:94.0%;width:18.6%}
+  .name-box{background:rgba(255,255,255,.98)}
+  .count-box{font-size:clamp(24px,3.2vw,34px)}
+  .name-square{left:7.8%;top:38.7%;width:20.8%}
+  .name-parallelogram{left:18.8%;top:64.1%;width:31.6%}
+  .name-triangle{left:28.2%;top:94.0%;width:18.8%}
+  .count-square{left:37.4%;top:31.2%;width:12.2%}
+  .count-parallelogram{left:58.8%;top:56.0%;width:12.2%}
+  .count-triangle{left:56.2%;top:76.7%;width:12.2%}
   .controls{width:min(100%,960px);margin:14px auto 0;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
   .nav-btn{border:none;border-radius:999px;padding:12px 18px;font:700 16px/1 var(--font);cursor:pointer;color:#fff;background:linear-gradient(180deg,#ff9854,#ff7d45);box-shadow:0 5px 0 rgba(0,0,0,.13)}
   .nav-btn:active{transform:translateY(2px);box-shadow:0 3px 0 rgba(0,0,0,.13)}
   .nav-btn.next{justify-self:end}
-  .mic-btn{width:74px;height:74px;border:none;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:radial-gradient(circle at 35% 30%, #ffffff 0 18%, #ffe4ea 19% 40%, #ff9fb3 41% 100%);box-shadow:0 10px 18px rgba(0,0,0,.14), inset 0 -4px 0 rgba(0,0,0,.08);transition:transform .15s ease}
+  .mic-btn{width:74px;height:74px;border:none;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:transparent;box-shadow:none;transition:transform .15s ease;padding:0}
   .mic-btn:hover{transform:translateY(-1px) scale(1.02)}
-  .mic-btn.listening{animation:pulse 1s infinite;background:radial-gradient(circle at 35% 30%, #ffffff 0 16%, #ffd2db 17% 36%, #ff637f 37% 100%)}
+  .mic-btn img{width:74px;height:74px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.14))}
+  .mic-btn.listening{animation:pulse 1s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,99,127,.38),0 10px 18px rgba(0,0,0,.14), inset 0 -4px 0 rgba(0,0,0,.08)}70%{box-shadow:0 0 0 16px rgba(255,99,127,0),0 10px 18px rgba(0,0,0,.14), inset 0 -4px 0 rgba(0,0,0,.08)}100%{box-shadow:0 0 0 0 rgba(255,99,127,0),0 10px 18px rgba(0,0,0,.14), inset 0 -4px 0 rgba(0,0,0,.08)}}
   .practice-panel{width:min(100%,960px);margin:14px auto 0;background:linear-gradient(180deg,#fffaf1,#fff3da);border:3px solid #ffd37b;border-radius:18px;padding:14px 16px;box-shadow:0 10px 20px rgba(0,0,0,.06)}
   .practice-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -33,28 +41,32 @@
   .status-row{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
   .status-badge{padding:8px 12px;border-radius:999px;background:#eaf4ff;font-weight:800;color:#2d5e9a;border:2px solid #bfdcff}
   .heard-box{flex:1 1 360px;min-height:52px;background:#fff;border:2px solid #e5e5e5;border-radius:14px;padding:10px 12px;font-size:clamp(16px,2vw,20px)}
+  .writing-progress{margin-top:12px;background:#fff;border:2px solid #cfe0ff;border-radius:16px;padding:12px 14px}
+  .writing-progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .writing-progress-title{font-size:clamp(16px,2vw,20px);font-weight:900;color:#2d5e9a}
+  .writing-progress-value{font-size:clamp(16px,2vw,20px);font-weight:900;color:#23b060}
+  .writing-progress-track{margin-top:10px;width:100%;height:18px;border-radius:999px;background:#e6eefb;overflow:hidden;box-shadow:inset 0 1px 4px rgba(0,0,0,.08)}
+  .writing-progress-fill{width:0;height:100%;border-radius:999px;background:linear-gradient(90deg,#5bb9ff,#23b060);transition:width .25s ease}
   .hint{width:min(100%,960px);margin:10px auto 0;color:#335;font-size:14px;text-align:center}
-  @media (max-width:760px){.card{padding:8px 8px 16px}.controls{grid-template-columns:1fr}.nav-btn,.nav-btn.next{justify-self:stretch}.mic-btn{justify-self:center;order:-1}.practice-top{justify-content:center}.status-row{justify-content:center}.box-square{left:12.8%;top:38.55%;width:22.2%}.box-parallelogram{left:20.0%;top:63.8%;width:31.2%}.box-triangle{left:28.1%;top:93.85%;width:20.2%}}
+  @media (max-width:760px){.card{padding:8px 8px 16px}.controls{grid-template-columns:1fr}.nav-btn,.nav-btn.next{justify-self:stretch}.mic-btn{justify-self:center;order:-1}.practice-top{justify-content:center}.status-row{justify-content:center}.writing-progress-top{justify-content:center}.write-box{font-size:clamp(18px,2.8vw,26px);min-height:46px;padding:7px 10px 5px}.name-square{left:7.4%;top:38.7%;width:22.4%}.name-parallelogram{left:18.3%;top:64.2%;width:33.0%}.name-triangle{left:27.5%;top:94.0%;width:20.2%}.count-square{left:36.8%;top:31.2%;width:13.8%}.count-parallelogram{left:58.1%;top:56.2%;width:13.8%}.count-triangle{left:55.6%;top:76.8%;width:13.8%}}
 </style>
 </head>
 <body>
   <main class="card">
     <section class="poster-wrap" aria-label="Tangram lesson poster">
-      <img class="poster-img" alt="Tangram poster asking students to name the tangram shapes" src="../../../../assets/images/shapes/LC13.png">
-      <div class="write-box box-square" contenteditable="true" spellcheck="false" aria-label="Write the first shape name" data-placeholder="Write here"></div>
-      <div class="write-box box-parallelogram" contenteditable="true" spellcheck="false" aria-label="Write the second shape name" data-placeholder="Write here"></div>
-      <div class="write-box box-triangle" contenteditable="true" spellcheck="false" aria-label="Write the third shape name" data-placeholder="Write here"></div>
+      <img class="poster-img" alt="Tangram poster asking students to name the tangram shapes" src="../../../../assets/images/shapes/LC13ccb.png">
+      <div class="write-box name-box name-square" contenteditable="true" spellcheck="false" aria-label="Write square" data-placeholder="Square"></div>
+      <div class="write-box name-box name-parallelogram" contenteditable="true" spellcheck="false" aria-label="Write parallelogram" data-placeholder="Parallelogram"></div>
+      <div class="write-box name-box name-triangle" contenteditable="true" spellcheck="false" aria-label="Write triangle" data-placeholder="Triangle"></div>
+      <div class="write-box count-box count-square" contenteditable="true" spellcheck="false" aria-label="Write how many pieces were used for the square" data-placeholder="Write number"></div>
+      <div class="write-box count-box count-parallelogram" contenteditable="true" spellcheck="false" aria-label="Write how many pieces were used for the parallelogram" data-placeholder="Write number"></div>
+      <div class="write-box count-box count-triangle" contenteditable="true" spellcheck="false" aria-label="Write how many pieces were used for the triangle" data-placeholder="Write number"></div>
     </section>
 
     <section class="controls" aria-label="Page controls">
       <button class="nav-btn prev" id="prevBtn" type="button">← Previous page</button>
       <button class="mic-btn" id="micBtn" type="button" aria-label="Repeat after me speaking activity">
-        <svg width="34" height="34" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-          <rect x="22" y="8" width="20" height="32" rx="10" fill="#ffffff" stroke="#d94e72" stroke-width="4"/>
-          <path d="M16 30c0 10 7 18 16 18s16-8 16-18" stroke="#d94e72" stroke-width="4" stroke-linecap="round"/>
-          <path d="M32 48v8" stroke="#d94e72" stroke-width="4" stroke-linecap="round"/>
-          <path d="M24 56h16" stroke="#d94e72" stroke-width="4" stroke-linecap="round"/>
-        </svg>
+        <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone" aria-hidden="true">
       </button>
       <button class="nav-btn next" id="nextBtn" type="button">Next page →</button>
     </section>
@@ -72,6 +84,15 @@
       <div class="status-row">
         <div class="status-badge" id="statusBadge">Tap the mic to begin.</div>
         <div class="heard-box" id="heardBox">Your spoken words will appear here.</div>
+      </div>
+      <div class="writing-progress" aria-live="polite">
+        <div class="writing-progress-top">
+          <div class="writing-progress-title">Writing progress</div>
+          <div class="writing-progress-value" id="writingProgressValue">0%</div>
+        </div>
+        <div class="writing-progress-track" aria-label="Writing completion progress">
+          <div class="writing-progress-fill" id="writingProgressFill"></div>
+        </div>
       </div>
     </section>
 
@@ -91,15 +112,65 @@ const heardBox = document.getElementById('heardBox');
 const statusBadge = document.getElementById('statusBadge');
 const stars = [document.getElementById('star1'), document.getElementById('star2'), document.getElementById('star3')];
 const writingBoxes = Array.from(document.querySelectorAll('.write-box'));
+const writingProgressFill = document.getElementById('writingProgressFill');
+const writingProgressValue = document.getElementById('writingProgressValue');
+const chimeAudio = new Audio('../../../../assets/audio/chimes/chime.mp3');
+const cheerAudio = new Audio('../../../../assets/audio/sfx-cheer.mp3');
 let phase = 'reveal';
 let attempts = 0;
 let finished = false;
 let recognitionCounter = 0;
+let lastFilledCount = 0;
+let writingCelebrated = false;
+const writingPraise = {
+  1: 'Good Job!',
+  2: 'Amazing Job!',
+  3: 'Wow! Keep going',
+  4: 'Good Job!',
+  5: 'Amazing Job!',
+  6: 'Wow! you are supper smart!'
+};
+chimeAudio.preload = 'auto';
+cheerAudio.preload = 'auto';
+chimeAudio.volume = 0.7;
+cheerAudio.volume = 0.8;
 function cleanEditableText(el){ const text = (el.innerText || '').replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim(); if (!text) el.innerHTML = ''; }
 function placeCaretAtEnd(el){ el.focus(); const range = document.createRange(); range.selectNodeContents(el); range.collapse(false); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
+function getBoxValue(box){ return (box.innerText || '').replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim(); }
+function getFilledCount(){ return writingBoxes.filter(box => getBoxValue(box).length > 0).length; }
+function playTaskChime(){ try { chimeAudio.currentTime = 0; chimeAudio.play().catch(() => {}); } catch(_) {} }
+function playTaskCheer(){ try { cheerAudio.currentTime = 0; cheerAudio.play().catch(() => {}); } catch(_) {} }
+function updateWritingProgress(){
+  const filledCount = getFilledCount();
+  const percent = Math.round((filledCount / writingBoxes.length) * 100);
+  writingProgressFill.style.width = percent + '%';
+  writingProgressValue.textContent = percent + '%';
+  if (filledCount > lastFilledCount) {
+    playTaskChime();
+    const praise = writingPraise[Math.min(filledCount, writingBoxes.length)];
+    if (praise) {
+      statusBadge.textContent = praise;
+      heardBox.textContent = `Writing progress: ${filledCount} of ${writingBoxes.length} boxes filled.`;
+      if (filledCount >= 2) playTaskCheer();
+      speak(praise);
+    }
+  }
+  if (filledCount === writingBoxes.length && !writingCelebrated) {
+    writingCelebrated = true;
+    statusBadge.textContent = 'Wow! you are supper smart!';
+    heardBox.textContent = 'All the writing boxes are filled. Great work!';
+    playTaskChime();
+    playTaskCheer();
+    speak('Wow! you are supper smart!');
+  } else if (filledCount < writingBoxes.length) {
+    writingCelebrated = false;
+  }
+  lastFilledCount = filledCount;
+}
 writingBoxes.forEach((box) => {
   box.addEventListener('input', () => { if ((box.innerText || '').length > 26) { box.innerText = box.innerText.slice(0, 26); placeCaretAtEnd(box); } });
-  box.addEventListener('blur', () => cleanEditableText(box));
+  box.addEventListener('input', updateWritingProgress);
+  box.addEventListener('blur', () => { cleanEditableText(box); updateWritingProgress(); });
   box.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
 });
 function setStars(count){ stars.forEach((star, index) => star.classList.toggle('active', index < count)); }
@@ -140,14 +211,10 @@ async function handleMic(){
   }
   statusBadge.textContent = 'Speak now.';
   const heard = await listen();
-  if (!heard.supported) {
-    statusBadge.textContent = 'Speech practice is not supported in this browser.';
-    heardBox.textContent = 'Use Chrome or Edge and allow microphone access.';
-    return;
-  }
-  attempts += 1;
-  heardBox.textContent = heard.transcript || 'No speech was heard.';
-  const result = scoreTranscript(heard.transcript);
+    attempts += 1;
+    const transcript = (heard.transcript || '').trim();
+  heardBox.textContent = transcript || 'No speech was heard.';
+    const result = scoreTranscript(transcript);
   if (result.pass) {
     const awarded = attempts === 1 ? 3 : attempts === 2 ? 2 : 1;
     setStars(awarded);
@@ -176,7 +243,7 @@ function celebrate(){ const burst = document.createElement('div'); burst.setAttr
 prevBtn.addEventListener('click', () => { try { speechSynthesis.cancel(); } catch(_) {} location.href = PREVIOUS_PAGE; });
 nextBtn.addEventListener('click', () => { try { speechSynthesis.cancel(); } catch(_) {} location.href = NEXT_PAGE; });
 micBtn.addEventListener('click', handleMic);
-window.addEventListener('load', () => { try { if (window.GPTrack) window.GPTrack.start(PAGE_ID); } catch(_) {} pushProgress({ score:0, stars:0, completed:false }); });
+window.addEventListener('load', () => { try { if (window.GPTrack) window.GPTrack.start(PAGE_ID); } catch(_) {} updateWritingProgress(); pushProgress({ score:0, stars:0, completed:false }); });
 </script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>

@@ -147,6 +147,7 @@
     pointer-events:none;
     transform:translate(-50%,18%);
   }
+  .headline-line.shift-down-10{transform:translateY(25%);}
   .mascot-spot.beside-headline{
     position:absolute;
     right:5%;
@@ -269,6 +270,7 @@
   .progress-wrap{flex:1;position:relative;display:flex;flex-direction:column;gap:4px;margin-top:2px;padding-top:28px;}
 
   .progress-message{font-size:1.8rem;font-weight:800;text-align:center;min-height:1.4em;color:#1e6bff;}
+  .progress-message.smart-shift{transform:translateY(45%);}
 
   #progressMessage{display:none;}
 
@@ -502,7 +504,8 @@
   const progressMessageOverlayEl = document.getElementById('progressMessageOverlay');
   const miniPercents = [0,0,0,0];
   const miniResetFns = [];
-  let aggregateCelebrated = false;
+    let aggregateCelebrated = false;
+    let tracingMilestoneCheered = false;
   let traceCompletedNotified = false;
   let combinedProgress = 0;
   let loadIntroStarted = false;
@@ -642,11 +645,20 @@
     const total = vertexEntry ? vertexEntry.setBaseProgress(baseTotal) : baseTotal;
     if (!vertexEntry) applyCombinedProgress(total);
     if (total >= 93 && !aggregateCelebrated){
-      aggregateCelebrated = true;
-      playChime();
-      progressMessageEl.textContent = "Wow! you are super smart!";
-      if (progressMessageOverlayEl) progressMessageOverlayEl.textContent = "Wow! you are super smart!";
-      speak("Wow! you are super smart!");
+        aggregateCelebrated = true;
+        playChime();
+        try {
+          if (window.GPTracing && typeof window.GPTracing.playCheerAudio === "function") {
+            window.GPTracing.playCheerAudio();
+          }
+        } catch (_) {}
+        progressMessageEl.textContent = "Wow! you are super smart!";
+        progressMessageEl.classList.add("smart-shift");
+        if (progressMessageOverlayEl) {
+          progressMessageOverlayEl.textContent = "Wow! you are super smart!";
+          progressMessageOverlayEl.classList.add("smart-shift");
+        }
+        speak("Wow! you are super smart!");
       if (!traceCompletedNotified){
         traceCompletedNotified = true;
         window.dispatchEvent(new Event("gp:trace-complete"));
@@ -656,6 +668,9 @@
     if (total < 93){
       aggregateCelebrated = false;
       traceCompletedNotified = false;
+    }
+    if (total < 65){
+      tracingMilestoneCheered = false;
     }
   }
 
@@ -671,11 +686,15 @@
     { text: "A Circle has 0 vertices.", html: 'A <span class="red-word">Circle</span> has <span class="red-word">0 Vertices</span>.' }
   ];
 
-  clearBtn.addEventListener('click', () => {
-    resetAllMini();
-    progressMessageEl.textContent = "";
-    if (progressMessageOverlayEl) progressMessageOverlayEl.textContent = "";
-  });
+    clearBtn.addEventListener('click', () => {
+      resetAllMini();
+      progressMessageEl.textContent = "";
+      progressMessageEl.classList.remove("smart-shift");
+      if (progressMessageOverlayEl) {
+        progressMessageOverlayEl.textContent = "";
+        progressMessageOverlayEl.classList.remove("smart-shift");
+      }
+    });
 
   stopBtn.addEventListener('click', () => stopVoice());
 
@@ -725,7 +744,7 @@
     headlineToken += 1;
     const token = headlineToken;
     headlineEl.innerHTML = headlineLines
-      .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
+      .map((line, i) => `<div class="headline-line ${i < 2 ? 'shift-down-10' : ''}" data-line="${i}">${line.html}</div>`)
       .join("");
     showSpark();
     playChime();
@@ -1020,6 +1039,13 @@
     const state = { drawing:false, visited:[], samples:[], pct:0 };
     let ctxInfo = setupCanvas(canvas);
     const ctx = () => ctxInfo.ctx;
+    function playStrokeTick(){
+      try {
+        if (window.GPTracing && typeof window.GPTracing.playTraceTick === 'function') {
+          window.GPTracing.playTraceTick({ throttleMs:75, volume:0.08, frequency:980 });
+        }
+      } catch (_) {}
+    }
 
     function rebuild(){
       ctxInfo = setupCanvas(canvas);
@@ -1090,6 +1116,7 @@
       ctx().moveTo(last.x, last.y);
       ctx().lineTo(point.x, point.y);
       ctx().stroke();
+      playStrokeTick();
       last = point;
       if (mark(point)) updateAllProgress();
     }
@@ -1140,19 +1167,35 @@
   function updateAllProgress(){
     let total = 0;
     pads.forEach((pad, index) => {
-      const circleScore = Math.round((pad.getProgress() / 100) * 25);
+      const rawProgress = Math.max(0, Math.min(100, Math.round(pad.getProgress())));
+      const circleScore = Math.round((rawProgress / 100) * 25);
       total += circleScore;
       const pctEl = document.getElementById(pctIds[index]);
       const fillEl = document.getElementById(fillIds[index]);
-      if (pctEl) pctEl.textContent = circleScore + '%';
-      if (fillEl) fillEl.style.width = circleScore + '%';
+      if (pctEl) pctEl.textContent = rawProgress + '%';
+      if (fillEl) fillEl.style.width = rawProgress + '%';
     });
     if (zeroPad) total += Math.round((zeroPad.getProgress() / 100) * 20);
     total = Math.max(0, Math.min(100, total));
     if (progressPercentEl) progressPercentEl.textContent = total + '%';
     if (progressFillEl) progressFillEl.style.width = total + '%';
-    if (progressMessageEl) progressMessageEl.textContent = total >= 93 ? 'Wow! you are super smart!' : total >= 65 ? 'Great tracing! Keep going!' : '';
-    if (progressMessageOverlayEl) progressMessageOverlayEl.textContent = progressMessageEl ? progressMessageEl.textContent : '';
+    if (progressMessageEl) {
+      progressMessageEl.textContent = total >= 93 ? 'Wow! you are super smart!' : total >= 65 ? 'Great tracing! Keep going!' : '';
+      progressMessageEl.classList.toggle('smart-shift', total >= 93);
+    }
+    if (progressMessageOverlayEl) {
+      progressMessageOverlayEl.textContent = progressMessageEl ? progressMessageEl.textContent : '';
+      progressMessageOverlayEl.classList.toggle('smart-shift', total >= 93);
+    }
+    if (total >= 65 && total < 93 && !tracingMilestoneCheered) {
+      tracingMilestoneCheered = true;
+      try {
+        if (window.GPTracing && typeof window.GPTracing.playCheerAudio === 'function') {
+          window.GPTracing.playCheerAudio();
+        }
+      } catch (_) {}
+      speak('Great tracing! Keep going!');
+    }
     saveProgress(total);
   }
 

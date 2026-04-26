@@ -2788,7 +2788,7 @@
         <div class="side-badge-row">
           <span class="side-badge" id="sidebarMonth">Month 1</span>
           <span class="side-badge" id="sidebarRoleBadge">Role: Student</span>
-          <span class="side-badge" id="sidebarWeekBadge">Open Weeks: 1</span>
+          <span class="side-badge" id="sidebarWeekBadge">Open Weeks: 3</span>
         </div>
       </div>
 
@@ -3390,9 +3390,9 @@
             <div class="week-window-head">
               <div class="week-window-copy">
                 <h3 id="weekWindowTitle">Month 1 • Weeks Window</h3>
-                <p id="weekWindowIntroText">Week 1 to Week 4 are shown here. Only current and previous weeks open automatically.</p>
+                <p id="weekWindowIntroText">Week 1 to Week 4 are shown here. Weeks 1 to 3 are open right now. Week 4 is locked for now.</p>
               </div>
-              <div class="badge" id="weekWindowStatusBadge">Open Weeks: 1</div>
+              <div class="badge" id="weekWindowStatusBadge">Open Weeks: 3</div>
             </div>
             <div class="quick-grid" id="quickGrid"></div>
           </div>
@@ -3847,10 +3847,10 @@
     };
 
     const DEFAULT_PROGRESS = {
-      A: { openWeeks:2, lessons:18, quizzes:10, tracing:14 },
-      B: { openWeeks:2, lessons:10, quizzes:6, tracing:8 },
-      C: { openWeeks:2, lessons:5, quizzes:2, tracing:3 }
-    };
+      A: { openWeeks:3, lessons:18, quizzes:10, tracing:14 },
+      B: { openWeeks:3, lessons:10, quizzes:6, tracing:8 },
+      C: { openWeeks:3, lessons:5, quizzes:2, tracing:3 }
+      };
 
     const DEMO_STUDENTS = {
       "GP-A-001": { pin:"1234", level:"A", name:"Student A1" },
@@ -5390,7 +5390,7 @@
       if (realTime) {
         const fallback = getSavedProgress()[level] || DEFAULT_PROGRESS[level];
         return {
-          openWeeks: Math.min(2, Math.max(2, Math.max(realTime.openWeeks || 2, Number(fallback.openWeeks || 2)))),
+          openWeeks: Math.min(3, Math.max(3, Math.max(realTime.openWeeks || 3, Number(fallback.openWeeks || 3)))),
           lessons: realTime.lessons,
           quizzes: realTime.quizzes,
           tracing: realTime.tracing
@@ -5399,7 +5399,7 @@
       const progress = getSavedProgress()[level] || DEFAULT_PROGRESS[level];
       return {
         ...progress,
-        openWeeks: Math.min(2, Math.max(2, Number(progress.openWeeks || 2)))
+        openWeeks: Math.min(3, Math.max(3, Number(progress.openWeeks || 3)))
       };
     }
 
@@ -5476,7 +5476,7 @@
     function syncProgressUI(){
       const progress = getProgressSnapshot();
       const current = progress[selectedLevel] || DEFAULT_PROGRESS[selectedLevel];
-      const openWeeks = Math.max(2, Math.min(2, Number(current.openWeeks || 2)));
+        const openWeeks = Math.max(3, Math.min(3, Number(current.openWeeks || 3)));
 
       lessonsMeta.textContent = `${current.lessons}%`;
       quizzesMeta.textContent = `${current.quizzes}%`;
@@ -5486,9 +5486,9 @@
       quizzesFill.style.width = `${current.quizzes}%`;
       tracingFill.style.width = `${current.tracing}%`;
 
-      document.getElementById("levelAWeeks").textContent = Math.min(2, Math.max(2, Number(progress.A.openWeeks || 2)));
-      document.getElementById("levelBWeeks").textContent = Math.min(2, Math.max(2, Number(progress.B.openWeeks || 2)));
-      document.getElementById("levelCWeeks").textContent = Math.min(2, Math.max(2, Number(progress.C.openWeeks || 2)));
+      document.getElementById("levelAWeeks").textContent = Math.min(3, Math.max(3, Number(progress.A.openWeeks || 3)));
+      document.getElementById("levelBWeeks").textContent = Math.min(3, Math.max(3, Number(progress.B.openWeeks || 3)));
+      document.getElementById("levelCWeeks").textContent = Math.min(3, Math.max(3, Number(progress.C.openWeeks || 3)));
 
       summaryOpenWeeks.textContent = openWeeks;
       sidebarWeekBadge.textContent = `Open Weeks: ${openWeeks}`;
@@ -6051,9 +6051,9 @@
     }
 
     function getUnlockedWeeksForMonth(month){
-      const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
-      return safeMonth === 1 ? 2 : 0;
-    }
+        const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
+        return safeMonth === 1 ? 3 : 0;
+      }
 
     function isMonthAutoUnlocked(month){
       const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
@@ -6086,8 +6086,8 @@
         const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
         const monthIsOpen = isMonthAutoUnlocked(selectedMonth);
         weekWindowIntroText.textContent = monthIsOpen
-          ? `Week 1 to Week 4 are shown here. Only Weeks 1 and 2 are open right now. Weeks 3 and 4 will open at the appropriate time.`
-          : `This month is locked for now. Only Month 1 is currently open.`;
+          ? `Week 1 to Week 4 are shown here. Weeks 1 to 3 are open right now. Week 4 is locked for now.`
+            : `This month is locked for now. Only Month 1 is currently open.`;
       }
       if (weekWindowStatusBadge) {
         const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
@@ -6349,9 +6349,9 @@
 
     function unlockDemoProgress(){
       const map = getSavedProgress();
-      map.A = { openWeeks:4, lessons:92, quizzes:88, tracing:94 };
+      map.A = { openWeeks:3, lessons:92, quizzes:88, tracing:94 };
       map.B = { openWeeks:3, lessons:68, quizzes:60, tracing:72 };
-      map.C = { openWeeks:2, lessons:34, quizzes:28, tracing:31 };
+      map.C = { openWeeks:3, lessons:34, quizzes:28, tracing:31 };
       setSavedProgress(map);
       syncLevelUI();
       safePlay("success");

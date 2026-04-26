@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FairlyTaleWk2B</title>
+  <title>FairlyTaleWk3C</title>
 
   <style>
     * {
@@ -362,7 +362,7 @@
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
-      <div class="intro-title">FairlyTaleWk2B Intro</div>
+      <div class="intro-title">Fairly Tale Week 3C Intro</div>
       <video
         id="lbIntroVideo"
         playsinline
@@ -370,7 +370,7 @@
         muted
         preload="metadata"
       >
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776516774/FairlyTaleB_lkhrlv.mp4" type="video/mp4" />
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777183062/LCWk3FairlyTale_sgeelq.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -386,7 +386,7 @@
   <div id="pageContent">
     <div class="page-wrap">
       <div class="title-bar">
-        <h1>FairlyTaleWk2B</h1>
+        <h1>Fairly Tale Week 3C</h1>
       </div>
 
       <div class="video-shell" id="videoShell">
@@ -396,7 +396,7 @@
           playsinline
           preload="metadata"
         >
-          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776516774/FairlyTaleB_lkhrlv.mp4" type="video/mp4" />
+          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777183062/LCWk3FairlyTale_sgeelq.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
@@ -423,7 +423,7 @@
         </div>
 
         <div class="bottom-bar nav-visible" id="bottomBar">
-          <div class="lesson-name">FairlyTaleWk2B Video</div>
+          <div class="lesson-name">Fairly Tale Week 3C Video</div>
           <div class="hint">Use the buttons to move around the app</div>
         </div>
       </div>
@@ -431,11 +431,8 @@
   </div>
 
   <script>
-    /* =========================
-       EDIT THESE PAGE LINKS
-       ========================= */
-    const VIDEO_SRC = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776516774/FairlyTaleB_lkhrlv.mp4";
-    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776516774/FairlyTaleB_lkhrlv.mp4";
+    const VIDEO_SRC = "https://res.cloudinary.com/dtknykrkf/video/upload/v1777183062/LCWk3FairlyTale_sgeelq.mp4";
+    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1777183062/LCWk3FairlyTale_sgeelq.mp4";
 
     const HOME_PAGE = "../../../../index.html";
     const PREVIOUS_PAGE = "";
@@ -564,9 +561,7 @@
 
     function showTapHint() {
       tapOverlay.classList.add("show");
-      setTimeout(() => {
-        tapOverlay.classList.remove("show");
-      }, 900);
+      setTimeout(() => tapOverlay.classList.remove("show"), 900);
       showNavigation();
     }
 
@@ -638,5 +633,6 @@
 
     showNavigation();
   </script>
+  <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>

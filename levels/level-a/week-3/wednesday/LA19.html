@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style id="gpLessonPrehide">
+  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
+  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
+  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
+  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
+  @media (max-width:780px){
+    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
+  }
+</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>LA19 - Write 4 5 6</title>
+<style>
+  :root{--sky:#bfe9fb;--panel:#ffffff;--ink:#3b3b3b;--shadow:0 20px 40px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
+  *{box-sizing:border-box;}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--sky);padding:18px;}
+  .card{width:min(980px,96vw);background:var(--panel);border-radius:18px;padding:26px 26px 32px;position:relative;box-shadow:var(--shadow);overflow:hidden;}
+  .poster-area{position:relative;width:min(820px,100%);margin:10px auto 0;}
+  .poster-img{width:100%;height:auto;display:block;}
+  .convo-bubble{padding:10px 14px;border-radius:16px;font-size:1.1rem;font-weight:700;position:relative;max-width:520px;}
+  .convo-kid{background:#d8ebff;}
+  .convo-kid::after{content:"";position:absolute;right:-6px;top:16px;border-width:8px 0 8px 8px;border-style:solid;border-color:transparent transparent transparent #d8ebff;}
+  .bubble-left{position:absolute;left:8%;top:12%;z-index:2;}
+  .trace-layer{position:absolute;inset:0;pointer-events:auto;z-index:5;}
+  .trace-grid{position:absolute;left:30%;top:30%;width:65%;height:62%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2%;pointer-events:auto;}
+  .trace-canvas{position:relative;width:100%;height:100%;pointer-events:auto;touch-action:none;z-index:6;background:transparent;display:block;}
+  .controls{margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:.9rem;}
+  .progress-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .progress-bar{width:min(520px,92%);height:12px;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}  
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3cc4ff,#7dffb3);transition:width .15s ease-out;}
+  .progress-text{font-size:.9rem;font-weight:700;color:#3b3b3b;}
+  .controls-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+  button{border:none;border-radius:999px;padding:7px 18px;font-size:.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(180deg,#fffad7,#ffd86a);color:#8b5a00;box-shadow:0 4px 0 rgba(0,0,0,.2);}  
+  .mic-icon-btn{border:none;background:transparent;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;}
+  .mic-icon-btn img{width:34px;height:34px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
+  .recording{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .recording audio{max-width:min(280px,82vw);}
+  .conversation-status,.recording-status{min-height:1.4em;text-align:center;font-weight:800;color:#d62828;}
+</style>
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+</head>
+<body>
+<div class="card">
+  <div class="poster-area">
+    <img class="poster-img" src="../../../../assets/images/shapes/LA19a.png" alt="Numbers poster">
+    <div class="convo-bubble convo-kid bubble-left">Let’s write numbers.</div>
+    <div class="trace-layer">
+      <div class="trace-grid">
+        <canvas class="trace-canvas" id="trace4a"></canvas>
+        <canvas class="trace-canvas" id="trace4b"></canvas>
+        <canvas class="trace-canvas" id="trace4c"></canvas>
+        <canvas class="trace-canvas" id="trace5a"></canvas>
+        <canvas class="trace-canvas" id="trace5b"></canvas>
+        <canvas class="trace-canvas" id="trace5c"></canvas>
+        <canvas class="trace-canvas" id="trace6a"></canvas>
+        <canvas class="trace-canvas" id="trace6b"></canvas>
+        <canvas class="trace-canvas" id="trace6c"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="progress-wrap">
+      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+      <div class="controls-row">
+        <button id="prevBtn"><- Previous page</button>
+        <button id="nextBtn">Next page -></button>
+        <button id="clearBtn">Clear [X]</button>
+        <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
+          <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone">
+        </button>
+        <button id="recordBtn" type="button">Record</button>
+      </div>
+      <div class="recording">
+        <audio id="recordingPlayback" controls></audio>
+      </div>
+      <div class="recording-status" id="recordingStatus"></div>
+      <div class="conversation-status" id="conversationStatus"></div>
+    </div>
+  </div>
+<script src="../../../../shared/js/storage.js"></script>
+<script src="../../../../shared/js/progress.js"></script>
+<script src="../../../../shared/js/tracing.js"></script>
+<script>
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const micIconBtn = document.getElementById('micIconBtn');
+  const recordBtn = document.getElementById('recordBtn');
+  const recordingPlayback = document.getElementById('recordingPlayback');
+  const recordingStatus = document.getElementById('recordingStatus');
+  const conversationStatus = document.getElementById('conversationStatus');
+  const posterImg = document.querySelector('.poster-img');
+  const bubbleLine = document.querySelector('.convo-bubble');
+  const progressPercentEl = document.getElementById('progressPercent');
+  const progressFillEl = document.getElementById('progressFill');
+  const tracePercents = new Array(9).fill(0);
+  const traceResets = [];
+  let traceCelebrated = false;
+  let lastTraceSound = 0;
+  let micPhase = 'reveal';
+  let micBusy = false;
+  function getScoredTracePercents(){ return tracePercents.slice(0, 6); }
+  let recorder = null;
+  let recordedChunks = [];
+  window.__GP_REQUIRE_INTRO_AUDIO__ = true;
+  if (bubbleLine) bubbleLine.classList.remove('show');
+
+  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+  chimeAudio.preload = "auto";
+  function playChime(){ try{ const s=chimeAudio.cloneNode(true); s.play().catch(()=>{});}catch(e){} }
+  function playCheer(){ try{ window.GPTracing?.playCheerAudio?.(); }catch(_e){} }
+  function speak(text){ if(!('speechSynthesis' in window)) return; const u=new SpeechSynthesisUtterance(text); u.rate=1;u.pitch=1.05;window.speechSynthesis.speak(u);}  
+
+  function updateTotal(){
+    const scoredPercents = getScoredTracePercents();
+    const raw = scoredPercents.reduce((a,b)=>a+b,0)/Math.max(1, scoredPercents.length);
+    const allDone = scoredPercents.every(p=>p>=90);
+    const total = Math.round(raw);
+    progressPercentEl.textContent = total + "%";
+    progressFillEl.style.width = total + "%";
+    if (typeof window.__gpRealtimeSaveLA19 === "function") {
+      window.__gpRealtimeSaveLA19(total);
+    }
+    if(allDone && !traceCelebrated){ traceCelebrated=true; playChime(); playCheer(); speak("Wow! great job!"); }
+    if(!allDone){ traceCelebrated=false; }
+  }
+  function setupTrace(id, points, index){
+    const reset = window.GPTracing.createPathTracePad({
+      canvasId: id,
+      getPoints: () => points,
+      lineWidth: 13,
+      threshold: 26,
+      posterImg,
+      onProgress(pct){
+        tracePercents[index] = pct;
+        updateTotal();
+      },
+      onTick(){
+        const now = performance.now();
+        if(now-lastTraceSound>120){ lastTraceSound=now; window.GPTracing.playTraceTick({ throttleMs: 120 }); }
+      }
+    });
+    traceResets.push(() => {
+      if (typeof reset === "function") reset();
+      tracePercents[index] = 0;
+      updateTotal();
+    });
+  }
+
+  clearBtn.addEventListener('click', ()=>{ traceResets.forEach(fn=>fn()); });
+  function setConversationStatus(text){
+    if (conversationStatus) conversationStatus.textContent = text || '';
+  }
+  function speakMic(text, onDone){
+    if (window.GPTracing?.speakText) {
+      window.GPTracing.speakText(text, { rate: 0.94, pitch: 1.08, onEnd: onDone });
+      return;
+    }
+    if (typeof onDone === 'function') onDone();
+  }
+  async function runMicFlow(){
+    if (!bubbleLine || micBusy) return;
+    await window.GPTracing?.prepareMicSupport?.().catch(() => {});
+    const expected = "Let's write numbers.";
+    if (micPhase === 'reveal') {
+      bubbleLine.classList.add('show');
+      setConversationStatus(expected);
+      speakMic(expected);
+      micPhase = 'repeat';
+      return;
+    }
+    micBusy = true;
+    setConversationStatus('Repeat after me.');
+    speakMic('Repeat after me.', () => {
+      window.GPTracing?.listenForRepeat?.(expected, (pct) => {
+        micBusy = false;
+        if (pct >= 50) {
+          setConversationStatus('Great job!');
+          speakMic('Great job!');
+          return;
+        }
+        setConversationStatus('Sorry, try again!');
+        speakMic('Sorry, try again!');
+      });
+    });
+  }
+  async function toggleRecording(){
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      if (recordingStatus) recordingStatus.textContent = 'Recording is not available on this device.';
+      return;
+    }
+    if (recorder && recorder.state === 'recording') {
+      recorder.stop();
+      return;
+    }
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordedChunks = [];
+      recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: recorder.mimeType || 'audio/webm' });
+        recordingPlayback.src = URL.createObjectURL(blob);
+        if (recordingStatus) recordingStatus.textContent = 'Recording saved.';
+        recordBtn.textContent = 'Record';
+        stream.getTracks().forEach((track) => track.stop());
+      };
+      recorder.start();
+      if (recordingStatus) recordingStatus.textContent = 'Recording...';
+      recordBtn.textContent = 'Stop';
+    }catch(_e){
+      if (recordingStatus) recordingStatus.textContent = 'Microphone permission is needed to record.';
+    }
+  }
+  if (micIconBtn) {
+    micIconBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      runMicFlow();
+    });
+  }
+  if (recordBtn) {
+    recordBtn.addEventListener('click', () => { toggleRecording(); });
+  }
+  prevBtn.addEventListener('click', ()=>{ window.location.href='LA18.html'; });
+  nextBtn.addEventListener('click', ()=>{ window.location.href='../thursday/FairlyTaleWk3A.html'; });
+
+  const traceConfigs = [
+    { id:"trace4a", type:"4" }, { id:"trace4b", type:"4" }, { id:"trace4c", type:"4" },
+    { id:"trace5a", type:"5" }, { id:"trace5b", type:"5" }, { id:"trace5c", type:"5" },
+    { id:"trace6a", type:"6" }, { id:"trace6b", type:"6" }, { id:"trace6c", type:"6" }
+  ];
+  traceConfigs.forEach((cfg, idx) => setupTrace(cfg.id, window.GPTracing.getDigitTraceGroups(cfg.type), idx));
+</script>
+<script src="../../../../activity-standardizer.js"></script>
+<script type="module">
+  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+  let realtimeSaveTimer = null;
+  window.__gpRealtimeSaveLA19 = function(score){
+    if (typeof window.finishAndSave !== "function") return;
+    if (realtimeSaveTimer) window.clearTimeout(realtimeSaveTimer);
+    realtimeSaveTimer = window.setTimeout(() => {
+      window.finishAndSave({
+        pageId: "LA19",
+        level: "A",
+        activityType: "lesson",
+        score: Math.max(0, Math.min(100, Math.round(score))),
+        stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
+      }).catch(() => {});
+    }, 250);
+  };
+  window.GPProgress.installTracker({
+    saveActivityResult,
+    markLoginPing,
+    defaultPageId: "LA19",
+    defaultLevel: "A",
+    defaultActivityType: "lesson",
+    defaultScore: 100,
+    defaultStars: 1,
+    defaultSkills: {
+      reading: 1,
+      writing: 0,
+      speaking: 1,
+      listening: 1
+    }
+  });
+
+  function getStudentSession(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function inferProgressMeta(payload){
+    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
+    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+    const level = (payload && payload.level)
+      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
+    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
+    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
+    const month = payload && payload.month != null ? Number(payload.month) : 1;
+    return {
+      pageId,
+      file,
+      level,
+      week: Number.isFinite(week) && week > 0 ? week : 1,
+      month: Number.isFinite(month) && month > 0 ? month : 1
+    };
+  }
+
+  function getActivityStore(){
+    try{
+      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function setActivityStore(store){
+    try{
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
+    }catch(e){}
+  }
+
+  function saveLocalActivityFallback(payload){
+    const session = getStudentSession() || {};
+    const meta = inferProgressMeta(payload || {});
+    const score = payload && typeof payload.score === "number" ? payload.score : 0;
+    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+    const tracing = payload && typeof payload.tracing === "number"
+      ? payload.tracing
+      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+    const entry = {
+      pageId: meta.pageId,
+      file: meta.file,
+      level: meta.level,
+      type,
+      activityType: (payload && payload.activityType) || type,
+      score,
+      stars,
+      skills: payload && payload.skills ? payload.skills : {},
+      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
+      tracing,
+      week: meta.week,
+      month: meta.month,
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
+      savedAt: new Date().toISOString(),
+      ts: Date.now()
+    };
+    const store = getActivityStore();
+    store[meta.pageId] = {
+      ...(store[meta.pageId] || {}),
+      ...entry
+    };
+    setActivityStore(store);
+    try{
+      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
+    }catch(e){}
+    return store[meta.pageId];
+  }
+
+  async function finishAndSave(payload){
+    const session = getStudentSession() || {};
+    const fullPayload = {
+      ...(payload || {}),
+      classId: (payload && payload.classId) || session.classId || null,
+      studentId: (payload && payload.studentId) || session.studentId || null,
+      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
+    };
+  
+    saveLocalActivityFallback(fullPayload);
+  
+    if (typeof window.finishActivity === "function") {
+      try{
+        await window.finishActivity(fullPayload);
+      }catch(err){
+        console.warn("finishActivity failed, local fallback already saved:", err);
+      }
+    }
+  
+    return fullPayload;
+  }
+
+  window.finishAndSave = finishAndSave;
+</script>
+<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

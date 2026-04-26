@@ -129,6 +129,70 @@
     @media (max-width:520px){.chef-bubble{left:3.5%;top:15%;max-width:46%;}.boy-bubble{right:3.5%;top:62%;max-width:46%;}.trace-grid{left:56.8%;top:30.6%;width:17.1%;height:59.6%;}}
     
 </style>
+
+<style id="gpStrictMicProtocolStyle">
+  .gp-mic-hidden{display:none !important;}
+  .gp-mic-active-line{
+    outline:4px solid rgba(255,215,0,.65) !important;
+    box-shadow:0 0 0 7px rgba(255,214,0,.18), 0 0 22px rgba(255,105,180,.45), 0 10px 22px rgba(0,0,0,.16) !important;
+    animation:gpSparklePulse 1s ease-in-out infinite !important;
+  }
+  .gp-mic-result{
+    display:block;
+    margin-top:6px;
+    font-size:clamp(1rem,2.6vw,1.35rem);
+    line-height:1.15;
+    font-weight:1000;
+    color:#2f9f5f;
+    text-shadow:0 1px 0 rgba(255,255,255,.9);
+  }
+  .gp-mic-try{
+    display:block;
+    margin-top:5px;
+    font-size:clamp(.95rem,2.4vw,1.15rem);
+    line-height:1.15;
+    font-weight:1000;
+    color:#c62828;
+  }
+  .gp-mic-stars{
+    display:block;
+    margin-top:6px;
+    min-height:1.2em;
+    font-size:clamp(1.3rem,3.4vw,2rem);
+    line-height:1;
+    letter-spacing:3px;
+    color:#ffd24a;
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);
+  }
+  .gp-mic-status-card{
+    margin:10px auto 0;
+    width:min(680px,94%);
+    border:2px dashed rgba(108,75,191,.35);
+    border-radius:16px;
+    padding:10px 12px;
+    background:linear-gradient(180deg,#fff,#fff9e8);
+    text-align:center;
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+    box-shadow:0 8px 18px rgba(0,0,0,.10);
+  }
+  .gp-mic-status-line{
+    font-size:clamp(1.05rem,2.8vw,1.45rem);
+    font-weight:1000;
+    color:#4b2fb8;
+  }
+  @keyframes gpSparklePulse{
+    0%,100%{filter:brightness(1);transform:scale(1);}
+    50%{filter:brightness(1.14);transform:scale(1.018);}
+  }
+  #introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay,.intro-overlay,.video-intro,.intro-video,
+  video[data-intro], video.gp-intro-video, video.intro-video, .gpUnifiedIntro, .gp-intro-video-wrap{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+</style>
+
 </head>
 <body>
 
@@ -562,16 +626,8 @@
 
     const heard = await listenForSpeech();
 
-    if (!heard.supported) {
-      micState.busy = false;
-      updateMicButtonState();
-      setStatus("Speech check is not supported on this browser.");
-      setRepeatResult(micState.index, "Speech check is not supported on this browser.", "#b06a00");
-      return;
-    }
-
-    const tryNo = ++micState.attempts[micState.index];
-    const transcript = (heard.transcript || "").trim();
+      const tryNo = ++micState.attempts[micState.index];
+      const transcript = (heard.transcript || "").trim();
     const pct = matchPercent(text, transcript);
     const ok = pct >= 50 && importantEnough(text, transcript);
 
@@ -901,7 +957,5 @@
 </script>
 
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
-<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
 </html>

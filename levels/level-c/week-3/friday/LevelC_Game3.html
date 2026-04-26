@@ -309,11 +309,17 @@ function distance(ax,ay,bx,by){
   return Math.sqrt(dx*dx+dy*dy);
 }
 
-function createPieces(){
-  // starting positions around edges
-  const starts = [
-    {x:20,y:520},{x:140,y:520},{x:260,y:520},{x:380,y:520},{x:500,y:520},{x:20,y:650},{x:140,y:650}
-  ];
+  function createPieces(){
+    // starting positions around edges
+    const starts = [
+      {x:20,y:500},
+      {x:140,y:500},
+      {x:260,y:500},
+      {x:380,y:500},
+      {x:500,y:500},
+      {x:80,y:560},
+      {x:220,y:560}
+    ];
   pieces.forEach((p,i)=>{
     const el=document.createElement("div");
     el.className="piece";

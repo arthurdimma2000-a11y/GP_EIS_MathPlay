@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
-
+<head>
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -11,187 +10,37 @@
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
 </style>
-
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Level C15 - Hexagons and Octagons</title>
 <link rel="stylesheet" href="../../../../shared/css/base.css" />
 <link rel="stylesheet" href="../../../../shared/css/layout.css" />
 <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
-
 <style>
-  :root{
-    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-    --shadow:0 20px 40px rgba(0,0,0,.12);
-    --hex:#e53935;
-    --hexGlow:rgba(229,57,53,.30);
-    --hexGlowSoft:rgba(229,57,53,.16);
-    --oct:#1e88e5;
-    --octGlow:rgba(30,136,229,.30);
-    --octGlowSoft:rgba(30,136,229,.16);
-    --green:#38d27a;
-    --gold:#ffd24a;
-    --ink:#1b4e74;
-  }
-
-  *{box-sizing:border-box}
-
-  body{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#e7f7e7;
-    padding:6px;
-    margin:0;
-  }
-
-  .app{
-    width:min(1280px,99vw);
-    min-height:calc(100vh - 12px);
-    border-radius:18px;
-    padding:12px;
-    display:flex;
-    flex-direction:column;
-  }
-
-  .wrap{
-    position:relative;
-    width:100%;
-    max-width:1120px;
-    margin:0 auto;
-    aspect-ratio:563/748;
-    user-select:none;
-    -webkit-user-select:none;
-    overflow:hidden;
-    border-radius:16px;
-    box-shadow:0 16px 30px rgba(0,0,0,.10);
-  }
-
-  #poster{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    display:block;
-    pointer-events:none;
-  }
-
-  #ink,
-  #fx{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    display:block;
-    background:transparent;
-    touch-action:none;
-    cursor:crosshair;
-  }
-
-  #ink{z-index:2}
-  #fx{z-index:3; pointer-events:none}
-
-  .progress-wrap{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:7px;
-    width:100%;
-    max-width:1120px;
-    margin:10px auto 0;
-    background:rgba(255,255,255,.72);
-    border-radius:20px;
-    padding:12px 10px 10px;
-    box-shadow:0 12px 24px rgba(0,0,0,.06);
-  }
-
-  .progress-bar{
-    width:min(560px,92%);
-    height:16px;
-    border-radius:999px;
-    background:#e7efff;
-    overflow:hidden;
-    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
-  }
-
-  .progress-fill{
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,var(--hex),var(--oct),var(--green));
-    transition:width .15s ease-out;
-  }
-
-  .progress-text{
-    font-weight:900;
-    color:#15507d;
-    font-size:1rem;
-  }
-
-  .progress-message,
-  .status-line{
-    text-align:center;
-    font-weight:900;
-    min-height:1.35em;
-  }
-
-  .progress-message{color:#2e9b2e}
-  .status-line{color:#1f7a3a;margin-top:8px}
-
-  .controls{
-    margin-top:12px;
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
-    width:100%;
-    max-width:1120px;
-    margin-left:auto;
-    margin-right:auto;
-  }
-
-  .btn{
-    border:none;
-    border-radius:999px;
-    padding:10px 15px;
-    font-size:.98rem;
-    font-weight:800;
-    cursor:pointer;
-    box-shadow:0 4px 0 rgba(0,0,0,.15);
-    background:#ff8a5b;
-    color:#fff;
-    transition:transform .12s ease, filter .12s ease;
-  }
-
-  .btn:hover{transform:translateY(-1px); filter:brightness(1.03)}
-
-  .mic-icon-btn{
-    border:none;
-    background:#fff;
-    border-radius:50%;
-    width:48px;
-    height:48px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    box-shadow:0 8px 18px rgba(0,0,0,.12);
-    cursor:pointer;
-  }
-
-  .mic-icon-btn img{
-    width:32px;
-    height:32px;
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
-  }
+  :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--shadow:0 20px 40px rgba(0,0,0,.12);}
+  body{display:flex;align-items:center;justify-content:center;background:#e7f7e7;padding:6px;}
+  .app{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:12px;display:flex;flex-direction:column;}
+  .wrap{position:relative;width:100%;max-width:1120px;margin:0 auto;aspect-ratio:563/748;user-select:none;-webkit-user-select:none;overflow:hidden;border-radius:12px;}
+  #poster{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;}
+  #ink{position:absolute;inset:0;width:100%;height:100%;display:block;background:transparent;touch-action:none;cursor:crosshair;}
+  .progress-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:1120px;margin:10px auto 0;}
+  .progress-bar{width:min(560px,92%);height:14px;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#49c6ff,#7dffb3);transition:width .15s ease-out;}
+  .progress-text{font-weight:800;color:#15507d;}
+  .progress-message,.status-line{text-align:center;font-weight:800;min-height:1.3em;}
+  .progress-message{color:#2e9b2e;}
+  .status-line{color:#1f7a3a;margin-top:8px;}
+  .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;width:100%;max-width:1120px;margin-left:auto;margin-right:auto;}
+  .btn{border:none;border-radius:999px;padding:10px 14px;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
+  .mic-icon-btn img{width:32px;height:32px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
 </style>
-
+<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
 <body>
   <div class="app">
     <div class="wrap" id="wrap">
       <img id="poster" src="../../../../assets/images/shapes/C15cc.png" alt="Shape Sides Week 3" />
       <canvas id="ink"></canvas>
-      <canvas id="fx"></canvas>
     </div>
 
     <div class="progress-wrap">
@@ -216,10 +65,8 @@
 (() => {
   const wrap = document.getElementById("wrap");
   const canvas = document.getElementById("ink");
-  const fxCanvas = document.getElementById("fx");
   const img = document.getElementById("poster");
   const ctx = canvas.getContext("2d");
-  const fx = fxCanvas.getContext("2d");
 
   const prevBtn = document.getElementById("prevBtn");
   const nextBtn = document.getElementById("nextBtn");
@@ -231,75 +78,36 @@
   const progressMessageEl = document.getElementById("progressMessage");
   const statusLine = document.getElementById("statusLine");
 
-  /* Compact 6-dot hexagons placed fully inside each left-side box */
   const HEX_DOTS = [
-    [0.205,0.262],[0.297,0.262],[0.343,0.344],[0.297,0.426],[0.205,0.426],[0.159,0.344],
-    [0.205,0.502],[0.297,0.502],[0.343,0.584],[0.297,0.666],[0.205,0.666],[0.159,0.584],
-    [0.205,0.742],[0.297,0.742],[0.343,0.824],[0.297,0.906],[0.205,0.906],[0.159,0.824]
+    [0.21,0.25],[0.34,0.25],[0.41,0.35],[0.34,0.45],[0.21,0.45],[0.14,0.35],
+    [0.21,0.49],[0.34,0.49],[0.41,0.59],[0.34,0.69],[0.21,0.69],[0.14,0.59],
+    [0.21,0.73],[0.34,0.73],[0.41,0.83],[0.34,0.93],[0.21,0.93],[0.14,0.83]
   ];
 
-  /* Compact 8-dot octagons placed fully inside each right-side box */
   const OCT_DOTS = [
-    [0.654,0.258],[0.730,0.258],[0.782,0.310],[0.782,0.386],[0.730,0.438],[0.654,0.438],[0.602,0.386],[0.602,0.310],
-    [0.654,0.498],[0.730,0.498],[0.782,0.550],[0.782,0.626],[0.730,0.678],[0.654,0.678],[0.602,0.626],[0.602,0.550],
-    [0.654,0.738],[0.730,0.738],[0.782,0.790],[0.782,0.866],[0.730,0.918],[0.654,0.918],[0.602,0.866],[0.602,0.790]
+    [0.66,0.25],[0.77,0.25],[0.85,0.32],[0.85,0.42],[0.77,0.49],[0.66,0.49],[0.58,0.42],[0.58,0.32],
+    [0.66,0.49],[0.77,0.49],[0.85,0.56],[0.85,0.66],[0.77,0.73],[0.66,0.73],[0.58,0.66],[0.58,0.56],
+    [0.66,0.73],[0.77,0.73],[0.85,0.80],[0.85,0.90],[0.77,0.97],[0.66,0.97],[0.58,0.90],[0.58,0.80]
   ];
 
-  const ALL_DOTS = HEX_DOTS.concat(OCT_DOTS);
-  const REQUIRED_EDGES = new Set();
-  const ADJACENCY = new Map();
-
-  function getGroup(index){
-    return index < HEX_DOTS.length ? "hex" : "oct";
-  }
-
-  function groupColor(group){
-    return group === "hex"
-      ? getComputedStyle(document.documentElement).getPropertyValue('--hex').trim()
-      : getComputedStyle(document.documentElement).getPropertyValue('--oct').trim();
-  }
-
-  function groupGlow(group){
-    return group === "hex"
-      ? getComputedStyle(document.documentElement).getPropertyValue('--hexGlow').trim()
-      : getComputedStyle(document.documentElement).getPropertyValue('--octGlow').trim();
-  }
-
-  function groupSoftGlow(group){
-    return group === "hex"
-      ? getComputedStyle(document.documentElement).getPropertyValue('--hexGlowSoft').trim()
-      : getComputedStyle(document.documentElement).getPropertyValue('--octGlowSoft').trim();
-  }
-
-  [[0, HEX_DOTS.length, 6], [HEX_DOTS.length, ALL_DOTS.length, 8]].forEach(([start, end, size]) => {
-    for (let offset = start; offset < end; offset += size) {
-      for (let i = 0; i < size; i += 1) {
-        const a = offset + i;
-        const b = offset + ((i + 1) % size);
-        const key = a < b ? `${a}-${b}` : `${b}-${a}`;
-        REQUIRED_EDGES.add(key);
-
-        if (!ADJACENCY.has(a)) ADJACENCY.set(a, new Set());
-        if (!ADJACENCY.has(b)) ADJACENCY.set(b, new Set());
-        ADJACENCY.get(a).add(b);
-        ADJACENCY.get(b).add(a);
+    const ALL_DOTS = HEX_DOTS.concat(OCT_DOTS);
+    const REQUIRED_EDGES = new Set();
+    [[0, HEX_DOTS.length, 6], [HEX_DOTS.length, ALL_DOTS.length, 8]].forEach(([start, end, size]) => {
+      for (let offset = start; offset < end; offset += size) {
+        for (let i = 0; i < size; i += 1) {
+          const a = offset + i;
+          const b = offset + ((i + 1) % size);
+          REQUIRED_EDGES.add(a < b ? `${a}-${b}` : `${b}-${a}`);
+        }
       }
-    }
-  });
-
-  const strokes = [];
-  let isDown = false;
-  let startDot = null;
-  let hoverPt = null;
-  let hoverDot = null;
-  let traceSolved = false;
-  let lastTickAt = 0;
+    });
+    const strokes = [];
+    let isDown = false;
+    let startDot = null;
+    let hoverPt = null;
+    let traceSolved = false;
 
   function speak(text){
-    if (window.GPTracing?.speakText) {
-      window.GPTracing.speakText(text, { rate: 0.94, pitch: 1.08 });
-      return;
-    }
     if(!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
@@ -311,62 +119,15 @@
 
   const progressMilestones = new Set();
 
-  function playConnectTick(group = "hex"){
-    const now = performance.now();
-    if (now - lastTickAt < 80) return;
-    lastTickAt = now;
-
+  function playTraceTick(){
     if (window.GPTracing?.playTraceTick) {
-      window.GPTracing.playTraceTick({
-        throttleMs: 80,
-        frequency: group === "hex" ? 860 : 960,
-        endFrequency: group === "hex" ? 620 : 700,
-        volume: 0.06
-      });
+      window.GPTracing.playTraceTick({ throttleMs: 90 });
       return;
     }
-
-    try{
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if(!AudioCtx) return;
-      const ac = new AudioCtx();
-      const o = ac.createOscillator();
-      const g = ac.createGain();
-      o.type = "triangle";
-      o.frequency.setValueAtTime(group === "hex" ? 840 : 980, ac.currentTime);
-      o.frequency.exponentialRampToValueAtTime(group === "hex" ? 620 : 720, ac.currentTime + 0.10);
-      g.gain.setValueAtTime(0.0001, ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.08, ac.currentTime + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.12);
-      o.connect(g).connect(ac.destination);
-      o.start();
-      o.stop(ac.currentTime + 0.13);
-      o.onended = () => ac.close();
-    }catch(_e){}
-  }
-
-  function playWrongTap(){
-    try{
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if(!AudioCtx) return;
-      const ac = new AudioCtx();
-      const o = ac.createOscillator();
-      const g = ac.createGain();
-      o.type = "square";
-      o.frequency.setValueAtTime(210, ac.currentTime);
-      o.frequency.exponentialRampToValueAtTime(160, ac.currentTime + 0.12);
-      g.gain.setValueAtTime(0.0001, ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.05, ac.currentTime + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.14);
-      o.connect(g).connect(ac.destination);
-      o.start();
-      o.stop(ac.currentTime + 0.15);
-      o.onended = () => ac.close();
-    }catch(_e){}
   }
 
   function playChime(){
-    try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_e){}
+    try{ new Audio('../../../../assets/audio/chimes/chime.mp3.mp3').play().catch(()=>{}); }catch(_e){}
   }
 
   function playCelebration(){
@@ -404,16 +165,11 @@
   function resizeCanvas() {
     const rect = wrap.getBoundingClientRect();
     const dpr = Math.max(1, window.devicePixelRatio || 1);
-
-    [canvas, fxCanvas].forEach(c => {
-      c.width = Math.round(rect.width * dpr);
-      c.height = Math.round(rect.height * dpr);
-      c.style.width = rect.width + "px";
-      c.style.height = rect.height + "px";
-    });
-
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    canvas.style.width = rect.width + "px";
+    canvas.style.height = rect.height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    fx.setTransform(dpr, 0, 0, dpr, 0, 0);
     redraw();
   }
 
@@ -422,44 +178,41 @@
     return { x: nx * rect.width, y: ny * rect.height };
   }
 
-  function edgeKey(a, b) {
-    return a < b ? `${a}-${b}` : `${b}-${a}`;
-  }
-
-  function saveTraceProgress() {
-    const score = Math.round((strokes.length / REQUIRED_EDGES.size) * 100);
-    updateProgressUI(score);
-    maybeCelebrateProgress(score);
-
-    if (typeof window.finishAndSave !== 'function') return score;
-
-    window.finishAndSave({
-      pageId: 'LevelC15',
-      level: 'C',
-      activityType: 'tracing',
-      score,
-      tracing: score,
-      stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
-      skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
-    }).catch(() => {});
-
-    return score;
-  }
-
-  function nearestDot(px, py, radiusPx) {
-    let best = null;
-    let bestD2 = radiusPx * radiusPx;
-    for (let index = 0; index < ALL_DOTS.length; index += 1) {
-      const p = dotToPx(ALL_DOTS[index]);
-      const dx = p.x - px;
-      const dy = p.y - py;
-      const d2 = dx*dx + dy*dy;
-      if (d2 <= bestD2) {
-        bestD2 = d2;
-        best = { pt: p, index };
-      }
+    function edgeKey(a, b) {
+      return a < b ? `${a}-${b}` : `${b}-${a}`;
     }
-    return best;
+
+    function saveTraceProgress() {
+      const score = Math.round((strokes.length / REQUIRED_EDGES.size) * 100);
+      updateProgressUI(score);
+      maybeCelebrateProgress(score);
+      if (typeof window.finishAndSave !== 'function') return score;
+      window.finishAndSave({
+        pageId: 'LevelC15',
+        level: 'C',
+        activityType: 'tracing',
+        score,
+        tracing: score,
+        stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
+        skills: { reading: 1, writing: 1, speaking: 0, listening: 1 }
+      }).catch(() => {});
+      return score;
+    }
+
+    function nearestDot(px, py, radiusPx) {
+      let best = null;
+      let bestD2 = radiusPx * radiusPx;
+      for (let index = 0; index < ALL_DOTS.length; index += 1) {
+        const p = dotToPx(ALL_DOTS[index]);
+        const dx = p.x - px;
+        const dy = p.y - py;
+        const d2 = dx*dx + dy*dy;
+        if (d2 <= bestD2) {
+          bestD2 = d2;
+          best = { pt: p, index };
+        }
+      }
+      return best;
   }
 
   function getLocalPoint(e) {
@@ -467,189 +220,68 @@
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  function drawCompletedLines(){
-    ctx.clearRect(0, 0, wrap.clientWidth, wrap.clientHeight);
+  function redraw() {
+    const rect = wrap.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "rgba(20,20,20,0.8)";
 
     for (const s of strokes) {
-      const color = groupColor(s.group);
-      const glow = groupGlow(s.group);
-      const soft = groupSoftGlow(s.group);
-
       ctx.beginPath();
-      ctx.lineWidth = 18;
-      ctx.strokeStyle = soft;
-      ctx.moveTo(s.a.x, s.a.y);
-      ctx.lineTo(s.b.x, s.b.y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.lineWidth = 10;
-      ctx.strokeStyle = glow;
-      ctx.moveTo(s.a.x, s.a.y);
-      ctx.lineTo(s.b.x, s.b.y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.lineWidth = 6;
-      ctx.strokeStyle = color;
-      ctx.moveTo(s.a.x, s.a.y);
-      ctx.lineTo(s.b.x, s.b.y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = "rgba(255,255,255,0.72)";
       ctx.moveTo(s.a.x, s.a.y);
       ctx.lineTo(s.b.x, s.b.y);
       ctx.stroke();
     }
-  }
 
-  function drawDotGuides(){
-    fx.clearRect(0, 0, wrap.clientWidth, wrap.clientHeight);
-
-    for (let index = 0; index < ALL_DOTS.length; index++) {
-      const p = dotToPx(ALL_DOTS[index]);
-      const group = getGroup(index);
-      const color = groupColor(group);
-      const glow = groupGlow(group);
-      const soft = groupSoftGlow(group);
-
-      const isStart = startDot && startDot.index === index;
-      const isHover = hoverDot && hoverDot.index === index;
-      const isNeighbor = startDot && ADJACENCY.get(startDot.index)?.has(index);
-
-      fx.beginPath();
-      fx.arc(p.x, p.y, isStart ? 14 : 10.5, 0, Math.PI * 2);
-      fx.fillStyle = isStart ? "rgba(255,210,74,0.98)" : isHover ? color : "rgba(255,255,255,0.96)";
-      fx.fill();
-
-      fx.beginPath();
-      fx.arc(p.x, p.y, isStart ? 24 : 20, 0, Math.PI * 2);
-      fx.lineWidth = isNeighbor ? 4.5 : 3.5;
-      fx.strokeStyle = isStart ? "rgba(255,170,0,0.98)" : color;
-      fx.globalAlpha = isNeighbor ? 1 : 0.92;
-      fx.stroke();
-      fx.globalAlpha = 1;
-
-      fx.beginPath();
-      fx.arc(p.x, p.y, isStart ? 30 : 25, 0, Math.PI * 2);
-      fx.lineWidth = 7;
-      fx.strokeStyle = soft;
-      fx.stroke();
-
-      if (isNeighbor) {
-        fx.beginPath();
-        fx.arc(p.x, p.y, 28, 0, Math.PI * 2);
-        fx.lineWidth = 3;
-        fx.strokeStyle = glow;
-        fx.stroke();
+      if (isDown && startDot && hoverPt) {
+        ctx.strokeStyle = "rgba(20,20,20,0.35)";
+        ctx.beginPath();
+        ctx.moveTo(startDot.pt.x, startDot.pt.y);
+        ctx.lineTo(hoverPt.x, hoverPt.y);
+        ctx.stroke();
       }
-    }
-  }
-
-  function drawPreview(){
-    if (!(isDown && startDot && hoverPt)) return;
-
-    const startGroup = getGroup(startDot.index);
-    const color = groupColor(startGroup);
-    const glow = groupGlow(startGroup);
-    const soft = groupSoftGlow(startGroup);
-    const endTarget = hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index) ? hoverDot.pt : hoverPt;
-
-    fx.beginPath();
-    fx.lineWidth = 16;
-    fx.strokeStyle = soft;
-    fx.moveTo(startDot.pt.x, startDot.pt.y);
-    fx.lineTo(endTarget.x, endTarget.y);
-    fx.stroke();
-
-    fx.beginPath();
-    fx.lineWidth = 8;
-    fx.strokeStyle = hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index) ? color : "rgba(120,120,120,0.55)";
-    fx.setLineDash([10,8]);
-    fx.moveTo(startDot.pt.x, startDot.pt.y);
-    fx.lineTo(endTarget.x, endTarget.y);
-    fx.stroke();
-    fx.setLineDash([]);
-
-    fx.beginPath();
-    fx.lineWidth = 4;
-    fx.strokeStyle = hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index) ? glow : "rgba(150,150,150,0.25)";
-    fx.moveTo(startDot.pt.x, startDot.pt.y);
-    fx.lineTo(endTarget.x, endTarget.y);
-    fx.stroke();
-  }
-
-  function redraw() {
-    drawCompletedLines();
-    drawDotGuides();
-    drawPreview();
   }
 
   function onDown(e) {
-    const p = getLocalPoint(e);
-    const near = nearestDot(p.x, p.y, 28);
-    if (!near) return;
-
-    isDown = true;
-    startDot = near;
+      const p = getLocalPoint(e);
+      const near = nearestDot(p.x, p.y, 24);
+      if (!near) return;
+      isDown = true;
+      startDot = near;
     hoverPt = p;
-    hoverDot = near;
-    canvas.setPointerCapture?.(e.pointerId);
-    playConnectTick(getGroup(near.index));
+    canvas.setPointerCapture(e.pointerId);
     redraw();
   }
 
   function onMove(e) {
-    const p = getLocalPoint(e);
-    hoverPt = p;
-    hoverDot = nearestDot(p.x, p.y, 32);
-
-    if (isDown && startDot && hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index)) {
-      playConnectTick(getGroup(startDot.index));
-    }
-
+    if (!isDown) return;
+    hoverPt = getLocalPoint(e);
     redraw();
   }
 
-  function onUp(e) {
-    if (!isDown) return;
-
-    const p = getLocalPoint(e);
-    const endDot = nearestDot(p.x, p.y, 32);
-
-    if (endDot && startDot && endDot.index !== startDot.index) {
-      const key = edgeKey(startDot.index, endDot.index);
-      const sameGroup = getGroup(startDot.index) === getGroup(endDot.index);
-
-      if (REQUIRED_EDGES.has(key) && sameGroup) {
-        if (!strokes.some((stroke) => stroke.key === key)) {
-          const group = getGroup(startDot.index);
-          strokes.push({ a: startDot.pt, b: endDot.pt, key, group });
-          playConnectTick(group);
-          saveTraceProgress();
-
+    function onUp(e) {
+      if (!isDown) return;
+      const p = getLocalPoint(e);
+      const endDot = nearestDot(p.x, p.y, 28);
+      if (endDot && startDot && endDot.index !== startDot.index) {
+        const key = edgeKey(startDot.index, endDot.index);
+        if (REQUIRED_EDGES.has(key) && !strokes.some((stroke) => stroke.key === key)) {
+          strokes.push({ a: startDot.pt, b: endDot.pt, key });
+          playTraceTick();
+          const score = saveTraceProgress();
           if (!traceSolved && strokes.length === REQUIRED_EDGES.size) {
             traceSolved = true;
             statusLine.textContent = "Excellent! You completed all of the shapes.";
             playCelebration();
-            speak("Excellent! You completed all of the shapes.");
+            speak('Excellent! You completed all of the shapes.');
           }
-        } else {
-          playWrongTap();
         }
-      } else {
-        playWrongTap();
       }
-    }
-
-    isDown = false;
-    startDot = null;
+      isDown = false;
+      startDot = null;
     hoverPt = null;
-    hoverDot = null;
     redraw();
   }
 
@@ -657,64 +289,43 @@
   canvas.addEventListener("pointermove", onMove);
   canvas.addEventListener("pointerup", onUp);
   canvas.addEventListener("pointercancel", onUp);
-  canvas.addEventListener("pointerleave", () => {
-    if (!isDown) {
-      hoverDot = null;
-      hoverPt = null;
+
+    clearBtn.addEventListener("click", () => {
+      strokes.length = 0;
+      traceSolved = false;
+      progressMilestones.clear();
+      statusLine.textContent = "";
+      saveTraceProgress();
       redraw();
-    }
-  });
-
-  clearBtn.addEventListener("click", () => {
-    strokes.length = 0;
-    traceSolved = false;
-    progressMilestones.clear();
-    statusLine.textContent = "";
-    saveTraceProgress();
-    redraw();
-    speak("All lines cleared. Try again.");
-  });
-
-  undoBtn.addEventListener("click", () => {
-    strokes.pop();
-    traceSolved = false;
-    statusLine.textContent = "";
-    saveTraceProgress();
-    redraw();
-    playWrongTap();
-  });
-
-  if (micIconBtn) {
-    micIconBtn.addEventListener("click", () => {
-      speak("Join each dot to the next dot to make the red hexagons and the blue octagons.");
     });
-  }
+
+    undoBtn.addEventListener("click", () => {
+      strokes.pop();
+      traceSolved = false;
+      statusLine.textContent = "";
+      saveTraceProgress();
+      redraw();
+    });
+
+  // Mic click is handled by activity-standardizer unified protocol.
 
   prevBtn.addEventListener("click", () => { window.location.href = "LevelC14.html"; });
-  nextBtn.addEventListener("click", () => {
-      saveTraceProgress();
-    window.location.href = "../wednesday/LevelC16.html";
-  });
+  nextBtn.addEventListener("click", () => { window.location.href = "../tuesday/LevelC16.html"; });
 
   const boot = () => {
     resizeCanvas();
     updateProgressUI(0);
-    speak("Join each dot to the next dot to make the red hexagons and the blue octagons.");
   };
-
   if (img.complete) boot(); else img.addEventListener("load", boot);
   window.addEventListener("resize", resizeCanvas);
 })();
 </script>
-
 <script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
-
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-
   window.GPProgress.installTracker({
     saveActivityResult,
     markLoginPing,
@@ -729,8 +340,8 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -819,9 +430,9 @@
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-
+  
     saveLocalActivityFallback(fullPayload);
-
+  
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -829,13 +440,17 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-
+  
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
 </script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
-<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
-</html>
+</html>
+
+
+
+
+
+
