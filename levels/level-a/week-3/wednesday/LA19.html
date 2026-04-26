@@ -229,7 +229,7 @@
   if (recordBtn) {
     recordBtn.addEventListener('click', () => { toggleRecording(); });
   }
-  prevBtn.addEventListener('click', ()=>{ window.location.href='LA18.html'; });
+  prevBtn.addEventListener('click', ()=>{ window.location.href='LA15.html'; });
   nextBtn.addEventListener('click', ()=>{ window.location.href='../thursday/FairlyTaleWk3A.html'; });
 
   const traceConfigs = [
@@ -237,7 +237,24 @@
     { id:"trace5a", type:"5" }, { id:"trace5b", type:"5" }, { id:"trace5c", type:"5" },
     { id:"trace6a", type:"6" }, { id:"trace6b", type:"6" }, { id:"trace6c", type:"6" }
   ];
-  traceConfigs.forEach((cfg, idx) => setupTrace(cfg.id, window.GPTracing.getDigitTraceGroups(cfg.type), idx));
+  let tracesInitialized = false;
+  function initTracePads(){
+    if (tracesInitialized) return;
+    if (!window.GPTracing || typeof window.GPTracing.createPathTracePad !== "function" || typeof window.GPTracing.getDigitTraceGroups !== "function") {
+      window.setTimeout(initTracePads, 180);
+      return;
+    }
+    if (posterImg && !posterImg.complete) {
+      posterImg.addEventListener("load", initTracePads, { once:true });
+      return;
+    }
+    tracesInitialized = true;
+    traceConfigs.forEach((cfg, idx) => {
+      const groups = window.GPTracing.getDigitTraceGroups(cfg.type);
+      setupTrace(cfg.id, groups, idx);
+    });
+  }
+  initTracePads();
 </script>
 <script src="../../../../activity-standardizer.js"></script>
 <script type="module">

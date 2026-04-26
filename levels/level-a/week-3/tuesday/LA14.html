@@ -453,6 +453,8 @@
   let girlSequenceDone = false;
   let girlBusy = false;
   window.__GP_REQUIRE_INTRO_AUDIO__ = true;
+  window.__GP_AUTO_PAGE_OPENING_HINT__ = false;
+  let openingHintSpoken = false;
   prevBtn.addEventListener("click", () => {
     window.location.href = "../../week-2/friday/LA_Quiz2.html";
   });
@@ -475,7 +477,13 @@
     if (questionEl) questionEl.textContent = text || "";
   }
   function speakPromise(text){
-    return new Promise((resolve) => speakLine(text, resolve));
+      return new Promise((resolve) => speakLine(text, resolve));
+    }
+  function speakOpeningInstruction(){
+    if (openingHintSpoken) return;
+    openingHintSpoken = true;
+    setQuestion("Tap the girl to hear the lesson. Then tap the microphone and repeat.");
+    speakLine("Tap the girl to hear the lesson. Then tap the microphone and repeat.");
   }
   async function onGirlTap(){
     if (girlBusy) return;
@@ -503,11 +511,14 @@
   }, true);
   if (girlBtn) {
     girlBtn.addEventListener("click", (event) => {
-      event.preventDefault();
+        event.preventDefault();
       onGirlTap();
-    });
-  }
-  </script>
+      });
+    }
+  window.addEventListener("load", () => {
+    window.setTimeout(speakOpeningInstruction, 900);
+  }, { once:true });
+    </script>
 <script src="../../../../activity-standardizer.js"></script>
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";

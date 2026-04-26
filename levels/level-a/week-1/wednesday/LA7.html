@@ -877,6 +877,10 @@
   }
 
   function digitGroups(kind){
+    if (window.GPTracing && typeof window.GPTracing.getDigitTraceGroups === "function") {
+      const groups = window.GPTracing.getDigitTraceGroups(String(kind)) || [];
+      return groups.map((polyline) => (polyline || []).map((pt) => [Number(pt.x || 0), Number(pt.y || 0)]));
+    }
     const map = {
       "1":[[[0.38,0.18],[0.55,0.08],[0.55,0.9]]],
       "2":[[[0.22,0.22],[0.36,0.10],[0.62,0.12],[0.76,0.28],[0.70,0.48],[0.46,0.64],[0.24,0.86],[0.80,0.86]]],
@@ -904,6 +908,38 @@
     CONFIG.trace.canvases.forEach((cfg, index) => {
       const el = document.getElementById(cfg.id);
       if (!el) return;
+      if (window.GPTracing && typeof window.GPTracing.createPathTracePad === "function" && typeof window.GPTracing.getDigitTraceGroups === "function") {
+        let currentProgress = 0;
+        const reset = window.GPTracing.createPathTracePad({
+          canvasId: cfg.id,
+          getPoints: () => window.GPTracing.getDigitTraceGroups(cfg.kind),
+          lineWidth: 13,
+          threshold: 28,
+          posterImg: document.querySelector(".poster-img"),
+          onProgress(pct){
+            currentProgress = Math.max(0, Math.min(100, Math.round(pct)));
+            CONFIG.onTraceProgress(index, currentProgress);
+          },
+          onTick(){
+            try { window.GPTracing.playTraceTick({ throttleMs: 110 }); } catch(_) {}
+          }
+        });
+        tracePads.push({
+          reset(){
+            currentProgress = 0;
+            if (typeof reset === "function") reset();
+            CONFIG.onTraceProgress(index, 0);
+          },
+          getProgress(){
+            return currentProgress;
+          },
+          resize(){
+            if (typeof reset === "function") reset();
+            CONFIG.onTraceProgress(index, currentProgress);
+          }
+        });
+        return;
+      }
       tracePads.push(createTracePad(el, digitGroups(cfg.kind), index));
     });
 

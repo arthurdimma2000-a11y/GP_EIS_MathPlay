@@ -1,1512 +1,281 @@
 <!doctype html>
-
 <html lang="en">
-
 <head>
-
-<style id="gpLessonPrehide">
-  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
-  @media (max-width:780px){
-    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
-  }
-</style>
-
-<meta charset="utf-8" />
-
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-
-<title>Trace the number 1 ??Circle Bear Cake</title>
-
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>LA Game 3 • Corner Count Parade</title>
 <style>
-
   :root{
-
-    --sky:#bfe9fb;
-
-    --panel:#ffffff;
-
-    --ink:#3b3b3b;
-
-    --blue:#3aa7e8;
-
-    --soft-blue:#e6f2ff;
-
-    --num-blue:#e4f0ff;
-
-    --dash:#4c6ca6;
-
-    --shadow:0 20px 40px rgba(0,0,0,.08);
-
-    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
-
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+    --bg:#d7fff1; --bg2:#ffd6ff; --ink:#1f1f1f; --card:#fff;
+    --shadow:0 18px 50px rgba(0,0,0,.14);
   }
-
-  *{box-sizing:border-box;}
-
-
-
+  *{box-sizing:border-box}
   body{
-
-    margin:0;
-
-    min-height:100vh;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    background:var(--sky);
-
-    padding:18px;
-
+    margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:18px;
+    background:
+      radial-gradient(circle at 20% 10%, var(--bg2), transparent 55%),
+      radial-gradient(circle at 80% 30%, #fff6a6, transparent 55%),
+      linear-gradient(135deg, var(--bg), #cde7ff);
   }
-
-  .card{
-
-    width:min(980px,96vw);
-
-    background:var(--panel);
-
-    border-radius:18px;
-
-    padding:26px 26px 32px;
-
-    position:relative;
-
-    box-shadow:var(--shadow);
-
-    overflow:hidden;
-
+  .app{width:min(1060px,96vw)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .badge{
+    background:#fff; border-radius:999px; padding:10px 14px; font-weight:1000;
+    box-shadow:0 10px 25px rgba(0,0,0,.10); display:flex;gap:10px;align-items:center
   }
-
-  .page-title{
-
-    text-align:center;
-
-    font-size:3rem;
-
-    font-weight:800;
-
-    color:var(--ink);
-
-    margin:0 0 6px;
-
+  .badge .pill{background:#1c7ed6;color:#fff;padding:6px 10px;border-radius:999px;font-size:14px}
+  .btn{
+    border:0; cursor:pointer; border-radius:999px; padding:10px 14px; font-weight:1000;
+    box-shadow:0 12px 25px rgba(0,0,0,.12); background:#fff; color:#111;
   }
-
-
-
-  /* header bar */
-
-  .header-pill{
-
-    background:var(--blue);
-
-    color:#fff;
-
-    font-size:1.05rem;
-
-    font-weight:700;
-
-    border-radius:999px;
-
-    padding:10px 22px;
-
-    display:inline-flex;
-
-    align-items:center;
-
-    max-width:100%;
-
+  .btn.primary{background:#2b8a3e;color:#fff}
+  .btn:active{transform:translateY(1px)}
+  .card{background:var(--card); border-radius:22px; box-shadow:var(--shadow); overflow:hidden}
+  .hero{padding:16px 18px; background:linear-gradient(90deg,#ffed9a,#c8fff7); border-bottom:2px dashed rgba(0,0,0,.08)}
+  h1{margin:0;font-size:28px}
+  .sub{margin-top:6px;font-size:18px;opacity:.86}
+  .grid{display:grid;grid-template-columns:1.1fr .9fr; gap:14px; padding:16px 18px 20px}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  .panel{
+    border:2px solid rgba(0,0,0,.06); border-radius:18px; padding:14px; background:linear-gradient(180deg,#f7fbff,#fff)
   }
-
-  .dot-row{
-
-    position:absolute;
-
-    right:90px;
-
-    top:20px;
-
-    display:flex;
-
-    gap:14px;
-
+  .stage{
+    border-radius:18px; border:2px solid rgba(0,0,0,.06); background:#fff;
+    height:360px; display:grid; place-items:center; overflow:hidden;
   }
-
-  .dot{
-
-    width:18px;
-
-    height:18px;
-
-    border-radius:50%;
-
-    background:#bfe8fb;
-
-    box-shadow:inset 0 0 0 4px #fff;
-
+  .choices{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .chip{
+    border:0; cursor:pointer; border-radius:16px; padding:12px 14px; font-size:18px; font-weight:1000;
+    box-shadow:0 10px 20px rgba(0,0,0,.10); background:#fff;
   }
-
-  .subline{
-
-    margin-top:12px;
-
-    text-align:center;
-
-    color:var(--ink);
-
-    font-size:1.1rem;
-
-    font-weight:700;
-
-  }
-
-
-
-  .question{
-
-    margin-top:18px;
-
-    text-align:center;
-
-    color:var(--ink);
-
-    font-size:2.2rem;
-
-    line-height:1.3;
-
-    font-weight:700;
-
-    transform:translateY(-15%);
-
-  }
-
-  .convo{
-
-    margin-top:10px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:12px;
-
-  }
-
-  .convo-row{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-  }
-
-  .convo-row.center{
-
-    justify-content:center;
-
-  }
-
-  .convo-row.right{
-
-    justify-content:flex-end;
-
-  }
-
-  .convo-avatar{
-
-    width:64px;
-
-    height:64px;
-
-    border-radius:50%;
-
-    background:#fff;
-
-    border:3px solid #fff;
-
-    box-shadow:0 4px 10px rgba(0,0,0,.1);
-
-    object-fit:cover;
-
-  }
-
-  .convo-bubble{
-
-    padding:10px 14px;
-
-    border-radius:16px;
-
-    font-size:1.1rem;
-
-    font-weight:700;
-
-    position:relative;
-
-    max-width:520px;
-
-  }
-
-  .convo-baker{
-
-    background:#fde3c4;
-
-  }
-
-  .convo-kid{
-
-    background:#d8ebff;
-
-  }
-
-  .convo-baker::after{
-
-    content:"";
-
-    position:absolute;
-
-    left:-6px;
-
-    top:16px;
-
-    border-width:8px 8px 8px 0;
-
-    border-style:solid;
-
-    border-color:transparent #fde3c4 transparent transparent;
-
-  }
-
-  .convo-kid::after{
-
-    content:"";
-
-    position:absolute;
-
-    right:-6px;
-
-    top:16px;
-
-    border-width:8px 0 8px 8px;
-
-    border-style:solid;
-
-    border-color:transparent transparent transparent #d8ebff;
-
-  }
-
-  .convo-bear{
-
-    width:100%;
-
-    height:auto;
-
-    display:block;
-
-    pointer-events:none;
-
-  }
-
-  .poster-area{
-    position:relative;
-    width:min(900px,100%);
-    margin:10px auto 0;
-    display:block;
-  }
-  .trace-layer{
-
-    position:absolute;
-
-    inset:0;
-
-    pointer-events:auto;
-
-    z-index:5;
-
-  }
-
-  .trace-grid{
-    position:absolute;
-    left:30%;
-    top:30%;
-    width:65%;
-    height:62%;
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    grid-template-rows:repeat(3,1fr);
-
-    gap:2%;
-
-    pointer-events:auto;
-
-  }
-
-  .trace-canvas{
-    position:relative;
-    width:100%;
-    height:100%;
-    pointer-events:auto;
-    touch-action:none;
-    z-index:6;
-    background:transparent;
-    display:block;
-  }
-  .bubble-left{
-
-    position:absolute;
-
-    left:15%;
-
-    top:17%;
-
-    z-index:2;
-
-    pointer-events:none;
-
-  }
-
-  .bubble-right{
-    position:absolute;
-    right:8%;
-    top:33%;
-    z-index:2;
-  }
-  .bubble-right.convo-baker::after{
-
-    left:auto;
-
-    right:-6px;
-
-    border-width:8px 0 8px 8px;
-
-    border-color:transparent transparent transparent #fde3c4;
-
-  }
-
-  .bubble-left.convo-kid::after{
-
-    right:auto;
-
-    left:-6px;
-
-    border-width:8px 8px 8px 0;
-
-    border-color:transparent #d8ebff transparent transparent;
-
-  }
-
-  .answer-line{
-
-    margin-top:8px;
-
-    text-align:center;
-
-    font-size:1.6rem;
-
-    font-weight:700;
-
-    color:var(--ink);
-
-    min-height:1.6em;
-
-  }
-
-  .girl-sentence{
-
-    margin-top:10px;
-
-    text-align:center;
-
-    font-size:1.5rem;
-
-    font-weight:700;
-
-    color:var(--ink);
-
-    min-height:3.2em;
-
-    transform:translateY(-15%);
-
-  }
-
-  .headline-line{
-
-    opacity:0;
-
-    transform:translateY(6px);
-
-    transition:opacity .18s ease, transform .18s ease;
-
-  }
-
-  .headline-line.show{
-
-    opacity:1;
-
-    transform:translateY(0);
-
-  }
-
-  .circle-red{
-
-    color:#d62828;
-
-  }
-
-  .spark{
-
-    position:fixed;
-
-    width:22px;
-
-    height:14px;
-
-    border-radius:50% 50% 45% 45%;
-
-    background:radial-gradient(circle, #fff 0 30%, #ffe35a 55%, rgba(255,235,122,0) 72%);
-
-    box-shadow:
-
-      0 0 14px rgba(255,240,160,1),
-
-      0 0 26px rgba(255,210,80,.95),
-
-      0 0 42px rgba(255,170,40,.9);
-
-    pointer-events:none;
-
-    z-index:9999;
-
-    animation:sparkFly 1.2s ease-out forwards;
-
-  }
-
-  .spark::before,
-
-  .spark::after{
-
-    content:"";
-
-    position:absolute;
-
-    top:50%;
-
-    width:18px;
-
-    height:6px;
-
-    border-radius:50% 50% 0 0;
-
-    background:linear-gradient(180deg, rgba(255,235,122,.95), rgba(255,235,122,0));
-
-    transform:translateY(-50%) rotate(10deg);
-
-    box-shadow:0 0 8px rgba(255,220,120,.85);
-
-  }
-
-  .spark::before{
-
-    left:-8px;
-
-    transform:translateY(-50%) rotate(-22deg);
-
-  }
-
-  .spark::after{
-
-    right:-8px;
-
-    transform:translateY(-50%) rotate(22deg);
-
-  }
-
-  @keyframes sparkFly{
-
-    0%{ transform:translate(0,0) scale(.95); opacity:1; }
-
-    70%{ transform:translate(calc(var(--dx) * .7), calc(var(--dy) * .7)) scale(1.08); opacity:.95; }
-
-    100%{ transform:translate(var(--dx), var(--dy)) scale(1.1); opacity:0; }
-
-  }
-
-
-
-  .main-row{
-
-    margin-top:18px;
-
-    display:grid;
-
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-
-    gap:32px;
-
-    align-items:center;
-
-    justify-items:stretch;
-
-  }
-
-  .feedback-line{
-
-    grid-column:1 / -1;
-
-    text-align:center;
-
-    font-size:1.6rem;
-
-    font-weight:700;
-
-    color:#2e8b57;
-
-    min-height:1.6em;
-
-  }
-
-
-
-  /* BEAR (left) */
-
-  .bear-wrap{
-
-    display:flex;
-
-    justify-content:flex-start;
-
-  }
-
-  .bear-svg{
-
-    width:min(450px,78vw);
-
-    height:auto;
-
-    display:block;
-
-  }
-
-
-
-  .controls{
-
-    margin-top:12px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:10px;
-
-    font-size:.9rem;
-
-  }
-
-  .controls-row{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:16px;
-
-    flex-wrap:wrap;
-
-  }
-
-  .progress-wrap{
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    gap:6px;
-
-  }
-
-  .progress-bar{
-
-    width:min(520px,92%);
-
-    height:12px;
-
-    border-radius:999px;
-
-    background:#e7efff;
-
-    overflow:hidden;
-
-    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
-
-  }
-
-  .progress-fill{
-
-    height:100%;
-
-    width:0%;
-
-    background:linear-gradient(90deg,#3cc4ff,#7dffb3);
-
-    transition:width .15s ease-out;
-
-  }
-
-  .progress-text{
-
-    font-size:.9rem;
-
-    font-weight:700;
-
-    color:#3b3b3b;
-
-  }
-
-  button{
-
-    border:none;
-
-    border-radius:999px;
-
-    padding:7px 18px;
-
-    font-size:.85rem;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    display:inline-flex;
-
-    align-items:center;
-
-    gap:6px;
-
-    background:linear-gradient(180deg,#fffad7,#ffd86a);
-
-    color:#8b5a00;
-
-    box-shadow:0 4px 0 rgba(0,0,0,.2);
-
-    transition:transform .08s ease, box-shadow .08s ease;
-
-  }
-
-  button:active{
-
-    transform:translateY(2px) scale(.98);
-
-    box-shadow:0 1px 0 rgba(0,0,0,.2);
-
-  }
-
-
-
-  .mascot-spot{
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    gap:6px;
-
-  }
-
-  .mascot-spot img{
-
-    width:86px;
-
-    height:86px;
-
-    border-radius:24px;
-
-    object-fit:cover;
-
-    box-shadow:0 6px 14px rgba(0,0,0,.25);
-
-    border:4px solid #ffe3f7;
-
-    background:#ffd6f2;
-
-  }
-
-  .mascot-hint{
-
-    font-size:1rem;
-
-    font-weight:700;
-
-    color:#d62828;
-
-    text-align:center;
-
-  }
-
-  .button-row{
-
-    display:flex;
-
-    flex-wrap:wrap;
-
-    gap:8px;
-
-    justify-content:center;
-
-  }
-
-
-
-  @media (max-width:780px){
-
-    body{padding:12px;}
-
-    .card{padding:18px 16px 28px;}
-
-    .header-pill{font-size:.95rem;}
-
-    .question{font-size:1.6rem;}
-
-    .main-row{
-
-      grid-template-columns:minmax(0,1fr);
-
-      gap:18px;
-
-    }
-
-    .mascot-spot img{width:76px;height:76px;}
-
-  }
-
-      .home-btn{
-
-    position:absolute;
-
-    right:10px;
-
-    top:6px;
-
-    width:72px;
-
-    height:72px;
-
-    display:inline-flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    background:transparent;
-
-    border:none;
-
-    padding:0;
-
-    text-decoration:none;
-
-    z-index:25;
-
-    transform-origin:top center;
-
-    animation:homeSwing 2.4s ease-in-out infinite;
-
-  }
-
-  .home-btn img{
-
-    width:72px;
-
-    height:72px;
-
-    display:block;
-
-    filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));
-
-  }
-
-  @keyframes homeSwing{
-
-    0%{transform:rotate(-6deg);}
-
-    50%{transform:rotate(8deg);}
-
-    100%{transform:rotate(-6deg);}
-
-  }
-
+  .chip.good{background:#e9ffef}
+  .chip.bad{background:#ffe9ef}
+  .hud{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;justify-content:space-between}
+  .stat{background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 10px 20px rgba(0,0,0,.10);font-weight:1000}
+  .mini{height:170px;border-radius:16px;overflow:hidden;border:2px solid rgba(0,0,0,.06)}
+  .tip{margin-top:10px;background:#fff;padding:12px;border-radius:16px;box-shadow:0 10px 20px rgba(0,0,0,.10);font-size:18px}
 </style>
-
 </head>
-
 <body>
-
-<div class="card">            <a class="home-btn" href="../../../../index.html" aria-label="Home">
-      <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
-    </a>
-
-  <!-- header -->
-
-  <div class="dot-row" aria-hidden="true">
-
-    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-
+<div class="app">
+  <div class="top">
+    <div class="badge"><span class="pill">Level A</span> <span>Game 3 • Corner Count Parade</span></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <button class="btn" onclick="location.href='LevelAHomeP.html'">⬅ Back</button>
+      <button class="btn" onclick="newRound()">🔁 New</button>
+      <button class="btn primary" onclick="location.href='LA_Quiz3.html'">Next ➜</button>
+    </div>
   </div>
 
-
-
-  <!-- question -->
-
-  <div class="poster-area">
-
-    <img class="convo-bear" src="../../../../assets/images/shapes/A13.png" alt="Numbers poster">
-
-    <div class="convo-bubble convo-kid bubble-right" id="kidLine" hidden>Let&#39;s write numbers.</div>
-    <div class="trace-layer">
-
-      <div class="trace-grid">
-
-        <canvas class="trace-canvas" id="trace1a"></canvas>
-
-        <canvas class="trace-canvas" id="trace1b"></canvas>
-
-        <canvas class="trace-canvas" id="trace1c"></canvas>
-
-        <canvas class="trace-canvas" id="trace2a"></canvas>
-
-        <canvas class="trace-canvas" id="trace2b"></canvas>
-
-        <canvas class="trace-canvas" id="trace2c"></canvas>
-
-        <canvas class="trace-canvas" id="trace3a"></canvas>
-
-        <canvas class="trace-canvas" id="trace3b"></canvas>
-
-        <canvas class="trace-canvas" id="trace3c"></canvas>
-
-      </div>
-
+  <div class="card">
+    <div class="hero">
+      <h1>How many vertices (corners)? ⭐</h1>
+      <div class="sub">Circle = 0 • Triangle = 3 • Square = 4</div>
     </div>
 
-  </div>
+    <div class="grid">
+      <div class="panel">
+        <div class="stage" id="stage"></div>
 
-  <div class="question"></div>
+        <div class="choices" id="choices"></div>
 
-  <div class="girl-sentence" id="girlSentence"></div>
-
-
-
-  <div class="controls">
-
-    <div class="progress-wrap">
-
-      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
-
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-
-    </div>
-
-    <div class="controls-row">
-
-      <div class="mascot-spot">
-
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Circle helper girl" id="girlBtn" class="tap-girl">
-        <div class="mascot-hint">Tap the girl</div>
-
+        <div class="hud">
+          <div class="stat">✅ Correct: <span id="ok">0</span></div>
+          <div class="stat">❌ Wrong: <span id="no">0</span></div>
+          <div class="stat">⭐ Stars: <span id="stars">0</span></div>
+          <button class="btn primary" onclick="finish()">🏁 Finish</button>
+        </div>
       </div>
 
-      <div class="button-row">
-        <button id="prevBtn"><- Previous page</button>
-        <button id="nextBtn">Next page -></button>
-        <button id="clearBtn">Clear [X]</button>
-        <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
-          <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone" style="width:32px;height:32px;display:block;">
-        </button>
+      <div class="panel" style="background:linear-gradient(180deg,#fff7c2,#ffffff)">
+        <div class="mini" id="mini"></div>
+        <div class="tip"><b>Hint:</b> Vertices are the <b>sharp corners</b> you can point to with your finger!</div>
+        <div class="tip" style="background:#eaf4ff"><b>Challenge:</b> Get 6 correct answers for ⭐⭐⭐</div>
+        <button class="btn" style="margin-top:10px" onclick="speak()">🔊 Read</button>
       </div>
     </div>
   </div>
 </div>
 
-
-<script src="../../../../shared/js/storage.js"></script>
-<script src="../../../../shared/js/progress.js"></script>
-<script src="../../../../shared/js/tracing.js"></script>
 <script>
-    const prevBtn = document.getElementById('prevBtn');
+/* Tracker + sound */
+(function(){
+  const STORE="gpeis_progress_v1";
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE)||"{}")}catch(e){return{}} }
+  function save(db){ localStorage.setItem(STORE, JSON.stringify(db)); }
+  function now(){ return new Date().toISOString(); }
+  let ctx=null;
+  function audio(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function beep(freq, t, g=.05, type="triangle"){
+    const c=audio(), o=c.createOscillator(), gn=c.createGain();
+    o.type=type; o.frequency.value=freq; gn.gain.value=g;
+    o.connect(gn); gn.connect(c.destination); o.start(); o.stop(c.currentTime+t);
+  }
+  function chime(){ try{beep(880,.08); setTimeout(()=>beep(1175,.10),90); setTimeout(()=>beep(1568,.12),200);}catch(e){} }
+  function cheer(){ try{beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
 
-  const nextBtn = document.getElementById('nextBtn');
+  window.__LegacyTrack__ = {
+    complete({level, activityId, score=0, stars=0}){
+      const db=load();
+      if(!db[level]) db[level]={level, updatedAt:now(), activities:{}};
+      const lvl=db[level];
+      if(!lvl.activities[activityId]) lvl.activities[activityId]={id:activityId, attempts:0, bestScore:0, bestStars:0, completed:false};
+      const a=lvl.activities[activityId];
+      a.attempts++; a.completed=true; a.lastScore=score; a.lastStars=stars; a.lastAt=now();
+      a.bestScore=Math.max(a.bestScore||0, score);
+      a.bestStars=Math.max(a.bestStars||0, stars);
+      lvl.updatedAt=now(); save(db);
+      chime(); if(stars>=2||score>=70) cheer();
+      return a;
+    }
+  };
+  window.__sound={chime,cheer};
+})();
 
-  const clearBtn = document.getElementById('clearBtn');
+const stage=document.getElementById("stage");
+const choices=document.getElementById("choices");
+const okEl=document.getElementById("ok");
+const noEl=document.getElementById("no");
+const starsEl=document.getElementById("stars");
 
-  const girlBtn = document.getElementById('girlBtn');
+let ok=0,no=0,rounds=0,goal=6,current=null;
 
-  const kidLine = document.getElementById('kidLine');
+function art(shape){
+  if(shape==="circle"){
+    return `<svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#ffd1f3"/><stop offset="1" stop-color="#c7f9ff"/></linearGradient></defs>
+      <rect width="520" height="320" rx="26" fill="url(#bg)"/>
+      <circle cx="260" cy="170" r="96" fill="#ffbf69" stroke="#fff" stroke-width="10"/>
+      <text x="260" y="72" text-anchor="middle" font-size="30" font-family="Comic Sans MS, Segoe UI" font-weight="900">CIRCLE</text>
+      <text x="260" y="286" text-anchor="middle" font-size="26" font-family="Comic Sans MS, Segoe UI" font-weight="900">Vertices = 0</text>
+    </svg>`;
+  }
+  if(shape==="triangle"){
+    return `<svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#fff6a6"/><stop offset="1" stop-color="#c8fff7"/></linearGradient></defs>
+      <rect width="520" height="320" rx="26" fill="url(#bg)"/>
+      <polygon points="260,70 410,255 110,255" fill="#ff6b6b" stroke="#fff" stroke-width="10"/>
+      <circle cx="260" cy="70" r="7" fill="#222"/><circle cx="410" cy="255" r="7" fill="#222"/><circle cx="110" cy="255" r="7" fill="#222"/>
+      <text x="260" y="58" text-anchor="middle" font-size="30" font-family="Comic Sans MS, Segoe UI" font-weight="900">TRIANGLE</text>
+      <text x="260" y="292" text-anchor="middle" font-size="26" font-family="Comic Sans MS, Segoe UI" font-weight="900">Vertices = 3</text>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#cde7ff"/><stop offset="1" stop-color="#d7fff1"/></linearGradient></defs>
+    <rect width="520" height="320" rx="26" fill="url(#bg)"/>
+    <rect x="160" y="80" width="200" height="200" rx="22" fill="#4dabf7" stroke="#fff" stroke-width="10"/>
+    <circle cx="160" cy="80" r="7" fill="#222"/><circle cx="360" cy="80" r="7" fill="#222"/><circle cx="160" cy="280" r="7" fill="#222"/><circle cx="360" cy="280" r="7" fill="#222"/>
+    <text x="260" y="58" text-anchor="middle" font-size="30" font-family="Comic Sans MS, Segoe UI" font-weight="900">SQUARE</text>
+    <text x="260" y="306" text-anchor="middle" font-size="26" font-family="Comic Sans MS, Segoe UI" font-weight="900">Vertices = 4</text>
+  </svg>`;
+}
 
-  const girlSentenceEl = document.getElementById('girlSentence');
+function setMini(){
+  document.getElementById("mini").innerHTML = `
+  <svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <rect width="520" height="320" rx="26" fill="#ffffff"/>
+    <text x="260" y="70" text-anchor="middle" font-size="28" font-family="Comic Sans MS, Segoe UI" font-weight="900">Remember!</text>
+    <text x="260" y="120" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI">⭕ 0 corners</text>
+    <text x="260" y="170" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI">🔺 3 corners</text>
+    <text x="260" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI">🟦 4 corners</text>
+    <text x="260" y="280" text-anchor="middle" font-size="20" font-family="Comic Sans MS, Segoe UI" fill="#555">Tap the correct number!</text>
+  </svg>`;
+}
+setMini();
 
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-  chimeAudio.preload = "auto";
+function newRound(){
+  const shapes=["circle","triangle","square"];
+  current = shapes[Math.floor(Math.random()*shapes.length)];
+  stage.innerHTML = art(current);
+  choices.innerHTML = "";
 
-  chimeAudio.volume = 1;
+  const correct = current==="circle"?0:current==="triangle"?3:4;
+  const opts = [0,3,4].sort(()=>Math.random()-0.5);
 
-  let audioUnlocked = false;
-
-
-
-  function playChime(){
-
-    unlockAudio();
-
-    try{
-
-      const sound = chimeAudio.cloneNode(true);
-
-      sound.currentTime = 0;
-
-      const playPromise = sound.play();
-
-      if (playPromise && typeof playPromise.catch === "function") {
-
-        playPromise.catch(() => {});
-
+  opts.forEach(n=>{
+    const b=document.createElement("button");
+    b.className="chip";
+    b.textContent = n + " corners";
+    b.onclick=()=>{
+      rounds++;
+      if(n===correct){
+        ok++; __sound.chime();
+        b.classList.add("good");
+      }else{
+        no++; __sound.cheer();
+        b.classList.add("bad");
       }
+      okEl.textContent=ok; noEl.textContent=no;
 
-    }catch(e){}
+      const stars = ok>=goal ? 3 : ok>=4 ? 2 : ok>=2 ? 1 : 0;
+      starsEl.textContent=stars;
 
-  }
-
-
-
-  function unlockAudio(){
-
-    if (audioUnlocked) return;
-
-    audioUnlocked = true;
-
-    try{
-
-      chimeAudio.muted = true;
-
-      const p = chimeAudio.play();
-
-      if (p && typeof p.then === "function") {
-
-        p.then(() => {
-
-          chimeAudio.pause();
-
-          chimeAudio.currentTime = 0;
-
-          chimeAudio.muted = false;
-
-        }).catch(() => {
-
-          chimeAudio.muted = false;
-
-        });
-
-      } else {
-
-        chimeAudio.pause();
-
-        chimeAudio.currentTime = 0;
-
-        chimeAudio.muted = false;
-
-      }
-
-    }catch(e){
-
-      chimeAudio.muted = false;
-
-    }
-
-  }
-
-
-
-  function speak(text, onend){
-
-    if(!("speechSynthesis" in window)) return;
-
-    const u = new SpeechSynthesisUtterance(text);
-
-    const voices = window.speechSynthesis.getVoices();
-
-    const childVoice = voices.find(v =>
-
-      /child|kid|girl|boy/i.test(v.name) || /en-US/i.test(v.lang)
-
-    );
-
-    if(childVoice) u.voice = childVoice;
-
-    u.rate = 1.0;
-
-    u.pitch = 1.1;
-
-    u.onend = () => { if (onend) onend(); };
-
-    u.onerror = () => { if (onend) onend(); };
-
-    window.speechSynthesis.speak(u);
-
-  }
-
-
-
-  prevBtn.addEventListener('click', () => {
-    window.location.href = "LA_Revision3.html";
-  });
-  nextBtn.addEventListener('click', () => {
-    window.location.href = "LA_Quiz3.html";
-  });
-
-
-  const sentenceLines = [
-
-    {
-
-      text: "Let's write numbers, 1, 2, 3",
-
-      html: "Let\u2019s write numbers, <span class=\"circle-red\">1</span>, <span class=\"circle-red\">2</span>, <span class=\"circle-red\">3</span>"
-
-    }
-
-  ];
-
-  let sentenceToken = 0;
-
-
-
-  function showSpark(){
-
-    const girlRect = girlBtn.getBoundingClientRect();
-
-    const targetRect = girlSentenceEl.getBoundingClientRect();
-
-    const startX = girlRect.left + girlRect.width / 2;
-
-    const startY = girlRect.top + girlRect.height / 2;
-
-    const endX = targetRect.left + targetRect.width / 2;
-
-    const endY = targetRect.top + targetRect.height / 2;
-
-    const dx = endX - startX;
-
-    const dy = endY - startY;
-
-
-
-    const spark = document.createElement("div");
-
-    spark.className = "spark";
-
-    spark.style.left = startX + "px";
-
-    spark.style.top = startY + "px";
-
-    spark.style.setProperty("--dx", dx + "px");
-
-    spark.style.setProperty("--dy", dy + "px");
-
-    document.body.appendChild(spark);
-
-    spark.addEventListener("animationend", () => spark.remove());
-
-
-
-    const spark2 = document.createElement("div");
-
-    spark2.className = "spark";
-
-    spark2.style.left = (startX + 10) + "px";
-
-    spark2.style.top = (startY - 4) + "px";
-
-    spark2.style.setProperty("--dx", (dx + 10) + "px");
-
-    spark2.style.setProperty("--dy", (dy - 4) + "px");
-
-    spark2.style.animationDelay = "0.18s";
-
-    spark2.style.transform = "scale(0.75)";
-
-    document.body.appendChild(spark2);
-
-    spark2.addEventListener("animationend", () => spark2.remove());
-
-  }
-
-
-
-  function revealSentenceLine(index, token){
-
-    if (token !== sentenceToken) return;
-
-    if (index >= sentenceLines.length) return;
-
-    const lineEl = girlSentenceEl.querySelector(`[data-line="${index}"]`);
-
-    if (!lineEl) return;
-
-    lineEl.classList.add("show");
-
-    speak(sentenceLines[index].text, () => {
-
-      setTimeout(() => revealSentenceLine(index + 1, token), 180);
-
-    });
-
-  }
-
-
-
-  girlBtn.addEventListener('click', () => {
-
-    unlockAudio();
-
-    sentenceToken += 1;
-
-    const token = sentenceToken;
-
-    girlSentenceEl.innerHTML = sentenceLines
-
-      .map((line, i) => `<div class="headline-line" data-line="${i}">${line.html}</div>`)
-
-      .join("");
-
-    showSpark();
-    playChime();
-    setTimeout(() => revealSentenceLine(0, token), 220);
-  });
-
-
-  const progressPercentEl = document.getElementById('progressPercent');
-
-  const progressFillEl = document.getElementById('progressFill');
-
-  const tracePercents = new Array(9).fill(0);
-
-  const traceResets = [];
-
-  let traceCelebrated = false;
-
-  let lastTraceSound = 0;
-  let realtimeSaveTimer = null;
-
-  function scheduleRealtimeTraceSave(score){
-    if (typeof window.finishAndSave !== 'function') return;
-    if (realtimeSaveTimer) window.clearTimeout(realtimeSaveTimer);
-    realtimeSaveTimer = window.setTimeout(() => {
-      window.finishAndSave({
-        pageId: 'LA_Game3',
-        level: 'A',
-        activityType: 'game',
-        score: Math.max(0, Math.min(100, Math.round(score))),
-        tracing: Math.max(0, Math.min(100, Math.round(score))),
-        stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
-      }).catch(() => {});
-    }, 250);
-  }
-
-
-  function updateTotal(){
-    const raw = tracePercents.reduce((a,b)=>a+b,0) / tracePercents.length;
-
-    const allDone = tracePercents.every(p => p >= 90);
-
-    const total = Math.round(raw);
-
-    progressPercentEl.textContent = total + "%";
-
-    progressFillEl.style.width = total + "%";
-    scheduleRealtimeTraceSave(total);
-    if(allDone && !traceCelebrated){
-
-      traceCelebrated = true;
-
-      playChime();
-
-      speak("Wow! great job!");
-
-    }
-
-    if(!allDone){
-
-      traceCelebrated = false;
-
-    }
-
-  }
-
-
-
-  const posterImg = document.querySelector('.poster-area img');
-  function setupTrace(canvasId, points, index){
-    const reset = window.GPTracing.createPathTracePad({
-      canvasId,
-      getPoints: () => points,
-      lineWidth: 9,
-      threshold: 18,
-      onProgress(pct){
-        tracePercents[index] = pct;
-        updateTotal();
-      },
-      onTick(){
-        const now = performance.now();
-        if (now - lastTraceSound > 120) {
-          lastTraceSound = now;
-          playTraceTick();
-        }
-      }
-    });
-    traceResets.push(() => {
-      if (typeof reset === "function") reset();
-      tracePercents[index] = 0;
-      updateTotal();
-    });
-  }
-
-
-  function playTraceTick(){
-
-    try{
-
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-
-      if(!AudioCtx) return;
-
-      const ctx = new AudioCtx();
-
-      const osc = ctx.createOscillator();
-
-      const gain = ctx.createGain();
-
-      osc.type = "sine";
-
-      osc.frequency.value = 880;
-
-      gain.gain.value = 0.06;
-
-      osc.connect(gain);
-
-      gain.connect(ctx.destination);
-
-      osc.start();
-
-      osc.stop(ctx.currentTime + 0.05);
-
-      osc.onended = () => ctx.close();
-
-    }catch(e){}
-
-  }
-
-
-
-  clearBtn.addEventListener('click', () => {
-
-    traceResets.forEach(fn => fn());
-
-  });
-
-
-
-  const traceConfigs = [
-
-    { id:"trace1a", type:"1" }, { id:"trace1b", type:"1" }, { id:"trace1c", type:"1" },
-
-    { id:"trace2a", type:"2" }, { id:"trace2b", type:"2" }, { id:"trace2c", type:"2" },
-
-    { id:"trace3a", type:"3" }, { id:"trace3b", type:"3" }, { id:"trace3c", type:"3" }
-
-  ];
-
-  traceConfigs.forEach((cfg, idx) => {
-    setupTrace(cfg.id, window.GPTracing.getDigitTraceGroups(cfg.type), idx);
-  });
-</script>
-
-<script>
-
-  (function(){
-
-    const homeBtn = document.querySelector('.home-btn');
-
-    if(!homeBtn) return;
-
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
-    chime.preload = "auto";
-
-    homeBtn.addEventListener('click', () => {
-
-      try{
-
-        chime.currentTime = 0;
-
-        const p = chime.play();
-
-        if (p && typeof p.catch === "function") p.catch(() => {});
-
-      }catch(e){}
-
-    });
-
-  })();
-
-</script>
-
-<script src="../../../../activity-standardizer.js"></script>
-<script type="module">
-  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-  window.GPProgress.installTracker({
-    saveActivityResult,
-    markLoginPing,
-    defaultPageId: "LA_Game3",
-    defaultLevel: "A",
-    defaultActivityType: "game",
-    defaultScore: 100,
-    defaultStars: 1,
-    defaultSkills: {
-      reading: 1,
-      writing: 0,
-      speaking: 1,
-      listening: 1
-    }
-  });
-
-
-
-  function getStudentSession(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-    }catch(e){
-      return null;
-    }
-  }
-
-  function inferProgressMeta(payload){
-    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-    const level = (payload && payload.level)
-      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-    const month = payload && payload.month != null ? Number(payload.month) : 1;
-    return {
-      pageId,
-      file,
-      level,
-      week: Number.isFinite(week) && week > 0 ? week : 1,
-      month: Number.isFinite(month) && month > 0 ? month : 1
+      setTimeout(()=>{ if(rounds<8) newRound(); }, 450);
     };
-  }
+    choices.appendChild(b);
+  });
+}
+newRound();
 
-  function getActivityStore(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-    }catch(e){
-      return {};
-    }
-  }
+async function finish(){
+  const total = Math.max(1, ok+no);
+  const score = Math.round((ok/total)*100);
+  const stars = Number(starsEl.textContent)||0;
 
-  function setActivityStore(store){
-    try{
-      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-    }catch(e){}
-  }
-
-  function saveLocalActivityFallback(payload){
-    const session = getStudentSession() || {};
-    const meta = inferProgressMeta(payload || {});
-    const score = payload && typeof payload.score === "number" ? payload.score : 0;
-    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-    const tracing = payload && typeof payload.tracing === "number"
-      ? payload.tracing
-      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-    const entry = {
-      pageId: meta.pageId,
-      file: meta.file,
-      level: meta.level,
-      type,
-      activityType: (payload && payload.activityType) || type,
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    await window.GPTrack.finish({
+      pageId: "LA_Game3",
+      level: "A",
+      activityType: "game",
       score,
       stars,
-      skills: payload && payload.skills ? payload.skills : {},
-      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-      tracing,
-      week: meta.week,
-      month: meta.month,
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-      savedAt: new Date().toISOString(),
-      ts: Date.now()
-    };
-    const store = getActivityStore();
-    store[meta.pageId] = {
-      ...(store[meta.pageId] || {}),
-      ...entry
-    };
-    setActivityStore(store);
-    try{
-      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-    }catch(e){}
-    return store[meta.pageId];
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 1 }
+    });
+  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
+    window.__LegacyTrack__.complete({ level: "A", activityId: "LA_Game3", score, stars });
   }
+  alert("🏁 Finished!\nScore: "+score+"%\nStars: "+("⭐".repeat(stars)||"0"));
+}
 
-  async function finishAndSave(payload){
-    const session = getStudentSession() || {};
-    const fullPayload = {
-      ...(payload || {}),
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-    };
-  
-    saveLocalActivityFallback(fullPayload);
-  
-    if (typeof window.finishActivity === "function") {
-      try{
-        await window.finishActivity(fullPayload);
-      }catch(err){
-        console.warn("finishActivity failed, local fallback already saved:", err);
-      }
-    }
-  
-    return fullPayload;
-  }
-
-  window.finishAndSave = finishAndSave;
-
+function speak(){
+  const txt="Count the corners. Circle has zero vertices. Triangle has three. Square has four. Tap the correct number!";
+  try{
+    const u=new SpeechSynthesisUtterance(txt);
+    u.rate=0.95; u.pitch=1.1;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
 </script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
-<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
+  }
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
