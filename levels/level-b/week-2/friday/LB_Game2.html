@@ -463,11 +463,13 @@ document.getElementById("checkBtn").addEventListener("click", async ()=>{
 
   if(score===100){
     msg.textContent="🎉 Perfect sorting! Amazing!";
+    speak("Fantastic! You sorted all shapes perfectly!");
   }else{
     const stillInTray = tray.querySelectorAll(".chip").length;
     msg.textContent = stillInTray
       ? `✅ ${correct}/${total} correct. Put every shape into a box, then check again!`
       : `✅ ${correct}/${total} correct. Move the red outlined shapes to the correct box!`;
+    speak(`You got ${correct} out of ${total} correct. ${correct >= 4 ? 'Great job!' : 'Keep trying!'}`);
   }
 
   if (window.GPTrack && typeof window.GPTrack.finish === "function") {
@@ -486,6 +488,12 @@ document.getElementById("checkBtn").addEventListener("click", async ()=>{
 
 paintHeaderSymbols();
 seed();
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    speak("Welcome to the polygon sort game! Drag each shape into the correct box. Pentagon has 5 vertices, hexagon has 6, octagon has 8. Tap check when you're done!");
+  }, 500);
+});
 </script>
 <video class="autoplay-intro" preload="auto" muted playsinline autoplay style="display:none" aria-hidden="true">
   <source src="../../../../assets/video/LB13b.mp4" type="video/mp4">

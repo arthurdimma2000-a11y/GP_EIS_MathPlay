@@ -3,189 +3,966 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Level B • Quiz 3 — Sides & Vertices</title>
+<title>Level B • Fun Polygon Quiz</title>
+
 <style>
-  :root{--bg1:#fff4b8;--bg2:#c7f7ff;--bg3:#ffd1f3;--ink:#1f2430;--card:#fff;
-    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;}
+  :root{
+    --bg1:#fff4b8;
+    --bg2:#c7f7ff;
+    --bg3:#ffd1f3;
+    --ink:#10233f;
+    --card:#ffffffee;
+    --green:#22c55e;
+    --blue:#4dabf7;
+    --purple:#7c3aed;
+    --pink:#ff4fa3;
+    --orange:#ff8a5b;
+    --red:#ef4444;
+    --shadow:0 18px 44px rgba(0,0,0,.13);
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
   *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));padding:18px}
-  .app{width:min(980px,98vw)}
-  .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-  .badge{background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 12px 28px rgba(0,0,0,.10);font-weight:1000;display:flex;gap:10px;align-items:center}
-  .btn{border:0;cursor:pointer;font-weight:1000;border-radius:14px;padding:12px 14px;background:#fff;color:var(--ink);box-shadow:0 10px 22px rgba(0,0,0,.12);text-decoration:none;display:inline-flex;gap:8px;align-items:center}
-  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#0b1b10}
-  .btn.next{background:linear-gradient(180deg,#74c0fc,#4dabf7);color:#06121d}
-  .card{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 16px 44px rgba(0,0,0,.12)}
-  .title{font-size:26px;font-weight:1000;margin:6px 0 6px}
-  .subtitle{margin:0 0 12px;opacity:.85}
-  .q{border-radius:18px;padding:12px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);margin-top:10px}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .opt{border:0;cursor:pointer;font-weight:1000;font-size:18px;border-radius:16px;padding:12px 14px;background:#fff;box-shadow:0 10px 22px rgba(0,0,0,.12)}
-  .opt:active{transform:translateY(1px)}
-  .msg{margin-top:12px;border-radius:16px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:
+      radial-gradient(circle at 15% 10%, #fff7ad 0 120px, transparent 122px),
+      radial-gradient(circle at 90% 20%, #bdf6ff 0 150px, transparent 152px),
+      radial-gradient(circle at 15% 88%, #ffd0f1 0 160px, transparent 162px),
+      linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+    padding:18px;
+    color:var(--ink);
+  }
+
+  .app{
+    width:min(1020px,98vw);
+  }
+
+  .top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+
+  .badge{
+    background:linear-gradient(135deg,#6945ef,#ff4fa3);
+    color:white;
+    border-radius:999px;
+    padding:12px 18px;
+    font-weight:1000;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    box-shadow:var(--shadow);
+  }
+
+  .badge .brain{
+    font-size:26px;
+  }
+
+  .badge small{
+    display:block;
+    opacity:.95;
+    font-size:14px;
+    margin-top:2px;
+  }
+
+  .top-actions{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    font-weight:1000;
+    border-radius:18px;
+    padding:12px 16px;
+    background:white;
+    color:var(--ink);
+    box-shadow:0 10px 22px rgba(0,0,0,.13);
+    text-decoration:none;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    justify-content:center;
+    font-family:inherit;
+    font-size:16px;
+    user-select:none;
+  }
+
+  .btn:active{
+    transform:translateY(2px);
+  }
+
+  .btn.primary{
+    background:linear-gradient(135deg,#63e6be,#22c55e);
+    color:#052414;
+  }
+
+  .btn.next{
+    background:linear-gradient(135deg,#74c0fc,#4dabf7);
+    color:#06121d;
+  }
+
+  .btn.orange{
+    background:linear-gradient(135deg,#ffb86b,#ff5f5f);
+    color:white;
+  }
+
+  .btn.dark{
+    background:linear-gradient(135deg,#64748b,#334155);
+    color:white;
+  }
+
+  .btn.disabled{
+    opacity:.45;
+    pointer-events:none;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:28px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    position:relative;
+  }
+
+  .card:before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(34,197,94,.16), transparent 34%),
+      radial-gradient(circle at 95% 5%, rgba(255,79,163,.15), transparent 32%),
+      radial-gradient(circle at 50% 105%, rgba(77,171,247,.16), transparent 36%);
+    pointer-events:none;
+  }
+
+  .card > *{
+    position:relative;
+  }
+
+  .hero-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+
+  h1{
+    font-size:clamp(26px,4vw,40px);
+    margin:0;
+    line-height:1.05;
+  }
+
+  .subtitle{
+    font-weight:900;
+    margin:8px 0 0;
+    font-size:18px;
+    opacity:.88;
+  }
+
+  .score-pill{
+    background:#0b1220;
+    color:white;
+    border-radius:999px;
+    padding:10px 14px;
+    font-weight:1000;
+    box-shadow:0 10px 22px rgba(0,0,0,.15);
+  }
+
+  .progress-wrap{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    background:white;
+    border-radius:20px;
+    padding:12px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    margin-bottom:14px;
+  }
+
+  .progress-label{
+    font-weight:1000;
+    min-width:92px;
+  }
+
+  .meter{
+    flex:1;
+    min-width:180px;
+    height:16px;
+    border-radius:999px;
+    background:#e2e8f0;
+    overflow:hidden;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.12);
+  }
+
+  .meter > i{
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#22c55e,#4f46e5,#ff4fa3);
+    border-radius:999px;
+    transition:width .25s ease;
+  }
+
+  .quiz-area{
+    display:grid;
+    grid-template-columns:330px 1fr;
+    gap:18px;
+    align-items:stretch;
+  }
+
+  @media(max-width:860px){
+    .quiz-area{
+      grid-template-columns:1fr;
+    }
+  }
+
+  .shape-card{
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    border-radius:26px;
+    padding:16px;
+    box-shadow:inset 0 0 0 3px rgba(0,0,0,.06);
+    min-height:310px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+
+  .shape-name{
+    background:#0b1220;
+    color:white;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:18px;
+    font-weight:1000;
+    letter-spacing:.5px;
+  }
+
+  svg{
+    max-width:100%;
+  }
+
+  .question-card{
+    background:linear-gradient(180deg,#fff8fd,#ffffff);
+    border-radius:26px;
+    padding:18px;
+    box-shadow:inset 0 0 0 3px rgba(0,0,0,.06);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .question-number{
+    display:inline-flex;
+    width:fit-content;
+    background:#fff3bf;
+    border:2px solid #ffd43b;
+    color:#6b4300;
+    border-radius:999px;
+    padding:7px 12px;
+    font-weight:1000;
+    margin-bottom:12px;
+  }
+
+  .question{
+    font-size:clamp(24px,3vw,34px);
+    font-weight:1000;
+    line-height:1.22;
+    margin-bottom:16px;
+  }
+
+  .opts{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+
+  @media(max-width:560px){
+    .opts{
+      grid-template-columns:1fr;
+    }
+  }
+
+  .opt{
+    border:0;
+    cursor:pointer;
+    font-family:inherit;
+    font-weight:1000;
+    font-size:22px;
+    border-radius:22px;
+    min-height:70px;
+    padding:12px 14px;
+    background:white;
+    color:var(--ink);
+    box-shadow:0 12px 24px rgba(0,0,0,.12), inset 0 0 0 3px rgba(0,0,0,.06);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    text-align:left;
+  }
+
+  .opt:hover{
+    transform:translateY(-1px);
+  }
+
+  .opt.correct{
+    background:#dcfce7;
+    box-shadow:0 12px 24px rgba(34,197,94,.18), inset 0 0 0 4px #22c55e;
+  }
+
+  .opt.wrong{
+    background:#fee2e2;
+    box-shadow:0 12px 24px rgba(239,68,68,.16), inset 0 0 0 4px #ef4444;
+  }
+
+  .tap{
+    font-size:16px;
+    opacity:.7;
+  }
+
+  .message{
+    margin-top:14px;
+    background:#ffffff;
+    border-radius:20px;
+    padding:13px 14px;
+    font-size:18px;
+    font-weight:1000;
+    min-height:54px;
+    display:flex;
+    align-items:center;
+    box-shadow:inset 0 0 0 3px rgba(0,0,0,.06);
+  }
+
+  .bottom-actions{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  .stars{
+    font-size:28px;
+    letter-spacing:4px;
+    min-height:38px;
+    text-align:center;
+    margin-top:10px;
+    text-shadow:0 3px 0 #b87900, 0 7px 14px rgba(0,0,0,.25);
+  }
+
+  .confetti{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:9999;
+  }
+
+  .confetti span{
+    position:absolute;
+    top:-20px;
+    font-size:22px;
+    animation:fall 1.6s linear forwards;
+  }
+
+  @keyframes fall{
+    to{
+      transform:translateY(110vh) rotate(720deg);
+      opacity:.2;
+    }
+  }
 </style>
 </head>
+
 <body>
 <div class="app">
   <div class="top">
-    <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Quiz 3 • Mix</span></div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap">
-      <a class="btn" href="LB_Game3.html">⬅ Back</a>
-      <a class="btn next" href="../../../../index.html">Next ▶</a>
+    <div class="badge">
+      <span class="brain">🧠</span>
+      <div>
+        <div style="font-size:20px;line-height:1">Level B</div>
+        <small>Fun Polygon Quiz • Vertices & Shapes</small>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <a class="btn dark" href="LB_Game3.html">⬅ Back</a>
+      <button class="btn dark" id="soundBtn" type="button">🔊 Sound: ON</button>
+      <a class="btn next disabled" id="nextPageBtn" href="index.html">Next ▶</a>
     </div>
   </div>
 
   <div class="card">
-    <div class="title">Answer the question!</div>
-    <p class="subtitle">
-      Hexagon fact from your book: it has <b>six sides</b> and <b>six vertices</b>. :contentReference[oaicite:12]{index=12}
-    </p>
-
-    <div class="q">
-      <div id="question" style="font-size:20px;font-weight:1000"></div>
-      <div class="row" id="opts" style="margin-top:12px"></div>
+    <div class="hero-title">
+      <div>
+        <h1>🌈 Polygon Quiz Time!</h1>
+        <p class="subtitle">Tap the correct answer. Count the corners carefully. Vertices means corners! ⭐</p>
+      </div>
+      <div class="score-pill" id="scorePill">Score: 0/10</div>
     </div>
 
-    <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="nextBtn">➡ Next</button>
-      <button class="btn" id="finishBtn">🏁 Finish</button>
+    <div class="progress-wrap">
+      <div class="progress-label" id="progressText">0%</div>
+      <div class="meter"><i id="bar"></i></div>
+      <div class="progress-label" id="qCount">Question 1/10</div>
     </div>
 
-    <div class="msg" id="msg">Press Next to begin ⭐</div>
+    <div class="quiz-area">
+      <div class="shape-card">
+        <svg id="shapeSvg" width="240" height="220" viewBox="0 0 240 220" aria-label="polygon shape"></svg>
+        <div class="shape-name" id="shapeName">POLYGON</div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-number" id="questionBadge">Question 1</div>
+        <div class="question" id="question">Press Start to begin!</div>
+        <div class="opts" id="opts"></div>
+        <div class="message" id="msg">🎉 Ready? Press Start!</div>
+      </div>
+    </div>
+
+    <div class="stars" id="stars"></div>
+
+    <div class="bottom-actions">
+      <button class="btn primary" id="startBtn" type="button">▶ Start Quiz</button>
+      <button class="btn orange" id="readBtn" type="button">🔊 Read Question</button>
+      <button class="btn" id="restartBtn" type="button">🔁 Restart</button>
+      <button class="btn dark" id="finishBtn" type="button">🏁 Finish</button>
+    </div>
   </div>
 </div>
 
+<div class="confetti" id="confetti"></div>
+
 <script>
-/* --- SFX + Tracker --- */
-(function(){
-  const STORE_KEY="gpeis_progress_v1";
-  let audioCtx=null;
-  function ctx(){ audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function beep(f,t,g=0.05,type="triangle"){ const c=ctx(),o=c.createOscillator(),ga=c.createGain();
-    o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
-  function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
-  function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
-  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
-  function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
-  window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
-    const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
-    const acts=db[level].activities; acts[activityId]=acts[activityId]||{attempts:0,bestScore:0,bestStars:0};
-    const a=acts[activityId];
-    a.attempts++; a.lastScore=score; a.lastStars=stars; a.completed=true; a.lastAt=new Date().toISOString();
-    a.bestScore=Math.max(a.bestScore||0,score); a.bestStars=Math.max(a.bestStars||0,stars);
-    db[level].updatedAt=new Date().toISOString(); save(db);
-    chime(); if(stars>=3||score>=85) cheer();
-    return a;
-  }};
-  window.__SFX__={chime,cheer};
-})();
+/* =========================
+   Kid-friendly sound effects
+========================= */
+let SOUND_ON = true;
+let audioCtx = null;
 
-const questionEl=document.getElementById("question");
-const optsEl=document.getElementById("opts");
-const msg=document.getElementById("msg");
+function getAudioCtx(){
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume().catch(()=>{});
+  }
+  return audioCtx;
+}
 
-const Q = [
-  {q:"How many vertices does a pentagon have?", a:"5", opts:["5","6","8"], cite:"pentagon"},
-  {q:"How many vertices does a hexagon have?", a:"6", opts:["5","6","8"], cite:"hexagon"},
-  {q:"How many vertices does an octagon have?", a:"8", opts:["5","6","8"], cite:"octagon"},
-  {q:"A hexagon has how many sides?", a:"6", opts:["5","6","8"], cite:"hexSides"},
-  {q:"Which shape has 8 vertices?", a:"Octagon", opts:["Pentagon","Hexagon","Octagon"], cite:"octagon"},
-  {q:"Which shape has 5 vertices?", a:"Pentagon", opts:["Pentagon","Hexagon","Octagon"], cite:"pentagon"},
+function tone(freq, duration = 0.12, type = "sine", gainValue = 0.06, delay = 0){
+  if (!SOUND_ON) return;
+
+  try{
+    const ctx = getAudioCtx();
+    const start = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, start);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(start);
+    osc.stop(start + duration + 0.03);
+  }catch(e){}
+}
+
+function playGood(){
+  tone(880,.09,"sine",.07,0);
+  tone(1175,.10,"sine",.07,.08);
+  tone(1568,.12,"sine",.07,.18);
+}
+
+function playBad(){
+  tone(260,.14,"triangle",.06,0);
+  tone(190,.18,"triangle",.06,.08);
+}
+
+function playCheer(){
+  tone(523,.09,"sine",.06,0);
+  tone(659,.09,"sine",.06,.08);
+  tone(784,.10,"sine",.06,.16);
+  tone(988,.14,"sine",.06,.26);
+}
+
+/* =========================
+   Voice
+========================= */
+function chooseVoice(){
+  if (!("speechSynthesis" in window)) return null;
+
+  const voices = speechSynthesis.getVoices() || [];
+  const english = voices.filter(v => /^en/i.test(v.lang || ""));
+
+  const preferred = ["Jenny","Aria","Samantha","Victoria","Zira","Susan","Google US English","Microsoft Zira"];
+
+  for (const name of preferred) {
+    const found = english.find(v => (v.name || "").toLowerCase().includes(name.toLowerCase()));
+    if (found) return found;
+  }
+
+  return english[0] || voices[0] || null;
+}
+
+function speak(text){
+  if (!("speechSynthesis" in window)) return;
+
+  try{
+    speechSynthesis.cancel();
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 0.9;
+    u.pitch = 1.12;
+    u.volume = 1;
+
+    const voice = chooseVoice();
+    if (voice) u.voice = voice;
+
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* =========================
+   Progress tracking fallback
+========================= */
+const STORE_KEY = "gpeis_progress_v1";
+
+function saveLocalProgress(scorePct, stars){
+  try{
+    const db = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+    db.B = db.B || { level:"B", activities:{}, updatedAt:new Date().toISOString() };
+    db.B.activities = db.B.activities || {};
+
+    const item = db.B.activities.LB_Quiz3 || { attempts:0, bestScore:0, bestStars:0 };
+
+    item.attempts += 1;
+    item.lastScore = scorePct;
+    item.lastStars = stars;
+    item.completed = true;
+    item.lastAt = new Date().toISOString();
+    item.bestScore = Math.max(item.bestScore || 0, scorePct);
+    item.bestStars = Math.max(item.bestStars || 0, stars);
+
+    db.B.activities.LB_Quiz3 = item;
+    db.B.updatedAt = new Date().toISOString();
+
+    localStorage.setItem(STORE_KEY, JSON.stringify(db));
+  }catch(e){}
+}
+
+async function saveFinish(scorePct, stars){
+  saveLocalProgress(scorePct, stars);
+
+  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
+    try{
+      await window.GPTrack.finish({
+        pageId: "LB_Quiz3",
+        level: "B",
+        activityType: "quiz",
+        score: scorePct,
+        stars,
+        skills: {
+          reading: 2,
+          writing: 0,
+          speaking: 1,
+          listening: 1,
+          vertices: 2,
+          shapes: 2
+        }
+      });
+    }catch(e){}
+  }
+}
+
+/* =========================
+   Shape drawing
+========================= */
+function polygonPoints(cx, cy, r, sides, rotation = -Math.PI / 2){
+  const arr = [];
+
+  for (let i = 0; i < sides; i++) {
+    const angle = rotation + i * 2 * Math.PI / sides;
+    arr.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+  }
+
+  return arr.join(" ");
+}
+
+function drawPolygon(svg, sides, c1, c2){
+  const points = polygonPoints(120, 110, 76, sides);
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="polyG" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="${c1}"/>
+        <stop offset="1" stop-color="${c2}"/>
+      </linearGradient>
+      <filter id="polyShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="9" stdDeviation="7" flood-color="rgba(0,0,0,.25)"/>
+      </filter>
+    </defs>
+
+    <polygon points="${points}"
+      fill="url(#polyG)"
+      stroke="rgba(0,0,0,.18)"
+      stroke-width="4"
+      filter="url(#polyShadow)"/>
+
+    ${Array.from({length:sides}).map((_,i)=>{
+      const angle = -Math.PI / 2 + i * 2 * Math.PI / sides;
+      const x = 120 + 76 * Math.cos(angle);
+      const y = 110 + 76 * Math.sin(angle);
+      return `<circle cx="${x}" cy="${y}" r="7" fill="#ffffff" stroke="#0b1220" stroke-width="2"/>`;
+    }).join("")}
+  `;
+}
+
+function drawMystery(svg){
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="mysteryG" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="#a78bfa"/>
+        <stop offset="1" stop-color="#22c55e"/>
+      </linearGradient>
+      <filter id="mysteryShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="9" stdDeviation="7" flood-color="rgba(0,0,0,.25)"/>
+      </filter>
+    </defs>
+    <circle cx="120" cy="110" r="75" fill="url(#mysteryG)" filter="url(#mysteryShadow)" opacity=".18"/>
+    <text x="120" y="126" text-anchor="middle" font-size="70" font-weight="900" fill="#0b1220">?</text>
+  `;
+}
+
+/* =========================
+   Quiz data
+========================= */
+const SHAPES = {
+  triangle:{ name:"Triangle", sides:3, vertices:3, c1:"#60a5fa", c2:"#34d399" },
+  square:{ name:"Square", sides:4, vertices:4, c1:"#facc15", c2:"#fb7185" },
+  pentagon:{ name:"Pentagon", sides:5, vertices:5, c1:"#ff4fa3", c2:"#ffd60a" },
+  hexagon:{ name:"Hexagon", sides:6, vertices:6, c1:"#f97316", c2:"#60a5fa" },
+  octagon:{ name:"Octagon", sides:8, vertices:8, c1:"#34d399", c2:"#a78bfa" }
+};
+
+const QUESTIONS = [
+  {
+    shape:"triangle",
+    q:"How many vertices does this triangle have?",
+    answer:"3",
+    choices:["3","4","5","6"]
+  },
+  {
+    shape:"square",
+    q:"How many vertices does this square have?",
+    answer:"4",
+    choices:["3","4","5","8"]
+  },
+  {
+    shape:"pentagon",
+    q:"How many vertices does this pentagon have?",
+    answer:"5",
+    choices:["4","5","6","8"]
+  },
+  {
+    shape:"hexagon",
+    q:"How many vertices does this hexagon have?",
+    answer:"6",
+    choices:["5","6","7","8"]
+  },
+  {
+    shape:"octagon",
+    q:"How many vertices does this octagon have?",
+    answer:"8",
+    choices:["5","6","7","8"]
+  },
+  {
+    shape:"pentagon",
+    q:"Which polygon has 5 vertices?",
+    answer:"Pentagon",
+    choices:["Triangle","Square","Pentagon","Octagon"]
+  },
+  {
+    shape:"hexagon",
+    q:"Which polygon has 6 vertices?",
+    answer:"Hexagon",
+    choices:["Square","Pentagon","Hexagon","Octagon"]
+  },
+  {
+    shape:"octagon",
+    q:"Which polygon has 8 vertices?",
+    answer:"Octagon",
+    choices:["Triangle","Hexagon","Pentagon","Octagon"]
+  },
+  {
+    shape:"triangle",
+    q:"A polygon has straight sides. Is a triangle a polygon?",
+    answer:"Yes",
+    choices:["Yes","No","Circle","Maybe"]
+  },
+  {
+    shape:"square",
+    q:"Vertices are the same as what?",
+    answer:"Corners",
+    choices:["Colors","Corners","Curves","Songs"]
+  }
 ];
 
-let i=-1, correct=0, locked=true;
+let quizOrder = [];
+let currentIndex = 0;
+let correct = 0;
+let locked = true;
+let finished = false;
 
-function render(){
-  const item=Q[i];
-  questionEl.textContent = `Question ${i+1}/${Q.length}: ${item.q}`;
-  optsEl.innerHTML="";
-  item.opts.forEach(o=>{
-    const b=document.createElement("button");
-    b.className="opt";
-    b.textContent=o;
-    b.onclick=()=>pick(o);
-    optsEl.appendChild(b);
+const shapeSvg = document.getElementById("shapeSvg");
+const shapeName = document.getElementById("shapeName");
+const questionEl = document.getElementById("question");
+const questionBadge = document.getElementById("questionBadge");
+const optsEl = document.getElementById("opts");
+const msg = document.getElementById("msg");
+const scorePill = document.getElementById("scorePill");
+const bar = document.getElementById("bar");
+const progressText = document.getElementById("progressText");
+const qCount = document.getElementById("qCount");
+const starsEl = document.getElementById("stars");
+const nextPageBtn = document.getElementById("nextPageBtn");
+
+function shuffle(arr){
+  return [...arr].sort(()=>Math.random() - 0.5);
+}
+
+function updateTop(){
+  const total = QUESTIONS.length;
+  const pct = Math.round((currentIndex / total) * 100);
+
+  scorePill.textContent = `Score: ${correct}/${total}`;
+  bar.style.width = `${pct}%`;
+  progressText.textContent = `${pct}%`;
+  qCount.textContent = `Question ${Math.min(currentIndex + 1, total)}/${total}`;
+}
+
+function renderQuestion(){
+  const item = quizOrder[currentIndex];
+  const shape = SHAPES[item.shape];
+
+  locked = false;
+  finished = false;
+
+  questionBadge.textContent = `Question ${currentIndex + 1}`;
+  questionEl.textContent = item.q;
+  shapeName.textContent = shape.name.toUpperCase();
+
+  drawPolygon(shapeSvg, shape.vertices, shape.c1, shape.c2);
+
+  optsEl.innerHTML = "";
+
+  shuffle(item.choices).forEach(choice => {
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.type = "button";
+    btn.innerHTML = `<span>${choice}</span><span class="tap">tap</span>`;
+    btn.addEventListener("click", () => pickAnswer(btn, choice));
+    optsEl.appendChild(btn);
   });
+
+  msg.textContent = "Count the corners. Tap the best answer! ⭐";
+  starsEl.textContent = "";
+  updateTop();
+  speak(item.q);
 }
 
-function next(){
-  i++;
-  if(i>=Q.length){ finish(); return; }
-  locked=false;
-  render();
-  msg.textContent="Pick the best answer!";
-  window.__SFX__.chime();
-}
+function pickAnswer(button, choice){
+  if (locked || finished) return;
 
-function pick(ans){
-  if(locked) return;
-  locked=true;
-  const item=Q[i];
-  if(ans===item.a){
+  locked = true;
+
+  const item = quizOrder[currentIndex];
+  const ok = String(choice) === String(item.answer);
+
+  optsEl.querySelectorAll(".opt").forEach(btn => {
+    btn.disabled = true;
+  });
+
+  if (ok) {
     correct++;
-    msg.textContent="✅ Correct!";
-    window.__SFX__.cheer();
-  }else{
-    msg.textContent=`❌ Not quite. Correct answer is ${item.a}.`;
-    window.__SFX__.chime();
-  }
-  setTimeout(()=>{ locked=false; next(); }, 650);
-}
+    button.classList.add("correct");
+    msg.textContent = "✅ Correct! Great counting!";
+    playGood();
 
-async function finish(){
-  const scorePct=Math.round((correct/Q.length)*100);
-  const stars=scorePct>=90?3:scorePct>=70?2:scorePct>=50?1:0;
-  msg.textContent=`🎉 Finished! Correct ${correct}/${Q.length} (≈${scorePct}%). Stars: ${"⭐".repeat(Math.max(1,stars))}`;
-  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
-    await window.GPTrack.finish({
-      pageId: "LB_Quiz3",
-      level: "B",
-      activityType: "quiz",
-      score: scorePct,
-      stars,
-      skills: { reading: 2, writing: 0, speaking: 0, listening: 1 }
+    if (correct > 0 && correct % 3 === 0) {
+      playCheer();
+      makeConfetti();
+      msg.textContent = "✅ Correct! 3 in a row! Amazing! 🎉";
+    }
+
+    speak("Correct! Great counting!");
+  } else {
+    button.classList.add("wrong");
+
+    optsEl.querySelectorAll(".opt").forEach(btn => {
+      const answerText = btn.querySelector("span")?.textContent || btn.textContent;
+      if (String(answerText).trim() === String(item.answer)) {
+        btn.classList.add("correct");
+      }
     });
-  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
-    window.__LegacyTrack__.complete({ level: "B", activityId: "LB_Quiz3", score: scorePct, stars });
+
+    msg.textContent = `❌ Good try. The answer is ${item.answer}.`;
+    playBad();
+    speak(`Good try. The answer is ${item.answer}.`);
   }
-  window.__SFX__.cheer();
+
+  scorePill.textContent = `Score: ${correct}/${QUESTIONS.length}`;
+
+  setTimeout(() => {
+    currentIndex++;
+
+    if (currentIndex >= quizOrder.length) {
+      finishQuiz();
+    } else {
+      renderQuestion();
+    }
+  }, 1150);
 }
 
-document.getElementById("nextBtn").onclick=next;
-document.getElementById("finishBtn").onclick=finish;
+function startQuiz(){
+  currentIndex = 0;
+  correct = 0;
+  finished = false;
+  locked = false;
+  quizOrder = shuffle(QUESTIONS);
+  nextPageBtn.classList.add("disabled");
+  renderQuestion();
+  playGood();
+}
+
+function restartQuiz(){
+  startQuiz();
+  msg.textContent = "🔁 Restarted! Let’s try again!";
+}
+
+async function finishQuiz(){
+  finished = true;
+  locked = true;
+
+  const total = QUESTIONS.length;
+  const scorePct = Math.round((correct / total) * 100);
+  const stars = scorePct >= 90 ? 3 : scorePct >= 70 ? 2 : scorePct >= 50 ? 1 : 0;
+
+  bar.style.width = "100%";
+  progressText.textContent = "100%";
+  qCount.textContent = `Finished`;
+  scorePill.textContent = `Score: ${correct}/${total}`;
+
+  drawMystery(shapeSvg);
+  shapeName.textContent = "QUIZ COMPLETE";
+  questionBadge.textContent = "Finished!";
+  questionEl.textContent = "Great job, polygon superstar!";
+
+  optsEl.innerHTML = "";
+  msg.textContent = `🎉 You got ${correct}/${total}. Score: ${scorePct}%.`;
+
+  starsEl.textContent = stars > 0 ? "⭐".repeat(stars) : "🌟";
+
+  playCheer();
+  makeConfetti();
+  speak(`Great job! You got ${correct} out of ${total}.`);
+
+  nextPageBtn.classList.remove("disabled");
+
+  await saveFinish(scorePct, stars);
+}
+
+function makeConfetti(){
+  const box = document.getElementById("confetti");
+  const icons = ["⭐","🎉","💚","💜","🔷","🟨","✨"];
+
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement("span");
+    s.textContent = icons[Math.floor(Math.random() * icons.length)];
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.animationDelay = Math.random() * 0.35 + "s";
+    s.style.fontSize = 18 + Math.random() * 16 + "px";
+    box.appendChild(s);
+
+    setTimeout(() => s.remove(), 1900);
+  }
+}
+
+function readCurrentQuestion(){
+  if (!quizOrder.length || finished) {
+    speak("Press start quiz to begin.");
+    return;
+  }
+
+  const item = quizOrder[currentIndex];
+  speak(item.q);
+}
+
+/* =========================
+   Buttons
+========================= */
+document.getElementById("startBtn").addEventListener("click", startQuiz);
+document.getElementById("restartBtn").addEventListener("click", restartQuiz);
+document.getElementById("readBtn").addEventListener("click", readCurrentQuestion);
+document.getElementById("finishBtn").addEventListener("click", finishQuiz);
+
+document.getElementById("soundBtn").addEventListener("click", (e) => {
+  SOUND_ON = !SOUND_ON;
+  e.currentTarget.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+});
+
+/* Initial screen */
+drawMystery(shapeSvg);
+shapeName.textContent = "READY";
+questionEl.textContent = "Press Start Quiz to begin!";
+optsEl.innerHTML = "";
+msg.textContent = "🎉 Ready? Count vertices and tap the correct answer.";
+updateTop();
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    speak("Welcome to the polygon quiz. Press start quiz to begin.");
+  }, 500);
+
+  if (window.GPTrack && typeof window.GPTrack.start === "function") {
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || "LB_Quiz3");
+  }
+});
 </script>
+
 <script src="../../../../shared/js/levelbc-runtime-fix.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 <script type="module" src="./progress-tracker.js"></script>
-<script>
-  window.addEventListener("load", () => {
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    GPTrack.start(pageFile || document.title || "Activity");
-  });
 
-  async function finishActivity(overrides = {}){
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
-      ? "A"
-      : (/^(LB|LevelB)/i.test(pageFile))
-        ? "B"
-        : (/^(LC|LevelC)/i.test(pageFile))
-          ? "C"
-          : null;
-
-    await GPTrack.finish({
-      pageId: pageFile || document.title || "Activity",
-      level: inferredLevel,
-      activityType: "activity",
-      score: null,
-      stars: 0,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
-      ...overrides
-    });
-  }
-</script>
 </body>
 </html>
-

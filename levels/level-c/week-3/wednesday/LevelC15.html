@@ -265,6 +265,19 @@
   const REQUIRED_EDGES = new Set();
   const ADJACENCY = new Map();
 
+  /*
+    Visual dots are now smaller, but the invisible touch target stays wide.
+    This helps children connect the dots perfectly on phones/tablets.
+  */
+  const DOT_TOUCH_RADIUS = 44;
+  const DOT_SNAP_RADIUS = 46;
+  const DOT_CENTER_RADIUS = 3.6;
+  const DOT_ACTIVE_RADIUS = 5.2;
+  const DOT_RING_RADIUS = 7.4;
+  const DOT_ACTIVE_RING_RADIUS = 9.6;
+  const DOT_SOFT_RING_RADIUS = 10.2;
+  const DOT_NEIGHBOR_RING_RADIUS = 12.2;
+
   function getGroup(index){
     return index < HEX_DOTS.length ? "hex" : "oct";
   }
@@ -308,6 +321,7 @@
   let startDot = null;
   let hoverPt = null;
   let hoverDot = null;
+  let selectedTapStart = null;
   let traceSolved = false;
   let lastTickAt = 0;
 
@@ -489,36 +503,39 @@
     ctx.lineJoin = "round";
 
     for (const s of strokes) {
-      const color = groupColor(s.group);
-      const glow = groupGlow(s.group);
-      const soft = groupSoftGlow(s.group);
+      const group = s.group || getGroup(s.from);
+      const a = dotToPx(ALL_DOTS[s.from]);
+      const b = dotToPx(ALL_DOTS[s.to]);
+      const color = groupColor(group);
+      const glow = groupGlow(group);
+      const soft = groupSoftGlow(group);
 
       ctx.beginPath();
-      ctx.lineWidth = 18;
+      ctx.lineWidth = 13;
       ctx.strokeStyle = soft;
-      ctx.moveTo(s.a.x, s.a.y);
-      ctx.lineTo(s.b.x, s.b.y);
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.lineWidth = 10;
+      ctx.lineWidth = 7.5;
       ctx.strokeStyle = glow;
-      ctx.moveTo(s.a.x, s.a.y);
-      ctx.lineTo(s.b.x, s.b.y);
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 4.8;
       ctx.strokeStyle = color;
-      ctx.moveTo(s.a.x, s.a.y);
-      ctx.lineTo(s.b.x, s.b.y);
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = "rgba(255,255,255,0.72)";
-      ctx.moveTo(s.a.x, s.a.y);
-      ctx.lineTo(s.b.x, s.b.y);
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "rgba(255,255,255,0.75)";
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
       ctx.stroke();
     }
   }
@@ -533,33 +550,35 @@
       const glow = groupGlow(group);
       const soft = groupSoftGlow(group);
 
-      const isStart = startDot && startDot.index === index;
+      const isStart = (startDot && startDot.index === index) || (selectedTapStart && selectedTapStart.index === index);
       const isHover = hoverDot && hoverDot.index === index;
-      const isNeighbor = startDot && ADJACENCY.get(startDot.index)?.has(index);
+      const activeIndex = startDot ? startDot.index : (selectedTapStart ? selectedTapStart.index : null);
+      const isNeighbor = activeIndex != null && ADJACENCY.get(activeIndex)?.has(index);
+      const alreadyConnected = activeIndex != null && strokes.some((stroke) => stroke.key === edgeKey(activeIndex, index));
 
       fx.beginPath();
-      fx.arc(p.x, p.y, isStart ? 14 : 10.5, 0, Math.PI * 2);
-      fx.fillStyle = isStart ? "rgba(255,210,74,0.98)" : isHover ? color : "rgba(255,255,255,0.96)";
+      fx.arc(p.x, p.y, isStart ? DOT_ACTIVE_RADIUS : DOT_CENTER_RADIUS, 0, Math.PI * 2);
+      fx.fillStyle = isStart ? "rgba(255,210,74,0.98)" : isHover ? color : "rgba(255,255,255,0.98)";
       fx.fill();
 
       fx.beginPath();
-      fx.arc(p.x, p.y, isStart ? 24 : 20, 0, Math.PI * 2);
-      fx.lineWidth = isNeighbor ? 4.5 : 3.5;
+      fx.arc(p.x, p.y, isStart ? DOT_ACTIVE_RING_RADIUS : DOT_RING_RADIUS, 0, Math.PI * 2);
+      fx.lineWidth = isNeighbor && !alreadyConnected ? 2.2 : 1.6;
       fx.strokeStyle = isStart ? "rgba(255,170,0,0.98)" : color;
-      fx.globalAlpha = isNeighbor ? 1 : 0.92;
+      fx.globalAlpha = isNeighbor && !alreadyConnected ? 1 : 0.92;
       fx.stroke();
       fx.globalAlpha = 1;
 
       fx.beginPath();
-      fx.arc(p.x, p.y, isStart ? 30 : 25, 0, Math.PI * 2);
-      fx.lineWidth = 7;
+      fx.arc(p.x, p.y, isStart ? DOT_NEIGHBOR_RING_RADIUS : DOT_SOFT_RING_RADIUS, 0, Math.PI * 2);
+      fx.lineWidth = 2.2;
       fx.strokeStyle = soft;
       fx.stroke();
 
-      if (isNeighbor) {
+      if (isNeighbor && !alreadyConnected) {
         fx.beginPath();
-        fx.arc(p.x, p.y, 28, 0, Math.PI * 2);
-        fx.lineWidth = 3;
+        fx.arc(p.x, p.y, DOT_NEIGHBOR_RING_RADIUS, 0, Math.PI * 2);
+        fx.lineWidth = 1.5;
         fx.strokeStyle = glow;
         fx.stroke();
       }
@@ -573,28 +592,30 @@
     const color = groupColor(startGroup);
     const glow = groupGlow(startGroup);
     const soft = groupSoftGlow(startGroup);
-    const endTarget = hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index) ? hoverDot.pt : hoverPt;
+    const canSnap = hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index);
+    const endTarget = canSnap ? dotToPx(ALL_DOTS[hoverDot.index]) : hoverPt;
+    const startPt = dotToPx(ALL_DOTS[startDot.index]);
 
     fx.beginPath();
-    fx.lineWidth = 16;
+    fx.lineWidth = 11;
     fx.strokeStyle = soft;
-    fx.moveTo(startDot.pt.x, startDot.pt.y);
+    fx.moveTo(startPt.x, startPt.y);
     fx.lineTo(endTarget.x, endTarget.y);
     fx.stroke();
 
     fx.beginPath();
-    fx.lineWidth = 8;
-    fx.strokeStyle = hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index) ? color : "rgba(120,120,120,0.55)";
-    fx.setLineDash([10,8]);
-    fx.moveTo(startDot.pt.x, startDot.pt.y);
+    fx.lineWidth = 5.5;
+    fx.strokeStyle = canSnap ? color : "rgba(120,120,120,0.55)";
+    fx.setLineDash(canSnap ? [] : [8,7]);
+    fx.moveTo(startPt.x, startPt.y);
     fx.lineTo(endTarget.x, endTarget.y);
     fx.stroke();
     fx.setLineDash([]);
 
     fx.beginPath();
-    fx.lineWidth = 4;
-    fx.strokeStyle = hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index) ? glow : "rgba(150,150,150,0.25)";
-    fx.moveTo(startDot.pt.x, startDot.pt.y);
+    fx.lineWidth = 2.5;
+    fx.strokeStyle = canSnap ? glow : "rgba(150,150,150,0.25)";
+    fx.moveTo(startPt.x, startPt.y);
     fx.lineTo(endTarget.x, endTarget.y);
     fx.stroke();
   }
@@ -605,26 +626,74 @@
     drawPreview();
   }
 
+  function addEdgeBetween(aIndex, bIndex){
+    if (aIndex == null || bIndex == null || aIndex === bIndex) return false;
+
+    const key = edgeKey(aIndex, bIndex);
+    const sameGroup = getGroup(aIndex) === getGroup(bIndex);
+
+    if (REQUIRED_EDGES.has(key) && sameGroup) {
+      if (!strokes.some((stroke) => stroke.key === key)) {
+        const group = getGroup(aIndex);
+        strokes.push({ from: aIndex, to: bIndex, key, group });
+        playConnectTick(group);
+        const score = saveTraceProgress();
+
+        if (!traceSolved && strokes.length === REQUIRED_EDGES.size) {
+          traceSolved = true;
+          statusLine.textContent = "Excellent! You completed all of the shapes.";
+          playCelebration();
+          speak("Excellent! You completed all of the shapes.");
+        } else if (score < 100) {
+          statusLine.textContent = "Good. Join the next dot.";
+        }
+      } else {
+        statusLine.textContent = "That side is already connected. Choose the next dot.";
+        playWrongTap();
+      }
+      return true;
+    }
+
+    statusLine.textContent = "Join only the next dot in the same shape.";
+    playWrongTap();
+    return false;
+  }
+
   function onDown(e) {
+    e.preventDefault();
     const p = getLocalPoint(e);
-    const near = nearestDot(p.x, p.y, 28);
+    const near = nearestDot(p.x, p.y, DOT_TOUCH_RADIUS);
     if (!near) return;
+
+    if (selectedTapStart && selectedTapStart.index !== near.index) {
+      addEdgeBetween(selectedTapStart.index, near.index);
+      selectedTapStart = null;
+      startDot = null;
+      hoverPt = null;
+      hoverDot = null;
+      redraw();
+      return;
+    }
 
     isDown = true;
     startDot = near;
-    hoverPt = p;
+    selectedTapStart = near;
+    hoverPt = dotToPx(ALL_DOTS[near.index]);
     hoverDot = near;
     canvas.setPointerCapture?.(e.pointerId);
     playConnectTick(getGroup(near.index));
+    statusLine.textContent = "Drag to the next dot, or tap the next dot.";
     redraw();
   }
 
   function onMove(e) {
+    if (!isDown) return;
+    e.preventDefault();
     const p = getLocalPoint(e);
     hoverPt = p;
-    hoverDot = nearestDot(p.x, p.y, 32);
+    hoverDot = nearestDot(p.x, p.y, DOT_SNAP_RADIUS);
 
-    if (isDown && startDot && hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index)) {
+    if (startDot && hoverDot && ADJACENCY.get(startDot.index)?.has(hoverDot.index)) {
       playConnectTick(getGroup(startDot.index));
     }
 
@@ -633,34 +702,17 @@
 
   function onUp(e) {
     if (!isDown) return;
+    e.preventDefault();
 
     const p = getLocalPoint(e);
-    const endDot = nearestDot(p.x, p.y, 32);
+    const endDot = nearestDot(p.x, p.y, DOT_SNAP_RADIUS);
 
     if (endDot && startDot && endDot.index !== startDot.index) {
-      const key = edgeKey(startDot.index, endDot.index);
-      const sameGroup = getGroup(startDot.index) === getGroup(endDot.index);
-
-      if (REQUIRED_EDGES.has(key) && sameGroup) {
-        if (!strokes.some((stroke) => stroke.key === key)) {
-          const group = getGroup(startDot.index);
-          strokes.push({ a: startDot.pt, b: endDot.pt, key, group });
-          playConnectTick(group);
-          saveTraceProgress();
-
-          if (!traceSolved && strokes.length === REQUIRED_EDGES.size) {
-            traceSolved = true;
-            statusLine.textContent = "Excellent! You completed all of the shapes.";
-            playCelebration();
-            speak("Excellent! You completed all of the shapes.");
-          }
-        } else {
-          playWrongTap();
-        }
-      } else {
-        playWrongTap();
-      }
+      const connected = addEdgeBetween(startDot.index, endDot.index);
+      selectedTapStart = connected ? endDot : startDot;
     }
+
+    try{ canvas.releasePointerCapture?.(e.pointerId); }catch(_e){}
 
     isDown = false;
     startDot = null;
@@ -683,6 +735,7 @@
 
   clearBtn.addEventListener("click", () => {
     strokes.length = 0;
+    selectedTapStart = null;
     traceSolved = false;
     progressMilestones.clear();
     statusLine.textContent = "";
@@ -693,6 +746,7 @@
 
   undoBtn.addEventListener("click", () => {
     strokes.pop();
+    selectedTapStart = null;
     traceSolved = false;
     statusLine.textContent = "";
     saveTraceProgress();

@@ -152,6 +152,8 @@ button{
     </button>
   </div>
 
+  <div id="airBubble" style="display:none; position:absolute; top:50px; left:50%; transform:translateX(-50%); background:#fff; border:2px solid #000; border-radius:10px; padding:10px; font-weight:bold; z-index:10;">An Octagon has 8 vertices.</div>
+
 </div>
 
 <script>
@@ -197,6 +199,12 @@ function updateTraceProgress(){
   if (tracePercent >= 100 && !window.__lb15Celebrated) {
     window.__lb15Celebrated = true;
     speak("Great job! You traced the octagon practice.");
+  } else if (tracePercent >= 50 && !window.__lb15Halfway) {
+    window.__lb15Halfway = true;
+    speak("Halfway there! Keep tracing!");
+  } else if (tracePercent >= 25 && !window.__lb15Quarter) {
+    window.__lb15Quarter = true;
+    speak("Good start! Continue tracing!");
   }
 }
 
@@ -310,7 +318,12 @@ function girlClick(){
 }
 
 function micClick(){
-  speak("Repeat after me. An octagon has eight vertices.");
+  const bubble = document.getElementById("airBubble");
+  bubble.style.display = "block";
+  speak("An Octagon has 8 vertices.");
+  setTimeout(() => {
+    bubble.style.display = "none";
+  }, 3000);
 }
 
 function goNext(){
@@ -320,6 +333,12 @@ function goNext(){
 function goPrev(){
   location.href = "LB14.html";
 }
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    speak("Welcome to octagon tracing practice. Trace the octagon shapes carefully. Tap the microphone to hear about vertices.");
+  }, 500);
+});
 </script>
 
 </body>

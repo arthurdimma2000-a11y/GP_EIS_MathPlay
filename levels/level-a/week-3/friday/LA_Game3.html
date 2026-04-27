@@ -201,9 +201,11 @@ function newRound(){
       rounds++;
       if(n===correct){
         ok++; __sound.chime();
+        speak(["Great job!", "Correct!", "Well done!", "Awesome!"][Math.floor(Math.random()*4)]);
         b.classList.add("good");
       }else{
         no++; __sound.cheer();
+        speak(["Try again!", "Not quite!", "Keep going!"][Math.floor(Math.random()*3)]);
         b.classList.add("bad");
       }
       okEl.textContent=ok; noEl.textContent=no;
@@ -214,9 +216,14 @@ function newRound(){
       setTimeout(()=>{ if(rounds<8) newRound(); }, 450);
     };
     choices.appendChild(b);
-  });
 }
 newRound();
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    speak("Welcome to the corner count game! Count the vertices on each shape. Circle has zero, triangle has three, square has four. Tap the correct number!");
+  }, 500);
+});
 
 async function finish(){
   const total = Math.max(1, ok+no);

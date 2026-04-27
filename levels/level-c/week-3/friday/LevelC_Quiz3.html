@@ -63,8 +63,20 @@
   .big{font-weight:900; font-size:16px}
   .mini{font-size:13px; opacity:.86; font-weight:900}
 
-  .meter{height:14px;border-radius:999px;background:#e2e8f0;overflow:hidden;box-shadow: inset 0 2px 6px rgba(0,0,0,.10)}
-  .meter>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--a),var(--b),var(--c));transition:width .25s ease}
+  .meter{
+    height:14px;
+    border-radius:999px;
+    background:#e2e8f0;
+    overflow:hidden;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.10)
+  }
+  .meter>i{
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--a),var(--b),var(--c));
+    transition:width .25s ease
+  }
 
   .qWrap{
     border:2px solid rgba(0,0,0,.08);
@@ -129,15 +141,17 @@
   .toast.show{display:block}
 </style>
 </head>
+
 <body>
 <div class="app">
   <div class="top">
     <div class="badge">🧠
       <div>
         <div style="line-height:1">Level C</div>
-        <small>Quiz 3 • Sides/Vertices + Tangram Facts</small>
+        <small>Quiz 3 • Vertices + Tangram Facts</small>
       </div>
     </div>
+
     <div class="panel">
       <b id="scoreText">0/12</b>
       <div class="meter" style="width:180px"><i id="bar"></i></div>
@@ -150,18 +164,20 @@
   <div class="grid">
     <section class="card">
       <h2>🎯 Main Quiz</h2>
-      <p class="big">Answer questions about <b>pentagon / hexagon / octagon</b> and Tangram rules. Earn cheers! 🎉</p>
+      <p class="big">Answer questions about <b>pentagon / hexagon / octagon vertices</b> and Tangram rules. Earn cheers! 🎉</p>
 
       <div class="qWrap" style="margin-top:10px">
         <div class="row">
           <div class="shapeBox">
             <svg id="shapeSvg" width="150" height="150" viewBox="0 0 150 150" aria-label="shape"></svg>
           </div>
+
           <div style="flex:1;min-width:260px">
             <div class="row" style="justify-content:space-between">
               <div class="prompt" id="prompt">Question…</div>
-              <span class="tag" id="typeTag">SIDES</span>
+              <span class="tag" id="typeTag">VERTICES</span>
             </div>
+
             <div class="opts" id="opts"></div>
             <div class="mini" style="margin-top:10px">Tip: vertices = corners ⭐</div>
           </div>
@@ -176,7 +192,7 @@
 
     <aside class="card">
       <h2>🔍 Mini Game: “Find the PENTAGONS!”</h2>
-      <p class="big">Tap only the <b>pentagons</b>. (Curvy shapes are NOT polygons!)</p>
+      <p class="big">Tap only the <b>pentagons</b>. Other shapes are not pentagons.</p>
 
       <div class="hunt" id="hunt">
         <div class="hint">
@@ -201,12 +217,24 @@
 
 <script>
 /* =========================
-   Tracker payload: level:"C"
+   Tracker payload
 ========================= */
-const TRACK = { app:"GPEIS_MathPlay", level:"C", page:"LevelC_Quiz3.html", skills:["pentagon_hexagon_octagon","tangram_facts"] };
+const TRACK = {
+  app:"GPEIS_MathPlay",
+  level:"C",
+  page:"LevelC_Quiz3.html",
+  skills:["pentagon_hexagon_octagon_vertices","tangram_facts"]
+};
+
 const STORE_KEY="GPEIS_PROGRESS_V1";
-const loadP=()=>{ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}")}catch(e){return{}} };
+
+const loadP=()=>{
+  try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}")}
+  catch(e){return{}}
+};
+
 const saveP=(p)=>localStorage.setItem(STORE_KEY, JSON.stringify(p));
+
 function record(evt){
   const p=loadP();
   p.events=Array.isArray(p.events)?p.events:[];
@@ -216,36 +244,66 @@ function record(evt){
 }
 
 /* =========================
-   Sound: chimes + cheers (WebAudio)
+   Sound
 ========================= */
 let SOUND_ON=true;
+
 const FX=(()=>{
   let ctx=null;
-  const ensure=()=>{ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==="suspended") ctx.resume().catch(()=>{}); };
+
+  const ensure=()=>{
+    if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state==="suspended") ctx.resume().catch(()=>{});
+  };
+
   const tone=(f,d=0.12,type="sine",g=0.08,w=0)=>{
-    if(!SOUND_ON) return; ensure();
-    const t0=ctx.currentTime+w, o=ctx.createOscillator(), gn=ctx.createGain();
-    o.type=type; o.frequency.setValueAtTime(f,t0);
+    if(!SOUND_ON) return;
+    ensure();
+
+    const t0=ctx.currentTime+w;
+    const o=ctx.createOscillator();
+    const gn=ctx.createGain();
+
+    o.type=type;
+    o.frequency.setValueAtTime(f,t0);
+
     gn.gain.setValueAtTime(0.0001,t0);
     gn.gain.exponentialRampToValueAtTime(g,t0+0.01);
     gn.gain.exponentialRampToValueAtTime(0.0001,t0+d);
-    o.connect(gn); gn.connect(ctx.destination);
-    o.start(t0); o.stop(t0+d+0.02);
+
+    o.connect(gn);
+    gn.connect(ctx.destination);
+
+    o.start(t0);
+    o.stop(t0+d+0.02);
   };
+
   return{
-    good(){ tone(880,.09,"sine",.08,0); tone(1175,.11,"sine",.08,.06); tone(1568,.12,"sine",.08,.12); },
-    bad(){ tone(220,.14,"triangle",.08,0); tone(180,.16,"triangle",.08,.06); },
+    good(){
+      tone(880,.09,"sine",.08,0);
+      tone(1175,.11,"sine",.08,.06);
+      tone(1568,.12,"sine",.08,.12);
+    },
+    bad(){
+      tone(220,.14,"triangle",.08,0);
+      tone(180,.16,"triangle",.08,.06);
+    },
     cheer(power=1){
       const base=[523,659,784,988,1175];
       base.forEach((f,i)=>tone(f,.10,"square",.03+power*0.03,i*.06));
-      for(let i=0;i<10*power;i++) tone(1200+Math.random()*900,.05,"sine",.02+power*0.01,.28+i*.02);
+      for(let i=0;i<10*power;i++){
+        tone(1200+Math.random()*900,.05,"sine",.02+power*0.01,.28+i*.02);
+      }
     }
   };
 })();
 
-/* UI toast */
+/* =========================
+   Toast
+========================= */
 const toastEl=document.getElementById("toast");
 let toastT=null;
+
 function toast(msg, ok=true){
   toastEl.textContent=msg;
   toastEl.style.background=ok?"#0b1220":"#3b0b0b";
@@ -254,65 +312,167 @@ function toast(msg, ok=true){
   toastT=setTimeout(()=>toastEl.classList.remove("show"), 900);
 }
 
-/* Shape drawing helpers */
-function pts(cx,cy,r,sides,rot=-Math.PI/2){
-  const a=[]; for(let i=0;i<sides;i++){ const t=rot+i*2*Math.PI/sides; a.push([cx+r*Math.cos(t), cy+r*Math.sin(t)]); }
+/* =========================
+   Shape drawing helpers
+========================= */
+function pts(cx,cy,r,vertices,rot=-Math.PI/2){
+  const a=[];
+  for(let i=0;i<vertices;i++){
+    const t=rot+i*2*Math.PI/vertices;
+    a.push([cx+r*Math.cos(t), cy+r*Math.sin(t)]);
+  }
   return a.map(p=>p.join(",")).join(" ");
 }
-function renderPoly(svg, sides, c1, c2){
+
+function renderPoly(svg, vertices, c1, c2){
   svg.innerHTML=`
     <defs>
       <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-        <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/>
+        <stop offset="0" stop-color="${c1}"/>
+        <stop offset="1" stop-color="${c2}"/>
       </linearGradient>
       <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,.25)"/>
       </filter>
     </defs>
-    <polygon points="${pts(75,78,52,sides)}" fill="url(#g)" filter="url(#sh)" stroke="rgba(0,0,0,.16)" stroke-width="3"/>
-    ${Array.from({length:sides}).map((_,i)=>{
-      const t=-Math.PI/2+i*2*Math.PI/sides;
-      const x=75+52*Math.cos(t), y=78+52*Math.sin(t);
+
+    <polygon points="${pts(75,78,52,vertices)}"
+      fill="url(#g)"
+      filter="url(#sh)"
+      stroke="rgba(0,0,0,.16)"
+      stroke-width="3"/>
+
+    ${Array.from({length:vertices}).map((_,i)=>{
+      const t=-Math.PI/2+i*2*Math.PI/vertices;
+      const x=75+52*Math.cos(t);
+      const y=78+52*Math.sin(t);
       return `<circle cx="${x}" cy="${y}" r="4.6" fill="#fff" stroke="rgba(0,0,0,.18)" stroke-width="2"/>`;
     }).join("")}
   `;
 }
-function renderCurvy(svg, kind){
-  const id="g2";
+
+function renderTriangle(svg){
   svg.innerHTML=`
     <defs>
-      <linearGradient id="${id}" x1="0" x2="1" y1="0" y2="1">
-        <stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#34d399"/>
+      <linearGradient id="triG" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="#60a5fa"/>
+        <stop offset="1" stop-color="#34d399"/>
       </linearGradient>
-      <filter id="sh2" x="-20%" y="-20%" width="140%" height="140%">
+      <filter id="triSh" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,.25)"/>
       </filter>
     </defs>
-    ${kind==="circle"
-      ? `<circle cx="75" cy="78" r="48" fill="url(#${id})" filter="url(#sh2)" stroke="rgba(0,0,0,.16)" stroke-width="3"/>`
-      : `<ellipse cx="75" cy="84" rx="54" ry="38" fill="url(#${id})" filter="url(#sh2)" stroke="rgba(0,0,0,.16)" stroke-width="3"/>`
-    }
+    <polygon points="75,20 124,120 26,120"
+      fill="url(#triG)"
+      filter="url(#triSh)"
+      stroke="rgba(0,0,0,.18)"
+      stroke-width="3"/>
   `;
 }
 
+function renderSquare(svg){
+  svg.innerHTML=`
+    <defs>
+      <linearGradient id="sqG" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="#facc15"/>
+        <stop offset="1" stop-color="#fb7185"/>
+      </linearGradient>
+      <filter id="sqSh" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,.25)"/>
+      </filter>
+    </defs>
+    <rect x="36" y="36" width="78" height="78" rx="8"
+      fill="url(#sqG)"
+      filter="url(#sqSh)"
+      stroke="rgba(0,0,0,.18)"
+      stroke-width="3"/>
+  `;
+}
+
+function renderParallelogram(svg){
+  svg.innerHTML=`
+    <defs>
+      <linearGradient id="paraG" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="#a78bfa"/>
+        <stop offset="1" stop-color="#22c55e"/>
+      </linearGradient>
+      <filter id="paraSh" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,.25)"/>
+      </filter>
+    </defs>
+    <polygon points="45,38 126,38 105,114 24,114"
+      fill="url(#paraG)"
+      filter="url(#paraSh)"
+      stroke="rgba(0,0,0,.18)"
+      stroke-width="3"/>
+  `;
+}
+
+function renderTangramPuzzle(svg){
+  svg.innerHTML=`
+    <defs>
+      <filter id="tanSh" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,.22)"/>
+      </filter>
+    </defs>
+
+    <g filter="url(#tanSh)" stroke="#ffffff" stroke-width="2" stroke-linejoin="round">
+      <polygon points="25,25 75,75 25,125" fill="#60a5fa"/>
+      <polygon points="25,25 125,25 75,75" fill="#34d399"/>
+      <polygon points="125,25 125,125 75,75" fill="#f472b6"/>
+      <polygon points="25,125 75,75 75,125" fill="#facc15"/>
+      <polygon points="75,75 100,100 75,125 50,100" fill="#a78bfa"/>
+      <polygon points="100,100 125,125 75,125" fill="#fb923c"/>
+      <polygon points="75,75 125,125 100,100 50,100" fill="#22c55e"/>
+    </g>
+  `;
+}
+
+function renderTangramSymbol(svg, symbol){
+  if(symbol==="triangle") return renderTriangle(svg);
+  if(symbol==="square") return renderSquare(svg);
+  if(symbol==="parallelogram") return renderParallelogram(svg);
+  return renderTangramPuzzle(svg);
+}
+
 /* =========================
-   Quiz data (from book ideas)
-   - Pentagon: 5 sides, 5 vertices
-   - Hexagon: 6 sides, 6 vertices
-   - Octagon: 8 sides, 8 vertices
-   - Tangram facts: 7 pieces total; 5 triangles; 1 square; 1 parallelogram
+   Quiz data
 ========================= */
 const ITEMS = [
-  {kind:"poly", name:"Pentagon", sides:5, vertices:5, c1:"#ff4fa3", c2:"#ffd60a"},
-  {kind:"poly", name:"Hexagon", sides:6, vertices:6, c1:"#f97316", c2:"#60a5fa"},
-  {kind:"poly", name:"Octagon", sides:8, vertices:8, c1:"#34d399", c2:"#a78bfa"},
+  {kind:"poly", name:"Pentagon", vertices:5, c1:"#ff4fa3", c2:"#ffd60a"},
+  {kind:"poly", name:"Hexagon", vertices:6, c1:"#f97316", c2:"#60a5fa"},
+  {kind:"poly", name:"Octagon", vertices:8, c1:"#34d399", c2:"#a78bfa"}
 ];
 
 const TANGRAM_Q = [
-  {q:"How many pieces are in a Tangram puzzle?", a:7, choices:[5,6,7,8], tag:"TANGRAM"},
-  {q:"How many triangles are in a Tangram puzzle?", a:5, choices:[4,5,6,7], tag:"TANGRAM"},
-  {q:"How many squares are in a Tangram puzzle?", a:1, choices:[0,1,2,3], tag:"TANGRAM"},
-  {q:"How many parallelograms are in a Tangram puzzle?", a:1, choices:[0,1,2,3], tag:"TANGRAM"},
+  {
+    q:"How many pieces are in a Tangram puzzle?",
+    a:7,
+    choices:[5,6,7,8],
+    tag:"TANGRAM",
+    symbol:"tangram"
+  },
+  {
+    q:"How many triangles are in a Tangram puzzle?",
+    a:5,
+    choices:[4,5,6,7],
+    tag:"TRIANGLE",
+    symbol:"triangle"
+  },
+  {
+    q:"How many squares are in a Tangram puzzle?",
+    a:1,
+    choices:[0,1,2,3],
+    tag:"SQUARE",
+    symbol:"square"
+  },
+  {
+    q:"How many parallelograms are in a Tangram puzzle?",
+    a:1,
+    choices:[0,1,2,3],
+    tag:"PARALLELOGRAM",
+    symbol:"parallelogram"
+  }
 ];
 
 const shapeSvg=document.getElementById("shapeSvg");
@@ -332,16 +492,20 @@ let completionSent=false;
 function updateScore(){
   scoreText.textContent = `${score}/${total}`;
   bar.style.width = `${Math.round((score/total)*100)}%`;
+
   const unlocked = score>=total;
   nextBtn.style.opacity = unlocked ? "1" : ".6";
   nextBtn.style.pointerEvents = unlocked ? "auto" : "none";
   nextBtn.setAttribute("aria-disabled", unlocked ? "false" : "true");
+
   if(unlocked && !completionSent){
     completionSent = true;
     FX.cheer(2);
     toast("🏆 Quiz Complete! Next unlocked!", true);
     record({type:"complete", score, total});
+
     const stars = score >= 11 ? 3 : score >= 9 ? 2 : score >= 7 ? 1 : 0;
+
     finishActivity({
       pageId: "LevelC_Quiz3",
       level: "C",
@@ -353,32 +517,42 @@ function updateScore(){
   }
 }
 
-function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+function shuffle(arr){
+  return [...arr].sort(()=>Math.random()-0.5);
+}
 
 function makeNumChoices(answer, min=0, max=10){
   const pool=new Set([answer]);
+
   while(pool.size<4){
     pool.add(min + Math.floor(Math.random()*(max-min+1)));
   }
+
   return shuffle([...pool]);
 }
 
 function buildOptions(choices, answer){
   optsEl.innerHTML="";
+
   choices.forEach(v=>{
     const b=document.createElement("button");
     b.type="button";
     b.className="opt";
     b.innerHTML = `<span>${v}</span><span style="opacity:.7">tap</span>`;
+
     b.addEventListener("click", ()=>{
       optsEl.querySelectorAll("button").forEach(x=>x.disabled=true);
+
       const ok = (v===answer);
+
       if(ok){
         b.classList.add("good");
         FX.good();
         score++;
         streak++;
+
         if(streak>0 && streak%3===0) FX.cheer(1.2);
+
         toast(streak%3===0 ? "✅ 3-in-a-row! AMAZING! 🎉" : "✅ Correct! ⭐", true);
         record({type:"correct", prompt:promptEl.textContent, v});
         updateScore();
@@ -389,52 +563,64 @@ function buildOptions(choices, answer){
         toast("❌ Try the next one!", false);
         record({type:"wrong", prompt:promptEl.textContent, v, answer});
       }
-      setTimeout(()=>{ if(score<total) nextQuestion(); }, 650);
+
+      setTimeout(()=>{
+        if(score<total) nextQuestion();
+      }, 650);
     });
+
     optsEl.appendChild(b);
   });
 }
 
 function nextQuestion(){
-  // mix: 70% polygon sides/vertices, 30% tangram fact
-  const useTangram = Math.random() < 0.30;
+  const useTangram = Math.random() < 0.35;
+
   if(useTangram){
     const q = TANGRAM_Q[Math.floor(Math.random()*TANGRAM_Q.length)];
+
     typeTag.textContent = q.tag;
-    renderCurvy(shapeSvg, Math.random()<0.5?"circle":"oval"); // fun icon; tangram question is text-based
+    renderTangramSymbol(shapeSvg, q.symbol);
+
     promptEl.textContent = q.q;
     buildOptions(shuffle(q.choices), q.a);
+
     record({type:"question", mode:"tangram", q:q.q, answer:q.a});
     return;
   }
 
   const item = ITEMS[Math.floor(Math.random()*ITEMS.length)];
-  const askSides = Math.random() < 0.55;
-  const answer = askSides ? item.sides : item.vertices;
-  typeTag.textContent = askSides ? "SIDES" : "VERTICES";
-  renderPoly(shapeSvg, askSides ? item.sides : item.vertices, item.c1, item.c2);
-  promptEl.textContent = askSides
-    ? `How many sides does a ${item.name} have?`
-    : `How many vertices does a ${item.name} have?`;
+  const answer = item.vertices;
+
+  typeTag.textContent = "VERTICES";
+  renderPoly(shapeSvg, item.vertices, item.c1, item.c2);
+
+  promptEl.textContent = `How many vertices does a ${item.name} have?`;
+
   buildOptions(makeNumChoices(answer, 0, 10), answer);
-  record({type:"question", mode:"shape", shape:item.name, ask: typeTag.textContent, answer});
+  record({type:"question", mode:"shape", shape:item.name, ask:"VERTICES", answer});
 }
 
-/* Buttons */
+/* =========================
+   Buttons
+========================= */
 document.getElementById("skipBtn").addEventListener("click", ()=>{
   FX.bad();
   toast("Skipped 😊 Next question!", false);
   record({type:"skip"});
   nextQuestion();
 });
+
 document.getElementById("restartBtn").addEventListener("click", ()=>{
-  score=0; streak=0;
+  score=0;
+  streak=0;
   completionSent=false;
   updateScore();
   toast("Restarted! Let’s go! 🚀", true);
   record({type:"restart"});
   nextQuestion();
 });
+
 document.getElementById("soundBtn").addEventListener("click",(e)=>{
   SOUND_ON=!SOUND_ON;
   e.currentTarget.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
@@ -443,15 +629,18 @@ document.getElementById("soundBtn").addEventListener("click",(e)=>{
 });
 
 /* =========================
-   Mini Hunt: Find pentagons
+   Mini Game
 ========================= */
 const hunt=document.getElementById("hunt");
 
 function miniShapeSvg(n, c1, c2, id){
   if(n===0){
     return `<svg viewBox="0 0 120 120" width="92" height="92">
-      <defs><linearGradient id="g${id}" x1="0" x2="1" y1="0" y2="1">
-        <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+      <defs>
+        <linearGradient id="g${id}" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="${c1}"/>
+          <stop offset="1" stop-color="${c2}"/>
+        </linearGradient>
         <filter id="sh${id}" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="rgba(0,0,0,.25)"/>
         </filter>
@@ -459,9 +648,13 @@ function miniShapeSvg(n, c1, c2, id){
       <circle cx="60" cy="60" r="38" fill="url(#g${id})" filter="url(#sh${id})" stroke="rgba(0,0,0,.16)" stroke-width="3"/>
     </svg>`;
   }
+
   return `<svg viewBox="0 0 120 120" width="92" height="92">
-    <defs><linearGradient id="g${id}" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+    <defs>
+      <linearGradient id="g${id}" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="${c1}"/>
+        <stop offset="1" stop-color="${c2}"/>
+      </linearGradient>
       <filter id="sh${id}" x="-20%" y="-20%" width="140%" height="140%">
         <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="rgba(0,0,0,.25)"/>
       </filter>
@@ -472,12 +665,12 @@ function miniShapeSvg(n, c1, c2, id){
 
 function buildHunt(){
   hunt.querySelectorAll(".huntBtn").forEach(b=>b.remove());
+
   const placements = [
-    {x:18,y:30},{x:40,y:48},{x:65,y:28},{x:82,y:55},{x:28,y:78},
-    {x:55,y:80},{x:78,y:78},{x:90,y:30},
+    {x:18,y:30},{x:40,y:48},{x:65,y:28},{x:82,y:55},
+    {x:28,y:78},{x:55,y:80},{x:78,y:78},{x:90,y:30}
   ].sort(()=>Math.random()-0.5);
 
-  // Mix: 3 pentagons + others
   const list = shuffle([
     {label:"PENTAGON", n:5, isTarget:true},
     {label:"PENTAGON", n:5, isTarget:true},
@@ -486,13 +679,17 @@ function buildHunt(){
     {label:"OCTAGON", n:8, isTarget:false},
     {label:"TRIANGLE", n:3, isTarget:false},
     {label:"SQUARE", n:4, isTarget:false},
-    {label:"CIRCLE", n:0, isTarget:false},
+    {label:"CIRCLE", n:0, isTarget:false}
   ]);
 
   list.forEach((it,i)=>{
     const p=placements[i%placements.length];
+
     const colors=[
-      ["#ff4fa3","#ffd60a"],["#4f46e5","#22c55e"],["#f97316","#60a5fa"],["#34d399","#a78bfa"]
+      ["#ff4fa3","#ffd60a"],
+      ["#4f46e5","#22c55e"],
+      ["#f97316","#60a5fa"],
+      ["#34d399","#a78bfa"]
     ][i%4];
 
     const b=document.createElement("button");
@@ -505,8 +702,10 @@ function buildHunt(){
 
     b.addEventListener("click", ()=>{
       if(b.disabled) return;
+
       const ok = b.dataset.target==="1";
       b.disabled=true;
+
       if(ok){
         FX.good();
         FX.cheer(1.0);
@@ -530,31 +729,39 @@ document.getElementById("shuffleBtn").addEventListener("click", ()=>{
   toast("Shuffled! Find pentagons again! ⭐", true);
   buildHunt();
 });
+
 document.getElementById("finishBtn").addEventListener("click", ()=>{
   FX.cheer(1.3);
   toast("Nice! Finish the main quiz to unlock Next.", true);
   record({type:"finish_pressed"});
 });
 
-/* init */
+/* =========================
+   Init
+========================= */
 updateScore();
 buildHunt();
 nextQuestion();
 record({type:"open"});
 </script>
+
 <script src="../../../../shared/js/levelbc-runtime-fix.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 <script type="module" src="./progress-tracker.js"></script>
+
 <script>
   window.addEventListener("load", () => {
     if (!window.GPTrack) return;
+
     const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
     GPTrack.start(pageFile || document.title || "Activity");
   });
 
   async function finishActivity(overrides = {}){
     if (!window.GPTrack) return;
+
     const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+
     const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
       ? "A"
       : (/^(LB|LevelB)/i.test(pageFile))
@@ -576,7 +783,3 @@ record({type:"open"});
 </script>
 </body>
 </html>
-
-
-
-

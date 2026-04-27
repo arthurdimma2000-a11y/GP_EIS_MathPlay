@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,7 +10,8 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
 <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Level C19 - Tangram Match</title>
@@ -331,6 +333,8 @@
           speak('Correct!');
         if (matchedPairIndexes.size === pairs.length) {
           reportMatchComplete();
+        } else if (matchedPairIndexes.size === 2) {
+          speak("Great progress! Keep going!");
         }
       } else {
         speak('Oh no! try again.');
@@ -415,6 +419,12 @@
     }
     window.addEventListener('load', resize);
     window.addEventListener('resize', resize);
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        speak("Welcome to the tangram matching activity. Connect the dots to match the shapes. Draw lines between the matching pairs.");
+      }, 500);
+    });
   </script>
   <script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
@@ -436,8 +446,10 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
+
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -540,20 +552,33 @@
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+
 </script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

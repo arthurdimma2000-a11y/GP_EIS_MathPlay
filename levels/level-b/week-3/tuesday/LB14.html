@@ -950,6 +950,24 @@
 
   window.finishAndSave = finishAndSave;
 
+  // Add girl click handler
+  const girlBtn = document.getElementById("girlBtn");
+  if (girlBtn) {
+    girlBtn.addEventListener("click", () => {
+      speak("There are many shapes. Let's build a department store.");
+    });
+  }
+
+  function speak(text) {
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.95;
+      u.pitch = 1.1;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    } catch(e) {}
+  }
+
 </script>
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>

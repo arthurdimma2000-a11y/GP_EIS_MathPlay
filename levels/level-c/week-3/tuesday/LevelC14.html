@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,7 +10,8 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
 <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Level C14 - Shape Sides</title>
@@ -278,6 +280,7 @@
       speak("Let's play together.");
       showLine(beeLine, "A bee flies");
       speak("A bee flies");
+      setTimeout(() => speak("Great job exploring shapes!"), 2000);
     });
 
     // Mic click is handled by activity-standardizer unified protocol.
@@ -286,6 +289,12 @@
 
     if(prevBtn) prevBtn.addEventListener('click', () => { window.location.href = '../../week-2/friday/LevelC_Quiz2.html'; });
     if(nextBtn) nextBtn.addEventListener('click', () => { window.location.href = 'LevelC15.html'; });
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        speak("Welcome to the shape sides lesson. Tap the girl to hear about bees and hexagons. Then practice recording your voice.");
+      }, 500);
+    });
   </script>
     <script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
@@ -307,8 +316,10 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
+
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -411,21 +422,35 @@
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
+
 </script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

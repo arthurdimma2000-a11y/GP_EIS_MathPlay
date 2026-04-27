@@ -80,6 +80,7 @@
     .trace-wrap{
       position:relative;
       display:inline-block;
+      line-height:0;
     }
     .tray-hero img{
       width:min(676px,92%);
@@ -102,6 +103,38 @@
       cursor:crosshair;
       z-index:2;
     }
+
+    .trace-progress-wrap{
+      width:min(580px,94%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      margin-top:0;
+      z-index:3;
+    }
+    .trace-progress-text{
+      font-size:.95rem;
+      font-weight:900;
+      color:#6c4bbf;
+      text-align:center;
+    }
+    .trace-progress-bar{
+      width:100%;
+      height:13px;
+      border-radius:999px;
+      background:#e7efff;
+      overflow:hidden;
+      box-shadow:inset 0 1px 3px rgba(0,0,0,.18);
+    }
+    .trace-progress-fill{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#3cc4ff,#7dffb3,#ffd86a);
+      transition:width .16s ease-out;
+    }
+
     .row{
       display:flex;
       align-items:center;
@@ -225,6 +258,7 @@
     }
     .highlight-red{ color:#d62828; }
   </style>
+
 <style id="lbIntroVideoOverlayStyles">
   #lbIntroVideoOverlay{
     position:fixed;
@@ -286,16 +320,25 @@
   }
 </style>
 </head>
+
 <body>
   <div class="app">
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
       <img src="../../../../assets/images/shapes/Home1.png" alt="Home">
     </a>
+
     <div class="board" id="board">
       <div class="tray-hero">
-        <div class="trace-wrap">
+        <div class="trace-wrap" id="traceWrap">
           <img src="../../../../assets/images/shapes/B19.png" alt="Poster" id="designImage">
           <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the dotted numbers"></canvas>
+        </div>
+      </div>
+
+      <div class="trace-progress-wrap">
+        <div class="trace-progress-text">Trace progress: <span id="tracePercent">0%</span></div>
+        <div class="trace-progress-bar">
+          <div class="trace-progress-fill" id="traceProgressFill"></div>
         </div>
       </div>
 
@@ -324,12 +367,215 @@
     </div>
   </div>
 
-  <script src="../../../../activity-standardizer.js"></script>
+<script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
+
+<script>
+  const traceCanvas = document.getElementById("traceCanvas");
+  const designImage = document.getElementById("designImage");
+  const traceWrap = document.getElementById("traceWrap");
+  const traceCtx = traceCanvas.getContext("2d");
+  const tracePercentEl = document.getElementById("tracePercent");
+  const traceProgressFill = document.getElementById("traceProgressFill");
+  const traceClearBtn = document.getElementById("traceClearBtn");
+  const conversationStatus = document.getElementById("conversationStatus");
+
+  let isTracing = false;
+  let lastTracePoint = null;
+  let traceDistance = 0;
+  let traceTargetDistance = 1800;
+  let traceScore = 0;
+  let traceCelebrated = false;
+  let traceSaveTimer = null;
+
+  function resizeTraceCanvas(){
+    const rect = traceWrap.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    traceCanvas.style.width = rect.width + "px";
+    traceCanvas.style.height = rect.height + "px";
+
+    traceCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+    traceCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+
+    traceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    traceCtx.lineCap = "round";
+    traceCtx.lineJoin = "round";
+
+    traceTargetDistance = Math.max(1500, (rect.width + rect.height) * 1.8);
+
+    resetTrace(false);
+  }
+
+  function getTracePoint(event){
+    const rect = traceCanvas.getBoundingClientRect();
+
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
+  }
+
+  function updateTraceProgress(){
+    traceScore = Math.min(100, Math.round((traceDistance / traceTargetDistance) * 100));
+
+    tracePercentEl.textContent = traceScore + "%";
+    traceProgressFill.style.width = traceScore + "%";
+
+    if (typeof window.finishAndSave === "function") {
+      clearTimeout(traceSaveTimer);
+      traceSaveTimer = setTimeout(() => {
+        window.finishAndSave({
+          pageId: "LB19",
+          level: "B",
+          activityType: "lesson",
+          score: traceScore,
+          tracing: traceScore,
+          stars: traceScore >= 90 ? 3 : traceScore >= 70 ? 2 : traceScore >= 40 ? 1 : 0,
+          skills: {
+            reading: 1,
+            writing: 1,
+            speaking: 1,
+            listening: 1,
+            tracing: 1
+          },
+          completed: traceScore >= 90
+        }).catch(() => {});
+      }, 350);
+    }
+
+    if (traceScore >= 100 && !traceCelebrated) {
+      traceCelebrated = true;
+      if (conversationStatus) conversationStatus.textContent = "Great tracing! You completed the dashed lines.";
+      speakTraceMessage("Great tracing! You completed the dashed lines.");
+    }
+  }
+
+  function drawTraceLine(from, to){
+    traceCtx.save();
+    traceCtx.strokeStyle = "rgba(40, 115, 255, 0.9)";
+    traceCtx.lineWidth = Math.max(6, Math.min(traceCanvas.clientWidth, traceCanvas.clientHeight) * 0.014);
+    traceCtx.lineCap = "round";
+    traceCtx.lineJoin = "round";
+
+    traceCtx.beginPath();
+    traceCtx.moveTo(from.x, from.y);
+    traceCtx.lineTo(to.x, to.y);
+    traceCtx.stroke();
+
+    traceCtx.restore();
+  }
+
+  function beginTrace(event){
+    event.preventDefault();
+
+    isTracing = true;
+    lastTracePoint = getTracePoint(event);
+
+    try{
+      traceCanvas.setPointerCapture(event.pointerId);
+    }catch(e){}
+
+    drawTraceLine(lastTracePoint, lastTracePoint);
+    traceDistance += 2;
+    updateTraceProgress();
+  }
+
+  function moveTrace(event){
+    if (!isTracing || !lastTracePoint) return;
+
+    event.preventDefault();
+
+    const point = getTracePoint(event);
+    const distance = Math.hypot(point.x - lastTracePoint.x, point.y - lastTracePoint.y);
+
+    if (distance > 0) {
+      drawTraceLine(lastTracePoint, point);
+      traceDistance += distance;
+      updateTraceProgress();
+    }
+
+    lastTracePoint = point;
+  }
+
+  function endTrace(){
+    isTracing = false;
+    lastTracePoint = null;
+  }
+
+  function resetTrace(announce = true){
+    const rect = traceCanvas.getBoundingClientRect();
+
+    traceCtx.clearRect(0, 0, rect.width, rect.height);
+
+    traceDistance = 0;
+    traceScore = 0;
+    traceCelebrated = false;
+
+    tracePercentEl.textContent = "0%";
+    traceProgressFill.style.width = "0%";
+
+    if (announce) {
+      if (conversationStatus) conversationStatus.textContent = "Trace cleared. Try again.";
+      speakTraceMessage("Trace cleared. Try again.");
+    }
+  }
+
+  function speakTraceMessage(text){
+    if (!("speechSynthesis" in window)) return;
+
+    try{
+      speechSynthesis.cancel();
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = 0.9;
+      u.pitch = 1.08;
+      u.volume = 1;
+
+      const voices = speechSynthesis.getVoices();
+      const femaleVoice = voices.find(v =>
+        /Jenny|Aria|Samantha|Victoria|Zira|Susan|Google US English/i.test(v.name || "")
+      );
+
+      if (femaleVoice) u.voice = femaleVoice;
+
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  traceCanvas.addEventListener("pointerdown", beginTrace);
+  traceCanvas.addEventListener("pointermove", moveTrace);
+  traceCanvas.addEventListener("pointerup", endTrace);
+  traceCanvas.addEventListener("pointercancel", endTrace);
+  traceCanvas.addEventListener("pointerleave", endTrace);
+
+  traceClearBtn.addEventListener("click", () => resetTrace(true));
+
+  if (designImage.complete) {
+    resizeTraceCanvas();
+  } else {
+    designImage.addEventListener("load", resizeTraceCanvas, { once:true });
+  }
+
+  window.addEventListener("resize", () => {
+    clearTimeout(window.__lb19TraceResizeTimer);
+    window.__lb19TraceResizeTimer = setTimeout(resizeTraceCanvas, 160);
+  });
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      if (conversationStatus) conversationStatus.textContent = "Trace the dashed lines on the poster.";
+      speakTraceMessage("Trace the dashed lines on the poster.");
+    }, 700);
+  });
+</script>
+
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
   window.GPProgress.installTracker({
     saveActivityResult,
     markLoginPing,
@@ -340,13 +586,12 @@
     defaultStars: 1,
     defaultSkills: {
       reading: 1,
-      writing: 0,
+      writing: 1,
       speaking: 1,
-      listening: 1
+      listening: 1,
+      tracing: 1
     }
   });
-
-
 
   function getStudentSession(){
     try{
@@ -365,6 +610,7 @@
     const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
     const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
     const month = payload && payload.month != null ? Number(payload.month) : 1;
+
     return {
       pageId,
       file,
@@ -393,10 +639,13 @@
     const meta = inferProgressMeta(payload || {});
     const score = payload && typeof payload.score === "number" ? payload.score : 0;
     const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
+
     const tracing = payload && typeof payload.tracing === "number"
       ? payload.tracing
       : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+
     const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+
     const entry = {
       pageId: meta.pageId,
       file: meta.file,
@@ -416,29 +665,34 @@
       savedAt: new Date().toISOString(),
       ts: Date.now()
     };
+
     const store = getActivityStore();
     store[meta.pageId] = {
       ...(store[meta.pageId] || {}),
       ...entry
     };
+
     setActivityStore(store);
+
     try{
       localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
     }catch(e){}
+
     return store[meta.pageId];
   }
 
   async function finishAndSave(payload){
     const session = getStudentSession() || {};
+
     const fullPayload = {
       ...(payload || {}),
       classId: (payload && payload.classId) || session.classId || null,
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -446,40 +700,14 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
   window.finishAndSave = finishAndSave;
-
 </script>
+
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
