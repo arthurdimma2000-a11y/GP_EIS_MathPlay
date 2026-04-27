@@ -158,6 +158,99 @@
       background: #000;
     }
 
+    #traceCanvas {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      touch-action: none;
+    }
+
+    #traceCanvas.trace-active {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    .trace-toolbar {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 78px;
+      z-index: 7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .trace-left,
+    .trace-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .trace-btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: #082f49;
+      background: linear-gradient(180deg, #e0f2fe, #38bdf8);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
+      transition: transform 0.15s ease, filter 0.2s ease;
+    }
+
+    .trace-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      filter: brightness(1.04);
+    }
+
+    .trace-btn.active {
+      background: linear-gradient(180deg, #fef08a, #f59e0b);
+      color: #111827;
+    }
+
+    .trace-btn.clear {
+      background: linear-gradient(180deg, #fecaca, #ef4444);
+      color: #fff;
+    }
+
+    .trace-status {
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: #ffffff;
+      min-width: 102px;
+    }
+
+    .trace-progress-wrap {
+      width: min(220px, 44vw);
+      height: 13px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .trace-progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #bef264);
+      transition: width 0.18s ease;
+    }
+
     .top-nav {
       position: absolute;
       top: 0;
@@ -169,7 +262,7 @@
       gap: 8px;
       padding: 12px;
       background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.08));
-      z-index: 5;
+      z-index: 8;
       pointer-events: none;
     }
 
@@ -218,7 +311,7 @@
     .side-nav {
       position: absolute;
       inset: 0;
-      z-index: 4;
+      z-index: 6;
       pointer-events: none;
     }
 
@@ -267,7 +360,7 @@
       border-radius: 18px;
       background: rgba(15, 23, 42, 0.72);
       backdrop-filter: blur(6px);
-      z-index: 5;
+      z-index: 7;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
     }
 
@@ -290,7 +383,7 @@
       align-items: center;
       justify-content: center;
       background: rgba(0, 0, 0, 0.18);
-      z-index: 3;
+      z-index: 4;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.25s ease;
@@ -352,6 +445,24 @@
         font-size: 0.78rem;
       }
 
+      .trace-toolbar {
+        bottom: 72px;
+        padding: 9px 10px;
+      }
+
+      .trace-btn {
+        padding: 8px 11px;
+        font-size: 0.78rem;
+      }
+
+      .trace-status {
+        font-size: 0.78rem;
+      }
+
+      .trace-progress-wrap {
+        width: 150px;
+      }
+
       .intro-panel {
         padding: 12px;
         border-radius: 18px;
@@ -359,10 +470,12 @@
     }
   </style>
 </head>
+
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
       <div class="intro-title">Science Class Week 3A Intro</div>
+
       <video
         id="lbIntroVideo"
         playsinline
@@ -400,31 +513,47 @@
           Your browser does not support the video tag.
         </video>
 
+        <canvas id="traceCanvas" aria-label="Student tracing canvas"></canvas>
+
         <div class="tap-overlay" id="tapOverlay">
           <div class="tap-card">Tap video to Play / Pause</div>
         </div>
 
         <div class="top-nav nav-visible" id="topNav">
           <div class="top-nav-left">
-            <button class="nav-btn nav-home" id="homeBtn">🏠 Home</button>
-            <button class="nav-btn" id="backBtn">⬅ Back</button>
+            <button class="nav-btn nav-home" id="homeBtn" type="button">🏠 Home</button>
+            <button class="nav-btn" id="backBtn" type="button">⬅ Back</button>
           </div>
 
           <div class="top-nav-right">
-            <button class="nav-btn" id="replayBtn">⟲ Replay</button>
-            <button class="nav-btn nav-next" id="nextBtn">Next ➜</button>
-            <button class="nav-btn" id="fullscreenBtn">⛶ Full Screen</button>
+            <button class="nav-btn" id="replayBtn" type="button">⟲ Replay</button>
+            <button class="nav-btn nav-next" id="nextBtn" type="button">Next ➜</button>
+            <button class="nav-btn" id="fullscreenBtn" type="button">⛶ Full Screen</button>
           </div>
         </div>
 
         <div class="side-nav">
-          <button class="side-btn left" id="sideBackBtn" aria-label="Go to previous page">❮</button>
-          <button class="side-btn right" id="sideNextBtn" aria-label="Go to next page">❯</button>
+          <button class="side-btn left" id="sideBackBtn" type="button" aria-label="Go to previous page">❮</button>
+          <button class="side-btn right" id="sideNextBtn" type="button" aria-label="Go to next page">❯</button>
+        </div>
+
+        <div class="trace-toolbar nav-visible" id="traceToolbar">
+          <div class="trace-left">
+            <button class="trace-btn" id="traceModeBtn" type="button">✏️ Start Tracing</button>
+            <button class="trace-btn clear" id="clearTraceBtn" type="button">🧽 Clear</button>
+          </div>
+
+          <div class="trace-right">
+            <div class="trace-status" id="traceStatus">Trace: 0%</div>
+            <div class="trace-progress-wrap" aria-label="Trace progress">
+              <div class="trace-progress-fill" id="traceProgressFill"></div>
+            </div>
+          </div>
         </div>
 
         <div class="bottom-bar nav-visible" id="bottomBar">
           <div class="lesson-name">Science Class Week 3A Video</div>
-          <div class="hint">Use the buttons to move around the app</div>
+          <div class="hint" id="bottomHint">Tap “Start Tracing” to draw on the page.</div>
         </div>
       </div>
     </div>
@@ -438,6 +567,11 @@
     const PREVIOUS_PAGE = "../../week-2/friday/LA_Quiz2.html";
     const NEXT_PAGE = "../tuesday/LA14.html";
 
+    const ACTIVITY_ID = "ScienceClassWk3A";
+    const TRACE_STROKES_KEY = "GP_EIS_TRACE_STROKES_" + ACTIVITY_ID;
+    const TRACE_PROGRESS_KEY = "GP_EIS_TRACE_PROGRESS_" + ACTIVITY_ID;
+    const TARGET_CELLS_FOR_100_PERCENT = 150;
+
     const video = document.getElementById("lessonVideo");
     const videoShell = document.getElementById("videoShell");
     const homeBtn = document.getElementById("homeBtn");
@@ -449,14 +583,34 @@
     const fullscreenBtn = document.getElementById("fullscreenBtn");
     const topNav = document.getElementById("topNav");
     const bottomBar = document.getElementById("bottomBar");
+    const bottomHint = document.getElementById("bottomHint");
     const tapOverlay = document.getElementById("tapOverlay");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
     const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
 
+    const traceCanvas = document.getElementById("traceCanvas");
+    const traceCtx = traceCanvas.getContext("2d");
+    const traceModeBtn = document.getElementById("traceModeBtn");
+    const clearTraceBtn = document.getElementById("clearTraceBtn");
+    const traceStatus = document.getElementById("traceStatus");
+    const traceProgressFill = document.getElementById("traceProgressFill");
+
     let introFinished = false;
     let navTimer;
+
+    let tracingMode = false;
+    let drawing = false;
+    let lastPoint = null;
+    let currentStroke = null;
+    let strokes = [];
+    let touchedCells = new Set();
+    let saveTimer = null;
+
+    const GRID_COLS = 28;
+    const GRID_ROWS = 42;
+    const BRUSH_SIZE = 8;
 
     function setVideoSource(videoEl, url) {
       const source = videoEl.querySelector("source");
@@ -485,6 +639,10 @@
           introVideo.pause();
         } catch (err) {}
       }
+
+      resizeTraceCanvas();
+      loadSavedTrace();
+      showNavigation();
     }
 
     function goHome() {
@@ -502,6 +660,7 @@
     }
 
     function goNextPage() {
+      saveTraceProgress();
       if (NEXT_PAGE && NEXT_PAGE.trim() !== "") {
         window.location.href = NEXT_PAGE;
       } else {
@@ -521,17 +680,21 @@
         } else {
           await document.exitFullscreen();
         }
+        setTimeout(resizeTraceCanvas, 250);
       } catch (err) {
         console.log("Fullscreen not supported on this device/browser.", err);
       }
     }
 
     function togglePlayPause() {
+      if (tracingMode) return;
+
       if (video.paused) {
         video.play().catch(() => {});
       } else {
         video.pause();
       }
+
       showTapHint();
     }
 
@@ -547,15 +710,26 @@
     function showNavigation() {
       topNav.classList.remove("nav-hidden");
       topNav.classList.add("nav-visible");
+
       bottomBar.classList.remove("nav-hidden");
       bottomBar.classList.add("nav-visible");
 
+      document.getElementById("traceToolbar").classList.remove("nav-hidden");
+      document.getElementById("traceToolbar").classList.add("nav-visible");
+
       clearTimeout(navTimer);
+
       navTimer = setTimeout(() => {
+        if (tracingMode) return;
+
         topNav.classList.remove("nav-visible");
         topNav.classList.add("nav-hidden");
+
         bottomBar.classList.remove("nav-visible");
         bottomBar.classList.add("nav-hidden");
+
+        document.getElementById("traceToolbar").classList.remove("nav-visible");
+        document.getElementById("traceToolbar").classList.add("nav-hidden");
       }, 3500);
     }
 
@@ -563,6 +737,249 @@
       tapOverlay.classList.add("show");
       setTimeout(() => tapOverlay.classList.remove("show"), 900);
       showNavigation();
+    }
+
+    function resizeTraceCanvas() {
+      const rect = traceCanvas.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+      traceCanvas.width = Math.round(rect.width * dpr);
+      traceCanvas.height = Math.round(rect.height * dpr);
+
+      traceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      redrawTrace();
+    }
+
+    function getCanvasSize() {
+      return {
+        width: traceCanvas.clientWidth || traceCanvas.getBoundingClientRect().width,
+        height: traceCanvas.clientHeight || traceCanvas.getBoundingClientRect().height
+      };
+    }
+
+    function getPointerPoint(event) {
+      const rect = traceCanvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      return {
+        x,
+        y,
+        nx: rect.width ? x / rect.width : 0,
+        ny: rect.height ? y / rect.height : 0
+      };
+    }
+
+    function drawLine(from, to) {
+      traceCtx.save();
+      traceCtx.lineCap = "round";
+      traceCtx.lineJoin = "round";
+      traceCtx.strokeStyle = "#ff2d55";
+      traceCtx.lineWidth = BRUSH_SIZE;
+      traceCtx.shadowColor = "rgba(255, 255, 255, 0.85)";
+      traceCtx.shadowBlur = 4;
+
+      traceCtx.beginPath();
+      traceCtx.moveTo(from.x, from.y);
+      traceCtx.lineTo(to.x, to.y);
+      traceCtx.stroke();
+
+      traceCtx.restore();
+    }
+
+    function redrawTrace() {
+      const size = getCanvasSize();
+      traceCtx.clearRect(0, 0, size.width, size.height);
+
+      strokes.forEach((stroke) => {
+        for (let i = 1; i < stroke.length; i++) {
+          const from = {
+            x: stroke[i - 1].nx * size.width,
+            y: stroke[i - 1].ny * size.height
+          };
+          const to = {
+            x: stroke[i].nx * size.width,
+            y: stroke[i].ny * size.height
+          };
+          drawLine(from, to);
+        }
+      });
+
+      rebuildCoverage();
+      updateTraceProgress();
+    }
+
+    function markCoverage(point) {
+      const col = Math.max(0, Math.min(GRID_COLS - 1, Math.floor(point.nx * GRID_COLS)));
+      const row = Math.max(0, Math.min(GRID_ROWS - 1, Math.floor(point.ny * GRID_ROWS)));
+      touchedCells.add(row + ":" + col);
+    }
+
+    function markCoverageBetween(from, to) {
+      const dx = to.nx - from.nx;
+      const dy = to.ny - from.ny;
+      const steps = Math.max(4, Math.ceil(Math.sqrt(dx * dx + dy * dy) * 260));
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        markCoverage({
+          nx: from.nx + dx * t,
+          ny: from.ny + dy * t
+        });
+      }
+    }
+
+    function rebuildCoverage() {
+      touchedCells.clear();
+
+      strokes.forEach((stroke) => {
+        for (let i = 1; i < stroke.length; i++) {
+          markCoverageBetween(stroke[i - 1], stroke[i]);
+        }
+      });
+    }
+
+    function getTracePercent() {
+      return Math.min(100, Math.round((touchedCells.size / TARGET_CELLS_FOR_100_PERCENT) * 100));
+    }
+
+    function updateTraceProgress() {
+      const percent = getTracePercent();
+      traceStatus.textContent = "Trace: " + percent + "%";
+      traceProgressFill.style.width = percent + "%";
+      scheduleTraceSave();
+    }
+
+    function startDrawing(event) {
+      if (!tracingMode) return;
+
+      event.preventDefault();
+      drawing = true;
+
+      const point = getPointerPoint(event);
+      lastPoint = point;
+      currentStroke = [point];
+      strokes.push(currentStroke);
+
+      markCoverage(point);
+      updateTraceProgress();
+
+      try {
+        traceCanvas.setPointerCapture(event.pointerId);
+      } catch (err) {}
+    }
+
+    function continueDrawing(event) {
+      if (!tracingMode || !drawing || !lastPoint || !currentStroke) return;
+
+      event.preventDefault();
+
+      const point = getPointerPoint(event);
+      const size = getCanvasSize();
+
+      drawLine(
+        {
+          x: lastPoint.nx * size.width,
+          y: lastPoint.ny * size.height
+        },
+        {
+          x: point.nx * size.width,
+          y: point.ny * size.height
+        }
+      );
+
+      currentStroke.push(point);
+      markCoverageBetween(lastPoint, point);
+      lastPoint = point;
+      updateTraceProgress();
+    }
+
+    function stopDrawing(event) {
+      if (!drawing) return;
+
+      drawing = false;
+      lastPoint = null;
+      currentStroke = null;
+      saveTraceProgress();
+
+      try {
+        traceCanvas.releasePointerCapture(event.pointerId);
+      } catch (err) {}
+    }
+
+    function toggleTraceMode() {
+      tracingMode = !tracingMode;
+
+      traceCanvas.classList.toggle("trace-active", tracingMode);
+      traceModeBtn.classList.toggle("active", tracingMode);
+
+      if (tracingMode) {
+        video.pause();
+        traceModeBtn.textContent = "✅ Tracing On";
+        bottomHint.textContent = "Use your finger or mouse to trace on the page.";
+        showNavigation();
+      } else {
+        traceModeBtn.textContent = "✏️ Start Tracing";
+        bottomHint.textContent = "Tap “Start Tracing” to draw on the page.";
+        saveTraceProgress();
+      }
+    }
+
+    function clearTrace() {
+      strokes = [];
+      touchedCells.clear();
+
+      const size = getCanvasSize();
+      traceCtx.clearRect(0, 0, size.width, size.height);
+
+      localStorage.removeItem(TRACE_STROKES_KEY);
+      updateTraceProgress();
+      saveTraceProgress();
+    }
+
+    function scheduleTraceSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveTraceProgress, 250);
+    }
+
+    function saveTraceProgress() {
+      const percent = getTracePercent();
+
+      const record = {
+        activityId: ACTIVITY_ID,
+        title: "Science Class Week 3A",
+        type: "tracing",
+        score: percent,
+        percent: percent,
+        completed: percent >= 80,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        localStorage.setItem(TRACE_STROKES_KEY, JSON.stringify(strokes));
+        localStorage.setItem(TRACE_PROGRESS_KEY, JSON.stringify(record));
+
+        const appProgressKey = "GP_EIS_ACTIVITY_PROGRESS";
+        const allProgress = JSON.parse(localStorage.getItem(appProgressKey) || "{}");
+        allProgress[ACTIVITY_ID] = record;
+        localStorage.setItem(appProgressKey, JSON.stringify(allProgress));
+
+        window.dispatchEvent(new CustomEvent("gp-eis-progress-updated", { detail: record }));
+      } catch (err) {
+        console.warn("Could not save trace progress.", err);
+      }
+    }
+
+    function loadSavedTrace() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(TRACE_STROKES_KEY) || "[]");
+        if (Array.isArray(saved)) {
+          strokes = saved;
+          redrawTrace();
+        }
+      } catch (err) {
+        strokes = [];
+      }
     }
 
     if (introVideo) {
@@ -603,6 +1020,15 @@
     replayBtn.addEventListener("click", replayVideo);
     fullscreenBtn.addEventListener("click", toggleFullscreen);
 
+    traceModeBtn.addEventListener("click", toggleTraceMode);
+    clearTraceBtn.addEventListener("click", clearTrace);
+
+    traceCanvas.addEventListener("pointerdown", startDrawing);
+    traceCanvas.addEventListener("pointermove", continueDrawing);
+    traceCanvas.addEventListener("pointerup", stopDrawing);
+    traceCanvas.addEventListener("pointercancel", stopDrawing);
+    traceCanvas.addEventListener("pointerleave", stopDrawing);
+
     video.addEventListener("click", togglePlayPause);
     videoShell.addEventListener("mousemove", showNavigation);
     videoShell.addEventListener("touchstart", showNavigation, { passive: true });
@@ -610,7 +1036,13 @@
     video.addEventListener("pause", showNavigation);
     video.addEventListener("ended", showNavigation);
 
+    window.addEventListener("resize", resizeTraceCanvas);
+    document.addEventListener("fullscreenchange", () => setTimeout(resizeTraceCanvas, 250));
+
     document.addEventListener("keydown", (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
+      if (activeTag === "button" || activeTag === "input" || activeTag === "textarea") return;
+
       const key = e.key.toLowerCase();
 
       if (key === " ") {
@@ -628,11 +1060,16 @@
         toggleFullscreen();
       } else if (key === "r") {
         replayVideo();
+      } else if (key === "t") {
+        toggleTraceMode();
+      } else if (key === "c") {
+        clearTrace();
       }
     });
 
     showNavigation();
   </script>
+
   <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>

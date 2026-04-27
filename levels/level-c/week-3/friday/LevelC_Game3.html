@@ -285,14 +285,19 @@ function pieceSVG(kind, fill){
 
 function renderTargets(){
   board.innerHTML="";
+  const boardRect = board.getBoundingClientRect();
+  const scaleX = boardRect.width / 680; // Assuming 680px is the design width
+  const scaleY = boardRect.height / 680;
+  
   targets.forEach(t=>{
     const d=document.createElement("div");
     d.className="target";
-    d.style.left=t.x+"px";
-    d.style.top=t.y+"px";
-    d.style.width=t.w+"px";
-    d.style.height=t.h+"px";
-    d.textContent=t.label;
+    d.dataset.id = t.id; // Add data-id for snapping
+    d.style.left = (t.x * scaleX) + "px";
+    d.style.top = (t.y * scaleY) + "px";
+    d.style.width = (t.w * scaleX) + "px";
+    d.style.height = (t.h * scaleY) + "px";
+    d.textContent = t.label;
     board.appendChild(d);
   });
 }
@@ -310,15 +315,20 @@ function distance(ax,ay,bx,by){
 }
 
   function createPieces(){
-    // starting positions around edges
+    // Get board dimensions
+    const boardRect = board.getBoundingClientRect();
+    const boardWidth = boardRect.width;
+    const boardHeight = boardRect.height;
+    
+    // starting positions around edges, within board bounds
     const starts = [
-      {x:20,y:500},
-      {x:140,y:500},
-      {x:260,y:500},
-      {x:380,y:500},
-      {x:500,y:500},
-      {x:80,y:560},
-      {x:220,y:560}
+      {x:20, y:boardHeight - 160},
+      {x:140, y:boardHeight - 160},
+      {x:260, y:boardHeight - 160},
+      {x:380, y:boardHeight - 160},
+      {x:500, y:boardHeight - 160},
+      {x:80, y:boardHeight - 100},
+      {x:220, y:boardHeight - 100}
     ];
   pieces.forEach((p,i)=>{
     const el=document.createElement("div");
@@ -326,8 +336,8 @@ function distance(ax,ay,bx,by){
     el.dataset.id=p.id;
     el.innerHTML=pieceSVG(p.shape,p.color);
     const s=starts[i%starts.length];
-    el.style.left = s.x+"px";
-    el.style.top  = s.y+"px";
+    el.style.left = Math.min(s.x, boardWidth - 120) + "px"; // Ensure within bounds
+    el.style.top  = Math.min(s.y, boardHeight - 120) + "px";
     board.appendChild(el);
     enableDrag(el);
   });
@@ -365,13 +375,16 @@ function enableDrag(el){
 function trySnap(el){
   if(el.classList.contains("done")) return;
   const id = el.dataset.id;
-  const t = targets.find(x=>x.id===id);
-  if(!t) return;
+  const targetEl = board.querySelector(`.target[data-id="${id}"]`);
+  if(!targetEl) return;
+
+  const targetRect = targetEl.getBoundingClientRect();
+  const boardRect = board.getBoundingClientRect();
+  const tx = targetRect.left - boardRect.left + targetRect.width / 2;
+  const ty = targetRect.top - boardRect.top + targetRect.height / 2;
 
   const cx = parseFloat(el.style.left) + 60;
   const cy = parseFloat(el.style.top) + 60;
-  const tx = t.x + t.w/2;
-  const ty = t.y + t.h/2;
 
   if(distance(cx,cy,tx,ty) <= SNAP_DIST){
     // snap to target center

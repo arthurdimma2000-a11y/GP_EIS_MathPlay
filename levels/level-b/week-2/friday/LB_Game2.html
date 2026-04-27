@@ -15,6 +15,7 @@
     margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
     background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
     padding:18px;
+    overscroll-behavior:none;
   }
   .app{width:min(1100px,98vw)}
   .top{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px}
@@ -33,19 +34,42 @@
     background:linear-gradient(180deg,#fff,#f7fbff);
     box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
     min-height:120px;
+    touch-action:manipulation;
+  }
+  .tray.is-hot,.drop.is-hot{
+    box-shadow:inset 0 0 0 4px rgba(34,197,94,.65), 0 0 0 4px rgba(34,197,94,.12);
+    transform:scale(1.01);
   }
   .chip{
     width:110px;height:110px;border-radius:26px;cursor:grab;user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+    -webkit-tap-highlight-color:transparent;
+    -webkit-user-drag:none;
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 14px 28px rgba(0,0,0,.14);
     font-weight:1000;
     position:relative;
-    touch-action:manipulation;
+    touch-action:none;
+    transition:transform .12s ease, opacity .12s ease, outline .12s ease;
   }
+  .chip:active{cursor:grabbing}
   .chip.selected{
     outline:4px solid rgba(99,102,241,.85);
     outline-offset:3px;
     transform:translateY(-2px) scale(1.02);
+  }
+  .chip.is-dragging-source{opacity:.35; transform:scale(.96)}
+  .drag-ghost{
+    position:fixed;
+    z-index:99999;
+    left:0;
+    top:0;
+    margin:0;
+    pointer-events:none;
+    opacity:.96;
+    transform:translate(-50%,-50%) scale(1.06);
+    box-shadow:0 20px 45px rgba(0,0,0,.25);
   }
   .bins{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
   @media (max-width: 680px){ .bins{grid-template-columns:1fr} }
@@ -55,21 +79,43 @@
     box-shadow:inset 0 0 0 2px rgba(0,0,0,.08);
     min-height:160px;
   }
-  .bin h3{margin:0 0 8px; font-size:18px}
+  .bin h3{
+    margin:0 0 8px;
+    font-size:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .shape-symbol{
+    width:34px;
+    height:34px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    flex:0 0 auto;
+    box-shadow:0 6px 16px rgba(0,0,0,.16);
+  }
+  .shape-symbol.pentagon{background:linear-gradient(135deg,#9b5de5,#d9b8ff)}
+  .shape-symbol.hexagon{background:linear-gradient(135deg,#1d7fe8,#8be7ff)}
+  .shape-symbol.octagon{background:linear-gradient(135deg,#f15bb5,#ffd4ef)}
   .drop{
     border-radius:16px; min-height:110px; padding:10px;
     background:linear-gradient(180deg,#fff,#f7fbff);
     box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
     display:flex; gap:10px; flex-wrap:wrap;
+    touch-action:manipulation;
+    transition:transform .12s ease, box-shadow .12s ease;
   }
   .pill{background:#f6f7ff;border-radius:999px;padding:10px 12px;font-weight:1000;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);display:inline-block}
   .msg{margin-top:10px;border-radius:16px;padding:10px 12px;background:#fff;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);font-weight:1000}
+  .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="top">
-    <div class="badge">🟣 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Game 2 • Polygon Sort</span></div>
+    <div class="badge">🔷 <span style="font-size:18px">Level B</span> <span style="opacity:.8">Game 2 • Polygon Sort</span></div>
     <div style="display:flex; gap:10px; flex-wrap:wrap">
       <a class="btn" href="../thursday/FairlyTaleWk2B.html">⬅ Back</a>
       <a class="btn next" href="LB_Quiz2.html">Next ▶</a>
@@ -79,22 +125,22 @@
   <div class="grid">
     <div class="card">
       <div class="title">Drag & Sort!</div>
-      <p class="subtitle">Drag each shape into the correct box. Remember: pentagon=5, hexagon=6, octagon=8 vertices.</p>
+      <p class="subtitle">Drag each shape into the correct box. On a phone or tablet, you can also tap a shape, then tap the correct box. Remember: pentagon=5, hexagon=6, octagon=8 vertices.</p>
 
       <div class="tray" id="tray" aria-label="Shape tray"></div>
 
       <div class="bins" style="margin-top:12px">
         <div class="bin">
-          <h3>🟣 Pentagon (5)</h3>
-          <div class="drop" data-bin="pentagon"></div>
+          <h3><span class="shape-symbol pentagon" aria-hidden="true"></span> Pentagon (5)</h3>
+          <div class="drop" data-bin="pentagon" aria-label="Pentagon drop box"></div>
         </div>
         <div class="bin">
-          <h3>🔵 Hexagon (6)</h3>
-          <div class="drop" data-bin="hexagon"></div>
+          <h3><span class="shape-symbol hexagon" aria-hidden="true"></span> Hexagon (6)</h3>
+          <div class="drop" data-bin="hexagon" aria-label="Hexagon drop box"></div>
         </div>
         <div class="bin">
-          <h3>🩷 Octagon (8)</h3>
-          <div class="drop" data-bin="octagon"></div>
+          <h3><span class="shape-symbol octagon" aria-hidden="true"></span> Octagon (8)</h3>
+          <div class="drop" data-bin="octagon" aria-label="Octagon drop box"></div>
         </div>
       </div>
 
@@ -128,7 +174,7 @@
     o.type=type;o.frequency.value=f;ga.gain.value=g;o.connect(ga);ga.connect(c.destination);o.start();o.stop(c.currentTime+t); }
   function chime(){ try{ beep(880,.08,.05); setTimeout(()=>beep(1175,.10,.05),90); setTimeout(()=>beep(1568,.12,.05),200);}catch(e){} }
   function cheer(){ try{ beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
-  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};}}
+  function load(){ try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}");}catch(e){return {};} }
   function save(db){ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
   window.__LegacyTrack__={ complete({level,activityId,score=0,stars=0}){
     const db=load(); db[level]=db[level]||{level,activities:{},updatedAt:new Date().toISOString()};
@@ -149,26 +195,43 @@ const msg=document.getElementById("msg");
 const okEl=document.getElementById("ok");
 const starsEl=document.getElementById("stars");
 let selectedChip = null;
+let activeDrag = null;
+let hotTarget = null;
 
-const pieces=[];
+function shapePath(kind){
+  if(kind==="pentagon") return "M60 18 L98 44 L84 92 L36 92 L22 44 Z";
+  if(kind==="hexagon") return "M60 18 L95 38 L95 82 L60 102 L25 82 L25 38 Z";
+  return "M44 18 L76 18 L98 40 L98 80 L76 102 L44 102 L22 80 L22 40 Z";
+}
+
+function shapeSvg(kind, size=86, fill="white"){
+  return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" aria-hidden="true"><path d="${shapePath(kind)}" fill="${fill}" opacity=".95"/></svg>`;
+}
+
+function paintHeaderSymbols(){
+  document.querySelectorAll(".shape-symbol").forEach(icon=>{
+    const kind = icon.classList.contains("pentagon") ? "pentagon" : icon.classList.contains("hexagon") ? "hexagon" : "octagon";
+    icon.innerHTML = shapeSvg(kind, 26, "white");
+  });
+}
+
 function chip(kind,color,label){
   const el=document.createElement("div");
   el.className="chip";
   el.style.background=`linear-gradient(180deg, ${color}, #ffffff)`;
-  el.draggable=true;
+  el.draggable=false;
   el.dataset.kind=kind;
-  el.innerHTML = svg(kind) + `<div style="position:absolute;opacity:0">${label}</div>`;
-  el.addEventListener("dragstart",(e)=>{
-    e.dataTransfer.setData("text/plain", kind);
-    e.dataTransfer.setData("id", el.dataset.id);
-    window.__SFX__.chime();
-  });
-  el.addEventListener("click", ()=>{
-    if (selectedChip === el) {
-      clearSelection();
-      return;
+  el.setAttribute("role","button");
+  el.setAttribute("tabindex","0");
+  el.setAttribute("aria-label",`${label}. Drag to a box, or tap then tap the correct box.`);
+  el.innerHTML = shapeSvg(kind, 86, "white") + `<span class="sr-only">${label}</span>`;
+
+  el.addEventListener("pointerdown", startPointerDrag);
+  el.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      toggleSelection(el);
     }
-    setSelection(el);
   });
   return el;
 }
@@ -182,7 +245,29 @@ function setSelection(el){
   clearSelection();
   selectedChip = el;
   selectedChip.classList.add("selected");
-  msg.textContent = "Shape selected. Tap a box to place it. ⭐";
+  msg.textContent = "Shape selected. Tap the correct box to place it. ⭐";
+}
+
+function toggleSelection(el){
+  if (selectedChip === el) {
+    clearSelection();
+    msg.textContent = "Selection cleared. Tap or drag a shape. ⭐";
+    return;
+  }
+  setSelection(el);
+}
+
+function setHotTarget(target){
+  if (hotTarget === target) return;
+  if (hotTarget) hotTarget.classList.remove("is-hot");
+  hotTarget = target || null;
+  if (hotTarget) hotTarget.classList.add("is-hot");
+}
+
+function containerAt(x,y){
+  const node = document.elementFromPoint(x,y);
+  if(!node) return null;
+  return node.closest(".drop, #tray");
 }
 
 function moveChipTo(container, el){
@@ -192,64 +277,161 @@ function moveChipTo(container, el){
   el.style.outlineOffset = "";
   clearSelection();
   window.__SFX__.chime();
+  const placeName = container.id === "tray" ? "the tray" : `${container.dataset.bin} box`;
+  msg.textContent = `Placed in ${placeName}. ⭐`;
 }
 
-function svg(kind){
-  const fill="white";
-  if(kind==="pentagon") return `<svg viewBox="0 0 120 120" width="86" height="86"><path d="M60 18 L 98 44 L 84 92 L 36 92 L 22 44 Z" fill="${fill}" opacity=".95"/></svg>`;
-  if(kind==="hexagon") return `<svg viewBox="0 0 120 120" width="86" height="86"><path d="M60 18 L 95 38 L 95 82 L 60 102 L 25 82 L 25 38 Z" fill="${fill}" opacity=".95"/></svg>`;
-  return `<svg viewBox="0 0 120 120" width="86" height="86"><path d="M44 18 L 76 18 L 98 40 L 98 80 L 76 102 L 44 102 L 22 80 L 22 40 Z" fill="${fill}" opacity=".95"/></svg>`;
+function startPointerDrag(e){
+  if(e.pointerType === "mouse" && e.button !== 0) return;
+  const el = e.currentTarget;
+  e.preventDefault();
+  e.stopPropagation();
+  clearSelection();
+
+  activeDrag = {
+    el,
+    pointerId:e.pointerId,
+    startX:e.clientX,
+    startY:e.clientY,
+    x:e.clientX,
+    y:e.clientY,
+    dragging:false,
+    ghost:null
+  };
+  try{ el.setPointerCapture(e.pointerId); }catch(err){}
+
+  el.addEventListener("pointermove", onPointerMove);
+  el.addEventListener("pointerup", endPointerDrag);
+  el.addEventListener("pointercancel", cancelPointerDrag);
+}
+
+function beginFloatingDrag(){
+  if(!activeDrag || activeDrag.dragging) return;
+  const el = activeDrag.el;
+  activeDrag.dragging = true;
+  const ghost = el.cloneNode(true);
+  ghost.removeAttribute("id");
+  ghost.classList.remove("selected");
+  ghost.classList.add("drag-ghost");
+  ghost.style.width = `${el.offsetWidth}px`;
+  ghost.style.height = `${el.offsetHeight}px`;
+  document.body.appendChild(ghost);
+  activeDrag.ghost = ghost;
+  el.classList.add("is-dragging-source");
+  window.__SFX__.chime();
+  updateGhost(activeDrag.x, activeDrag.y);
+}
+
+function updateGhost(x,y){
+  if(activeDrag && activeDrag.ghost){
+    activeDrag.ghost.style.left = `${x}px`;
+    activeDrag.ghost.style.top = `${y}px`;
+  }
+}
+
+function onPointerMove(e){
+  if(!activeDrag || e.pointerId !== activeDrag.pointerId) return;
+  e.preventDefault();
+  activeDrag.x = e.clientX;
+  activeDrag.y = e.clientY;
+  const dx = e.clientX - activeDrag.startX;
+  const dy = e.clientY - activeDrag.startY;
+
+  if(!activeDrag.dragging && Math.hypot(dx,dy) > 8){
+    beginFloatingDrag();
+  }
+
+  if(activeDrag.dragging){
+    updateGhost(e.clientX, e.clientY);
+    setHotTarget(containerAt(e.clientX, e.clientY));
+  }
+}
+
+function cleanupDragListeners(){
+  if(!activeDrag) return;
+  const el = activeDrag.el;
+  el.removeEventListener("pointermove", onPointerMove);
+  el.removeEventListener("pointerup", endPointerDrag);
+  el.removeEventListener("pointercancel", cancelPointerDrag);
+}
+
+function endPointerDrag(e){
+  if(!activeDrag || e.pointerId !== activeDrag.pointerId) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  const wasDragging = activeDrag.dragging;
+  const el = activeDrag.el;
+  const target = wasDragging ? (hotTarget || containerAt(e.clientX, e.clientY)) : null;
+
+  cleanupDragListeners();
+  if(activeDrag.ghost) activeDrag.ghost.remove();
+  el.classList.remove("is-dragging-source");
+  setHotTarget(null);
+
+  if(wasDragging){
+    if(target){
+      moveChipTo(target, el);
+    }else{
+      msg.textContent = "Try again. Drag the shape into a box. ⭐";
+    }
+  }else{
+    toggleSelection(el);
+  }
+
+  activeDrag = null;
+}
+
+function cancelPointerDrag(e){
+  if(!activeDrag) return;
+  cleanupDragListeners();
+  if(activeDrag.ghost) activeDrag.ghost.remove();
+  activeDrag.el.classList.remove("is-dragging-source");
+  setHotTarget(null);
+  activeDrag = null;
 }
 
 function seed(){
   tray.innerHTML="";
   drops.forEach(d=>d.innerHTML="");
   clearSelection();
+  setHotTarget(null);
 
   const list=[
-    {k:"pentagon", c:"#9b5de5"},
-    {k:"pentagon", c:"#9b5de5"},
-    {k:"hexagon", c:"#00bbf9"},
-    {k:"hexagon", c:"#00bbf9"},
-    {k:"octagon", c:"#f15bb5"},
-    {k:"octagon", c:"#f15bb5"},
+    {k:"pentagon", c:"#9b5de5", label:"Pentagon"},
+    {k:"pentagon", c:"#9b5de5", label:"Pentagon"},
+    {k:"hexagon", c:"#00bbf9", label:"Hexagon"},
+    {k:"hexagon", c:"#00bbf9", label:"Hexagon"},
+    {k:"octagon", c:"#f15bb5", label:"Octagon"},
+    {k:"octagon", c:"#f15bb5", label:"Octagon"},
   ].sort(()=>Math.random()-0.5);
 
   list.forEach((it,idx)=>{
-    const el=chip(it.k,it.c,it.k);
+    const el=chip(it.k,it.c,it.label);
     el.dataset.id="p"+idx;
-    pieces.push(el);
     tray.appendChild(el);
   });
 
-  msg.textContent="Drag shapes into the correct boxes. ⭐";
-  okEl.textContent="0"; starsEl.textContent="—";
+  msg.textContent="Drag shapes into the correct boxes. On touch screens, tap a shape, then tap a box. ⭐";
+  okEl.textContent="0";
+  starsEl.textContent="—";
+}
+
+function placeSelectedIn(container){
+  if(!selectedChip) return;
+  moveChipTo(container, selectedChip);
 }
 
 drops.forEach(drop=>{
-  drop.addEventListener("dragover",(e)=>e.preventDefault());
-  drop.addEventListener("drop",(e)=>{
-    e.preventDefault();
-    const id=e.dataTransfer.getData("id");
-    const el=[...document.querySelectorAll(".chip")].find(x=>x.dataset.id===id);
-    if(!el) return;
-    moveChipTo(drop, el);
-  });
-  drop.addEventListener("click", ()=>{
-    if (selectedChip) moveChipTo(drop, selectedChip);
+  drop.addEventListener("click", (e)=>{
+    if(e.target.closest(".chip")) return;
+    placeSelectedIn(drop);
   });
 });
 
-tray.addEventListener("dragover",(e)=>e.preventDefault());
-tray.addEventListener("drop",(e)=>{
-  e.preventDefault();
-  const id=e.dataTransfer.getData("id");
-  const el=[...document.querySelectorAll(".chip")].find(x=>x.dataset.id===id);
-  if(!el) return;
-  moveChipTo(tray, el);
-});
-tray.addEventListener("click", ()=>{
-  if (selectedChip) moveChipTo(tray, selectedChip);
+tray.addEventListener("click", (e)=>{
+  if(e.target.closest(".chip")) return;
+  placeSelectedIn(tray);
 });
 
 document.getElementById("resetBtn").addEventListener("click", seed);
@@ -257,6 +439,11 @@ document.getElementById("resetBtn").addEventListener("click", seed);
 document.getElementById("checkBtn").addEventListener("click", async ()=>{
   let correct=0;
   const total=6;
+
+  [...document.querySelectorAll(".chip")].forEach(ch=>{
+    ch.style.outline = "";
+    ch.style.outlineOffset = "";
+  });
 
   drops.forEach(drop=>{
     const bin=drop.dataset.bin;
@@ -272,12 +459,15 @@ document.getElementById("checkBtn").addEventListener("click", async ()=>{
 
   const score=Math.round((correct/total)*100);
   const stars= score===100?3:score>=80?2:score>=60?1:0;
-  starsEl.textContent = "⭐".repeat(Math.max(1,stars));
+  starsEl.textContent = stars > 0 ? "⭐".repeat(stars) : "Try again";
 
   if(score===100){
     msg.textContent="🎉 Perfect sorting! Amazing!";
   }else{
-    msg.textContent=`✅ ${correct}/${total} correct. Move the red ones to the right box!`;
+    const stillInTray = tray.querySelectorAll(".chip").length;
+    msg.textContent = stillInTray
+      ? `✅ ${correct}/${total} correct. Put every shape into a box, then check again!`
+      : `✅ ${correct}/${total} correct. Move the red outlined shapes to the correct box!`;
   }
 
   if (window.GPTrack && typeof window.GPTrack.finish === "function") {
@@ -294,6 +484,7 @@ document.getElementById("checkBtn").addEventListener("click", async ()=>{
   }
 });
 
+paintHeaderSymbols();
 seed();
 </script>
 <video class="autoplay-intro" preload="auto" muted playsinline autoplay style="display:none" aria-hidden="true">
@@ -335,4 +526,3 @@ seed();
 <script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
 </html>
-

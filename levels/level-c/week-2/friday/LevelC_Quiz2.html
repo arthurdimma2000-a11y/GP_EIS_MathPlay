@@ -660,7 +660,10 @@ function goHomeNow(event){
     event.preventDefault();
     event.stopPropagation();
   }
-  window.location.assign("../../week-3/tuesday/LevelC14.html");
+  // Mobile detection: if screen width < 768px, go to ScienceClassWk3C.html
+  const isMobile = window.innerWidth < 768;
+  const nextPage = isMobile ? "../../week-3/monday/ScienceClassWk3C.html" : "../../week-3/tuesday/LevelC14.html";
+  window.location.assign(nextPage);
 }
 
 function persistState(){
