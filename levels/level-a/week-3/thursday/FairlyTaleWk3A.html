@@ -473,6 +473,11 @@
 
     setVideoSource(video, VIDEO_SRC);
     setVideoSource(introVideo, INTRO_VIDEO_URL);
+    if (video) {
+      try { video.pause(); } catch (err) {}
+      video.muted = true;
+      video.volume = 0;
+    }
 
     function revealPageContent() {
       if (introFinished) return;
@@ -486,7 +491,15 @@
       if (introVideo) {
         try {
           introVideo.pause();
+          introVideo.muted = true;
+          introVideo.currentTime = 0;
+          introVideo.src = "";
         } catch (err) {}
+      }
+
+      if (video) {
+        video.muted = false;
+        video.volume = 1;
       }
     }
 
@@ -542,7 +555,9 @@
       if (!introVideo) return;
       introVideo.muted = false;
       introVideo.volume = 1;
-      introVideo.play().catch(() => {});
+      if (introVideo.paused) {
+        introVideo.play().catch(() => {});
+      }
       turnOnSoundBtn.textContent = "Sound On";
       turnOnSoundBtn.disabled = true;
     }

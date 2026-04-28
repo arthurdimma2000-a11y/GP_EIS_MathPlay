@@ -470,6 +470,11 @@
 
     setVideoSource(video, VIDEO_SRC);
     setVideoSource(introVideo, INTRO_VIDEO_URL);
+    if (video) {
+      try { video.pause(); } catch (err) {}
+      video.muted = true;
+      video.volume = 0;
+    }
 
     function revealPageContent() {
       if (introFinished) return;
@@ -484,6 +489,13 @@
         try {
           introVideo.pause();
         } catch (err) {}
+      }
+
+      if (video) {
+        video.muted = false;
+        video.volume = 1;
+        try { video.currentTime = 0; } catch (err) {}
+        video.play().catch(() => {});
       }
     }
 
