@@ -3,478 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pentagon Fairly Tale</title>
-
+  <title>PentagonFairlyTale</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root{
+      --bg1:#fff6da; --bg2:#ffe18a; --bg3:#ffc84d;
+      --text:#5b3200; --accent:#ff8a00; --accent2:#ffb300;
+      --dark:#2f2f2f; --shadow:0 14px 34px rgba(0,0,0,.20); --radius:26px;
     }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #fff7e6, #ffe4ec, #e8f4ff);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    #pageContent {
-      width: 100%;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity .28s ease;
-    }
-
-    body.intro-complete #pageContent {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    #lbIntroVideoOverlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      background: rgba(0, 0, 0, 0.82);
-      z-index: 9999;
-    }
-
-    #lbIntroVideoOverlay[hidden] {
-      display: none !important;
-    }
-
-    .intro-panel {
-      width: min(920px, 100%);
-      background: rgba(15, 15, 15, .96);
-      border-radius: 24px;
-      padding: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
-      border: 2px solid rgba(255,255,255,.14);
-    }
-
-    .intro-title {
-      color: #fff4d6;
-      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
-      font-weight: 900;
-      text-align: center;
-      margin-bottom: 12px;
-    }
-
-    #lbIntroVideo {
-      width: 100%;
-      max-height: 72vh;
-      border-radius: 18px;
-      object-fit: contain;
-      background: #000;
-      display: block;
-    }
-
-    .intro-actions {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .intro-btn {
-      border: none;
-      cursor: pointer;
-      border-radius: 999px;
-      padding: 12px 18px;
-      min-width: 140px;
-      font-size: .96rem;
-      font-weight: 800;
-      color: #fff;
-      box-shadow: 0 8px 18px rgba(0,0,0,.28);
-    }
-
-    .intro-btn.sound {
-      background: linear-gradient(180deg, #38bdf8, #0284c7);
-    }
-
-    .intro-btn.skip {
-      background: linear-gradient(180deg, #fb923c, #ea580c);
-    }
-
-    .intro-help {
-      margin-top: 10px;
-      text-align: center;
-      color: #fef3c7;
-      font-size: .9rem;
-      font-weight: 700;
-    }
-
-    .page-wrap {
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-    }
-
-    .video-shell {
-      position: relative;
-      width: min(1200px, 100%);
-      height: min(90vh, 700px);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-      background: #000;
-      border: 6px solid #ffffff;
-    }
-
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #000;
-      display: block;
-    }
-
-    .top-bar,
-    .bottom-bar {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(6px);
-    }
-
-    .top-bar {
-      top: 0;
-    }
-
-    .bottom-bar {
-      bottom: 0;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .title-badge {
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 700;
-      background: rgba(255, 105, 180, 0.9);
-      padding: 10px 16px;
-      border-radius: 999px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .nav-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      text-decoration: none;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      padding: 12px 18px;
-      border-radius: 999px;
-      font-size: 1rem;
-      font-weight: 700;
-      color: #222;
-      background: #fff;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-      min-width: 110px;
-      text-align: center;
-    }
-
-    .nav-btn:hover {
-      transform: translateY(-2px) scale(1.03);
-      background: #ffe97f;
-    }
-
-    .nav-btn:active {
-      transform: scale(0.97);
-    }
-
-    .home-btn {
-      background: #8ef58e;
-    }
-
-    .prev-btn {
-      background: #9fd4ff;
-    }
-
-    .next-btn {
-      background: #ffbf69;
-    }
-
-    .history-btn {
-      background: #ffd4f0;
-    }
-
-    .center-play {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    .play-note {
-      pointer-events: auto;
-      background: rgba(255, 255, 255, 0.92);
-      color: #222;
-      padding: 14px 22px;
-      border-radius: 18px;
-      font-size: 1rem;
-      font-weight: 700;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      animation: floatUp 2s ease-in-out infinite;
-    }
-
-    @keyframes floatUp {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-    }
-
-    @media (max-width: 768px) {
-      .video-shell {
-        height: 100vh;
-        width: 100%;
-        border-radius: 0;
-        border: none;
-      }
-
-      .top-bar,
-      .bottom-bar {
-        padding: 10px;
-      }
-
-      .nav-btn {
-        min-width: 90px;
-        font-size: 0.92rem;
-        padding: 10px 14px;
-      }
-
-      .title-badge {
-        font-size: 0.95rem;
-        padding: 8px 12px;
-      }
-
-      .page-wrap {
-        padding: 0;
-      }
-
-      .intro-panel {
-        padding: 12px;
-        border-radius: 18px;
-      }
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{min-height:100%;width:100%;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,#fff8ea 0%,transparent 35%),radial-gradient(circle at bottom right,#ffd76a 0%,transparent 30%),linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:var(--text)}
+    body{padding:20px;display:flex;justify-content:center;align-items:flex-start}
+    .page{width:100%;max-width:1180px;position:relative}
+    .floating-shape{position:absolute;width:80px;height:80px;background:rgba(255,255,255,.28);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);animation:floaty 5s ease-in-out infinite;pointer-events:none}
+    .shape1{top:10px;left:10px}.shape2{top:50px;right:30px;width:60px;height:60px;animation-delay:.8s}.shape3{bottom:40px;left:40px;width:55px;height:55px;animation-delay:1.4s}
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .header{text-align:center;margin-bottom:18px;background:rgba(255,255,255,.58);backdrop-filter:blur(6px);border-radius:24px;padding:18px 14px;box-shadow:var(--shadow);border:2px solid rgba(255,255,255,.55)}
+    .header h1{font-size:clamp(1.7rem,3vw,2.6rem);color:#8c4300;margin-bottom:8px;font-weight:900}
+    .header p{font-size:clamp(.95rem,1.8vw,1.08rem);font-weight:700;color:#7a4900}
+    .video-card{position:relative;border-radius:var(--radius);overflow:hidden;background:#000;box-shadow:var(--shadow);border:4px solid rgba(255,255,255,.65)}
+    video{width:100%;height:auto;display:block;background:#000}
+    .top-bar,.bottom-bar{position:absolute;left:0;width:100%;z-index:5;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;pointer-events:none}
+    .top-bar{top:0;background:linear-gradient(to bottom,rgba(0,0,0,.70),rgba(0,0,0,0))}
+    .bottom-bar{bottom:0;background:linear-gradient(to top,rgba(0,0,0,.76),rgba(0,0,0,0))}
+    .nav-btn{pointer-events:auto;border:none;cursor:pointer;border-radius:999px;padding:12px 18px;min-width:104px;font-size:.95rem;font-weight:800;color:#fff;background:linear-gradient(180deg,var(--accent2),var(--accent));box-shadow:0 8px 18px rgba(0,0,0,.28);transition:transform .18s ease}
+    .nav-btn:hover{transform:translateY(-2px) scale(1.03)}
+    .nav-btn.dark{background:linear-gradient(180deg,#515151,#2b2b2b)}
+    .nav-btn.green{background:linear-gradient(180deg,#2ecc71,#16924d)}
+    .nav-btn.red{background:linear-gradient(180deg,#ff7b61,#e74c3c)}
+    .lesson-note{margin-top:16px;background:rgba(255,255,255,.7);border-radius:22px;padding:14px 16px;box-shadow:var(--shadow);text-align:center;font-weight:700;color:#7a4900;line-height:1.55}
+    #pageContent{opacity:0;visibility:hidden;transition:opacity .28s ease}
+    body.intro-complete #pageContent{opacity:1;visibility:visible}
+    #lbIntroVideoOverlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.82);z-index:9999}
+    #lbIntroVideoOverlay[hidden]{display:none!important}
+    .intro-panel{width:min(920px,100%);background:rgba(15,15,15,.96);border-radius:24px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.14)}
+    .intro-title{color:#fff4d6;font-size:clamp(1.1rem,2.4vw,1.5rem);font-weight:900;text-align:center;margin-bottom:12px}
+    #lbIntroVideo{width:100%;max-height:72vh;border-radius:18px;object-fit:contain;background:#000}
+    .intro-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+    .intro-btn{border:none;cursor:pointer;border-radius:999px;padding:12px 18px;min-width:140px;font-size:.96rem;font-weight:800;color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.28)}
+    .intro-btn.sound{background:linear-gradient(180deg,#38bdf8,#0284c7)}
+    .intro-btn.skip{background:linear-gradient(180deg,#fb923c,#ea580c)}
+    .intro-help{margin-top:10px;text-align:center;color:#fef3c7;font-size:.9rem;font-weight:700}
   </style>
 </head>
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
       <div class="intro-title">Pentagon Fairly Tale Intro</div>
-      <video
-        id="lbIntroVideo"
-        playsinline
-        autoplay
-        muted
-        preload="metadata"
-      >
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776021903/Lapentagonfairlytale_g8cr6e.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
+      <video id="lbIntroVideo" playsinline autoplay muted preload="metadata">
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1775986312/Pentagonfairlytale_lgd5da.mp4" type="video/mp4">
       </video>
       <div class="intro-actions">
         <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
-      <div class="intro-help">If the intro does not play, the story page will open automatically.</div>
+      <div class="intro-help">Skip Intro will go straight to LB_Game1.html.</div>
     </div>
   </div>
 
   <div id="pageContent">
-    <div class="page-wrap">
-      <div class="video-shell">
+    <div class="page">
+      <div class="floating-shape shape1"></div><div class="floating-shape shape2"></div><div class="floating-shape shape3"></div>
+      <div class="header">
+        <h1>📖 Pentagon Fairly Tale</h1>
+        <p>LB7.html → PentagonFairlyTale.html → LB_Game1.html</p>
+      </div>
 
+      <div class="video-card">
         <div class="top-bar">
-          <div class="title-badge">Pentagon Fairly Tale</div>
-
-          <div class="nav-group">
-            <button class="nav-btn history-btn" onclick="goBack()">⬅ Back</button>
-            <a href="../../../../index.html" class="nav-btn home-btn">🏠 Home</a>
-            <button class="nav-btn history-btn" onclick="goForward()">Forward ➡</button>
-          </div>
+          <button class="nav-btn" onclick="goHome()">🏠 Home</button>
+          <button class="nav-btn dark" onclick="goBackPage()">⬅ Back</button>
+          <button class="nav-btn" onclick="replayVideo()">🔁 Replay</button>
         </div>
 
-        <video id="fairyVideo" controls playsinline preload="metadata">
-          <source src="PentagonFairlytale.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
+        <video id="lessonVideo" controls playsinline preload="metadata">
+          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1775986312/Pentagonfairlytale_lgd5da.mp4" type="video/mp4">
         </video>
 
-        <div class="center-play" id="playHint">
-          <div class="play-note">▶ Tap Play to watch the story</div>
-        </div>
-
         <div class="bottom-bar">
-          <a href="../wednesday/LB7.html" class="nav-btn prev-btn">⏮ Previous Page</a>
-          <button class="nav-btn" onclick="togglePlay()">⏯ Play / Pause</button>
-          <button class="nav-btn" onclick="restartVideo()">🔁 Replay</button>
-          <button class="nav-btn" onclick="fullscreenVideo()">⛶ Full Screen</button>
-          <a href="../friday/LB_Game1.html" class="nav-btn next-btn">Next Page ⏭</a>
+          <button class="nav-btn green" onclick="togglePlayPause()">▶ / ⏸ Play</button>
+          <button class="nav-btn red" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+          <button class="nav-btn dark" onclick="goNextPage()">Next ➜</button>
         </div>
-
       </div>
+
+      <div class="lesson-note">Back goes to LB7.html. Next goes to LB_Game1.html. Skip Intro jumps immediately to LB_Game1.html.</div>
     </div>
   </div>
 
   <script>
-    const INTRO_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1776021903/Lapentagonfairlytale_g8cr6e.mp4";
+    const HOME_PAGE = "../../../../index.html";
+    const PREVIOUS_PAGE = "../wednesday/LB7.html";
+    const NEXT_PAGE = "../friday/LB_Game1.html";
 
-    const video = document.getElementById("fairyVideo");
-    const playHint = document.getElementById("playHint");
+    const video = document.getElementById("lessonVideo");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
     const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
-
     let introFinished = false;
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
-    instructionAudio.preload = "auto";
-    let instructionAudioStarted = false;
+    video.muted = true;
+    video.volume = 0;
 
-    function playInstructionBed() {
-      if (instructionAudioStarted) return;
-      try { instructionAudio.currentTime = 0; } catch (_err) {}
-      const playAttempt = instructionAudio.play();
-      if (playAttempt && typeof playAttempt.then === "function") {
-        playAttempt.then(() => {
-          instructionAudioStarted = true;
-        }).catch(() => {});
-      } else {
-        instructionAudioStarted = true;
-      }
-    }
+    function pauseVideo(el){ if(el){ try{ el.pause(); }catch(e){} } }
+    function revealPageContent(){ if(introFinished) return; introFinished = true; document.body.classList.add("intro-complete"); introOverlay.hidden = true; pauseVideo(introVideo); }
+    function restoreLessonAudio(){ video.muted = false; video.volume = 1; }
+    function goHome(){ pauseVideo(video); pauseVideo(introVideo); window.location.href = HOME_PAGE; }
+    function goBackPage(){ pauseVideo(video); pauseVideo(introVideo); window.location.href = PREVIOUS_PAGE; }
+    function goNextPage(){ pauseVideo(video); pauseVideo(introVideo); window.location.href = NEXT_PAGE; }
+    function skipIntroAndGoNext(){ pauseVideo(introVideo); pauseVideo(video); window.location.href = NEXT_PAGE; }
+    function replayVideo(){ video.currentTime = 0; video.play().catch(()=>{}); }
+    function togglePlayPause(){ if(video.paused){ video.play().catch(()=>{}); } else { video.pause(); } }
+    function toggleFullscreen(){ const card = document.querySelector(".video-card"); if(!document.fullscreenElement){ if(card.requestFullscreen) card.requestFullscreen(); } else { if(document.exitFullscreen) document.exitFullscreen(); } }
+    function enableIntroSound(){ introVideo.muted = false; introVideo.volume = 1; introVideo.play().catch(()=>{}); turnOnSoundBtn.textContent = "Sound On"; turnOnSoundBtn.disabled = true; }
 
-    window.addEventListener("load", playInstructionBed, { once: true });
-    ["pointerdown", "touchstart", "click", "keydown"].forEach((eventName) => {
-      document.addEventListener(eventName, playInstructionBed, {
-        once: true,
-        capture: true,
-        passive: eventName !== "keydown"
-      });
+    introVideo.addEventListener("ended", () => { revealPageContent(); restoreLessonAudio(); });
+    introVideo.addEventListener("error", () => { revealPageContent(); restoreLessonAudio(); });
+    introVideo.play().catch(()=>{});
+    turnOnSoundBtn.addEventListener("click", enableIntroSound);
+    skipIntroBtn.addEventListener("click", skipIntroAndGoNext);
+
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "ArrowLeft") goBackPage();
+      else if(e.key === "ArrowRight") goNextPage();
+      else if(e.key.toLowerCase() === "h") goHome();
+      else if(e.key.toLowerCase() === "r") replayVideo();
+      else if(e.key.toLowerCase() === "f") toggleFullscreen();
+      else if(e.key === " "){ e.preventDefault(); togglePlayPause(); }
     });
 
-    function revealPageContent() {
-      if (introFinished) return;
-      introFinished = true;
-      document.body.classList.add("intro-complete");
-      if (introOverlay) {
-        introOverlay.hidden = true;
-      }
-      if (introVideo) {
-        try {
-          introVideo.pause();
-        } catch (err) {}
-      }
-    }
-
-    function goBack() {
-      window.location.href = "../wednesday/LB7.html";
-    }
-
-    function goForward() {
-      window.history.forward();
-    }
-
-    function togglePlay() {
-      if (video.paused) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    }
-
-    function restartVideo() {
-      video.currentTime = 0;
-      video.play().catch(() => {});
-    }
-
-    function fullscreenVideo() {
-      if (video.requestFullscreen) {
-        video.requestFullscreen();
-      } else if (video.webkitRequestFullscreen) {
-        video.webkitRequestFullscreen();
-      } else if (video.msRequestFullscreen) {
-        video.msRequestFullscreen();
-      }
-    }
-
-    function enableIntroSound() {
-      if (!introVideo) return;
-      introVideo.muted = false;
-      introVideo.volume = 1;
-      introVideo.play().catch(() => {});
-      turnOnSoundBtn.textContent = "Sound On";
-      turnOnSoundBtn.disabled = true;
-    }
-
-    if (introVideo) {
-      introVideo.src = INTRO_VIDEO_URL;
-      introVideo.load();
-      introVideo.addEventListener("ended", revealPageContent);
-      introVideo.addEventListener("error", revealPageContent);
-      introVideo.addEventListener("stalled", () => {
-        window.setTimeout(() => {
-          if (!introFinished && (!introVideo.currentSrc || introVideo.networkState === 3)) {
-            revealPageContent();
-          }
-        }, 1200);
-      });
-      introVideo.play().catch(() => {});
-    } else {
-      revealPageContent();
-    }
-
-    if (turnOnSoundBtn) {
-      turnOnSoundBtn.addEventListener("click", enableIntroSound);
-    }
-
-    if (skipIntroBtn) {
-      skipIntroBtn.addEventListener("click", revealPageContent);
-    }
-
-    window.setTimeout(() => {
-      if (!introFinished && introVideo && introVideo.readyState < 1) {
-        revealPageContent();
-      }
-    }, 4000);
-
-    video.addEventListener("play", () => {
-      playHint.style.display = "none";
-    });
-
-    video.addEventListener("pause", () => {
-      if (video.currentTime < 1) {
-        playHint.style.display = "flex";
-      }
-    });
+    setTimeout(() => { if(!introFinished && introVideo.readyState < 1) { revealPageContent(); restoreLessonAudio(); } }, 4000);
   </script>
-<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
-<script src="../../../../shared/js/mic-lesson-helper.js"></script>
-<script src="../../../../shared/js/non-mic-lesson-helper.js"></script>
 </body>
 </html>

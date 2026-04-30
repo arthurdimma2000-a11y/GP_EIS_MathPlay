@@ -790,13 +790,11 @@
         "week-3/wednesday/LB15.html",
         "week-3/wednesday/LB19.html",
         "week-3/thursday/FairlyTaleWk3B.html",
-        "week-3/friday/LB_Revision3.html",
         "week-3/friday/LB_Game3.html",
         "week-3/friday/LB_Quiz3.html",
         "week-4/tuesday/LB20.html",
         "week-4/wednesday/LB21.html",
         "week-4/wednesday/LB25.html",
-        "week-4/friday/LB_Revision4.html",
         "week-4/friday/LA_Quiz4.html",
         "week-4/friday/LB_FinalQuiz.html"
       ],
@@ -825,7 +823,6 @@
         "week-4/tuesday/LevelC20.html",
         "week-4/wednesday/LevelC21.html",
         "week-4/wednesday/LevelC25.html",
-        "week-4/friday/LevelC_Revision4.html",
         "week-4/friday/LevelC_Game4.html",
         "week-4/friday/LevelC_Quiz4.html"
       ]

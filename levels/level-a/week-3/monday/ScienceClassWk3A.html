@@ -1015,7 +1015,13 @@
     }
 
     if (skipIntroBtn) {
-      skipIntroBtn.addEventListener("click", revealPageContent);
+      skipIntroBtn.addEventListener("click", () => {
+        if (introVideo) {
+          try { introVideo.pause(); } catch (err) {}
+        }
+        try { video.pause(); } catch (err) {}
+        goNextPage();
+      });
     }
 
     window.setTimeout(() => {
