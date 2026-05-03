@@ -409,7 +409,7 @@
     <div class="top-actions">
       <a class="btn dark" href="LB_Game3.html">⬅ Back</a>
       <button class="btn dark" id="soundBtn" type="button">🔊 Sound: ON</button>
-      <a class="btn next disabled" id="nextPageBtn" href="index.html">Next ▶</a>
+      <a class="btn next disabled" id="nextPageBtn" href="../../week-4/monday/PolygonMusicClass.html">Next ▶</a>
     </div>
   </div>
 
@@ -939,6 +939,15 @@ document.getElementById("soundBtn").addEventListener("click", (e) => {
   SOUND_ON = !SOUND_ON;
   e.currentTarget.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
 });
+
+if (nextPageBtn) {
+  nextPageBtn.setAttribute("href", "../../week-4/monday/PolygonMusicClass.html");
+  nextPageBtn.addEventListener("click", (event) => {
+    if (nextPageBtn.classList.contains("disabled")) return;
+    event.preventDefault();
+    window.location.assign("../../week-4/monday/PolygonMusicClass.html");
+  });
+}
 
 /* Initial screen */
 drawMystery(shapeSvg);

@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head>
+
 <style id="gpLessonPrehide">
   .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
   .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
@@ -9,51 +10,274 @@
   @media (max-width:780px){
     .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
   }
-</style>
+</style>
+
 <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Level C25 - True or False</title>
-  <link rel="stylesheet" href="../../../../shared/css/base.css" />
-  <link rel="stylesheet" href="../../../../shared/css/layout.css" />
-  <link rel="stylesheet" href="../../../../shared/css/lesson.css" />
-  <style>
-    :root{font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;--ink:#2d2d2d;--bubble:#dff1ff;--green:#2f9f5f;--red:#d62828;--shadow:0 20px 40px rgba(0,0,0,.12);}
-    body{display:flex;align-items:center;justify-content:center;background:#e7f7e7;padding:6px;color:var(--ink);}    .card{width:min(1280px,99vw);min-height:calc(100vh - 12px);border-radius:18px;padding:14px 14px 18px;}    
-    .poster-area{position:relative;width:100%;max-width:1120px;margin:0 auto;border-radius:16px;overflow:hidden;}
-    .poster-img{width:100%;height:auto;display:block;}
-    .bubble{position:absolute;left:12%;top:12%;padding:12px 16px;border-radius:16px;font-weight:800;font-size:1.5rem;max-width:520px;line-height:1.2;box-shadow:0 8px 18px rgba(0,0,0,.12);background:var(--bubble);opacity:0;}
-    .bubble.show{opacity:1;}
-    .bubble::after{content:"";position:absolute;left:16px;bottom:-10px;border-width:10px 8px 0 8px;border-style:solid;border-color:var(--bubble) transparent transparent transparent;}
-    .girl-spot{position:absolute;left:16px;top:12px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:3;}
-    .girl-spot img{width:64px;height:64px;border-radius:16px;object-fit:cover;box-shadow:0 6px 14px rgba(0,0,0,.25);border:4px solid #ffe3f7;background:#ffd6f2;cursor:pointer;}
-    .girl-hint{font-weight:800;color:#d62828;font-size:.9rem;}
-    .tap-line{position:absolute;left:8%;right:8%;top:55%;text-align:left;font-size:2.0rem;font-weight:900;opacity:0;white-space:pre-line;}
-    .tap-line.show{opacity:1;}
-    .green{color:var(--green);} .red{color:var(--red);}    
-    .quiz-panel{margin:14px auto 0;max-width:1120px;display:grid;gap:10px;}
-    .quiz-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:14px;background:#fff;box-shadow:0 8px 18px rgba(0,0,0,.08);}
-    .quiz-row strong{font-size:1.05rem;}
-    .quiz-actions{display:flex;gap:8px;flex-wrap:wrap;}
-    .option-btn{border:none;border-radius:999px;padding:8px 14px;font-size:.95rem;font-weight:800;cursor:pointer;background:#eef4ff;color:#234;}
-    .option-btn.correct{background:#dff7e7;color:#17633d;}
-    .option-btn.wrong{background:#ffe3e3;color:#a61f1f;}
-    .controls{margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;}
-    .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
-    .mic-icon-btn img{width:32px;height:32px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));}
-  </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Level C25 - True or False</title>
+
+<link rel="stylesheet" href="../../../../shared/css/base.css" />
+<link rel="stylesheet" href="../../../../shared/css/layout.css" />
+<link rel="stylesheet" href="../../../../shared/css/lesson.css" />
+
+<style>
+  :root{
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;
+    --ink:#2d2d2d;
+    --bubble:#dff1ff;
+    --bubble2:#fff3c4;
+    --green:#2f9f5f;
+    --red:#d62828;
+    --shadow:0 20px 40px rgba(0,0,0,.12);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#e7f7e7;
+    padding:6px;
+    color:var(--ink);
+    margin:0;
+  }
+
+  .card{
+    width:min(1280px,99vw);
+    min-height:calc(100vh - 12px);
+    border-radius:18px;
+    padding:14px 14px 18px;
+  }
+
+  .poster-area{
+    position:relative;
+    width:100%;
+    max-width:1120px;
+    margin:0 auto;
+    border-radius:16px;
+    overflow:hidden;
+  }
+
+  .poster-img{
+    width:100%;
+    height:auto;
+    display:block;
+  }
+
+  .bubble{
+    position:absolute;
+    left:12%;
+    top:12%;
+    padding:12px 16px;
+    border-radius:16px;
+    font-weight:800;
+    font-size:1.5rem;
+    max-width:520px;
+    line-height:1.2;
+    box-shadow:0 8px 18px rgba(0,0,0,.12);
+    background:var(--bubble);
+    opacity:0;
+    transition:opacity .18s ease, transform .18s ease, box-shadow .18s ease;
+    z-index:4;
+    transform:translateY(4px);
+  }
+
+  .bubble.show{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  .bubble::after{
+    content:"";
+    position:absolute;
+    left:16px;
+    bottom:-10px;
+    border-width:10px 8px 0 8px;
+    border-style:solid;
+    border-color:var(--bubble) transparent transparent transparent;
+  }
+
+  .bubble.second{
+    top:27%;
+    left:18%;
+    background:var(--bubble2);
+    font-size:1.28rem;
+    max-width:620px;
+  }
+
+  .bubble.second::after{
+    border-color:var(--bubble2) transparent transparent transparent;
+  }
+
+  .bubble.sparkle{
+    background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
+    box-shadow:
+      0 0 12px rgba(255,214,0,.75),
+      0 0 18px rgba(255,105,180,.45),
+      0 0 28px rgba(80,190,255,.30);
+    animation:sparklePulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes sparklePulse{
+    0%,100%{filter:brightness(1);}
+    50%{filter:brightness(1.14);}
+  }
+
+  .green{color:var(--green);}
+  .red{color:var(--red);}
+
+  .quiz-panel{
+    margin:14px auto 0;
+    max-width:1120px;
+    display:grid;
+    gap:10px;
+  }
+
+  .quiz-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:10px 14px;
+    border-radius:14px;
+    background:#fff;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+  }
+
+  .quiz-row strong{
+    font-size:1.05rem;
+  }
+
+  .quiz-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .option-btn{
+    border:none;
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:.95rem;
+    font-weight:800;
+    cursor:pointer;
+    background:#eef4ff;
+    color:#234;
+  }
+
+  .option-btn.correct{
+    background:#dff7e7;
+    color:#17633d;
+  }
+
+  .option-btn.wrong{
+    background:#ffe3e3;
+    color:#a61f1f;
+  }
+
+  .controls{
+    margin-top:12px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:.9rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+    background:#ff8a5b;
+    color:#fff;
+  }
+
+  .mic-icon-btn{
+    border:none;
+    background:#fff;
+    border-radius:50%;
+    width:54px;
+    height:54px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 8px 18px rgba(0,0,0,.14);
+  }
+
+  .mic-icon-btn img{
+    width:32px;
+    height:32px;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.18));
+  }
+
+  .mic-status{
+    margin:8px auto 0;
+    max-width:1120px;
+    min-height:1.4em;
+    text-align:center;
+    font-weight:900;
+    color:#d62828;
+  }
+
+  @media (max-width:780px){
+    .bubble{
+      font-size:1rem !important;
+      max-width:55vw !important;
+      left:16%;
+      top:11%;
+      padding:9px 11px;
+    }
+
+    .bubble.second{
+      top:27%;
+      left:16%;
+      font-size:.9rem !important;
+      max-width:68vw !important;
+    }
+
+    .quiz-row{
+      align-items:flex-start;
+      flex-direction:column;
+    }
+  }
+</style>
+
+<style id="gpUnifiedIntroPrehide">
+  #introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+</style>
+
 </head>
+
 <body>
   <div class="card">
     <div class="poster-area">
+      <!-- Poster included here -->
       <img class="poster-img" src="../../../../assets/images/shapes/C25ccc.png" alt="True or False poster">
-      <div class="bubble speakable" data-text="Let’s play with the shapes together.">Let’s play with<br>the shapes together.</div>
-      <div class="girl-spot">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn" class="tap-girl">
-        <div class="girl-hint">Tap the girl</div>
+
+      <!-- 1st air bubble -->
+      <div class="bubble speakable" id="bubbleOne" data-text="I can count numbers up to 20.">
+        I can count <br>numbers up to 20.
       </div>
-      <div class="tap-line" id="tapLine"></div>
+
+      <!-- 2nd air bubble -->
+      <div class="bubble speakable second" id="bubbleTwo" data-text="11, 12, 13, 14, 15, 16, 17, 18, 19, 20.">
+        11, 12, 13, 14, 15,<br>
+        16, 17, 18, 19, 20.
+      </div>
+
     </div>
+
     <div class="quiz-panel" id="quizPanel">
       <div class="quiz-row" data-answer="true">
         <strong>A pentagon has 5 sides.</strong>
@@ -62,6 +286,7 @@
           <button class="option-btn" data-value="false" type="button">False</button>
         </div>
       </div>
+
       <div class="quiz-row" data-answer="true">
         <strong>A hexagon has 6 vertices.</strong>
         <div class="quiz-actions">
@@ -69,6 +294,7 @@
           <button class="option-btn" data-value="false" type="button">False</button>
         </div>
       </div>
+
       <div class="quiz-row" data-answer="false">
         <strong>An octagon has 0 sides.</strong>
         <div class="quiz-actions">
@@ -76,6 +302,7 @@
           <button class="option-btn" data-value="false" type="button">False</button>
         </div>
       </div>
+
       <div class="quiz-row" data-answer="pentagon">
         <strong>Which shape has the most sides?</strong>
         <div class="quiz-actions">
@@ -84,89 +311,289 @@
         </div>
       </div>
     </div>
+
     <div class="controls">
       <button class="btn prev" id="prevBtn">← Previous page</button>
+
       <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
         <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
       </button>
+
       <button class="btn next" id="nextBtn">Next page →</button>
     </div>
-  </div>
-  <script>
-    const girlBtn = document.getElementById('girlBtn');
-    const tapLine = document.getElementById('tapLine');
-    const quizPanel = document.getElementById('quizPanel');
-    function speak(text){
-      if(!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.0; u.pitch = 1.05; u.volume = 1.0;
-      window.speechSynthesis.speak(u);
-    }
-    function typeLine(el, text){
-      el.textContent = '';
-      let i = 0;
-      el.classList.add('show');
-      const step = () => {
-        el.innerHTML = text.slice(0, i);
-        i += 1;
-        if(i <= text.length){ setTimeout(step, 18); }
-      };
-      step();
-    }
-    const textBlock = "(2) Circle the true statements about polygons.\n" +
-      "<span class=\"green\">o</span> = <span class=\"green\">true</span>   " +
-      "<span class=\"red\">x</span> = <span class=\"red\">false</span>\n\n" +
-      "① A pentagon has 5 sides.      ( <span class=\"green\">o</span> / <span class=\"red\">x</span> )\n" +
-      "② A hexagon has 6 vertices.   ( <span class=\"green\">o</span> / <span class=\"red\">x</span> )\n" +
-      "③ An octagon has 0 sides.      ( <span class=\"green\">o</span> / <span class=\"red\">x</span> )\n\n" +
-      "(3) Which shape has the most sides?\n" +
-      "① Circle         ② Pentagon";
 
-    girlBtn.addEventListener('click', () => {
-      setTimeout(() => {
-        typeLine(tapLine, textBlock);
-        speak('Circle the true statements about polygons. Which shape has the most sides?');
-      }, 200);
+    <div class="mic-status" id="micStatus"></div>
+  </div>
+
+<script>
+  const quizPanel = document.getElementById('quizPanel');
+  const micIconBtn = document.getElementById('micIconBtn');
+  const micStatus = document.getElementById('micStatus');
+
+  const bubbleOne = document.getElementById('bubbleOne');
+  const bubbleTwo = document.getElementById('bubbleTwo');
+
+  const micLines = [
+    {
+      bubble: bubbleOne,
+      text: 'I can count numbers up to 20.'
+    },
+    {
+      bubble: bubbleTwo,
+      text: '11, 12, 13, 14, 15, 16, 17, 18, 19, 20.'
+    }
+  ];
+
+  let currentMicLine = 0;
+  let waitingForRepeat = false;
+  let micBusy = false;
+
+  function setMicStatus(text, color){
+    if (!micStatus) return;
+    micStatus.textContent = text || '';
+    micStatus.style.color = color || '#d62828';
+  }
+
+  function speak(text, onEnd){
+    if(!('speechSynthesis' in window)){
+      if (typeof onEnd === 'function') onEnd();
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.94;
+    u.pitch = 1.08;
+    u.volume = 1.0;
+    u.lang = 'en-US';
+
+    if (window.GPTracing?.applyPreferredVoice) {
+      window.GPTracing.applyPreferredVoice(u);
+    }
+
+    u.onend = () => {
+      if (typeof onEnd === 'function') onEnd();
+    };
+
+    window.speechSynthesis.speak(u);
+  }
+
+  function normalizeWords(text){
+    return String(text || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  function repeatScorePercent(spoken, target){
+    const spokenWords = new Set(normalizeWords(spoken));
+    const targetWords = normalizeWords(target);
+    if (!targetWords.length) return 0;
+
+    let matched = 0;
+    targetWords.forEach((word) => {
+      if (spokenWords.has(word)) matched += 1;
     });
-    quizPanel.addEventListener('click', (event) => {
-      const button = event.target.closest('.option-btn');
-      if (!button) return;
-      const row = button.closest('.quiz-row');
-      if (!row) return;
-      row.querySelectorAll('.option-btn').forEach((btn) => {
-        btn.classList.remove('correct', 'wrong');
+
+    return Math.round((matched / targetWords.length) * 100);
+  }
+
+  function listenForRepeat(targetText, callback){
+    if (window.GPTracing?.listenForRepeat) {
+      try{
+        window.GPTracing.listenForRepeat(targetText, callback);
+        return;
+      }catch(_e){}
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      callback(-1);
+      return;
+    }
+
+    try{
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      let finished = false;
+
+      recognition.onresult = (event) => {
+        finished = true;
+        const spoken = event.results?.[0]?.[0]?.transcript || '';
+        callback(repeatScorePercent(spoken, targetText));
+      };
+
+      recognition.onerror = () => {
+        if (!finished) callback(0);
+      };
+
+      recognition.onend = () => {
+        if (!finished) callback(0);
+      };
+
+      recognition.start();
+    }catch(_e){
+      callback(-1);
+    }
+  }
+
+  function showBubble(index){
+    const item = micLines[index];
+    if (!item || !item.bubble) return;
+
+    item.bubble.classList.add('show');
+    item.bubble.classList.remove('sparkle');
+  }
+
+  function sparkleBubble(index, shouldSparkle){
+    const item = micLines[index];
+    if (!item || !item.bubble) return;
+
+    item.bubble.classList.toggle('sparkle', !!shouldSparkle);
+  }
+
+  async function runMicProtocol(){
+    if (micBusy) return;
+
+    if (currentMicLine >= micLines.length) {
+      setMicStatus('Great job! You finished both air bubbles.', '#2f9f5f');
+      speak('Great job! You finished both air bubbles.');
+      return;
+    }
+
+    const item = micLines[currentMicLine];
+
+    if (!waitingForRepeat) {
+      showBubble(currentMicLine);
+      setMicStatus('');
+      speak(item.text);
+      waitingForRepeat = true;
+      return;
+    }
+
+    micBusy = true;
+    sparkleBubble(currentMicLine, true);
+    setMicStatus('Repeat after me.');
+
+    if (window.GPTracing?.prepareMicSupport) {
+      try{
+        await window.GPTracing.prepareMicSupport();
+      }catch(_e){}
+    }
+
+    speak('Repeat after me.', () => {
+      setMicStatus('Listening...');
+      listenForRepeat(item.text, (pct) => {
+        micBusy = false;
+
+        if (pct >= 50) {
+          sparkleBubble(currentMicLine, false);
+          setMicStatus('Excellent!', '#2f9f5f');
+          speak('Excellent!');
+
+          currentMicLine += 1;
+          waitingForRepeat = false;
+
+          if (currentMicLine < micLines.length) {
+            window.setTimeout(() => {
+              setMicStatus('Tap the microphone for the next air bubble.');
+            }, 700);
+          } else {
+            window.setTimeout(() => {
+              setMicStatus('Wonderful counting!', '#2f9f5f');
+              speak('Wonderful counting!');
+            }, 700);
+          }
+
+          return;
+        }
+
+        sparkleBubble(currentMicLine, false);
+
+        if (pct < 0) {
+          setMicStatus('Microphone listening is not available on this device.');
+          speak('Microphone listening is not available on this device.');
+          return;
+        }
+
+        setMicStatus('Sorry, try again!');
+        speak('Sorry, try again!');
       });
-      const isCorrect = button.dataset.value === row.dataset.answer;
-      button.classList.add(isCorrect ? 'correct' : 'wrong');
-      const rows = Array.from(quizPanel.querySelectorAll('.quiz-row'));
-      const solved = rows.filter((item) => item.querySelector('.option-btn.correct')).length;
-      if (typeof finishActivity === 'function') {
-        const score = Math.round((solved / rows.length) * 100);
-        window.finishAndSave({
-          pageId: 'LevelC25',
-          level: 'C',
-          activityType: 'lesson',
-          score,
-          stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
-          skills: { reading: 1, writing: 1, speaking: 1, listening: 1 }
-        });
-      }
-      if (isCorrect) {
-        speak('Correct!');
-      } else {
-        speak('Try again.');
-      }
     });
-      document.getElementById('prevBtn').addEventListener('click', () => { window.location.href = 'LevelC24.html'; });
-      document.getElementById('nextBtn').addEventListener('click', () => { window.location.href = '../thursday/LevelC_Revision4.html'; });
-  </script>
-    <script src="../../../../activity-standardizer.js"></script>
+  }
+
+  if (micIconBtn) {
+    micIconBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (typeof event.stopImmediatePropagation === 'function') {
+        event.stopImmediatePropagation();
+      }
+
+      runMicProtocol();
+    }, true);
+  }
+
+  quizPanel.addEventListener('click', (event) => {
+    const button = event.target.closest('.option-btn');
+    if (!button) return;
+
+    const row = button.closest('.quiz-row');
+    if (!row) return;
+
+    row.querySelectorAll('.option-btn').forEach((btn) => {
+      btn.classList.remove('correct', 'wrong');
+    });
+
+    const isCorrect = button.dataset.value === row.dataset.answer;
+    button.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    const rows = Array.from(quizPanel.querySelectorAll('.quiz-row'));
+    const solved = rows.filter((item) => item.querySelector('.option-btn.correct')).length;
+    const score = Math.round((solved / rows.length) * 100);
+
+    if (typeof window.finishAndSave === 'function') {
+      window.finishAndSave({
+        pageId: 'LevelC25',
+        level: 'C',
+        activityType: 'lesson',
+        score,
+        stars: score >= 95 ? 3 : score >= 65 ? 2 : score > 0 ? 1 : 0,
+        skills: { reading: 1, writing: 1, speaking: 1, listening: 1 }
+      });
+    }
+
+    if (isCorrect) {
+      speak('Correct!');
+    } else {
+      speak('Try again.');
+    }
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    window.location.href = 'LevelC21.html';
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    window.location.href = '../thursday/TangramMusicFairlyTale.html';
+  });
+</script>
+
+<script src="../../../../activity-standardizer.js"></script>
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
 <script src="../../../../shared/js/tracing.js"></script>
+
 <script type="module">
   import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
+
   window.GPProgress.installTracker({
     saveActivityResult,
     markLoginPing,
@@ -181,8 +608,8 @@
       speaking: 1,
       listening: 1
     }
-  });
-
+  });
+
   function getStudentSession(){
     try{
       return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
@@ -194,12 +621,21 @@
   function inferProgressMeta(payload){
     const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
     const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
+
     const level = (payload && payload.level)
-      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
+      || (/^(LA|LevelA|Level_A)/i.test(pageId)
+        ? "A"
+        : (/^(LB|LevelB|Level_B)/i.test(pageId)
+          ? "B"
+          : (/^(LC|LevelC|Level_C)/i.test(pageId)
+            ? "C"
+            : "A")));
+
     const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
     const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
     const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
     const month = payload && payload.month != null ? Number(payload.month) : 1;
+
     return {
       pageId,
       file,
@@ -226,12 +662,15 @@
   function saveLocalActivityFallback(payload){
     const session = getStudentSession() || {};
     const meta = inferProgressMeta(payload || {});
+
     const score = payload && typeof payload.score === "number" ? payload.score : 0;
     const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
     const tracing = payload && typeof payload.tracing === "number"
       ? payload.tracing
       : (payload && typeof payload.progress === "number" ? payload.progress : 0);
+
     const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
+
     const entry = {
       pageId: meta.pageId,
       file: meta.file,
@@ -251,29 +690,35 @@
       savedAt: new Date().toISOString(),
       ts: Date.now()
     };
+
     const store = getActivityStore();
+
     store[meta.pageId] = {
       ...(store[meta.pageId] || {}),
       ...entry
     };
+
     setActivityStore(store);
+
     try{
       localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
     }catch(e){}
+
     return store[meta.pageId];
   }
 
   async function finishAndSave(payload){
     const session = getStudentSession() || {};
+
     const fullPayload = {
       ...(payload || {}),
       classId: (payload && payload.classId) || session.classId || null,
       studentId: (payload && payload.studentId) || session.studentId || null,
       studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
     };
-  
+
     saveLocalActivityFallback(fullPayload);
-  
+
     if (typeof window.finishActivity === "function") {
       try{
         await window.finishActivity(fullPayload);
@@ -281,27 +726,15 @@
         console.warn("finishActivity failed, local fallback already saved:", err);
       }
     }
-  
+
     return fullPayload;
   }
 
-  window.finishAndSave = finishAndSave;
+  window.finishAndSave = finishAndSave;
 </script>
+
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
+
 </body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    

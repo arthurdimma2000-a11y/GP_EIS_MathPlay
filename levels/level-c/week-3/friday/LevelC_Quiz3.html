@@ -157,7 +157,7 @@
       <div class="meter" style="width:180px"><i id="bar"></i></div>
       <button class="btn secondary" id="soundBtn" type="button">🔊 Sound: ON</button>
       <a class="btn secondary" href="LevelC_Game3.html">⬅ Back</a>
-      <a class="btn" id="nextBtn" href="../../../../index.html" aria-disabled="true" style="opacity:.6;pointer-events:none">Next ➜</a>
+      <a class="btn" id="nextBtn" href="../../week-4/monday/TangramMusicClass.html" aria-disabled="true" style="opacity:.6;pointer-events:none">Next ➜</a>
     </div>
   </div>
 
@@ -735,6 +735,15 @@ document.getElementById("finishBtn").addEventListener("click", ()=>{
   toast("Nice! Finish the main quiz to unlock Next.", true);
   record({type:"finish_pressed"});
 });
+
+if (nextBtn) {
+  nextBtn.setAttribute("href", "../../week-4/monday/TangramMusicClass.html");
+  nextBtn.addEventListener("click", (event) => {
+    if (nextBtn.getAttribute("aria-disabled") === "true") return;
+    event.preventDefault();
+    window.location.assign("../../week-4/monday/TangramMusicClass.html");
+  });
+}
 
 /* =========================
    Init

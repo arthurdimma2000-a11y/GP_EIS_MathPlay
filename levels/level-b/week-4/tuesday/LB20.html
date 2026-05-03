@@ -498,6 +498,22 @@
   window.finishAndSave = finishAndSave;
 
 </script>
+<script>
+  (function(){
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        window.location.href = "../monday/PolygonMusicClass.html";
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        window.location.href = "../wednesday/LB21.html";
+      });
+    }
+  })();
+</script>
 <script src="../../../../shared/js/mic-lesson-helper.js"></script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>

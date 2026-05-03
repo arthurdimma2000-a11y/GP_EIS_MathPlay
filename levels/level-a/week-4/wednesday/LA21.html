@@ -1,401 +1,943 @@
 <!doctype html>
 <html lang="en">
-<head>
-<style id="gpLessonPrehide">
-  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
-  @media (max-width:780px){
-    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
-  }
-</style>
+<head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>LA21 - Trace Shapes</title>
+<title>LA21 • Vertices Week 4</title>
+
 <style>
-  :root{--sky:#bfe9fb;--panel:#ffffff;--ink:#3b3b3b;--red:#d62828;--shadow:0 20px 40px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
-  *{box-sizing:border-box;}
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--sky);padding:18px;}
-  .card{width:min(980px,96vw);background:var(--panel);border-radius:18px;padding:18px 18px 28px;box-shadow:var(--shadow);}  
-  .poster-area{position:relative;width:min(900px,100%);margin:0 auto;touch-action:none;}
-  .poster-img{width:100%;height:auto;display:block;pointer-events:none;}
-  .trace-layer{position:absolute;inset:0;pointer-events:auto;z-index:5;}
-  .trace-canvas{position:absolute;pointer-events:auto;touch-action:none;z-index:6;background:transparent;}
-  #circleTrace{left:34%;top:21%;width:58%;height:19%;}
-  #triTrace{left:34%;top:46%;width:58%;height:19%;}
-  #squareTrace{left:34%;top:71%;width:58%;height:19%;}
-  .answer{position:absolute;left:8%;width:22%;min-height:18%;font-size:1.25rem;font-weight:800;color:var(--ink);}  
-  #circleAnswer{top:20%;}
-  #triAnswer{top:45%;}
-  #squareAnswer{top:70%;}
-  .red{color:var(--red);}  
-  .tap-row{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;}
-  .tap-girl{width:82px;height:82px;border-radius:22px;box-shadow:0 6px 14px rgba(0,0,0,.2);border:4px solid #ffe3f7;cursor:pointer;}
-  .tap-label{font-weight:700;color:#d62828;}
-  .sentence{position:absolute;top:6%;left:44%;width:46%;min-height:2.4em;font-weight:800;font-size:1.85rem;text-align:center;z-index:7;}
-  .line{opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
-  .line.show{opacity:1;transform:translateY(0);}  
-  .controls{margin-top:12px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
-  .btn{border:none;border-radius:999px;padding:8px 12px;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#ff8a5b;color:#fff;}
-  .guide-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#d62828;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:8;pointer-events:none;}
+*{box-sizing:border-box;}
+
+:root{
+  --orange:#ff9f1c;
+  --pink:#ff9aa8;
+  --grid:#00a8e8;
+  --paper:#fffaf1;
+  --ink:#24242a;
+  --red:#ef2b2b;
+  --green:#22c55e;
+  --shadow:0 18px 40px rgba(0,0,0,.14);
+  font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#e4f6df;
+  padding:14px;
+  color:var(--ink);
+}
+
+.app{
+  width:min(760px,96vw);
+}
+
+.poster{
+  position:relative;
+  width:100%;
+  aspect-ratio:976 / 1338;
+  background:
+    linear-gradient(rgba(100,140,190,.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,140,190,.18) 1px, transparent 1px),
+    var(--paper);
+  background-size:26px 26px;
+  border:12px solid var(--orange);
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.title{
+  position:absolute;
+  left:0;
+  right:0;
+  top:-6px;
+  text-align:center;
+  font-size:clamp(3rem,10vw,5.4rem);
+  font-weight:1000;
+  color:white;
+  -webkit-text-stroke:9px var(--orange);
+  paint-order:stroke fill;
+  letter-spacing:1px;
+  line-height:.95;
+  z-index:5;
+}
+
+.week{
+  position:absolute;
+  right:3%;
+  top:2.8%;
+  border:4px solid var(--orange);
+  background:white;
+  border-radius:14px;
+  padding:.35em .6em;
+  font-size:clamp(1rem,2.6vw,1.45rem);
+  font-weight:900;
+  z-index:5;
+}
+
+.chef{
+  position:absolute;
+  left:4.2%;
+  top:6.7%;
+  width:14.5%;
+  z-index:8;
+  text-align:center;
+  cursor:pointer;
+  border:none;
+  background:transparent;
+  padding:0;
+  filter:drop-shadow(0 5px 8px rgba(0,0,0,.18));
+}
+
+.chef img{
+  width:100%;
+  height:auto;
+  display:block;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+.chef small{
+  display:block;
+  font-size:clamp(.58rem,1.5vw,.78rem);
+  color:#1d5fd6;
+  font-weight:900;
+  background:white;
+  border-radius:999px;
+  margin-top:-2px;
+  padding:2px 5px;
+  box-shadow:0 3px 8px rgba(0,0,0,.12);
+}
+
+.instruction{
+  position:absolute;
+  left:22%;
+  top:14.25%;
+  width:72%;
+  font-size:clamp(.94rem,2.35vw,1.55rem);
+  font-weight:900;
+  z-index:5;
+  white-space:nowrap;
+  letter-spacing:-.02em;
+}
+
+.content{
+  position:absolute;
+  left:4%;
+  right:4%;
+  top:19%;
+  bottom:3.4%;
+  display:grid;
+  grid-template-columns:38% 62%;
+  grid-template-rows:1fr 1fr 1fr;
+  gap:1.2%;
+}
+
+.shape-box,
+.sentence-box{
+  position:relative;
+  background:rgba(255,255,255,.38);
+  border:4px solid var(--pink);
+  border-radius:6px;
+  overflow:hidden;
+}
+
+.shape-box{
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    rgba(255,255,255,.42);
+  background-size:28px 28px;
+}
+
+.shape-svg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.shape-line{
+  fill:none;
+  stroke:#4a4a4a;
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.vertex-dot{
+  fill:#e63946;
+  stroke:#e63946;
+}
+
+.sentence-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:3.5% 5%;
+}
+
+.sentence{
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.04em;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(1.6rem,5.2vw,3.2rem);
+  font-weight:500;
+  line-height:1.02;
+  text-align:left;
+  padding-left:3%;
+}
+
+.top-sentence,
+.bottom-sentence{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:.22em;
+  white-space:nowrap;
+}
+
+.sentence .black{
+  color:#25252b;
+}
+
+.sentence .red{
+  color:var(--red);
+}
+
+.digit-area{
+  position:relative;
+  display:inline-block;
+  width:2.1em;
+  height:2.15em;
+  vertical-align:middle;
+  margin:-.22em .1em -.1em 0;
+  flex:0 0 auto;
+}
+
+.dotted-number-svg{
+  position:absolute;
+  inset:-5%;
+  width:110%;
+  height:110%;
+  overflow:visible;
+  pointer-events:none;
+}
+
+.dotted-number-text{
+  fill:none;
+  stroke:#202020;
+  stroke-width:4.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:.1 11.5;
+  opacity:.96;
+}
+
+.write-canvas{
+  position:absolute;
+  inset:-10%;
+  width:120%;
+  height:120%;
+  z-index:4;
+  touch-action:none;
+  cursor:crosshair;
+}
+
+.controls{
+  margin-top:12px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  border:none;
+  border-radius:999px;
+  padding:9px 14px;
+  font-size:.95rem;
+  font-weight:900;
+  cursor:pointer;
+  color:white;
+  background:#ff8a5b;
+  box-shadow:0 4px 0 rgba(0,0,0,.18);
+  font-family:inherit;
+}
+
+.btn.clear{background:#3b82f6;}
+.btn.sound{background:#22c55e;}
+.btn.report{background:#7c3aed;}
+
+.progress-card{
+  margin-top:10px;
+  background:white;
+  border:3px solid #bbf7d0;
+  border-radius:16px;
+  padding:9px 12px;
+  box-shadow:0 8px 18px rgba(0,0,0,.1);
+}
+
+.progress-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:7px;
+  flex-wrap:wrap;
+}
+
+#progressText{
+  font-weight:900;
+  color:#14532d;
+}
+
+#starsBox{
+  font-size:1.35rem;
+  letter-spacing:2px;
+}
+
+.progress-track{
+  height:16px;
+  border-radius:999px;
+  overflow:hidden;
+  background:#dbeafe;
+  border:2px solid #93c5fd;
+}
+
+#progressFill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#22c55e,#a3e635);
+  border-radius:999px;
+  transition:width .18s ease;
+}
+
+.speech{
+  margin-top:8px;
+  background:#fff7ed;
+  border:3px solid #fed7aa;
+  color:#7c2d12;
+  border-radius:15px;
+  padding:9px 12px;
+  text-align:center;
+  font-weight:900;
+}
+
+.reward{
+  position:absolute;
+  left:50%;
+  top:52%;
+  transform:translate(-50%,-50%) scale(.85);
+  background:#fff7ed;
+  border:5px solid var(--green);
+  color:#166534;
+  border-radius:24px;
+  padding:16px 24px;
+  font-size:clamp(1.2rem,4vw,2rem);
+  font-weight:1000;
+  z-index:50;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+  box-shadow:0 18px 40px rgba(0,0,0,.24);
+}
+
+.reward.show{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+
+@media(max-width:560px){
+  .poster{
+    border-width:7px;
+    border-radius:20px;
+  }
+
+  .title{
+    -webkit-text-stroke:6px var(--orange);
+  }
+
+  .chef{
+    top:6.5%;
+    width:14%;
+  }
+
+  .instruction{
+    left:21%;
+    top:14.15%;
+    width:75%;
+    font-size:clamp(.78rem,2.55vw,1.05rem);
+  }
+
+  .content{
+    left:3%;
+    right:3%;
+    gap:.8%;
+  }
+
+  .shape-box,
+  .sentence-box{
+    border-width:3px;
+  }
+
+  .sentence{
+    font-size:clamp(1.12rem,4.75vw,2.15rem);
+    padding-left:2.5%;
+  }
+
+  .digit-area{
+    width:2.05em;
+    height:2.08em;
+  }
+
+  .btn{
+    padding:8px 10px;
+    font-size:.82rem;
+  }
+}
 </style>
-<style id="gpUnifiedIntroPrehide">#introVideoWrap,.intro-video-wrap,#lbIntroVideoOverlay{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}</style>
 </head>
+
 <body>
-  <div class="card">
-    <div class="poster-area" id="posterArea">
-      <img class="poster-img" src="../../../../assets/images/shapes/A21.png" alt="Shapes poster">
-      <div class="trace-layer">
-        <canvas class="trace-canvas" id="circleTrace"></canvas>
-        <canvas class="trace-canvas" id="triTrace"></canvas>
-        <canvas class="trace-canvas" id="squareTrace"></canvas>
-        <div class="guide-dot" style="left:63%;top:20%;"></div>
-        <div class="guide-dot" style="left:82%;top:30%;"></div>
-        <div class="guide-dot" style="left:63%;top:40%;"></div>
-        <div class="guide-dot" style="left:44%;top:30%;"></div>
-        <div class="guide-dot" style="left:63%;top:46%;"></div>
-        <div class="guide-dot" style="left:44%;top:66%;"></div>
-        <div class="guide-dot" style="left:82%;top:66%;"></div>
-        <div class="guide-dot" style="left:44%;top:71%;"></div>
-        <div class="guide-dot" style="left:82%;top:71%;"></div>
-        <div class="guide-dot" style="left:82%;top:90%;"></div>
-        <div class="guide-dot" style="left:44%;top:90%;"></div>
+<main class="app">
+  <section class="poster" id="poster">
+    <div class="title">Vertices</div>
+
+    <div class="week">Week 4</div>
+
+    <button class="chef" id="girlBtn" type="button" aria-label="Tap the chef for instruction">
+      <img
+        id="chefImg"
+        src="data:image/webp;base64,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"
+        alt="Chef teacher"
+      >
+      <small>Tap</small>
+    </button>
+
+    <div class="instruction">Count and write the number of Vertices.</div>
+
+    <div class="content">
+      <div class="shape-box">
+        <svg class="shape-svg" viewBox="0 0 300 300" aria-hidden="true">
+          <circle class="shape-line" cx="150" cy="150" r="112"></circle>
+        </svg>
       </div>
-      <div class="answer" id="circleAnswer"></div>
-      <div class="answer" id="triAnswer"></div>
-      <div class="answer" id="squareAnswer"></div>
+
+      <div class="sentence-box">
+        <div class="sentence">
+          <div class="top-sentence">
+            <span class="black">A</span>
+            <span class="red">Circle</span>
+            <span class="black">has</span>
+          </div>
+          <div class="bottom-sentence">
+            <span class="digit-area">
+              <svg class="dotted-number-svg" viewBox="0 0 165 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <text class="dotted-number-text" x="82" y="142" text-anchor="middle" font-size="156"
+                      font-family="Comic Sans MS, Arial">0</text>
+              </svg>
+              <canvas class="write-canvas" id="digit0Canvas" aria-label="Write 0"></canvas>
+            </span>
+            <span class="red">vertices.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shape-box">
+        <svg class="shape-svg" viewBox="0 0 300 300" aria-hidden="true">
+          <polygon class="shape-line" points="150,28 36,260 264,260"></polygon>
+          <circle class="vertex-dot" cx="150" cy="28" r="8"></circle>
+          <circle class="vertex-dot" cx="36" cy="260" r="8"></circle>
+          <circle class="vertex-dot" cx="264" cy="260" r="8"></circle>
+        </svg>
+      </div>
+
+      <div class="sentence-box">
+        <div class="sentence">
+          <div class="top-sentence">
+            <span class="black">A</span>
+            <span class="red">Triangle</span>
+            <span class="black">has</span>
+          </div>
+          <div class="bottom-sentence">
+            <span class="digit-area">
+              <svg class="dotted-number-svg" viewBox="0 0 165 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <text class="dotted-number-text" x="82" y="142" text-anchor="middle" font-size="156"
+                      font-family="Comic Sans MS, Arial">3</text>
+              </svg>
+              <canvas class="write-canvas" id="digit3Canvas" aria-label="Write 3"></canvas>
+            </span>
+            <span class="red">vertices.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="shape-box">
+        <svg class="shape-svg" viewBox="0 0 300 300" aria-hidden="true">
+          <rect class="shape-line" x="38" y="38" width="224" height="224"></rect>
+          <circle class="vertex-dot" cx="38" cy="38" r="8"></circle>
+          <circle class="vertex-dot" cx="262" cy="38" r="8"></circle>
+          <circle class="vertex-dot" cx="262" cy="262" r="8"></circle>
+          <circle class="vertex-dot" cx="38" cy="262" r="8"></circle>
+        </svg>
+      </div>
+
+      <div class="sentence-box">
+        <div class="sentence">
+          <div class="top-sentence">
+            <span class="black">A</span>
+            <span class="red">Square</span>
+            <span class="black">has</span>
+          </div>
+          <div class="bottom-sentence">
+            <span class="digit-area">
+              <svg class="dotted-number-svg" viewBox="0 0 165 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <text class="dotted-number-text" x="82" y="142" text-anchor="middle" font-size="156"
+                      font-family="Comic Sans MS, Arial">4</text>
+              </svg>
+              <canvas class="write-canvas" id="digit4Canvas" aria-label="Write 4"></canvas>
+            </span>
+            <span class="red">vertices.</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="tap-row" id="tapRow">
-      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn" class="tap-girl">
-      <div class="tap-label">Tap the girl</div>
+
+    <div class="reward" id="reward">Great writing! ⭐</div>
+  </section>
+
+  <div class="speech" id="speechBox">
+    Tap the chef, then write 0, 3, and 4 on the big dotted numbers.
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <div id="progressText">Writing Progress: 0%</div>
+      <div id="starsBox">☆☆☆</div>
     </div>
-    <div class="sentence" id="girlSentence"></div>
-    <div id="vertexEntryMount"></div>
-    <div class="controls">
-      <button class="btn prev" id="prevBtn">← Previous page</button>
-      <button class="btn next" id="nextBtn">Next page →</button>
+    <div class="progress-track">
+      <div id="progressFill"></div>
     </div>
   </div>
 
-<script src="../../../../shared/js/tracing.js"></script>
-<script src="../../../../shared/js/vertex-entry.js"></script>
+  <div class="controls">
+    <button class="btn" id="prevBtn" type="button">← Previous page</button>
+    <button class="btn sound" id="instructionBtn" type="button">🔊 Instruction</button>
+    <button class="btn clear" id="clearBtn" type="button">Clear writing</button>
+    <button class="btn report" id="reportBtn" type="button">Progress Report</button>
+    <button class="btn" id="nextBtn" type="button">Next page →</button>
+  </div>
+</main>
+
 <script>
-  const girlBtn = document.getElementById('girlBtn');
-  const tapRow = document.getElementById('tapRow');
-  const girlSentenceEl = document.getElementById('girlSentence');
-  const circleAnswer = document.getElementById('circleAnswer');
-  const triAnswer = document.getElementById('triAnswer');
-  const squareAnswer = document.getElementById('squareAnswer');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const controls = document.querySelector('.controls');
-  const posterArea = document.getElementById('posterArea');
-  if (tapRow && controls) controls.insertBefore(tapRow, controls.firstChild || null);
-  if (girlSentenceEl && posterArea) posterArea.appendChild(girlSentenceEl);
+const PAGE_ID = "LA21";
+const PAGE_FILE = "LA21.html";
+const LEVEL = "A";
 
-  function speak(text){
-    if(!('speechSynthesis' in window)) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.0; u.pitch = 1.05; u.volume = 1.0;
-    if (window.GPTracing?.applyPreferredVoice) window.GPTracing.applyPreferredVoice(u);
-    window.speechSynthesis.speak(u);
+const speechBox = document.getElementById("speechBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+const starsBox = document.getElementById("starsBox");
+const reward = document.getElementById("reward");
+
+const digitCanvases = [
+  { id:"digit0Canvas", digit:"0", label:"circle", answer:0, progress:0 },
+  { id:"digit3Canvas", digit:"3", label:"triangle", answer:3, progress:0 },
+  { id:"digit4Canvas", digit:"4", label:"square", answer:4, progress:0 }
+];
+
+let rewardShown = false;
+let audioCtx = null;
+let lastTraceSoundTime = 0;
+let chimePlayed = false;
+
+const completionChime = new Audio();
+completionChime.preload = "auto";
+
+const chimeSources = [
+  "chime.mp3",
+  "./chime.mp3",
+  "../../../../assets/audio/chime.mp3",
+  "../../../../assets/audio/chime.mp3.mp3"
+];
+
+let chimeSourceIndex = 0;
+completionChime.src = chimeSources[chimeSourceIndex];
+
+completionChime.onerror = function(){
+  chimeSourceIndex += 1;
+  if(chimeSourceIndex < chimeSources.length){
+    completionChime.src = chimeSources[chimeSourceIndex];
+    completionChime.load();
   }
-  function typeLine(el, html){
-    el.innerHTML = '';
-    let i = 0;
-    el.classList.add('show');
-    const step = () => {
-      el.innerHTML = html.slice(0, i);
-      i += 1;
-      if(i <= html.length){ setTimeout(step, 18); }
-    };
-    step();
-  }
+};
 
-  const shapePercents = { circle: 0, triangle: 0, square: 0 };
-  let realtimeSaveTimer = null;
-  function scheduleRealtimeSave(score){
-    if (typeof window.finishAndSave !== 'function') return;
-    if (realtimeSaveTimer) window.clearTimeout(realtimeSaveTimer);
-    realtimeSaveTimer = window.setTimeout(() => {
-      window.finishAndSave({
-        pageId: 'LA21',
-        level: 'A',
-        activityType: 'lesson',
-        score: Math.max(0, Math.min(100, Math.round(score))),
-        tracing: Math.max(0, Math.min(100, Math.round(score))),
-        stars: score >= 90 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0
-      }).catch(() => {});
-    }, 250);
-  }
+function getAudioContext(){
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if(!AudioContextClass) return null;
 
-  const vertexEntry = window.GPVertexEntry?.create({
-    mount: "#vertexEntryMount",
-    title: "Write the number of vertices",
-    prompt: "Write the number of vertices for each shape you trace.",
-    showProgress: true,
-    progressLabel: "Shape and vertex progress",
-    items: [
-      { id: "circleVertices", label: "Circle", answer: 0, hint: "Write 0", successSpeech: "Correct. A circle has 0 vertices." },
-      { id: "triangleVertices", label: "Triangle", answer: 3, hint: "Write 3", successSpeech: "Correct. A triangle has 3 vertices." },
-      { id: "squareVertices", label: "Square", answer: 4, hint: "Write 4", successSpeech: "Correct. A square has 4 vertices." }
-    ],
-    onProgress(state){
-      scheduleRealtimeSave(state.totalProgress);
-    }
-  }) || null;
-
-  function updateTraceScore(kind, pct){
-    shapePercents[kind] = pct;
-    const total = Math.round((shapePercents.circle + shapePercents.triangle + shapePercents.square) / 3);
-    if (vertexEntry) vertexEntry.setBaseProgress(total);
-    else scheduleRealtimeSave(total);
+  if(!audioCtx){
+    audioCtx = new AudioContextClass();
   }
 
-  girlBtn.addEventListener('click', () => {
-    girlSentenceEl.innerHTML = '<div class="line">Practice drawing shapes and counting points.</div>';
-    const line = girlSentenceEl.querySelector('.line');
-    line.classList.add('show');
-    if(window.startTypingSound) window.startTypingSound(900);
-    speak('Practice drawing shapes and counting points.');
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume().catch(() => {});
+  }
+
+  return audioCtx;
+}
+
+function playTraceSound(){
+  const nowMs = performance.now();
+  if(nowMs - lastTraceSoundTime < 85) return;
+  lastTraceSoundTime = nowMs;
+
+  const ctx = getAudioContext();
+  if(!ctx) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(720, ctx.currentTime);
+
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.09);
+}
+
+function playCompletionChime(){
+  completionChime.currentTime = 0;
+  completionChime.volume = 1;
+  completionChime.play().catch(() => {
+    showReward("Excellent! ⭐⭐⭐");
   });
+}
 
-  function setupTrace(canvasId, kind, onDone){
-    const canvas = document.getElementById(canvasId);
-    const ctx = canvas.getContext('2d');
-    let drawing=false; let visited=[]; let samples=[]; let done=false; let lastPoint=null;
-    let lastTraceTick = 0;
-    function resize(){
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width; canvas.height = rect.height;
-      samples = buildSamples(kind, canvas);
-      visited = new Array(samples.length).fill(false);
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      updateTraceScore(kind, 0);
-    }
-    function buildSamples(kind, canvas){
-      const s=[];
-      if(kind==='circle'){
-        const cx=canvas.width/2, cy=canvas.height/2; const r=Math.min(cx,cy)*0.8;
-        const steps=720;
-        for(let i=0;i<=steps;i++){
-          const t=(i/steps)*Math.PI*2;
-          s.push({x:cx+Math.cos(t)*r, y:cy+Math.sin(t)*r});
-        }
-      } else if(kind==='triangle'){
-        const pts=[{x:canvas.width*0.5,y:canvas.height*0.15},{x:canvas.width*0.2,y:canvas.height*0.85},{x:canvas.width*0.8,y:canvas.height*0.85}];
-        for(let i=0;i<3;i++){
-          const a=pts[i], b=pts[(i+1)%3];
-          const dist=Math.hypot(b.x-a.x,b.y-a.y);
-          const steps=Math.max(240, Math.round(dist * 4));
-          for(let k=0;k<=steps;k++){ const t=k/steps; s.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}); }
-        }
-      } else if(kind==='square'){
-        const pts=[{x:canvas.width*0.2,y:canvas.height*0.2},{x:canvas.width*0.8,y:canvas.height*0.2},{x:canvas.width*0.8,y:canvas.height*0.8},{x:canvas.width*0.2,y:canvas.height*0.8}];
-        for(let i=0;i<4;i++){
-          const a=pts[i], b=pts[(i+1)%4];
-          const dist=Math.hypot(b.x-a.x,b.y-a.y);
-          const steps=Math.max(240, Math.round(dist * 4));
-          for(let k=0;k<=steps;k++){ const t=k/steps; s.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t}); }
-        }
-      }
-      return s;
-    }
-    function updateVisited(curr, prev){
-      const thr=14; const thr2=thr*thr; let changed=false;
-      const a = prev || curr;
-      const b = curr;
-      const abx = b.x - a.x;
-      const aby = b.y - a.y;
-      const ab2 = (abx * abx) + (aby * aby) || 1;
-      for(let i=0;i<samples.length;i++){
-        if(visited[i]) continue;
-        const px = samples[i].x;
-        const py = samples[i].y;
-        let t = ((px - a.x) * abx + (py - a.y) * aby) / ab2;
-        t = Math.max(0, Math.min(1, t));
-        const qx = a.x + t * abx;
-        const qy = a.y + t * aby;
-        const dx = px - qx;
-        const dy = py - qy;
-        if(dx*dx+dy*dy<=thr2){ visited[i]=true; changed=true; }
-      }
-      if(changed){
-        let pct = Math.round((visited.filter(Boolean).length / samples.length) * 100);
-        if (pct >= 98) pct = 100;
-        updateTraceScore(kind, pct);
-        if(pct>=90 && !done){ done=true; onDone(); }
-      }
-    }
-    function getPos(e){ const rect=canvas.getBoundingClientRect(); return {x:e.clientX-rect.left, y:e.clientY-rect.top}; }
-    canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); drawing=true; const point=getPos(e); lastPoint=point; ctx.beginPath(); ctx.moveTo(point.x,point.y); updateVisited(point, point); });
-    canvas.addEventListener('pointermove', e=>{ if(!drawing) return; e.preventDefault(); const point=getPos(e); const prev = lastPoint || point; ctx.lineTo(point.x,point.y); ctx.lineWidth=5; ctx.lineCap='round'; ctx.strokeStyle='#ff4d4d'; ctx.stroke(); const now = performance.now(); if(now-lastTraceTick>120){ lastTraceTick=now; window.GPTracing?.playTraceTick?.({ throttleMs: 120 }); } updateVisited(point, prev); lastPoint=point; });
-    const endDraw=e=>{ if(!drawing) return; e && e.preventDefault(); drawing=false; lastPoint=null; };
-    canvas.addEventListener('pointerup', endDraw); canvas.addEventListener('pointerleave', endDraw); canvas.addEventListener('pointercancel', endDraw);
-    resize(); window.addEventListener('resize', resize);
+function resizeCanvas(canvas){
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#111827";
+  ctx.lineWidth = Math.max(9, rect.width * 0.075);
+}
+
+function setupWritableDigit(item){
+  const canvas = document.getElementById(item.id);
+  const ctx = canvas.getContext("2d");
+
+  let drawing = false;
+  let touched = new Set();
+  let lastPoint = null;
+
+  function resize(){
+    resizeCanvas(canvas);
   }
 
-  setupTrace('circleTrace','circle', () => {
-    const html='A <span class="red">circle</span> has 0 <span class="red">vertices</span>.';
-    circleAnswer.innerHTML = `<div class="line">${html}</div>`;
-    circleAnswer.querySelector('.line').classList.add('show');
-    if(window.startTypingSound) window.startTypingSound(900);
-    window.GPTracing?.playCheerAudio?.();
-    speak('A circle has 0 vertices.');
-  });
-  setupTrace('triTrace','triangle', () => {
-    const html='A <span class="red">triangle</span> has 3 <span class="red">vertices</span>.';
-    triAnswer.innerHTML = `<div class="line">${html}</div>`;
-    triAnswer.querySelector('.line').classList.add('show');
-    if(window.startTypingSound) window.startTypingSound(900);
-    window.GPTracing?.playCheerAudio?.();
-    speak('A triangle has 3 vertices.');
-  });
-  setupTrace('squareTrace','square', () => {
-    const html='A <span class="red">square</span> has 4 <span class="red">vertices</span>.';
-    squareAnswer.innerHTML = `<div class="line">${html}</div>`;
-    squareAnswer.querySelector('.line').classList.add('show');
-    if(window.startTypingSound) window.startTypingSound(900);
-    window.GPTracing?.playCheerAudio?.();
-    speak('A square has 4 vertices.');
-  });
+  function getPoint(event){
+    const rect = canvas.getBoundingClientRect();
 
-  prevBtn.addEventListener('click', () => { window.location.href = 'LA20.html'; });
-  nextBtn.addEventListener('click', () => { window.location.href = '../tuesday/LA22.html'; });
-</script>
-<script src="../../../../shared/js/storage.js"></script>
-<script src="../../../../shared/js/progress.js"></script>
-<script src="../../../../activity-standardizer.js"></script>
-<script type="module">
-  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-  window.GPProgress.installTracker({
-    saveActivityResult,
-    markLoginPing,
-    defaultPageId: "LA21",
-    defaultLevel: "A",
-    defaultActivityType: "lesson",
-    defaultScore: 100,
-    defaultStars: 1,
-    defaultSkills: {
-      reading: 1,
-      writing: 0,
-      speaking: 1,
-      listening: 1
-    }
-  });
-
-  function getStudentSession(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-    }catch(e){
-      return null;
-    }
-  }
-
-  function inferProgressMeta(payload){
-    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-    const level = (payload && payload.level)
-      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-    const month = payload && payload.month != null ? Number(payload.month) : 1;
     return {
-      pageId,
-      file,
-      level,
-      week: Number.isFinite(week) && week > 0 ? week : 1,
-      month: Number.isFinite(month) && month > 0 ? month : 1
+      x:event.clientX - rect.left,
+      y:event.clientY - rect.top,
+      nx:(event.clientX - rect.left) / rect.width,
+      ny:(event.clientY - rect.top) / rect.height
     };
   }
 
-  function getActivityStore(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-    }catch(e){
-      return {};
+  function markCoverage(point){
+    const cols = 10;
+    const rows = 12;
+    const col = Math.max(0, Math.min(cols - 1, Math.floor(point.nx * cols)));
+    const row = Math.max(0, Math.min(rows - 1, Math.floor(point.ny * rows)));
+    touched.add(row + ":" + col);
+
+    item.progress = Math.min(100, Math.round((touched.size / 28) * 100));
+    updateProgress();
+  }
+
+  function markCoverageBetween(a,b){
+    const dx = b.nx - a.nx;
+    const dy = b.ny - a.ny;
+    const steps = Math.max(4, Math.ceil(Math.sqrt(dx*dx + dy*dy) * 140));
+
+    for(let i = 0; i <= steps; i++){
+      const t = i / steps;
+      markCoverage({
+        nx:a.nx + dx * t,
+        ny:a.ny + dy * t
+      });
     }
   }
 
-  function setActivityStore(store){
+  canvas.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+
+    getAudioContext();
+
+    drawing = true;
+    const p = getPoint(event);
+    lastPoint = p;
+
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    markCoverage(p);
+    playTraceSound();
+
+    try{ canvas.setPointerCapture(event.pointerId); }catch(err){}
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if(!drawing) return;
+    event.preventDefault();
+
+    const p = getPoint(event);
+
+    ctx.lineTo(p.x,p.y);
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = Math.max(9, canvas.getBoundingClientRect().width * 0.075);
+    ctx.stroke();
+
+    playTraceSound();
+    markCoverageBetween(lastPoint,p);
+    lastPoint = p;
+  });
+
+  function stop(event){
+    drawing = false;
+    lastPoint = null;
+    saveProgress();
+
     try{
-      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-    }catch(e){}
+      if(event && event.pointerId) canvas.releasePointerCapture(event.pointerId);
+    }catch(err){}
   }
 
-  function saveLocalActivityFallback(payload){
-    const session = getStudentSession() || {};
-    const meta = inferProgressMeta(payload || {});
-    const score = payload && typeof payload.score === "number" ? payload.score : 0;
-    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-    const tracing = payload && typeof payload.tracing === "number"
-      ? payload.tracing
-      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-    const entry = {
-      pageId: meta.pageId,
-      file: meta.file,
-      level: meta.level,
-      type,
-      activityType: (payload && payload.activityType) || type,
-      score,
-      stars,
-      skills: payload && payload.skills ? payload.skills : {},
-      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-      tracing,
-      week: meta.week,
-      month: meta.month,
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-      savedAt: new Date().toISOString(),
-      ts: Date.now()
-    };
-    const store = getActivityStore();
-    store[meta.pageId] = {
-      ...(store[meta.pageId] || {}),
-      ...entry
-    };
-    setActivityStore(store);
-    try{
-      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-    }catch(e){}
-    return store[meta.pageId];
+  canvas.addEventListener("pointerup", stop);
+  canvas.addEventListener("pointercancel", stop);
+  canvas.addEventListener("pointerleave", stop);
+
+  item.clear = function(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+    touched.clear();
+    item.progress = 0;
+  };
+
+  resize();
+  window.addEventListener("resize", resize);
+}
+
+function getTotalProgress(){
+  const total = digitCanvases.reduce((sum,item) => sum + item.progress, 0);
+  return Math.round(total / digitCanvases.length);
+}
+
+function getStars(percent){
+  if(percent >= 85) return 3;
+  if(percent >= 55) return 2;
+  if(percent >= 25) return 1;
+  return 0;
+}
+
+function updateProgress(){
+  const percent = getTotalProgress();
+  const stars = getStars(percent);
+
+  progressText.textContent = "Writing Progress: " + percent + "%";
+  progressFill.style.width = percent + "%";
+  starsBox.textContent = "⭐".repeat(stars) + "☆".repeat(3 - stars);
+
+  saveProgress();
+
+  if(percent >= 85 && !rewardShown){
+    rewardShown = true;
+    showReward("Great writing! ⭐⭐⭐");
+    speak("Excellent! You wrote the number of vertices.");
   }
 
-  async function finishAndSave(payload){
-    const session = getStudentSession() || {};
-    const fullPayload = {
-      ...(payload || {}),
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-    };
-  
-    saveLocalActivityFallback(fullPayload);
-  
-    if (typeof window.finishActivity === "function") {
-      try{
-        await window.finishActivity(fullPayload);
-      }catch(err){
-        console.warn("finishActivity failed, local fallback already saved:", err);
-      }
-    }
-  
-    return fullPayload;
+  if(percent >= 100 && !chimePlayed){
+    chimePlayed = true;
+    playCompletionChime();
+  }
+}
+
+function showReward(text){
+  reward.textContent = text;
+  reward.classList.add("show");
+  setTimeout(() => reward.classList.remove("show"), 1600);
+}
+
+function clearWriting(){
+  digitCanvases.forEach(item => {
+    if(typeof item.clear === "function") item.clear();
+  });
+
+  rewardShown = false;
+  chimePlayed = false;
+  updateProgress();
+
+  speechBox.textContent = "Writing cleared. Try again. Write 0, 3, and 4 on the dotted numbers.";
+  speak("Writing cleared. Try again. Write zero, three, and four on the dotted numbers.");
+}
+
+function chooseVoice(){
+  if(!("speechSynthesis" in window)) return null;
+
+  const voices = speechSynthesis.getVoices();
+
+  return (
+    voices.find(v => /en-US/i.test(v.lang) && /Jenny|Aria|Samantha|Zira|Female|Google US English/i.test(v.name)) ||
+    voices.find(v => /en-US/i.test(v.lang)) ||
+    voices.find(v => /^en/i.test(v.lang)) ||
+    null
+  );
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+
+  speechSynthesis.cancel();
+
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = 0.9;
+  u.pitch = 1.15;
+  u.volume = 1;
+
+  const voice = chooseVoice();
+  if(voice) u.voice = voice;
+
+  speechSynthesis.speak(u);
+}
+
+function playInstruction(){
+  getAudioContext();
+
+  const text = "Count the vertices. A circle has zero vertices. A triangle has three vertices. A square has four vertices. Write zero, three, and four on the big dotted numbers.";
+  speechBox.textContent = "Write 0 for Circle, 3 for Triangle, and 4 for Square.";
+  speak(text);
+}
+
+function getStudentSession(){
+  try{
+    return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
+  }catch(err){
+    return null;
+  }
+}
+
+function saveProgress(){
+  const percent = getTotalProgress();
+  const stars = getStars(percent);
+  const session = getStudentSession() || {};
+
+  const record = {
+    pageId:PAGE_ID,
+    file:PAGE_FILE,
+    title:"LA21 • Vertices Week 4",
+    level:LEVEL,
+    week:4,
+    month:1,
+    type:"writing",
+    activityType:"writing",
+    score:percent,
+    percent,
+    tracing:percent,
+    stars,
+    completed:percent >= 85,
+    skills:{
+      reading:1,
+      writing:percent >= 25 ? 1 : 0,
+      listening:1,
+      speaking:0
+    },
+    classId:session.classId || null,
+    studentId:session.studentId || null,
+    studentName:session.studentName || session.displayName || session.name || session.fullName || null,
+    updatedAt:new Date().toISOString(),
+    savedAt:new Date().toISOString(),
+    ts:Date.now()
+  };
+
+  try{
+    localStorage.setItem("LA21_WRITING_PROGRESS", JSON.stringify(record));
+
+    const activityProgress = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_PROGRESS") || "{}");
+    activityProgress[PAGE_ID] = record;
+    localStorage.setItem("GP_EIS_ACTIVITY_PROGRESS", JSON.stringify(activityProgress));
+
+    const activityResults = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+    activityResults[PAGE_ID] = record;
+    localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(activityResults));
+
+    const progressReport = JSON.parse(localStorage.getItem("GP_EIS_PROGRESS_REPORT") || "{}");
+    progressReport[PAGE_ID] = record;
+    localStorage.setItem("GP_EIS_PROGRESS_REPORT", JSON.stringify(progressReport));
+
+    localStorage.setItem("GP_EIS_LAST_FILE", PAGE_FILE);
+
+    window.dispatchEvent(new CustomEvent("gp-eis-progress-updated", { detail:record }));
+  }catch(err){
+    console.warn("Progress could not be saved:", err);
+  }
+}
+
+function openProgressReport(){
+  saveProgress();
+  location.href = "../../../../ProgressReport.html";
+}
+
+document.getElementById("girlBtn").addEventListener("click", playInstruction);
+document.getElementById("instructionBtn").addEventListener("click", playInstruction);
+document.getElementById("clearBtn").addEventListener("click", clearWriting);
+document.getElementById("reportBtn").addEventListener("click", openProgressReport);
+
+document.getElementById("prevBtn").addEventListener("click", () => {
+  saveProgress();
+  location.href = "../tuesday/LA20.html";
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+  saveProgress();
+  location.href = "LA25.html";
+});
+
+function init(){
+  digitCanvases.forEach(setupWritableDigit);
+  updateProgress();
+
+  if("speechSynthesis" in window){
+    speechSynthesis.onvoiceschanged = chooseVoice;
   }
 
-  window.finishAndSave = finishAndSave;
+  setTimeout(() => {
+    speechBox.textContent = "Tap the chef or Instruction button to hear what to do.";
+  },300);
+}
+
+document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
-</html>
-
-
-
-
-
-
-
-
+</html>

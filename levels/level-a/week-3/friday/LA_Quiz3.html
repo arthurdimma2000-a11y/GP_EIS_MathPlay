@@ -45,7 +45,7 @@
   <div class="topbar">
     <div class="badge"><div>Level A <small style="display:block;opacity:.9">Quiz 3</small></div><div style="font-size:20px">📝</div></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-      <a class="btn ghost" href="LevelAHomeP.html">⬅ Back</a>
+      <a class="btn ghost" href="LA_Game3.html">⬅ Back</a>
       <button class="btn ghost" id="soundBtn" type="button">🔊 Sound: ON</button>
     </div>
   </div>
@@ -71,8 +71,8 @@
     </div>
 
     <div class="footerNav">
-      <a class="btn ghost" href="LA_Quiz2.html">◀ Prev</a>
-      <a class="btn" href="../../../../index.html">Next ➜</a>
+      <a class="btn ghost" href="LA_Game3.html">◀ Prev</a>
+      <a class="btn" href="../../week-4/monday/ShapeMusicClass.html">Next ➜</a>
     </div>
   </div>
 </div>
@@ -147,6 +147,15 @@ cheer("How many vertices does a square have?");
 </script>
 <script type="module" src="./progress-tracker.js"></script>
 <script>
+  const forceWeek4NextBtn = document.querySelector('.footerNav a.btn[href*="ShapeMusicClass.html"]');
+  if (forceWeek4NextBtn) {
+    forceWeek4NextBtn.setAttribute("href", "../../week-4/monday/ShapeMusicClass.html");
+    forceWeek4NextBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.location.assign("../../week-4/monday/ShapeMusicClass.html");
+    });
+  }
+
   window.addEventListener("load", () => {
     if (!window.GPTrack) return;
     const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");

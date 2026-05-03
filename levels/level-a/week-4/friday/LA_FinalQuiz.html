@@ -1,287 +1,496 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Level A • Final Quiz • Shapes & Vertices</title>
+  <style>
+    :root{
+      --ink:#1f2a37; --muted:#64748b;
+      --card:#ffffffda; --line:#e5e7eb;
+      --shadow:0 18px 60px rgba(0,0,0,.18);
+      --r:18px;
+      font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--ink);
+      min-height:100svh;
+      background:
+        radial-gradient(circle at 12% 20%, #ffd6a5 0 18%, transparent 19%),
+        radial-gradient(circle at 90% 18%, #caffbf 0 16%, transparent 17%),
+        radial-gradient(circle at 10% 86%, #bdb2ff 0 18%, transparent 19%),
+        radial-gradient(circle at 92% 86%, #ffadad 0 18%, transparent 19%),
+        linear-gradient(180deg,#f7fbff,#fff7f1);
+      padding:18px;
+    }
+    .wrap{max-width:1060px;margin:0 auto;display:grid;gap:14px}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:12px 14px;border-radius:20px;background:#ffffffb8;box-shadow:var(--shadow);
+      position:sticky;top:10px;backdrop-filter: blur(8px);z-index:20;
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      background:linear-gradient(90deg,#3b82f6,#22c55e);
+      color:#fff;font-weight:900;letter-spacing:.3px;white-space:nowrap;
+      box-shadow:0 10px 18px rgba(59,130,246,.22);
+    }
+    .title{font-size:clamp(16px,2.2vw,22px);font-weight:900}
+    .sub{color:var(--muted);font-size:13px;margin-top:2px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    button, a.btn{
+      border:0;border-radius:14px;padding:10px 12px;
+      background:#111827;color:#fff;font-weight:900;
+      box-shadow:0 10px 20px rgba(17,24,39,.18);
+      cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    }
+    button.secondary,a.btn.secondary{background:#ffffff; color:#111827; border:2px solid #1118271a; box-shadow:none}
+    button.ghost{background:transparent;color:#111827;border:2px dashed #11182733;box-shadow:none}
+    button:active{transform:translateY(1px)}
 
-<style id="gpLessonPrehide">
-  .convo-line,.speech-line,.dialog-line,.bubble-line,.bubble-left,.bubble-right,#bubbleLeft,#bubbleRight{display:none !important;}
-  .row.convo-line.show,.row.speech-line.show,.row.dialog-line.show,.row.bubble-line.show{display:flex !important;}
-  .convo-line.show,.speech-line.show,.dialog-line.show,.bubble-line.show,.bubble-left.show,.bubble-right.show,#bubbleLeft.show,#bubbleRight.show{display:block !important;}
-  .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,1.9vw,19px) !important;line-height:1.24 !important;max-width:min(40vw,320px) !important;white-space:normal !important;word-break:break-word !important;overflow-wrap:anywhere !important;}
-  @media (max-width:780px){
-    .bubble,.speech-bubble,.dialog-bubble,.convo-bubble{font-size:clamp(13px,3.6vw,17px) !important;max-width:min(44vw,220px) !important;line-height:1.2 !important;}
-  }
-</style>
+    .grid{display:grid;grid-template-columns: 1.2fr .8fr;gap:14px}
+    @media (max-width:940px){ .grid{grid-template-columns:1fr} }
 
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>LA19 - Write 4 5 6</title>
-<style>
-  :root{--sky:#bfe9fb;--panel:#ffffff;--ink:#3b3b3b;--shadow:0 20px 40px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
-  *{box-sizing:border-box;}
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--sky);padding:18px;}
-  .card{width:min(980px,96vw);background:var(--panel);border-radius:18px;padding:26px 26px 32px;position:relative;box-shadow:var(--shadow);overflow:hidden;}
-  .poster-area{position:relative;width:min(820px,100%);margin:10px auto 0;}
-  .poster-img{width:100%;height:auto;display:block;}
-  .convo-bubble{padding:10px 14px;border-radius:16px;font-size:1.1rem;font-weight:700;position:relative;max-width:520px;}
-  .convo-kid{background:#d8ebff;}
-  .convo-kid::after{content:"";position:absolute;right:-6px;top:16px;border-width:8px 0 8px 8px;border-style:solid;border-color:transparent transparent transparent #d8ebff;}
-  .bubble-left{position:absolute;left:12%;top:14%;z-index:2;}
-  .trace-layer{position:absolute;inset:0;pointer-events:auto;z-index:5;}
-  .trace-grid{position:absolute;left:30%;top:30%;width:65%;height:62%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2%;pointer-events:auto;}
-  .trace-canvas{position:relative;width:100%;height:100%;pointer-events:auto;touch-action:none;z-index:6;background:transparent;display:block;}
-  .controls{margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:.9rem;}
-  .progress-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
-  .progress-bar{width:min(520px,92%);height:12px;border-radius:999px;background:#e7efff;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}  
-  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#3cc4ff,#7dffb3);transition:width .15s ease-out;}
-  .progress-text{font-size:.9rem;font-weight:700;color:#3b3b3b;}
-  .controls-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
-  button{border:none;border-radius:999px;padding:7px 18px;font-size:.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(180deg,#fffad7,#ffd86a);color:#8b5a00;box-shadow:0 4px 0 rgba(0,0,0,.2);}  
-</style>
+    .card{
+      background:var(--card); border:1px solid #ffffffaa;
+      border-radius:var(--r); box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .cardHead{
+      padding:14px 14px 10px;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+      border-bottom:1px solid #ffffffaa;
+      background:linear-gradient(90deg,#ffffffcc,#ffffff88);
+    }
+    .cardHead h2{margin:0;font-size:18px}
+    .pill{padding:6px 10px;border-radius:999px;font-weight:900;font-size:12px;background:#111827;color:#fff;white-space:nowrap}
+    .cardBody{padding:14px}
+    .hint{color:var(--muted);font-size:13px;line-height:1.35}
+    .spacer{height:10px}
+
+    .qBox{
+      background:#fff;border:1px solid #11182710;border-radius:18px;
+      padding:12px; margin-bottom:12px;
+      box-shadow:0 10px 18px rgba(0,0,0,.08);
+    }
+    .qTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .qTitle{font-weight:900;font-size:16px}
+    .tag{padding:6px 10px;border-radius:999px;font-weight:900;font-size:12px;background:#1118270d}
+
+    .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    @media (max-width:520px){ .choices{grid-template-columns:1fr} }
+    .choice{
+      border-radius:16px;border:2px solid #11182714;background:#fff;
+      padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      font-weight:900;font-size:16px;cursor:pointer;user-select:none;
+      box-shadow:0 10px 18px rgba(0,0,0,.08);
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    .choice:active{transform:translateY(1px)}
+    .choice.good{border-color:#22c55e; box-shadow:0 14px 26px rgba(34,197,94,.18)}
+    .choice.bad{border-color:#ef4444; box-shadow:0 14px 26px rgba(239,68,68,.18)}
+
+    .art{
+      width:100%;border-radius:18px;border:1px solid #ffffffaa;
+      background:linear-gradient(180deg,#fff,#fff7f0);
+      overflow:hidden;
+    }
+    .art svg{width:100%;height:auto;display:block}
+    .kLabel{font-weight:900;font-size:14px;fill:#111827}
+
+    .footerNav{
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;
+      padding:14px;border-radius:20px;background:#ffffffb8;box-shadow:var(--shadow);
+    }
+    .progressLine{
+      height:12px;border-radius:999px;background:#11182712;overflow:hidden;flex:1;min-width:220px;
+      border:1px solid #ffffffaa;
+    }
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#60a5fa,#f59e0b);transition:width .25s ease}
+    .scoreBox{font-weight:900}
+    .tiny{font-size:12px;color:var(--muted);font-weight:800}
+    .toast{
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:14px;background:#111827;color:#fff;
+      padding:10px 12px;border-radius:14px;box-shadow:var(--shadow);
+      opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;
+      z-index:50;font-weight:900;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+  </style>
 </head>
 <body>
-<div class="card">
-  <div class="poster-area">
-    <img class="poster-img" src="../../../../assets/images/shapes/A19.png" alt="Numbers poster">
-    <div class="convo-bubble convo-kid bubble-left">Let’s write numbers.</div>
-    <div class="trace-layer">
-      <div class="trace-grid">
-        <canvas class="trace-canvas" id="trace4a"></canvas>
-        <canvas class="trace-canvas" id="trace4b"></canvas>
-        <canvas class="trace-canvas" id="trace4c"></canvas>
-        <canvas class="trace-canvas" id="trace5a"></canvas>
-        <canvas class="trace-canvas" id="trace5b"></canvas>
-        <canvas class="trace-canvas" id="trace5c"></canvas>
-        <canvas class="trace-canvas" id="trace6a"></canvas>
-        <canvas class="trace-canvas" id="trace6b"></canvas>
-        <canvas class="trace-canvas" id="trace6c"></canvas>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge">🏁 Level A</div>
+        <div>
+          <div class="title">Final Quiz: Shapes & Vertices</div>
+          <div class="sub">Finish strong! Big cheers when you pass 🎉</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="LevelAHomeP.html">← Back</a>
+        <a class="btn secondary" href="LA_Quiz4.html">↩ Quiz 4</a>
+        <button class="secondary" id="btnSound">🔊 Sound: ON</button>
+        <button class="ghost" id="btnRead">🗣️ Read</button>
       </div>
     </div>
-  </div>
-  <div class="controls">
-    <div class="progress-wrap">
-      <div class="progress-text">Trace progress: <span id="progressPercent">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="grid">
+      <section class="card" aria-label="Final quiz">
+        <div class="cardHead">
+          <h2>Answer all questions</h2>
+          <div class="pill" id="pill">0 / 10</div>
+        </div>
+        <div class="cardBody">
+          <div class="hint">
+            Tap the correct number. You can retry until you get it right 🙂<br/>
+            <b>Tip:</b> Circle = 0 vertices • Triangle = 3 • Square = 4
+          </div>
+          <div class="spacer"></div>
+          <div id="quiz"></div>
+
+          <div class="footerNav" style="margin-top:12px">
+            <div style="min-width:220px">
+              <div class="scoreBox">Score: <span id="score">0</span> / <span id="total">10</span></div>
+              <div class="tiny" id="status">Get at least 8/10 to earn the trophy 🏆</div>
+            </div>
+            <div class="progressLine"><div class="bar" id="bar"></div></div>
+            <a class="btn" id="btnDone" href="ProgressReport.html" style="opacity:.55;pointer-events:none">View Progress ➜</a>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card" aria-label="Card image area">
+        <div class="cardHead">
+          <h2>Card Image Area</h2>
+          <div class="pill">Cookies & Shapes</div>
+        </div>
+        <div class="cardBody">
+          <div class="art" role="img" aria-label="Cookie picture for counting practice">
+            <svg viewBox="0 0 640 520">
+              <defs>
+                <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#e6fff6"/>
+                  <stop offset="1" stop-color="#fff2e6"/>
+                </linearGradient>
+                <filter id="shadow2" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity=".18"/>
+                </filter>
+              </defs>
+              <rect x="0" y="0" width="640" height="520" fill="url(#bg2)"/>
+              <text x="320" y="52" text-anchor="middle" font-size="22" font-weight="900" fill="#111827">
+                Count the cookies by shape! 🍪
+              </text>
+
+              <!-- Circle cookies -->
+              <g filter="url(#shadow2)">
+                <circle cx="150" cy="150" r="46" fill="#ffb703"/>
+                <circle cx="260" cy="210" r="46" fill="#ffb703"/>
+              </g>
+              <text x="110" y="250" class="kLabel">Circles</text>
+
+              <!-- Triangle cookies -->
+              <g filter="url(#shadow2)">
+                <polygon points="410,120 360,220 460,220" fill="#22c55e"/>
+                <polygon points="520,180 470,280 570,280" fill="#22c55e"/>
+                <polygon points="410,260 360,360 460,360" fill="#22c55e"/>
+              </g>
+              <text x="360" y="395" class="kLabel">Triangles</text>
+
+              <!-- Square cookies -->
+              <g filter="url(#shadow2)">
+                <rect x="90" y="320" width="86" height="86" rx="14" fill="#3b82f6"/>
+                <rect x="190" y="340" width="86" height="86" rx="14" fill="#3b82f6"/>
+                <rect x="90" y="420" width="86" height="86" rx="14" fill="#3b82f6"/>
+                <rect x="190" y="440" width="86" height="86" rx="14" fill="#3b82f6"/>
+              </g>
+              <text x="110" y="308" class="kLabel">Squares</text>
+
+              <text x="320" y="500" text-anchor="middle" font-size="16" font-weight="900" fill="#111827">
+                Tap answers • Earn stars ⭐
+              </text>
+            </svg>
+          </div>
+
+          <div class="spacer"></div>
+          <div class="hint">
+            This picture supports the final questions (count circles/triangles/squares).
+          </div>
+        </div>
+      </aside>
     </div>
-    <div class="controls-row">
-      <button id="prevBtn"><- Previous page</button>
-      <button id="nextBtn">Next page -></button>
-      <button id="clearBtn">Clear [X]</button>
-    </div>
   </div>
-</div>
-<script>
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const progressPercentEl = document.getElementById('progressPercent');
-  const progressFillEl = document.getElementById('progressFill');
-  const tracePercents = new Array(9).fill(0);
-  const traceResets = [];
-  let traceCelebrated = false;
-  let lastTraceSound = 0;
 
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-  chimeAudio.preload = "auto";
-  function playChime(){ try{ const s=chimeAudio.cloneNode(true); s.play().catch(()=>{});}catch(e){} }
-  function speak(text){ if(!('speechSynthesis' in window)) return; const u=new SpeechSynthesisUtterance(text); u.rate=1;u.pitch=1.05;window.speechSynthesis.speak(u);}  
+  <div class="toast" id="toast">Nice!</div>
 
-  function updateTotal(){
-    const raw = tracePercents.reduce((a,b)=>a+b,0)/tracePercents.length;
-    const allDone = tracePercents.every(p=>p>=90);
-    const total = Math.round(raw);
-    progressPercentEl.textContent = total + "%";
-    progressFillEl.style.width = total + "%";
-    if(allDone && !traceCelebrated){ traceCelebrated=true; playChime(); speak("Wow! great job!"); }
-    if(!allDone){ traceCelebrated=false; }
-  }
-  function setupTrace(id, points, index){
-    const reset = window.GPTracing.createPathTracePad({
-      canvasId: id,
-      getPoints: () => points,
-      lineWidth: 6,
-      threshold: 14,
-      onProgress(pct){
-        tracePercents[index] = pct;
-        updateTotal();
-      },
-      onTick(){
-        const now = performance.now();
-        if(now-lastTraceSound>120){ lastTraceSound=now; window.GPTracing.playTraceTick(); }
+  <script>
+    /**************
+     * Sound FX
+     **************/
+    const SFX = (() => {
+      let on = true;
+      let ctx = null;
+      function ensure(){ if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+      function setOn(v){ on = v; }
+      function isOn(){ return on; }
+      function tone(freq=440, dur=0.12, type="sine", gain=0.08){
+        if(!on) return;
+        ensure();
+        const t0 = ctx.currentTime;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, t0);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(gain, t0+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t0); o.stop(t0+dur+0.02);
       }
-    });
-    traceResets.push(() => {
-      if (typeof reset === "function") reset();
-      tracePercents[index] = 0;
-      updateTotal();
-    });
-  }
-
-  clearBtn.addEventListener('click', ()=>{ traceResets.forEach(fn=>fn()); });
-  prevBtn.addEventListener('click', ()=>{ window.location.href='LA_Game4.html'; });
-  nextBtn.addEventListener('click', ()=>{
-    try {
-      if (typeof window.finishAndSave === 'function') {
-        window.finishAndSave({ score: Math.round(tracePercents.reduce((a, b) => a + b, 0) / tracePercents.length) });
+      function chime(){
+        tone(880,0.10,"triangle",0.08);
+        setTimeout(()=>tone(1175,0.10,"triangle",0.07),90);
+        setTimeout(()=>tone(1568,0.12,"triangle",0.06),180);
       }
-    } catch (_) {}
-    window.location.href='../../../../index.html';
-  });
+      function oops(){
+        tone(220,0.16,"sawtooth",0.06);
+        setTimeout(()=>tone(196,0.14,"sawtooth",0.05),120);
+      }
+      function cheer(){
+        chime();
+        setTimeout(()=>tone(660,0.10,"square",0.05),260);
+        setTimeout(()=>tone(990,0.12,"square",0.05),360);
+        setTimeout(()=>tone(1320,0.12,"square",0.05),480);
+      }
+      return { setOn, isOn, chime, oops, cheer };
+    })();
 
-  const traceConfigs = [
-    { id:"trace4a", type:"4" }, { id:"trace4b", type:"4" }, { id:"trace4c", type:"4" },
-    { id:"trace5a", type:"5" }, { id:"trace5b", type:"5" }, { id:"trace5c", type:"5" },
-    { id:"trace6a", type:"6" }, { id:"trace6b", type:"6" }, { id:"trace6c", type:"6" }
-  ];
-  traceConfigs.forEach((cfg, idx) => setupTrace(cfg.id, window.GPTracing.getDigitTraceGroups(cfg.type), idx));
-</script>
-<script src="../../../../shared/js/storage.js"></script>
-<script src="../../../../shared/js/progress.js"></script>
-<script src="../../../../shared/js/tracing.js"></script>
-  <script src="../../../../activity-standardizer.js"></script>
-<script type="module">
-  import { saveActivityResult, markLoginPing } from "../../../../progress-tracker.js";
-  window.GPProgress.installTracker({
-    saveActivityResult,
-    markLoginPing,
-    defaultPageId: "LA_FinalQuiz",
-    defaultLevel: "A",
-    defaultActivityType: "quiz",
-    defaultScore: 100,
-    defaultStars: 1,
-    defaultSkills: {
-      reading: 1,
-      writing: 0,
-      speaking: 1,
-      listening: 1
-    }
-  });
-
-
-
-  function getStudentSession(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_STUDENT_SESSION") || "null");
-    }catch(e){
-      return null;
-    }
-  }
-
-  function inferProgressMeta(payload){
-    const pageId = String((payload && payload.pageId) || ((location.pathname || "").split("/").pop() || "Activity").replace(/\.html$/i, ""));
-    const file = (payload && (payload.file || payload.fileName)) || (pageId + ".html");
-    const level = (payload && payload.level)
-      || (/^(LA|LevelA|Level_A)/i.test(pageId) ? "A" : (/^(LB|LevelB|Level_B)/i.test(pageId) ? "B" : (/^(LC|LevelC|Level_C)/i.test(pageId) ? "C" : "A")));
-    const weekMatch = String(location.pathname || "").match(/week-(\d+)/i);
-    const inferredWeek = weekMatch ? Number(weekMatch[1]) : 1;
-    const week = payload && payload.week != null ? Number(payload.week) : inferredWeek;
-    const month = payload && payload.month != null ? Number(payload.month) : 1;
-    return {
-      pageId,
-      file,
-      level,
-      week: Number.isFinite(week) && week > 0 ? week : 1,
-      month: Number.isFinite(month) && month > 0 ? month : 1
-    };
-  }
-
-  function getActivityStore(){
-    try{
-      return JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-    }catch(e){
-      return {};
-    }
-  }
-
-  function setActivityStore(store){
-    try{
-      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store || {}));
-    }catch(e){}
-  }
-
-  function saveLocalActivityFallback(payload){
-    const session = getStudentSession() || {};
-    const meta = inferProgressMeta(payload || {});
-    const score = payload && typeof payload.score === "number" ? payload.score : 0;
-    const stars = payload && typeof payload.stars === "number" ? payload.stars : 0;
-    const tracing = payload && typeof payload.tracing === "number"
-      ? payload.tracing
-      : (payload && typeof payload.progress === "number" ? payload.progress : 0);
-    const type = (payload && payload.type) || (payload && payload.activityType) || "lesson";
-    const entry = {
-      pageId: meta.pageId,
-      file: meta.file,
-      level: meta.level,
-      type,
-      activityType: (payload && payload.activityType) || type,
-      score,
-      stars,
-      skills: payload && payload.skills ? payload.skills : {},
-      completed: payload && typeof payload.completed === "boolean" ? payload.completed : true,
-      tracing,
-      week: meta.week,
-      month: meta.month,
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null,
-      savedAt: new Date().toISOString(),
-      ts: Date.now()
-    };
-    const store = getActivityStore();
-    store[meta.pageId] = {
-      ...(store[meta.pageId] || {}),
-      ...entry
-    };
-    setActivityStore(store);
-    try{
-      localStorage.setItem("GP_EIS_LAST_FILE", meta.file);
-    }catch(e){}
-    return store[meta.pageId];
-  }
-
-  async function finishAndSave(payload){
-    const session = getStudentSession() || {};
-    const fullPayload = {
-      ...(payload || {}),
-      classId: (payload && payload.classId) || session.classId || null,
-      studentId: (payload && payload.studentId) || session.studentId || null,
-      studentName: (payload && payload.studentName) || session.studentName || session.displayName || session.name || session.fullName || null
-    };
-  
-    saveLocalActivityFallback(fullPayload);
-  
-    if (typeof window.finishActivity === "function") {
+    function speak(text){
+      if(!("speechSynthesis" in window)) return;
       try{
-        await window.finishActivity(fullPayload);
-      }catch(err){
-        console.warn("finishActivity failed, local fallback already saved:", err);
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 0.95;
+        u.pitch = 1.12;
+        window.speechSynthesis.speak(u);
+      }catch(e){}
+    }
+
+    /**************
+     * Progress Tracking (localStorage)
+     **************/
+    const STORE_KEY = "GPEIS_PROGRESS_V1";
+
+    function loadStore(){
+      try{ return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }
+      catch(e){ return {}; }
+    }
+    function saveStore(obj){
+      localStorage.setItem(STORE_KEY, JSON.stringify(obj));
+      window.dispatchEvent(new Event("storage"));
+    }
+    function saveActivityResult(payload){
+      const s = loadStore();
+      if(!s.activities) s.activities = [];
+      s.activities.push({ ts: Date.now(), ...payload });
+      if(s.activities.length > 500) s.activities = s.activities.slice(-500);
+      saveStore(s);
+    }
+
+    /**************
+     * Quiz Data (based on Level A book topics)
+     **************/
+    const QUESTIONS = [
+      // Vertices
+      { id:"q1", tag:"Vertices", prompt:"How many vertices does a CIRCLE have?", answer:0, choices:[0,3,4] },
+      { id:"q2", tag:"Vertices", prompt:"How many vertices does a TRIANGLE have?", answer:3, choices:[0,3,4] },
+      { id:"q3", tag:"Vertices", prompt:"How many vertices does a SQUARE have?", answer:4, choices:[0,3,4] },
+
+      // Counting from the story pages (numbers shown in the book)
+      { id:"q4", tag:"Counting", prompt:"How many circle-shaped bear cakes are there?", answer:1, choices:[1,2,3] },
+      { id:"q5", tag:"Counting", prompt:"How many triangle-shaped fish are there? (easy page)", answer:2, choices:[1,2,3] },
+      { id:"q6", tag:"Counting", prompt:"How many triangle-shaped fish are there? (more fish!)", answer:3, choices:[2,3,4] },
+      { id:"q7", tag:"Counting", prompt:"How many square-shaped cow cookies are there? (party page)", answer:5, choices:[3,4,5] },
+
+      // Week 4 table idea (shape cookie counts displayed 2/3/4)
+      { id:"q8", tag:"Week 4", prompt:"In Week 4, how many CIRCLE cookies are shown in the shape table?", answer:2, choices:[1,2,3] },
+      { id:"q9", tag:"Week 4", prompt:"In Week 4, how many TRIANGLE cookies are shown in the shape table?", answer:3, choices:[2,3,4] },
+      { id:"q10", tag:"Week 4", prompt:"In Week 4, how many SQUARE cookies are shown in the shape table?", answer:4, choices:[3,4,5] },
+    ];
+
+    const quizEl = document.getElementById("quiz");
+    const pill = document.getElementById("pill");
+    const scoreEl = document.getElementById("score");
+    const totalEl = document.getElementById("total");
+    const bar = document.getElementById("bar");
+    const statusEl = document.getElementById("status");
+    const btnDone = document.getElementById("btnDone");
+    const toast = document.getElementById("toast");
+
+    const STATE = {
+      level:"A",
+      page:"LA_FinalQuiz.html",
+      score:0,
+      total:QUESTIONS.length,
+      solved:new Set(),
+      tries:0,
+      finished:false
+    };
+
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 1100);
+    }
+
+    function render(){
+      totalEl.textContent = String(STATE.total);
+      quizEl.innerHTML = QUESTIONS.map((q, idx)=>`
+        <div class="qBox" data-qid="${q.id}">
+          <div class="qTop">
+            <div class="qTitle">${idx+1}. ${q.prompt}</div>
+            <div class="tag">${q.tag}</div>
+          </div>
+          <div class="choices">
+            ${q.choices.map(c=>`
+              <div class="choice" role="button" tabindex="0" data-pick="${c}">
+                <span>${c}</span>
+                <span class="tag">tap</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `).join("");
+
+      quizEl.querySelectorAll(".choice").forEach(ch=>{
+        ch.addEventListener("click", ()=>onPick(ch));
+        ch.addEventListener("keydown",(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); ch.click(); }});
+      });
+
+      updateUI();
+    }
+
+    function onPick(choiceEl){
+      const box = choiceEl.closest(".qBox");
+      const qid = box.dataset.qid;
+      const q = QUESTIONS.find(x=>x.id===qid);
+      if(STATE.solved.has(qid)) return;
+
+      const pick = Number(choiceEl.dataset.pick);
+      STATE.tries += 1;
+
+      box.querySelectorAll(".choice").forEach(c=>c.classList.remove("good","bad"));
+
+      if(pick === q.answer){
+        STATE.score += 1;
+        STATE.solved.add(qid);
+        choiceEl.classList.add("good");
+        SFX.chime();
+        showToast("Correct! ⭐");
+      }else{
+        choiceEl.classList.add("bad");
+        SFX.oops();
+        showToast("Try again 🙂");
+      }
+
+      updateUI();
+      if(STATE.solved.size === STATE.total && !STATE.finished){
+        finish();
       }
     }
-  
-    return fullPayload;
+
+    function updateUI(){
+      scoreEl.textContent = String(STATE.score);
+      pill.textContent = `${STATE.solved.size} / ${STATE.total}`;
+      const pct = Math.round((STATE.score/STATE.total)*100);
+      bar.style.width = pct + "%";
+
+      if(STATE.score >= 8 && STATE.solved.size === STATE.total){
+        statusEl.textContent = "You passed! Trophy time! 🏆🎉";
+      }else if(STATE.solved.size === STATE.total){
+        statusEl.textContent = "Good job! Want to try again for a trophy? 🏆";
+      }else{
+        statusEl.textContent = "Get at least 8/10 to earn the trophy 🏆";
+      }
+    }
+
+    function finish(){
+      STATE.finished = true;
+
+      const percent = Math.round((STATE.score/STATE.total)*100);
+      const passed = STATE.score >= 8;
+
+      saveActivityResult({
+        level:"A",
+        page:"LA_FinalQuiz.html",
+        type:"final_quiz",
+        skill:"vertices+counting",
+        score:STATE.score,
+        total:STATE.total,
+        percent,
+        passed,
+        tries:STATE.tries
+      });
+
+      SFX.cheer();
+      showToast(passed ? "PASSED! 🏆" : "Finished! ⭐");
+      btnDone.style.opacity = "1";
+      btnDone.style.pointerEvents = "auto";
+    }
+
+    // Top controls
+    const btnSound = document.getElementById("btnSound");
+    btnSound.addEventListener("click", ()=>{
+      const next = !SFX.isOn();
+      SFX.setOn(next);
+      btnSound.textContent = next ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+      if(next) SFX.chime();
+    });
+
+    document.getElementById("btnRead").addEventListener("click", ()=>{
+      speak("Final Quiz. Tap the correct number. Circle has zero vertices. Triangle has three. Square has four. Good luck!");
+      SFX.chime();
+    });
+
+  // Init
+  render();
+  </script>
+<script type="module" src="./progress-tracker.js"></script>
+<script>
+  window.addEventListener("load", () => {
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "Activity");
+  });
+
+  async function finishActivity(overrides = {}){
+    if (!window.GPTrack) return;
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
+      ? "A"
+      : (/^(LB|LevelB)/i.test(pageFile))
+        ? "B"
+        : (/^(LC|LevelC)/i.test(pageFile))
+          ? "C"
+          : null;
+
+    await GPTrack.finish({
+      pageId: pageFile || document.title || "Activity",
+      level: inferredLevel,
+      activityType: "activity",
+      score: null,
+      stars: 0,
+      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
+      ...overrides
+    });
   }
-
-  window.finishAndSave = finishAndSave;
-
 </script>
-<script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

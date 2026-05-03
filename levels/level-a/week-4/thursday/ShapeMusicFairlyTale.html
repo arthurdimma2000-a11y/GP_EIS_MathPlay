@@ -3,19 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PentagonArtClass</title>
+  <title>ShapeMusicFairlyTale</title>
   <style>
-    :root{
-      --bg1:#fff6da; --bg2:#ffe18a; --bg3:#ffc84d;
-      --text:#5b3200; --accent:#ff8a00; --accent2:#ffb300;
-      --dark:#2f2f2f; --shadow:0 14px 34px rgba(0,0,0,.20); --radius:26px;
-    }
+    :root{--bg1:#fff6da;--bg2:#ffe18a;--bg3:#ffc84d;--text:#5b3200;--accent:#ff8a00;--accent2:#ffb300;--dark:#2f2f2f;--shadow:0 14px 34px rgba(0,0,0,.20);--radius:26px}
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{min-height:100%;width:100%;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top left,#fff8ea 0%,transparent 35%),radial-gradient(circle at bottom right,#ffd76a 0%,transparent 30%),linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:var(--text)}
     body{padding:20px;display:flex;justify-content:center;align-items:flex-start}
     .page{width:100%;max-width:1180px;position:relative}
-    .floating-shape{position:absolute;width:80px;height:80px;background:rgba(255,255,255,.28);clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);animation:floaty 5s ease-in-out infinite;pointer-events:none}
-    .shape1{top:10px;left:10px}.shape2{top:50px;right:30px;width:60px;height:60px;animation-delay:.8s}.shape3{bottom:40px;left:40px;width:55px;height:55px;animation-delay:1.4s}
+    .floating-shape{position:absolute;background:rgba(255,255,255,.28);border-radius:50%;animation:floaty 5s ease-in-out infinite;pointer-events:none}
+    .shape1{top:10px;left:10px;width:80px;height:80px}.shape2{top:50px;right:30px;width:60px;height:60px;animation-delay:.8s}.shape3{bottom:40px;left:40px;width:55px;height:55px;animation-delay:1.4s}
     @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
     .header{text-align:center;margin-bottom:18px;background:rgba(255,255,255,.58);backdrop-filter:blur(6px);border-radius:24px;padding:18px 14px;box-shadow:var(--shadow);border:2px solid rgba(255,255,255,.55)}
     .header h1{font-size:clamp(1.7rem,3vw,2.6rem);color:#8c4300;margin-bottom:8px;font-weight:900}
@@ -48,15 +44,15 @@
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
-      <div class="intro-title">Pentagon Art Class Intro</div>
+      <div class="intro-title">Shape Music Fairly Tale Intro</div>
       <video id="lbIntroVideo" playsinline autoplay muted preload="metadata">
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777791982/Newbartclass_x85ya1.mp4" type="video/mp4">
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777673810/Lanew1_fkmptz.mp4" type="video/mp4">
       </video>
       <div class="intro-actions">
         <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
-      <div class="intro-help">Skip Intro will go straight to LB2.html.</div>
+      <div class="intro-help">Skip Intro will jump immediately to NEXT_PAGE.</div>
     </div>
   </div>
 
@@ -64,8 +60,8 @@
     <div class="page">
       <div class="floating-shape shape1"></div><div class="floating-shape shape2"></div><div class="floating-shape shape3"></div>
       <div class="header">
-        <h1>🎨 Pentagon Art Class</h1>
-        <p>index.html ← PentagonArtClass.html → LB2.html</p>
+        <h1>📖 Shape Music Fairly Tale</h1>
+        <p>Replace NEXT_PAGE later if you want a different next lesson.</p>
       </div>
 
       <div class="video-card">
@@ -74,11 +70,9 @@
           <button class="nav-btn dark" onclick="goBackPage()">⬅ Back</button>
           <button class="nav-btn" onclick="replayVideo()">🔁 Replay</button>
         </div>
-
         <video id="lessonVideo" controls playsinline preload="metadata">
-          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777791982/Newbartclass_x85ya1.mp4" type="video/mp4">
+          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777673810/Lanew1_fkmptz.mp4" type="video/mp4">
         </video>
-
         <div class="bottom-bar">
           <button class="nav-btn green" onclick="togglePlayPause()">▶ / ⏸ Play</button>
           <button class="nav-btn red" onclick="toggleFullscreen()">⛶ Fullscreen</button>
@@ -86,129 +80,37 @@
         </div>
       </div>
 
-      <div class="lesson-note">Back goes to index.html. Next goes to LB2.html. Skip Intro jumps immediately to LB2.html.</div>
+      <div class="lesson-note">Skip Intro pauses and leaves this page immediately.</div>
     </div>
   </div>
 
   <script>
     const HOME_PAGE = "../../../../index.html";
-    const PREVIOUS_PAGE = "../../../../index.html";
-    const NEXT_PAGE = "../tuesday/LB2.html";
-
+    const PREVIOUS_PAGE = "../wednesday/LA25.html";
+    const NEXT_PAGE = "../friday/LA_Game4.html";
     const video = document.getElementById("lessonVideo");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
     const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
     let introFinished = false;
-    video.muted = true;
-    video.volume = 0;
-
-    function pauseVideo(el){
-      if(el){
-        try{ el.pause(); }catch(e){}
-      }
-    }
-
-    function revealPageContent(){
-      if(introFinished) return;
-      introFinished = true;
-      document.body.classList.add("intro-complete");
-      introOverlay.hidden = true;
-      pauseVideo(introVideo);
-    }
-
-    function restoreLessonAudio(){
-      video.muted = false;
-      video.volume = 1;
-    }
-
-    function goHome(){
-      pauseVideo(video);
-      pauseVideo(introVideo);
-      window.location.href = HOME_PAGE;
-    }
-
-    function goBackPage(){
-      pauseVideo(video);
-      pauseVideo(introVideo);
-      window.location.href = PREVIOUS_PAGE;
-    }
-
-    function goNextPage(){
-      pauseVideo(video);
-      pauseVideo(introVideo);
-      window.location.href = NEXT_PAGE;
-    }
-
-    function skipIntroAndGoNext(){
-      pauseVideo(introVideo);
-      pauseVideo(video);
-      window.location.href = NEXT_PAGE;
-    }
-
-    function replayVideo(){
-      video.currentTime = 0;
-      video.play().catch(()=>{});
-    }
-
-    function togglePlayPause(){
-      if(video.paused){
-        video.play().catch(()=>{});
-      } else {
-        video.pause();
-      }
-    }
-
-    function toggleFullscreen(){
-      const card = document.querySelector(".video-card");
-      if(!document.fullscreenElement){
-        if(card.requestFullscreen) card.requestFullscreen();
-      } else {
-        if(document.exitFullscreen) document.exitFullscreen();
-      }
-    }
-
-    function enableIntroSound(){
-      introVideo.muted = false;
-      introVideo.volume = 1;
-      introVideo.play().catch(()=>{});
-      turnOnSoundBtn.textContent = "Sound On";
-      turnOnSoundBtn.disabled = true;
-    }
-
-    introVideo.addEventListener("ended", () => {
-      revealPageContent();
-      restoreLessonAudio();
-    });
-
-    introVideo.addEventListener("error", () => {
-      revealPageContent();
-      restoreLessonAudio();
-    });
-
+    function pauseVideo(el){ if(el){ try{ el.pause(); el.currentTime = 0; }catch(e){} } }
+    function revealPageContent(){ if(introFinished) return; introFinished = true; document.body.classList.add("intro-complete"); if(introOverlay) introOverlay.hidden = true; pauseVideo(introVideo); }
+    function goHome(){ pauseVideo(video); pauseVideo(introVideo); window.location.href = HOME_PAGE; }
+    function goBackPage(){ pauseVideo(video); pauseVideo(introVideo); window.location.href = PREVIOUS_PAGE; }
+    function goNextPage(){ pauseVideo(video); pauseVideo(introVideo); window.location.href = NEXT_PAGE; }
+    function skipIntroAndGoNext(){ pauseVideo(introVideo); pauseVideo(video); window.location.href = NEXT_PAGE; }
+    function replayVideo(){ video.currentTime = 0; video.play().catch(()=>{}); }
+    function togglePlayPause(){ if(video.paused){ video.play().catch(()=>{});} else { video.pause(); } }
+    function toggleFullscreen(){ const card = document.querySelector(".video-card"); if(!document.fullscreenElement){ if(card.requestFullscreen) card.requestFullscreen(); } else { if(document.exitFullscreen) document.exitFullscreen(); } }
+    function enableIntroSound(){ introVideo.muted = false; introVideo.volume = 1; introVideo.play().catch(()=>{}); turnOnSoundBtn.textContent = "Sound On"; turnOnSoundBtn.disabled = true; }
+    introVideo.addEventListener("ended", revealPageContent);
+    introVideo.addEventListener("error", revealPageContent);
     introVideo.play().catch(()=>{});
     turnOnSoundBtn.addEventListener("click", enableIntroSound);
     skipIntroBtn.addEventListener("click", skipIntroAndGoNext);
-
-    document.addEventListener("keydown", (e) => {
-      if(e.key === "ArrowLeft") goBackPage();
-      else if(e.key === "ArrowRight") goNextPage();
-      else if(e.key.toLowerCase() === "h") goHome();
-      else if(e.key.toLowerCase() === "r") replayVideo();
-      else if(e.key.toLowerCase() === "f") toggleFullscreen();
-      else if(e.key === " "){
-        e.preventDefault();
-        togglePlayPause();
-      }
-    });
-
-    setTimeout(() => {
-      if(!introFinished && introVideo.readyState < 1) {
-        revealPageContent();
-        restoreLessonAudio();
-      }
-    }, 4000);
+    document.addEventListener("keydown", (e)=>{ if(e.key==="ArrowLeft") goBackPage(); else if(e.key==="ArrowRight") goNextPage(); else if(e.key.toLowerCase()==="h") goHome(); else if(e.key.toLowerCase()==="r") replayVideo(); else if(e.key.toLowerCase()==="f") toggleFullscreen(); else if(e.key===" "){ e.preventDefault(); togglePlayPause(); } });
+    setTimeout(()=>{ if(!introFinished && introVideo.readyState < 1) revealPageContent(); },4000);
   </script>
 </body>
 </html>
