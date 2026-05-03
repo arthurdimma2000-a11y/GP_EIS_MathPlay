@@ -149,6 +149,35 @@
   }
   .opt.good{border-color:rgba(34,197,94,.85); box-shadow:0 10px 18px rgba(34,197,94,.16)}
   .opt.bad{border-color:rgba(239,68,68,.85); box-shadow:0 10px 18px rgba(239,68,68,.14)}
+
+  .guideBar{
+    margin:0 0 12px;
+    background:linear-gradient(135deg,#fff,#f8fafc);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    padding:12px 14px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    border:2px solid rgba(0,0,0,.06);
+  }
+  .guideText{
+    font-weight:1000;
+    font-size:15px;
+    line-height:1.4;
+  }
+  .taskPill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    background:#0b1220;
+    color:#fff;
+    font-weight:1000;
+  }
   .toast{
     position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
     background:#0b1220; color:#fff; padding:10px 14px; border-radius:14px;
@@ -160,6 +189,14 @@
 </head>
 <body>
 <div class="app">
+  <audio id="chimeAudio" preload="auto"></audio>
+  <div class="guideBar">
+    <div class="guideText" id="guideText">Tap “Hear Instructions” to listen to what to do in this game.</div>
+    <div class="panel">
+      <span class="taskPill" id="taskPill">🧩 Game Guide</span>
+      <button class="btn" id="instructionBtn" type="button">🗣 Hear Instructions</button>
+    </div>
+  </div>
   <div class="top">
     <div class="badge">🏁
       <div>
@@ -268,8 +305,73 @@ function record(evt){
   saveP(p);
 }
 
-/* Sound */
+/* Sound + Voice Guide */
 let SOUND_ON=true;
+const guideText=document.getElementById("guideText");
+const taskPill=document.getElementById("taskPill");
+const instructionBtn=document.getElementById("instructionBtn");
+const chimeAudio=document.getElementById("chimeAudio");
+const CHIME_CANDIDATES=["chime.mp3","./chime.mp3","chime(3).mp3","./chime(3).mp3","../../../../assets/audio/chime.mp3","../../../../assets/audio/chimes/chime.mp3"];
+let voiceReady=false;
+let chosenVoice=null;
+
+function setGuide(text,pill="🧩 Game Guide"){
+  guideText.textContent=text;
+  taskPill.textContent=pill;
+}
+function prepareChime(){
+  if(!chimeAudio) return;
+  if(!chimeAudio.dataset.loaded){
+    chimeAudio.src = CHIME_CANDIDATES[0];
+    chimeAudio.dataset.loaded = "1";
+  }
+}
+function playChime(volume=0.9){
+  if(!SOUND_ON || !chimeAudio) return;
+  prepareChime();
+  chimeAudio.volume = volume;
+  chimeAudio.currentTime = 0;
+  const p = chimeAudio.play();
+  if(p && typeof p.catch === "function"){
+    p.catch(()=>{
+      const current = chimeAudio.getAttribute("src") || "";
+      const idx = CHIME_CANDIDATES.indexOf(current);
+      const next = CHIME_CANDIDATES[idx+1];
+      if(next){
+        chimeAudio.src = next;
+        chimeAudio.currentTime = 0;
+        chimeAudio.play().catch(()=>{});
+      }
+    });
+  }
+}
+function pickVoice(){
+  const synth = window.speechSynthesis;
+  if(!synth) return null;
+  const voices = synth.getVoices() || [];
+  const english = voices.filter(v => /en-/i.test(v.lang));
+  return english.find(v => /female|zira|samantha|aria|ava|susan|jenny|michelle|google us english/i.test(v.name)) || english[0] || voices[0] || null;
+}
+function speak(text, opts={}){
+  setGuide(text, opts.pill || taskPill.textContent || "🧩 Game Guide");
+  if(!SOUND_ON || !window.speechSynthesis) return;
+  const synth = window.speechSynthesis;
+  if(opts.cancel !== false) synth.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  chosenVoice = chosenVoice || pickVoice();
+  if(chosenVoice) utter.voice = chosenVoice;
+  utter.rate = opts.rate || 0.95;
+  utter.pitch = opts.pitch || 1.02;
+  utter.volume = 1;
+  synth.speak(utter);
+}
+function unlockVoice(){
+  if(voiceReady) return;
+  voiceReady = true;
+  prepareChime();
+  chosenVoice = pickVoice();
+  speak("Welcome! First, fill in the table. Next, add the sides. Then find the hexagons. Tap Hear Instructions anytime.", {pill:"🗣️ Voice Guide"});
+}
 const FX=(()=>{
   let ctx=null;
   const ensure=()=>{ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==="suspended") ctx.resume().catch(()=>{}); };
@@ -284,9 +386,10 @@ const FX=(()=>{
     o.start(t0); o.stop(t0+d+0.02);
   };
   return{
-    good(){ tone(880,.09,"sine",.08,0); tone(1175,.11,"sine",.08,.06); tone(1568,.12,"sine",.08,.12); },
+    good(){ playChime(.95); tone(880,.09,"sine",.08,0); tone(1175,.11,"sine",.08,.06); tone(1568,.12,"sine",.08,.12); },
     bad(){ tone(220,.14,"triangle",.08,0); tone(180,.16,"triangle",.08,.06); },
     cheer(power=1){
+      playChime(1);
       const base=[523,659,784,988,1175];
       base.forEach((f,i)=>tone(f,.10,"square",.03+power*0.03,i*.06));
       for(let i=0;i<12*power;i++) tone(1200+Math.random()*900,.05,"sine",.02+power*0.01,.28+i*.02);
@@ -297,12 +400,13 @@ const FX=(()=>{
 /* UI toast */
 const toastEl=document.getElementById("toast");
 let toastT=null;
-function toast(msg, ok=true){
+function toast(msg, ok=true, spoken=""){
   toastEl.textContent=msg;
   toastEl.style.background=ok?"#0b1220":"#3b0b0b";
   toastEl.classList.add("show");
   clearTimeout(toastT);
-  toastT=setTimeout(()=>toastEl.classList.remove("show"), 900);
+  toastT=setTimeout(()=>toastEl.classList.remove("show"), 1100);
+  if(spoken) speak(spoken, {pill: ok ? "✅ Great Job" : "💡 Try Again"});
 }
 
 /* Score system:
@@ -328,7 +432,7 @@ function updateScore(){
   if(unlocked && !completionSent){
     completionSent = true;
     FX.cheer(2);
-    toast("🏆 Quiz 4 Complete! Final Quiz unlocked!", true);
+    toast("🏆 Quiz 4 Complete! Final Quiz unlocked!", true, "Amazing! You finished Quiz Four. The Final Quiz is unlocked.");
     record({type:"complete", score, total});
     const stars = score >= 9 ? 3 : score >= 7 ? 2 : score >= 5 ? 1 : 0;
     finishActivity({
@@ -377,11 +481,11 @@ function checkTable(){
     score = Math.min(total, score + gained);
     FX.good();
     if(gained>=4) FX.cheer(1.4);
-    toast(`✅ Great! +${gained} point(s)!`, true);
+    toast(`✅ Great! +${gained} point(s)!`, true, `Great job! You got ${gained} answer${gained>1?"s":""} correct in the table.`);
     record({type:"table_check", gained});
   }else{
     FX.bad();
-    toast("Try again 😊", false);
+    toast("Try again 😊", false, "Check the number of sides and vertices, then try again.");
     record({type:"table_check", gained:0});
   }
   updateScore();
@@ -391,7 +495,7 @@ document.getElementById("checkTableBtn").addEventListener("click", checkTable);
 document.getElementById("resetTableBtn").addEventListener("click", ()=>{
   resetTableUI();
   FX.good();
-  toast("Table reset ✅", true);
+  toast("Table reset ✅", true, "The table is reset. Fill in the sides and vertices again.");
   record({type:"table_reset"});
 });
 
@@ -411,7 +515,7 @@ function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
 function makeChoices(answer){
   const pool=new Set([answer]);
   while(pool.size<4){
-    pool.add(answer + (Math.floor(Math.random()*7)-3)); // +-3
+    pool.add(answer + (Math.floor(Math.random()*7)-3));
   }
   return shuffle([...pool].map(x=>Math.max(0,x)));
 }
@@ -433,7 +537,7 @@ function nextAdd(){
       if(v===ans){
         b.classList.add("good");
         FX.good();
-        toast("✅ Correct total! ⭐", true);
+        toast("✅ Correct total! ⭐", true, "Yes! That is the correct total number of sides.");
         if(addRoundsDone < addMax){
           addRoundsDone++;
           score = Math.min(total, score+1);
@@ -443,20 +547,21 @@ function nextAdd(){
       }else{
         b.classList.add("bad");
         FX.bad();
-        toast("❌ Not quite. Try next!", false);
+        toast("❌ Not quite. Try next!", false, "That is not the total. Listen and try another one.");
         record({type:"add_wrong", a:currentAdd.a, b:currentAdd.b, v, ans});
       }
       setTimeout(()=>{ if(score<total) nextAdd(); }, 650);
     });
     addOpts.appendChild(b);
   });
+  setGuide(`Add the sides: ${currentAdd.labelA} has ${currentAdd.a}, and ${currentAdd.labelB} has ${currentAdd.b}. Tap the correct total.`, "➕ Add Sides");
   record({type:"add_question", a:currentAdd.a, b:currentAdd.b});
 }
 
 /* ===== Task 3: Hexagon hunt ===== */
 const hunt=document.getElementById("hunt");
 let hexFound=0;
-const hexNeed=2; // 2 points available
+const hexNeed=2;
 function pts(cx,cy,r,sides,rot=-Math.PI/2){
   const a=[]; for(let i=0;i<sides;i++){ const t=rot+i*2*Math.PI/sides; a.push([cx+r*Math.cos(t), cy+r*Math.sin(t)]); }
   return a.map(p=>p.join(",")).join(" ");
@@ -479,7 +584,6 @@ function buildHunt(){
     {x:55,y:80},{x:78,y:78},{x:90,y:30},
   ].sort(()=>Math.random()-0.5);
 
-  // 2 hexagons + others
   const list = shuffle([
     {label:"HEXAGON", n:6, isTarget:true},
     {label:"HEXAGON", n:6, isTarget:true},
@@ -511,7 +615,7 @@ function buildHunt(){
       const ok = b.dataset.target==="1";
       if(ok){
         FX.good();
-        toast("✅ Hexagon found!", true);
+        toast("✅ Hexagon found!", true, "Nice! You found a hexagon.");
         record({type:"hunt_correct", label:it.label});
         if(hexFound < hexNeed){
           hexFound++;
@@ -521,7 +625,7 @@ function buildHunt(){
         }
       }else{
         FX.bad();
-        toast("❌ Not a hexagon.", false);
+        toast("❌ Not a hexagon.", false, "That shape is not a hexagon. Look for six sides.");
         record({type:"hunt_wrong", label:it.label});
       }
     });
@@ -529,30 +633,52 @@ function buildHunt(){
     hunt.appendChild(b);
   });
 
+  setGuide("Find and tap only the hexagons in the board.", "🔍 Hexagon Hunt");
   record({type:"hunt_shuffle"});
 }
 
 document.getElementById("shuffleBtn").addEventListener("click", ()=>{
   FX.good();
-  toast("Shuffled! Find hexagons again! ⭐", true);
+  toast("Shuffled! Find hexagons again! ⭐", true, "The shapes moved. Find the hexagons again.");
   buildHunt();
 });
 
 document.getElementById("finishBtn").addEventListener("click", ()=>{
   FX.cheer(1.3);
-  toast("Great work! Finish all tasks to unlock Final Quiz.", true);
+  toast("Great work! Finish all tasks to unlock Final Quiz.", true, "Great work! Finish all the tasks to unlock the Final Quiz.");
   record({type:"finish_pressed"});
 });
 
 document.getElementById("soundBtn").addEventListener("click",(e)=>{
   SOUND_ON=!SOUND_ON;
   e.currentTarget.textContent = SOUND_ON ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-  toast(SOUND_ON?"Sound ON ✅":"Sound OFF ✅", true);
+  toast(SOUND_ON?"Sound ON ✅":"Sound OFF ✅", true, SOUND_ON ? "Sound is on." : "Sound is off.");
   record({type:"sound", on:SOUND_ON});
+});
+
+instructionBtn.addEventListener("click", ()=>{
+  unlockVoice();
+  const tableDone = Object.values(tableState).filter(Boolean).length;
+  const huntDone = hexFound;
+  let message = `Welcome! First, fill in the table. Next, add the sides. Then find the hexagons. Your score is ${score} out of ${total}.`;
+  if(tableDone < 6){
+    message = `Task 1. Fill in the table with sides and vertices. You still have ${6-tableDone} table answer${6-tableDone===1?"":"s"} to get correct.`;
+  } else if(addRoundsDone < addMax){
+    message = `Task 2. Add the sides and tap the correct total. You have ${addMax-addRoundsDone} add question${addMax-addRoundsDone===1?"":"s"} left to score.`;
+  } else if(huntDone < hexNeed){
+    message = `Task 3. Find ${hexNeed-huntDone} more hexagon${hexNeed-huntDone===1?"":"s"}. Remember, a hexagon has six sides.`;
+  } else if(score >= total){
+    message = `Amazing! You finished the game. Tap Final Quiz to continue.`;
+  }
+  speak(message, {pill:"🗣️ Voice Guide"});
+});
+["pointerdown","click","touchstart","keydown"].forEach(evt=>{
+  window.addEventListener(evt, unlockVoice, {once:true, passive: evt !== "keydown"});
 });
 
 /* init */
 resetTableUI();
+setGuide("Tap Hear Instructions to listen. Then complete the table, add the sides, and find the hexagons.", "🧩 Game Guide");
 updateScore();
 buildHunt();
 nextAdd();
@@ -592,7 +718,3 @@ record({type:"open"});
 </script>
 </body>
 </html>
-
-
-
-

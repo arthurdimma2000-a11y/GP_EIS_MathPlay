@@ -567,10 +567,27 @@
 
   window.addEventListener("load", () => {
     setTimeout(() => {
-      if (conversationStatus) conversationStatus.textContent = "Trace the dashed lines on the poster.";
-      speakTraceMessage("Trace the dashed lines on the poster.");
+      if (conversationStatus) conversationStatus.textContent = "Look at the octagons. Subtract the even numbers. Tap the Mic to follow the instruction.";
+      speakTraceMessage("Look at the octagons. Subtract the even numbers. Tap the Mic to follow the instruction.");
     }, 700);
   });
+
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      try{ speechSynthesis.cancel(); }catch(e){}
+      window.location.assign("LB15.html");
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      try{ speechSynthesis.cancel(); }catch(e){}
+      window.location.assign("../thursday/FairlyTaleWk3B.html");
+    });
+  }
 </script>
 
 <script type="module">

@@ -355,31 +355,6 @@
     box-shadow:0 0 0 4px rgba(47,191,113,.18);
   }
 
-  .girl-inline{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-  }
-
-  .girl-inline img{
-    width:64px;
-    height:64px;
-    border-radius:16px;
-    object-fit:cover;
-    border:4px solid #ffe3f7;
-    background:#ffd6f2;
-    box-shadow:0 6px 12px rgba(0,0,0,.18);
-    cursor:pointer;
-  }
-
-  .girl-inline span{
-    font-size:14px;
-    font-weight:900;
-    color:#d62828;
-    text-align:center;
-  }
-
   .pageno{
     position:absolute;
     right:22px;
@@ -466,10 +441,6 @@
       <button id="resetBtn" type="button">↺ Reset</button>
       <button id="snapBtn" class="toggle" type="button">↔ Snap: <span id="snapLabel">ON</span></button>
       <button id="checkBtn" type="button">✓ Check</button>
-      <div class="girl-inline">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="tapGirl">
-        <span>Tap the girl</span>
-      </div>
     </div>
 
     <div class="status" aria-live="polite">
@@ -495,7 +466,6 @@
     const traceCanvas = document.getElementById("traceCanvas");
     const resetBtn = document.getElementById("resetBtn");
     const checkBtn = document.getElementById("checkBtn");
-    const tapGirl = document.getElementById("tapGirl");
     const statusText = document.getElementById("statusText");
     const statusDot = document.getElementById("statusDot");
     const tapLine1 = document.getElementById("tapLine1");
@@ -828,14 +798,9 @@
     window.addEventListener("pointercancel", stopTrace);
     resetBtn && resetBtn.addEventListener("click", resetProgress);
     checkBtn && checkBtn.addEventListener("click", checkProgress);
-    tapGirl && tapGirl.addEventListener("click", () => {
-      if (tapLine1) tapLine1.classList.add("show");
-      if (tapLine2) tapLine2.classList.add("show");
-      setStatus("A triangle has 3 vertices. A pentagon has 5 vertices.", true);
-    });
-    prevBtn && prevBtn.addEventListener("click", () => {
-      window.location.href = "../tuesday/LB2.html";
-    });
+      prevBtn && prevBtn.addEventListener("click", () => {
+        window.location.href = "../tuesday/LB2.html";
+      });
     nextBtn && nextBtn.addEventListener("click", () => {
       window.location.href = "LB7.html";
     });
@@ -908,30 +873,30 @@
 
       if (tapLine1) tapLine1.classList.remove("show");
       if (tapLine2) tapLine2.classList.remove("show");
-      if (statusText) statusText.textContent = "Listen carefully.";
+        if (statusText) statusText.textContent = "Listen carefully.";
 
-      const steps = [
-        () => {
-          if (statusText) statusText.textContent = "Look at the Pentagons.";
-          speakLine("Look at the Pentagons.", runNextStep, {
-            role: "female",
-            rate: 0.9,
-            pitch: 1.08,
-            volume: 1
-          });
-        },
-        () => {
-          if (tapLine1) tapLine1.classList.add("show");
-          if (tapLine2) tapLine2.classList.add("show");
-          if (statusText) statusText.textContent = "Subtract the numbers.";
-          speakLine("Subtract the numbers.", null, {
-            role: "girl",
-            rate: 1.0,
-            pitch: 1.36,
-            volume: 1
-          });
-        }
-      ];
+        const steps = [
+          () => {
+            if (statusText) statusText.textContent = "Find the number of vertices.";
+            speakLine("Find the number of vertices.", runNextStep, {
+              role: "female",
+              rate: 0.9,
+              pitch: 1.08,
+              volume: 1
+            });
+          },
+          () => {
+            if (tapLine1) tapLine1.classList.add("show");
+            if (tapLine2) tapLine2.classList.add("show");
+            if (statusText) statusText.textContent = "A triangle has 3 vertices. A pentagon has 5 vertices.";
+            speakLine("A triangle has 3 vertices. A pentagon has 5 vertices.", null, {
+              role: "female",
+              rate: 0.94,
+              pitch: 1.1,
+              volume: 1
+            });
+          }
+        ];
 
       let stepIndex = 0;
       function runNextStep(){

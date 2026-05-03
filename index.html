@@ -2835,8 +2835,8 @@
             <div class="hero-actions">
               <span class="badge">Choose a level hero</span>
               <span class="badge">Press Start Learning</span>
-              <span class="badge">Open Month 1 to Month 12</span>
-              <span class="badge">Login when a week is opened</span>
+              <span class="badge">Month 1 open: Weeks 1 to 4</span>
+              <span class="badge">Months 2 to 12 are locked</span>
             </div>
           </div>
 
@@ -2881,8 +2881,8 @@
               <div class="row">
                 <span class="badge">Choose a level first</span>
                 <span class="badge">Then press Start Learning</span>
-                <span class="badge">Months open before lessons</span>
-                <span class="badge">Students login when a week is opened</span>
+                <span class="badge">Only Month 1 is open now</span>
+                <span class="badge">Students login to enter lesson pages</span>
               </div>
             </div>
 
@@ -3726,9 +3726,11 @@
             "levels/level-a/week-3/friday/LA_Quiz3.html"
           ],
           4: [
+            "levels/level-a/week-4/monday/ShapeMusicClass.html",
             "levels/level-a/week-4/tuesday/LA20.html",
             "levels/level-a/week-4/wednesday/LA21.html",
             "levels/level-a/week-4/wednesday/LA25.html",
+            "levels/level-a/week-4/thursday/ShapeMusicFairlyTale.html",
             "levels/level-a/week-4/friday/LA_Game4.html",
             "levels/level-a/week-4/friday/LA_FinalQuiz.html"
           ]
@@ -3772,9 +3774,11 @@
             "levels/level-b/week-3/friday/LB_Quiz3.html"
           ],
           4: [
+            "levels/level-b/week-4/monday/PolygonMusicClass.html",
             "levels/level-b/week-4/tuesday/LB20.html",
             "levels/level-b/week-4/wednesday/LB21.html",
             "levels/level-b/week-4/wednesday/LB25.html",
+            "levels/level-b/week-4/thursday/PolygonMusicFairlyTale.html",
             "levels/level-b/week-4/friday/LA_Quiz4.html",
             "levels/level-b/week-4/friday/LB_FinalQuiz.html"
           ]
@@ -3818,9 +3822,11 @@
             "levels/level-c/week-3/friday/LevelC_Quiz3.html"
           ],
           4: [
+            "levels/level-c/week-4/monday/TangramMusicClass.html",
             "levels/level-c/week-4/tuesday/LevelC20.html",
             "levels/level-c/week-4/wednesday/LevelC21.html",
             "levels/level-c/week-4/wednesday/LevelC25.html",
+            "levels/level-c/week-4/thursday/TangramMusicFairlyTale.html",
             "levels/level-c/week-4/friday/LevelC_Game4.html",
             "levels/level-c/week-4/friday/LevelC_Quiz4.html"
           ]
@@ -3855,6 +3861,7 @@
         if (weekNumber === 3) return "Science Class";
         if (weekNumber === 4) return "Music Class";
       }
+      if (day === "thursday" && weekNumber === 4) return "Music Fairly-tale";
       return DAY_LABELS[day] || "";
     }
 
@@ -6035,9 +6042,9 @@
     }
 
     function getUnlockedWeeksForMonth(month){
-        const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
-        return safeMonth === 1 ? Math.max(1, Math.min(4, getCurrentCalendarWeekOfMonth())) : 0;
-      }
+          const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
+          return safeMonth === 1 ? 4 : 0;
+        }
 
     function formatOpenedWeeksMessage(unlockedWeeks){
       const count = Math.max(0, Math.min(4, Number(unlockedWeeks) || 0));
@@ -6079,7 +6086,7 @@
         const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
         const monthIsOpen = isMonthAutoUnlocked(selectedMonth);
         weekWindowIntroText.textContent = monthIsOpen
-          ? `Week 1 to Week 4 are shown here. ${formatOpenedWeeksMessage(unlockedWeeks)}`
+            ? `Week 1 to Week 4 are shown here. All four weeks are open in Month 1.`
             : `This month is locked for now. Only Month 1 is currently open.`;
       }
       if (weekWindowStatusBadge) {
@@ -6124,7 +6131,7 @@
         const autoUnlocked = isMonthAutoUnlocked(month);
         const unlockedWeeks = getUnlockedWeeksForMonth(month);
         const isCurrentMonth = month === currentMonth;
-        const statusText = autoUnlocked ? `Open to Week ${unlockedWeeks}` : "Locked";
+          const statusText = autoUnlocked ? "Open Weeks 1 to 4" : "Locked";
         html += `
           <article
             class="month-card ${month === selectedMonth ? "active-month" : "future-month"} month-clickable ${autoUnlocked ? "month-open" : "month-locked locked-month"} ${isCurrentMonth ? "current-marker" : ""}"
@@ -6442,7 +6449,7 @@
       if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance !== "function") return;
       const openWeeks = getUnlockedWeeksForMonth(1);
       const weekMessage = openWeeks > 0 ? formatOpenedWeeksMessage(openWeeks) : "No weeks are opened at the moment.";
-      const message = `Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Month 1 is open. ${weekMessage} Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then login when a week is opened to access the lesson activities on this app.`;
+      const message = `Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Month 1 is open. All four weeks are open in Month 1. Months 2 to 12 are locked. Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then login to access the lesson activities on this app.`;
       try {
         indexWelcomeNarrationDone = true;
         duckIndexBackgroundMusic(true);

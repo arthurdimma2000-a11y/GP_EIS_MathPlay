@@ -133,7 +133,7 @@
         </div>
       </div>
       <div class="actions">
-        <a class="btn secondary" href="LevelAHomeP.html">← Back</a>
+        <a class="btn secondary" href="LA_Game4.html">← Back</a>
         <a class="btn secondary" href="LA_Quiz4.html">↩ Quiz 4</a>
         <button class="secondary" id="btnSound">🔊 Sound: ON</button>
         <button class="ghost" id="btnRead">🗣️ Read</button>
@@ -160,7 +160,10 @@
               <div class="tiny" id="status">Get at least 8/10 to earn the trophy 🏆</div>
             </div>
             <div class="progressLine"><div class="bar" id="bar"></div></div>
-            <a class="btn" id="btnDone" href="ProgressReport.html" style="opacity:.55;pointer-events:none">View Progress ➜</a>
+            <div class="actions">
+              <a class="btn" id="btnDone" href="../../../../ProgressReport.html" style="opacity:.55;pointer-events:none">View Progress ➜</a>
+              <a class="btn secondary" id="btnHomeNext" href="../../../../index.html" style="opacity:.55;pointer-events:none">Next ➜</a>
+            </div>
           </div>
         </div>
       </section>
@@ -331,6 +334,7 @@
     const statusEl = document.getElementById("status");
     const btnDone = document.getElementById("btnDone");
     const toast = document.getElementById("toast");
+    const btnHomeNext = document.getElementById("btnHomeNext");
 
     const STATE = {
       level:"A",
@@ -441,6 +445,8 @@
       showToast(passed ? "PASSED! 🏆" : "Finished! ⭐");
       btnDone.style.opacity = "1";
       btnDone.style.pointerEvents = "auto";
+      btnHomeNext.style.opacity = "1";
+      btnHomeNext.style.pointerEvents = "auto";
     }
 
     // Top controls

@@ -14,7 +14,7 @@
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>LA19 - Write 4 5 6</title>
+<title>LA19 - Trace 4 5 6</title>
 
 <style>
   :root{--sky:#bfe9fb;--panel:#ffffff;--ink:#3b3b3b;--shadow:0 20px 40px rgba(0,0,0,.08);font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial;}
@@ -58,6 +58,8 @@
     background:transparent;
     display:block;
     cursor:crosshair;
+    user-select:none;
+    -webkit-user-select:none;
   }
 
   .trace-canvas.no-trace{
@@ -100,9 +102,9 @@
         <canvas class="trace-canvas" id="trace5b"></canvas>
         <canvas class="trace-canvas" id="trace5c"></canvas>
 
-        <canvas class="trace-canvas no-trace" id="trace6a"></canvas>
-        <canvas class="trace-canvas no-trace" id="trace6b"></canvas>
-        <canvas class="trace-canvas no-trace" id="trace6c"></canvas>
+        <canvas class="trace-canvas" id="trace6a"></canvas>
+        <canvas class="trace-canvas" id="trace6b"></canvas>
+        <canvas class="trace-canvas" id="trace6c"></canvas>
       </div>
     </div>
   </div>
@@ -161,7 +163,10 @@
     { id:"trace4c", digit:"4" },
     { id:"trace5a", digit:"5" },
     { id:"trace5b", digit:"5" },
-    { id:"trace5c", digit:"5" }
+    { id:"trace5c", digit:"5" },
+    { id:"trace6a", digit:"6" },
+    { id:"trace6b", digit:"6" },
+    { id:"trace6c", digit:"6" }
   ];
 
   const tracePercents = new Array(traceConfigs.length).fill(0);
@@ -254,8 +259,8 @@
   }
 
   function speakPageInstruction(){
-    setConversationStatus("Trace the 4s and 5s.");
-    speak("Hello! Trace the number four and number five digits on the poster.");
+    setConversationStatus("Trace the 4s, 5s, and 6s.");
+    speak("Hello! Trace the number four, number five, and number six digits on the poster.");
   }
 
   window.addEventListener("load", () => {
@@ -300,7 +305,7 @@
       traceCelebrated = true;
       playChime();
       playCheer();
-      speak("Wow! Great job tracing number four and number five!");
+      speak("Wow! Great job tracing number four, number five, and number six!");
     }
 
     if (!allDone) {
@@ -309,22 +314,35 @@
   }
 
   function getDigitStrokes(digit){
+    /*
+      The tracing engine now uses wide, child-friendly target paths.
+      The digit 5 has extra samples on the top, left stem, middle bar,
+      and bottom curve so the whole number can register properly.
+    */
     if (digit === "4") {
       return [
-        [[0.70,0.12],[0.30,0.60],[0.82,0.60]],
-        [[0.70,0.12],[0.70,0.90]]
+        [[0.72,0.12],[0.30,0.62],[0.83,0.62]],
+        [[0.71,0.12],[0.71,0.91]]
+      ];
+    }
+
+    if (digit === "5") {
+      return [
+        [[0.78,0.14],[0.30,0.14],[0.29,0.45]],
+        [[0.30,0.45],[0.62,0.45]],
+        [[0.31,0.45],[0.50,0.43],[0.69,0.51],[0.80,0.64],[0.79,0.76],[0.69,0.86],[0.53,0.91],[0.37,0.87],[0.27,0.78]]
       ];
     }
 
     return [
-      [[0.78,0.15],[0.33,0.15],[0.31,0.46],[0.57,0.46],[0.74,0.56],[0.78,0.70],[0.69,0.84],[0.50,0.90],[0.31,0.80]]
+      [[0.68,0.14],[0.49,0.15],[0.35,0.28],[0.28,0.49],[0.30,0.69],[0.41,0.84],[0.58,0.89],[0.72,0.82],[0.80,0.68],[0.76,0.56],[0.64,0.48],[0.49,0.47],[0.36,0.55],[0.34,0.68],[0.42,0.79],[0.57,0.80],[0.70,0.71]]
     ];
   }
 
   function buildTraceSamples(strokes, width, height){
     const samples = [];
 
-    strokes.forEach(stroke => {
+    strokes.forEach((stroke, strokeIndex) => {
       for (let i = 0; i < stroke.length - 1; i++) {
         const a = stroke[i];
         const b = stroke[i + 1];
@@ -335,20 +353,43 @@
         const by = b[1] * height;
 
         const distance = Math.hypot(bx - ax, by - ay);
-        const steps = Math.max(8, Math.ceil(distance / 6));
+        const steps = Math.max(10, Math.ceil(distance / 4));
 
         for (let s = 0; s <= steps; s++) {
           const t = s / steps;
           samples.push({
             x: ax + (bx - ax) * t,
             y: ay + (by - ay) * t,
-            hit:false
+            hit:false,
+            strokeIndex
           });
         }
       }
     });
 
     return samples;
+  }
+
+  function pointToSegmentDistanceSq(px, py, ax, ay, bx, by){
+    const vx = bx - ax;
+    const vy = by - ay;
+    const wx = px - ax;
+    const wy = py - ay;
+    const lenSq = (vx * vx) + (vy * vy);
+
+    if (lenSq <= 0.0001) {
+      const dx = px - ax;
+      const dy = py - ay;
+      return (dx * dx) + (dy * dy);
+    }
+
+    const t = Math.max(0, Math.min(1, ((wx * vx) + (wy * vy)) / lenSq));
+    const cx = ax + (t * vx);
+    const cy = ay + (t * vy);
+    const dx = px - cx;
+    const dy = py - cy;
+
+    return (dx * dx) + (dy * dy);
   }
 
   function createOriginalNumberTracePad(canvasId, digit, index){
@@ -372,8 +413,8 @@
       const rect = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
 
-      pad.width = rect.width;
-      pad.height = rect.height;
+      pad.width = Math.max(1, rect.width);
+      pad.height = Math.max(1, rect.height);
 
       canvas.width = Math.max(1, Math.round(pad.width * dpr));
       canvas.height = Math.max(1, Math.round(pad.height * dpr));
@@ -397,8 +438,8 @@
       ctx.save();
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.strokeStyle = "rgba(255, 90, 55, 0.92)";
-      ctx.lineWidth = Math.max(10, Math.min(pad.width, pad.height) * 0.075);
+      ctx.strokeStyle = "rgba(255, 90, 55, 0.94)";
+      ctx.lineWidth = Math.max(12, Math.min(pad.width, pad.height) * 0.09);
       ctx.beginPath();
       ctx.moveTo(from.x, from.y);
       ctx.lineTo(to.x, to.y);
@@ -406,29 +447,42 @@
       ctx.restore();
     }
 
-    function markProgress(x,y){
-      const threshold = Math.max(22, Math.min(pad.width, pad.height) * 0.13);
-      const thresholdSq = threshold * threshold;
-
-      pad.samples.forEach(sample => {
-        if (sample.hit) return;
-
-        const dx = sample.x - x;
-        const dy = sample.y - y;
-
-        if ((dx * dx + dy * dy) <= thresholdSq) {
-          sample.hit = true;
-        }
-      });
-
-      const hit = pad.samples.filter(s => s.hit).length;
+    function refreshPadProgress(){
+      const hit = pad.samples.filter(sample => sample.hit).length;
       const pct = Math.min(100, Math.round((hit / Math.max(1, pad.samples.length)) * 100));
 
       tracePercents[index] = pct;
       updateTotal();
     }
 
-    canvas.addEventListener("pointerdown", event => {
+    function markSegmentProgress(from, to){
+      const minSide = Math.min(pad.width, pad.height);
+      const threshold = digit === "5"
+        ? Math.max(30, minSide * 0.22)
+        : Math.max(26, minSide * 0.18);
+      const thresholdSq = threshold * threshold;
+
+      pad.samples.forEach(sample => {
+        if (sample.hit) return;
+
+        const distanceSq = pointToSegmentDistanceSq(
+          sample.x,
+          sample.y,
+          from.x,
+          from.y,
+          to.x,
+          to.y
+        );
+
+        if (distanceSq <= thresholdSq) {
+          sample.hit = true;
+        }
+      });
+
+      refreshPadProgress();
+    }
+
+    function startDrawing(event){
       event.preventDefault();
 
       try{
@@ -438,11 +492,11 @@
       pad.drawing = true;
       pad.last = getPoint(event);
 
-      markProgress(pad.last.x, pad.last.y);
+      markSegmentProgress(pad.last, pad.last);
       playTraceTick();
-    });
+    }
 
-    canvas.addEventListener("pointermove", event => {
+    function moveDrawing(event){
       if (!pad.drawing || !pad.last) return;
 
       event.preventDefault();
@@ -450,20 +504,27 @@
       const point = getPoint(event);
 
       drawStudentTrace(pad.last, point);
-      markProgress(point.x, point.y);
+      markSegmentProgress(pad.last, point);
       playTraceTick();
 
       pad.last = point;
-    });
+    }
 
-    function stopDrawing(){
+    function stopDrawing(event){
+      if (event && event.pointerId != null) {
+        try{
+          canvas.releasePointerCapture(event.pointerId);
+        }catch(e){}
+      }
+
       pad.drawing = false;
       pad.last = null;
     }
 
+    canvas.addEventListener("pointerdown", startDrawing);
+    canvas.addEventListener("pointermove", moveDrawing);
     canvas.addEventListener("pointerup", stopDrawing);
     canvas.addEventListener("pointercancel", stopDrawing);
-    canvas.addEventListener("pointerleave", stopDrawing);
 
     pad.reset = function(){
       ctx.clearRect(0, 0, pad.width, pad.height);
@@ -483,26 +544,11 @@
   }
 
   function initTracePads(){
+    tracePads.length = 0;
+
     traceConfigs.forEach((cfg, index) => {
       const pad = createOriginalNumberTracePad(cfg.id, cfg.digit, index);
       if (pad) tracePads.push(pad);
-    });
-
-    ["trace6a","trace6b","trace6c"].forEach(id => {
-      const canvas = document.getElementById(id);
-      if (!canvas) return;
-
-      const ctx = canvas.getContext("2d");
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-
-      canvas.width = Math.max(1, Math.round(rect.width * dpr));
-      canvas.height = Math.max(1, Math.round(rect.height * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, rect.width, rect.height);
-
-      canvas.style.pointerEvents = "none";
-      canvas.classList.add("no-trace");
     });
 
     updateTotal();
@@ -513,7 +559,7 @@
       if (pad && typeof pad.reset === "function") pad.reset();
     });
 
-    speak("Try again. Trace all the number four and number five digits.");
+    speak("Try again. Trace all the number four, number five, and number six digits.");
   }
 
   clearBtn.addEventListener('click', resetAllTraces);
@@ -523,7 +569,7 @@
 
     await window.GPTracing?.prepareMicSupport?.().catch(() => {});
 
-    const expected = "Let's trace numbers four and five.";
+    const expected = "Let's trace numbers four, five, and six.";
 
     if (micPhase === 'reveal') {
       if (bubbleLine) bubbleLine.classList.add('show');
@@ -553,7 +599,7 @@
       } else {
         micBusy = false;
         setConversationStatus('Now trace the numbers.');
-        speak('Now trace the number four and number five digits.');
+        speak('Now trace the number four, number five, and number six digits.');
       }
     });
   }

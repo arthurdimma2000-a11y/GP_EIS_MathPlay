@@ -4,285 +4,1020 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>LA Game 3 • Corner Count Parade</title>
+
 <style>
   :root{
     font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
-    --bg:#d7fff1; --bg2:#ffd6ff; --ink:#1f1f1f; --card:#fff;
+    --bg:#d7fff1;
+    --bg2:#ffd6ff;
+    --ink:#202124;
+    --card:#ffffff;
+    --green:#2b8a3e;
+    --blue:#1c7ed6;
+    --pink:#ff5fa2;
+    --yellow:#ffe066;
     --shadow:0 18px 50px rgba(0,0,0,.14);
   }
+
   *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    min-height:100%;
+  }
+
   body{
-    margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:18px;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:16px;
+    color:var(--ink);
     background:
-      radial-gradient(circle at 20% 10%, var(--bg2), transparent 55%),
-      radial-gradient(circle at 80% 30%, #fff6a6, transparent 55%),
+      radial-gradient(circle at 12% 12%, #ffd6ff, transparent 38%),
+      radial-gradient(circle at 90% 20%, #fff6a6, transparent 40%),
+      radial-gradient(circle at 70% 90%, #c7f9ff, transparent 46%),
       linear-gradient(135deg, var(--bg), #cde7ff);
+    overflow-x:hidden;
   }
-  .app{width:min(1060px,96vw)}
-  .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+
+  .app{
+    width:min(1100px,96vw);
+  }
+
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+
   .badge{
-    background:#fff; border-radius:999px; padding:10px 14px; font-weight:1000;
-    box-shadow:0 10px 25px rgba(0,0,0,.10); display:flex;gap:10px;align-items:center
+    background:#fff;
+    border-radius:999px;
+    padding:10px 15px;
+    font-weight:1000;
+    box-shadow:0 10px 25px rgba(0,0,0,.10);
+    display:flex;
+    gap:10px;
+    align-items:center;
   }
-  .badge .pill{background:#1c7ed6;color:#fff;padding:6px 10px;border-radius:999px;font-size:14px}
+
+  .badge .pill{
+    background:var(--blue);
+    color:#fff;
+    padding:7px 11px;
+    border-radius:999px;
+    font-size:14px;
+  }
+
+  .nav-buttons{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
   .btn{
-    border:0; cursor:pointer; border-radius:999px; padding:10px 14px; font-weight:1000;
-    box-shadow:0 12px 25px rgba(0,0,0,.12); background:#fff; color:#111;
+    border:0;
+    cursor:pointer;
+    border-radius:999px;
+    padding:11px 16px;
+    font-weight:1000;
+    font-size:15px;
+    box-shadow:0 12px 25px rgba(0,0,0,.12);
+    background:#fff;
+    color:#111;
+    transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
   }
-  .btn.primary{background:#2b8a3e;color:#fff}
-  .btn:active{transform:translateY(1px)}
-  .card{background:var(--card); border-radius:22px; box-shadow:var(--shadow); overflow:hidden}
-  .hero{padding:16px 18px; background:linear-gradient(90deg,#ffed9a,#c8fff7); border-bottom:2px dashed rgba(0,0,0,.08)}
-  h1{margin:0;font-size:28px}
-  .sub{margin-top:6px;font-size:18px;opacity:.86}
-  .grid{display:grid;grid-template-columns:1.1fr .9fr; gap:14px; padding:16px 18px 20px}
-  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+
+  .btn:hover{
+    filter:brightness(1.03);
+    transform:translateY(-1px);
+  }
+
+  .btn:active{
+    transform:translateY(1px);
+  }
+
+  .btn.primary{
+    background:var(--green);
+    color:#fff;
+  }
+
+  .btn.blue{
+    background:var(--blue);
+    color:#fff;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    border:3px solid rgba(255,255,255,.72);
+  }
+
+  .hero{
+    padding:18px 20px;
+    background:linear-gradient(90deg,#ffed9a,#c8fff7,#ffd6ff);
+    border-bottom:2px dashed rgba(0,0,0,.10);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .hero::after{
+    content:"⭐ ⭐ ⭐";
+    position:absolute;
+    right:18px;
+    top:14px;
+    font-size:25px;
+    animation:twinkle 1.4s infinite alternate;
+  }
+
+  @keyframes twinkle{
+    from{transform:scale(.95);opacity:.7}
+    to{transform:scale(1.08);opacity:1}
+  }
+
+  h1{
+    margin:0;
+    font-size:clamp(25px,4vw,36px);
+    line-height:1.08;
+  }
+
+  .sub{
+    margin-top:8px;
+    font-size:clamp(16px,2.2vw,20px);
+    opacity:.86;
+    font-weight:800;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1.08fr .92fr;
+    gap:16px;
+    padding:17px 19px 20px;
+  }
+
+  @media (max-width:880px){
+    .grid{grid-template-columns:1fr}
+  }
+
   .panel{
-    border:2px solid rgba(0,0,0,.06); border-radius:18px; padding:14px; background:linear-gradient(180deg,#f7fbff,#fff)
+    border:2px solid rgba(0,0,0,.07);
+    border-radius:22px;
+    padding:14px;
+    background:linear-gradient(180deg,#f7fbff,#fff);
   }
+
+  .panel.side{
+    background:linear-gradient(180deg,#fff7c2,#ffffff);
+  }
+
+  .instruction-box{
+    background:#fff;
+    border-radius:18px;
+    padding:13px;
+    font-size:18px;
+    font-weight:900;
+    line-height:1.35;
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+    margin-bottom:12px;
+    border:2px solid rgba(0,0,0,.05);
+  }
+
   .stage{
-    border-radius:18px; border:2px solid rgba(0,0,0,.06); background:#fff;
-    height:360px; display:grid; place-items:center; overflow:hidden;
+    border-radius:22px;
+    border:3px solid rgba(0,0,0,.06);
+    background:#fff;
+    height:360px;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    position:relative;
   }
-  .choices{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+  @media (max-width:580px){
+    .stage{height:300px}
+  }
+
+  .shape-card{
+    width:100%;
+    height:100%;
+    animation:popIn .3s ease both;
+  }
+
+  @keyframes popIn{
+    0%{transform:scale(.82) rotate(-2deg);opacity:.2}
+    100%{transform:scale(1) rotate(0);opacity:1}
+  }
+
+  .choices{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:12px;
+    margin-top:13px;
+  }
+
+  @media (max-width:580px){
+    .choices{grid-template-columns:1fr}
+  }
+
   .chip{
-    border:0; cursor:pointer; border-radius:16px; padding:12px 14px; font-size:18px; font-weight:1000;
-    box-shadow:0 10px 20px rgba(0,0,0,.10); background:#fff;
+    border:0;
+    cursor:pointer;
+    border-radius:19px;
+    padding:16px 12px;
+    font-size:clamp(18px,3.2vw,24px);
+    font-weight:1000;
+    box-shadow:0 10px 20px rgba(0,0,0,.12);
+    background:#fff;
+    border:3px solid transparent;
+    transition:transform .12s ease, background .12s ease, border-color .12s ease;
   }
-  .chip.good{background:#e9ffef}
-  .chip.bad{background:#ffe9ef}
-  .hud{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;justify-content:space-between}
-  .stat{background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 10px 20px rgba(0,0,0,.10);font-weight:1000}
-  .mini{height:170px;border-radius:16px;overflow:hidden;border:2px solid rgba(0,0,0,.06)}
-  .tip{margin-top:10px;background:#fff;padding:12px;border-radius:16px;box-shadow:0 10px 20px rgba(0,0,0,.10);font-size:18px}
+
+  .chip:hover{
+    transform:translateY(-2px) scale(1.02);
+  }
+
+  .chip.correct{
+    background:#e9ffef;
+    border-color:#2b8a3e;
+  }
+
+  .chip.wrong{
+    background:#ffe9ef;
+    border-color:#e03131;
+  }
+
+  .chip:disabled{
+    cursor:not-allowed;
+    opacity:.88;
+  }
+
+  .hud{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:13px;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .stat{
+    background:#fff;
+    border-radius:16px;
+    padding:10px 12px;
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+    font-weight:1000;
+    min-width:110px;
+    text-align:center;
+  }
+
+  .progress-wrap{
+    margin-top:13px;
+    background:#fff;
+    padding:12px;
+    border-radius:16px;
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+  }
+
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-weight:1000;
+    margin-bottom:7px;
+  }
+
+  .progress-bar{
+    height:18px;
+    background:#e9ecef;
+    border-radius:999px;
+    overflow:hidden;
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#51cf66,#ffd43b,#ff922b);
+    border-radius:999px;
+    transition:width .25s ease;
+  }
+
+  .mini{
+    height:185px;
+    border-radius:18px;
+    overflow:hidden;
+    border:2px solid rgba(0,0,0,.06);
+    background:#fff;
+  }
+
+  .tip{
+    margin-top:11px;
+    background:#fff;
+    padding:13px;
+    border-radius:18px;
+    box-shadow:0 10px 20px rgba(0,0,0,.10);
+    font-size:18px;
+    line-height:1.35;
+  }
+
+  .tip.blue-tip{
+    background:#eaf4ff;
+  }
+
+  .voice-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .celebrate{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:20;
+  }
+
+  .confetti{
+    position:absolute;
+    top:-30px;
+    font-size:24px;
+    animation:fall 900ms ease-in forwards;
+  }
+
+  @keyframes fall{
+    to{
+      transform:translateY(115vh) rotate(360deg);
+      opacity:.1;
+    }
+  }
+
+  .result-pop{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff;
+    color:#111;
+    border-radius:999px;
+    padding:10px 16px;
+    font-size:20px;
+    font-weight:1000;
+    box-shadow:0 12px 28px rgba(0,0,0,.15);
+    display:none;
+    z-index:3;
+  }
+
+  .result-pop.show{
+    display:block;
+    animation:resultPop .6s ease both;
+  }
+
+  @keyframes resultPop{
+    0%{transform:translateX(-50%) scale(.65);opacity:0}
+    35%{transform:translateX(-50%) scale(1.12);opacity:1}
+    100%{transform:translateX(-50%) scale(1);opacity:1}
+  }
 </style>
 </head>
+
 <body>
+<div class="celebrate" id="celebrate"></div>
+
+<audio id="chimeAudio" src="chime.mp3" preload="auto"></audio>
+
 <div class="app">
   <div class="top">
-    <div class="badge"><span class="pill">Level A</span> <span>Game 3 • Corner Count Parade</span></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-      <button class="btn" onclick="location.href='../thursday/FairlyTaleWk3A.html'">⬅ Back</button>
-      <button class="btn" onclick="newRound()">🔁 New</button>
-      <button class="btn primary" onclick="location.href='LA_Quiz3.html'">Next ➜</button>
+    <div class="badge">
+      <span class="pill">Level A</span>
+      <span>Game 3 • Corner Count Parade</span>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn" type="button" onclick="location.href='../thursday/FairlyTaleWk3A.html'">⬅ Back</button>
+      <button class="btn blue" type="button" onclick="resetGame()">🔁 New</button>
+      <button class="btn primary" type="button" onclick="location.href='LA_Quiz3.html'">Next ➜</button>
     </div>
   </div>
 
   <div class="card">
     <div class="hero">
-      <h1>How many vertices (corners)? ⭐</h1>
-      <div class="sub">Circle = 0 • Triangle = 3 • Square = 4</div>
+      <h1>How many vertices?</h1>
+      <div class="sub">Look at the shape. Count the sharp corners. Tap the correct answer.</div>
     </div>
 
     <div class="grid">
       <div class="panel">
-        <div class="stage" id="stage"></div>
+        <div class="instruction-box" id="instructionText">
+          🔊 Listen, look, count, and tap the correct number of vertices.
+        </div>
+
+        <div class="stage" id="stage">
+          <div class="result-pop" id="resultPop"></div>
+        </div>
 
         <div class="choices" id="choices"></div>
 
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Game Progress</span>
+            <span id="progressText">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
         <div class="hud">
           <div class="stat">✅ Correct: <span id="ok">0</span></div>
-          <div class="stat">❌ Wrong: <span id="no">0</span></div>
+          <div class="stat">❌ Try Again: <span id="no">0</span></div>
           <div class="stat">⭐ Stars: <span id="stars">0</span></div>
-          <button class="btn primary" onclick="finish()">🏁 Finish</button>
+          <button class="btn primary" type="button" onclick="finish()">🏁 Finish</button>
         </div>
       </div>
 
-      <div class="panel" style="background:linear-gradient(180deg,#fff7c2,#ffffff)">
+      <div class="panel side">
         <div class="mini" id="mini"></div>
-        <div class="tip"><b>Hint:</b> Vertices are the <b>sharp corners</b> you can point to with your finger!</div>
-        <div class="tip" style="background:#eaf4ff"><b>Challenge:</b> Get 6 correct answers for ⭐⭐⭐</div>
-        <button class="btn" style="margin-top:10px" onclick="speak()">🔊 Read</button>
+
+        <div class="tip">
+          <b>Hint:</b> Vertices are the <b>sharp corners</b> of a shape.
+        </div>
+
+        <div class="tip blue-tip">
+          <b>Star Challenge:</b><br>
+          Get 2 correct answers for ⭐<br>
+          Get 4 correct answers for ⭐⭐<br>
+          Get 6 correct answers for ⭐⭐⭐
+        </div>
+
+        <div class="voice-row">
+          <button class="btn blue" type="button" onclick="readInstructions()">🔊 Read Instructions</button>
+          <button class="btn" type="button" onclick="toggleSound()" id="soundBtn">🔔 Sound On</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-/* Tracker + sound */
+/* =========================
+   Progress + Sound Helpers
+========================= */
 (function(){
-  const STORE="gpeis_progress_v1";
-  function load(){ try{return JSON.parse(localStorage.getItem(STORE)||"{}")}catch(e){return{}} }
-  function save(db){ localStorage.setItem(STORE, JSON.stringify(db)); }
-  function now(){ return new Date().toISOString(); }
-  let ctx=null;
-  function audio(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
-  function beep(freq, t, g=.05, type="triangle"){
-    const c=audio(), o=c.createOscillator(), gn=c.createGain();
-    o.type=type; o.frequency.value=freq; gn.gain.value=g;
-    o.connect(gn); gn.connect(c.destination); o.start(); o.stop(c.currentTime+t);
+  const STORE = "gpeis_progress_v1";
+
+  function load(){
+    try{
+      return JSON.parse(localStorage.getItem(STORE) || "{}");
+    }catch(e){
+      return {};
+    }
   }
-  function chime(){ try{beep(880,.08); setTimeout(()=>beep(1175,.10),90); setTimeout(()=>beep(1568,.12),200);}catch(e){} }
-  function cheer(){ try{beep(523,.09,.05,"sine"); setTimeout(()=>beep(659,.09,.05,"sine"),80); setTimeout(()=>beep(784,.11,.05,"sine"),160); setTimeout(()=>beep(988,.14,.05,"sine"),260);}catch(e){} }
+
+  function save(db){
+    localStorage.setItem(STORE, JSON.stringify(db));
+  }
+
+  function now(){
+    return new Date().toISOString();
+  }
 
   window.__LegacyTrack__ = {
-    complete({level, activityId, score=0, stars=0}){
-      const db=load();
-      if(!db[level]) db[level]={level, updatedAt:now(), activities:{}};
-      const lvl=db[level];
-      if(!lvl.activities[activityId]) lvl.activities[activityId]={id:activityId, attempts:0, bestScore:0, bestStars:0, completed:false};
-      const a=lvl.activities[activityId];
-      a.attempts++; a.completed=true; a.lastScore=score; a.lastStars=stars; a.lastAt=now();
-      a.bestScore=Math.max(a.bestScore||0, score);
-      a.bestStars=Math.max(a.bestStars||0, stars);
-      lvl.updatedAt=now(); save(db);
-      chime(); if(stars>=2||score>=70) cheer();
-      return a;
+    complete({level, activityId, score = 0, stars = 0}){
+      const db = load();
+
+      if(!db[level]){
+        db[level] = {
+          level,
+          updatedAt: now(),
+          activities: {}
+        };
+      }
+
+      const lvl = db[level];
+
+      if(!lvl.activities[activityId]){
+        lvl.activities[activityId] = {
+          id: activityId,
+          attempts: 0,
+          bestScore: 0,
+          bestStars: 0,
+          completed: false
+        };
+      }
+
+      const activity = lvl.activities[activityId];
+
+      activity.attempts++;
+      activity.completed = true;
+      activity.lastScore = score;
+      activity.lastStars = stars;
+      activity.lastAt = now();
+      activity.bestScore = Math.max(activity.bestScore || 0, score);
+      activity.bestStars = Math.max(activity.bestStars || 0, stars);
+
+      lvl.updatedAt = now();
+      save(db);
+
+      return activity;
     }
   };
-  window.__sound={chime,cheer};
 })();
 
-const stage=document.getElementById("stage");
-const choices=document.getElementById("choices");
-const okEl=document.getElementById("ok");
-const noEl=document.getElementById("no");
-const starsEl=document.getElementById("stars");
+/* =========================
+   Main Game
+========================= */
+const CHIME_SRC = "chime.mp3";
 
-let ok=0,no=0,rounds=0,goal=6,current=null;
+const stage = document.getElementById("stage");
+const choices = document.getElementById("choices");
+const okEl = document.getElementById("ok");
+const noEl = document.getElementById("no");
+const starsEl = document.getElementById("stars");
+const mini = document.getElementById("mini");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+const instructionText = document.getElementById("instructionText");
+const resultPop = document.getElementById("resultPop");
+const celebrate = document.getElementById("celebrate");
+const chimeAudio = document.getElementById("chimeAudio");
+const soundBtn = document.getElementById("soundBtn");
 
-function art(shape){
-  if(shape==="circle"){
-    return `<svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#ffd1f3"/><stop offset="1" stop-color="#c7f9ff"/></linearGradient></defs>
-      <rect width="520" height="320" rx="26" fill="url(#bg)"/>
-      <circle cx="260" cy="170" r="96" fill="#ffbf69" stroke="#fff" stroke-width="10"/>
-      <text x="260" y="72" text-anchor="middle" font-size="30" font-family="Comic Sans MS, Segoe UI" font-weight="900">CIRCLE</text>
-      <text x="260" y="286" text-anchor="middle" font-size="26" font-family="Comic Sans MS, Segoe UI" font-weight="900">Vertices = 0</text>
-    </svg>`;
+let ok = 0;
+let no = 0;
+let rounds = 0;
+let current = null;
+let locked = false;
+let soundOn = true;
+
+const maxRounds = 8;
+const starGoal = 6;
+
+const shapes = [
+  {
+    id: "circle",
+    name: "Circle",
+    vertices: 0,
+    options: [0, 3, 4],
+    voice: "This is a circle. A circle has zero vertices."
+  },
+  {
+    id: "triangle",
+    name: "Triangle",
+    vertices: 3,
+    options: [0, 3, 4],
+    voice: "This is a triangle. Count the corners. A triangle has three vertices."
+  },
+  {
+    id: "square",
+    name: "Square",
+    vertices: 4,
+    options: [0, 3, 4],
+    voice: "This is a square. Count the corners. A square has four vertices."
   }
-  if(shape==="triangle"){
-    return `<svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#fff6a6"/><stop offset="1" stop-color="#c8fff7"/></linearGradient></defs>
-      <rect width="520" height="320" rx="26" fill="url(#bg)"/>
-      <polygon points="260,70 410,255 110,255" fill="#ff6b6b" stroke="#fff" stroke-width="10"/>
-      <circle cx="260" cy="70" r="7" fill="#222"/><circle cx="410" cy="255" r="7" fill="#222"/><circle cx="110" cy="255" r="7" fill="#222"/>
-      <text x="260" y="58" text-anchor="middle" font-size="30" font-family="Comic Sans MS, Segoe UI" font-weight="900">TRIANGLE</text>
-      <text x="260" y="292" text-anchor="middle" font-size="26" font-family="Comic Sans MS, Segoe UI" font-weight="900">Vertices = 3</text>
-    </svg>`;
-  }
-  return `<svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#cde7ff"/><stop offset="1" stop-color="#d7fff1"/></linearGradient></defs>
-    <rect width="520" height="320" rx="26" fill="url(#bg)"/>
-    <rect x="160" y="80" width="200" height="200" rx="22" fill="#4dabf7" stroke="#fff" stroke-width="10"/>
-    <circle cx="160" cy="80" r="7" fill="#222"/><circle cx="360" cy="80" r="7" fill="#222"/><circle cx="160" cy="280" r="7" fill="#222"/><circle cx="360" cy="280" r="7" fill="#222"/>
-    <text x="260" y="58" text-anchor="middle" font-size="30" font-family="Comic Sans MS, Segoe UI" font-weight="900">SQUARE</text>
-    <text x="260" y="306" text-anchor="middle" font-size="26" font-family="Comic Sans MS, Segoe UI" font-weight="900">Vertices = 4</text>
-  </svg>`;
+];
+
+function shuffle(array){
+  return [...array].sort(() => Math.random() - 0.5);
+}
+
+function updateHUD(){
+  okEl.textContent = ok;
+  noEl.textContent = no;
+
+  const stars = getStars();
+  starsEl.textContent = stars;
+
+  const progress = Math.min(100, Math.round((rounds / maxRounds) * 100));
+  progressFill.style.width = progress + "%";
+  progressText.textContent = progress + "%";
+}
+
+function getStars(){
+  if(ok >= starGoal) return 3;
+  if(ok >= 4) return 2;
+  if(ok >= 2) return 1;
+  return 0;
+}
+
+function showResult(text){
+  resultPop.textContent = text;
+  resultPop.classList.remove("show");
+
+  setTimeout(() => {
+    resultPop.classList.add("show");
+  }, 10);
+
+  setTimeout(() => {
+    resultPop.classList.remove("show");
+  }, 850);
 }
 
 function setMini(){
-  document.getElementById("mini").innerHTML = `
-  <svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <rect width="520" height="320" rx="26" fill="#ffffff"/>
-    <text x="260" y="70" text-anchor="middle" font-size="28" font-family="Comic Sans MS, Segoe UI" font-weight="900">Remember!</text>
-    <text x="260" y="120" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI">⭕ 0 corners</text>
-    <text x="260" y="170" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI">🔺 3 corners</text>
-    <text x="260" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI">🟦 4 corners</text>
-    <text x="260" y="280" text-anchor="middle" font-size="20" font-family="Comic Sans MS, Segoe UI" fill="#555">Tap the correct number!</text>
-  </svg>`;
+  mini.innerHTML = `
+    <svg viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="320" rx="26" fill="#ffffff"/>
+      <text x="260" y="58" text-anchor="middle" font-size="30" font-family="Comic Sans MS, Segoe UI" font-weight="900">Remember!</text>
+
+      <circle cx="128" cy="135" r="45" fill="#ffbf69" stroke="#333" stroke-width="4"/>
+      <text x="128" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI" font-weight="900">0</text>
+
+      <polygon points="260,90 320,180 200,180" fill="#ff6b6b" stroke="#333" stroke-width="4"/>
+      <text x="260" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI" font-weight="900">3</text>
+
+      <rect x="355" y="95" width="90" height="90" rx="14" fill="#4dabf7" stroke="#333" stroke-width="4"/>
+      <text x="400" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS, Segoe UI" font-weight="900">4</text>
+
+      <text x="260" y="285" text-anchor="middle" font-size="22" font-family="Comic Sans MS, Segoe UI" font-weight="900" fill="#444">Tap the correct number!</text>
+    </svg>
+  `;
 }
-setMini();
+
+function art(shape){
+  if(shape.id === "circle"){
+    return `
+      <svg class="shape-card" viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="circleBg" x1="0" x2="1">
+            <stop offset="0" stop-color="#ffd1f3"/>
+            <stop offset="1" stop-color="#c7f9ff"/>
+          </linearGradient>
+        </defs>
+
+        <rect width="520" height="320" rx="28" fill="url(#circleBg)"/>
+        <text x="260" y="60" text-anchor="middle" font-size="34" font-family="Comic Sans MS, Segoe UI" font-weight="900">CIRCLE</text>
+
+        <circle cx="260" cy="172" r="92" fill="#ffbf69" stroke="#ffffff" stroke-width="12"/>
+        <path d="M215 145 Q260 178 305 145" fill="none" stroke="#222" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="228" cy="140" r="8" fill="#222"/>
+        <circle cx="292" cy="140" r="8" fill="#222"/>
+
+        <text x="260" y="292" text-anchor="middle" font-size="26" font-family="Comic Sans MS, Segoe UI" font-weight="900">How many vertices?</text>
+      </svg>
+    `;
+  }
+
+  if(shape.id === "triangle"){
+    return `
+      <svg class="shape-card" viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="triBg" x1="0" x2="1">
+            <stop offset="0" stop-color="#fff6a6"/>
+            <stop offset="1" stop-color="#c8fff7"/>
+          </linearGradient>
+        </defs>
+
+        <rect width="520" height="320" rx="28" fill="url(#triBg)"/>
+        <text x="260" y="55" text-anchor="middle" font-size="34" font-family="Comic Sans MS, Segoe UI" font-weight="900">TRIANGLE</text>
+
+        <polygon points="260,78 412,258 108,258" fill="#ff6b6b" stroke="#ffffff" stroke-width="12"/>
+        <circle cx="260" cy="78" r="11" fill="#222"/>
+        <circle cx="412" cy="258" r="11" fill="#222"/>
+        <circle cx="108" cy="258" r="11" fill="#222"/>
+
+        <text x="260" y="298" text-anchor="middle" font-size="25" font-family="Comic Sans MS, Segoe UI" font-weight="900">Count the black corner dots.</text>
+      </svg>
+    `;
+  }
+
+  return `
+    <svg class="shape-card" viewBox="0 0 520 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sqBg" x1="0" x2="1">
+          <stop offset="0" stop-color="#cde7ff"/>
+          <stop offset="1" stop-color="#d7fff1"/>
+        </linearGradient>
+      </defs>
+
+      <rect width="520" height="320" rx="28" fill="url(#sqBg)"/>
+      <text x="260" y="55" text-anchor="middle" font-size="34" font-family="Comic Sans MS, Segoe UI" font-weight="900">SQUARE</text>
+
+      <rect x="160" y="82" width="200" height="200" rx="24" fill="#4dabf7" stroke="#ffffff" stroke-width="12"/>
+      <circle cx="160" cy="82" r="11" fill="#222"/>
+      <circle cx="360" cy="82" r="11" fill="#222"/>
+      <circle cx="160" cy="282" r="11" fill="#222"/>
+      <circle cx="360" cy="282" r="11" fill="#222"/>
+
+      <text x="260" y="310" text-anchor="middle" font-size="25" font-family="Comic Sans MS, Segoe UI" font-weight="900">Count the black corner dots.</text>
+    </svg>
+  `;
+}
 
 function newRound(){
-  const shapes=["circle","triangle","square"];
-  current = shapes[Math.floor(Math.random()*shapes.length)];
-  stage.innerHTML = art(current);
-  choices.innerHTML = "";
-
-  const correct = current==="circle"?0:current==="triangle"?3:4;
-  const opts = [0,3,4].sort(()=>Math.random()-0.5);
-
-  opts.forEach(n=>{
-    const b=document.createElement("button");
-    b.className="chip";
-    b.textContent = n + " corners";
-    b.onclick=()=>{
-      rounds++;
-      if(n===correct){
-        ok++; __sound.chime();
-        speak(["Great job!", "Correct!", "Well done!", "Awesome!"][Math.floor(Math.random()*4)]);
-        b.classList.add("good");
-      }else{
-        no++; __sound.cheer();
-        speak(["Try again!", "Not quite!", "Keep going!"][Math.floor(Math.random()*3)]);
-        b.classList.add("bad");
-      }
-      okEl.textContent=ok; noEl.textContent=no;
-
-      const stars = ok>=goal ? 3 : ok>=4 ? 2 : ok>=2 ? 1 : 0;
-      starsEl.textContent=stars;
-
-      setTimeout(()=>{ if(rounds<8) newRound(); }, 450);
-    };
-    choices.appendChild(b);
-}
-newRound();
-
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    speak("Welcome to the corner count game! Count the vertices on each shape. Circle has zero, triangle has three, square has four. Tap the correct number!");
-  }, 500);
-});
-
-async function finish(){
-  const total = Math.max(1, ok+no);
-  const score = Math.round((ok/total)*100);
-  const stars = Number(starsEl.textContent)||0;
-
-  if (window.GPTrack && typeof window.GPTrack.finish === "function") {
-    await window.GPTrack.finish({
-      pageId: "LA_Game3",
-      level: "A",
-      activityType: "game",
-      score,
-      stars,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 1 }
-    });
-  } else if (window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function") {
-    window.__LegacyTrack__.complete({ level: "A", activityId: "LA_Game3", score, stars });
+  if(rounds >= maxRounds){
+    finish();
+    return;
   }
-  alert("🏁 Finished!\nScore: "+score+"%\nStars: "+("⭐".repeat(stars)||"0"));
-}
 
-function speak(){
-  const txt="Count the corners. Circle has zero vertices. Triangle has three. Square has four. Tap the correct number!";
-  try{
-    const u=new SpeechSynthesisUtterance(txt);
-    u.rate=0.95; u.pitch=1.1;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  }catch(e){}
-}
-</script>
-<script type="module" src="./progress-tracker.js"></script>
-<script>
-  window.addEventListener("load", () => {
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    GPTrack.start(pageFile || document.title || "Activity");
+  locked = false;
+  current = shapes[Math.floor(Math.random() * shapes.length)];
+
+  stage.innerHTML = `<div class="result-pop" id="resultPop"></div>` + art(current);
+
+  const newResultPop = document.getElementById("resultPop");
+  window.resultPop = newResultPop;
+
+  instructionText.textContent = "Look at the " + current.name.toLowerCase() + ". Count the vertices. Tap the correct number.";
+
+  choices.innerHTML = "";
+  const opts = shuffle(current.options);
+
+  opts.forEach(num => {
+    const button = document.createElement("button");
+    button.className = "chip";
+    button.type = "button";
+    button.textContent = num + (num === 1 ? " vertex" : " vertices");
+    button.setAttribute("aria-label", num + " vertices");
+    button.onclick = () => checkAnswer(button, num);
+    choices.appendChild(button);
   });
 
-  async function finishActivity(overrides = {}){
-    if (!window.GPTrack) return;
-    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
-    const inferredLevel = (/^(LA|LevelA|Level_A)/i.test(pageFile))
-      ? "A"
-      : (/^(LB|LevelB)/i.test(pageFile))
-        ? "B"
-        : (/^(LC|LevelC)/i.test(pageFile))
-          ? "C"
-          : null;
+  setTimeout(() => {
+    speak(current.voice + " Tap the correct answer.");
+  }, 250);
+}
 
-    await GPTrack.finish({
-      pageId: pageFile || document.title || "Activity",
-      level: inferredLevel,
-      activityType: "activity",
-      score: null,
-      stars: 0,
-      skills: { reading: 0, writing: 0, speaking: 0, listening: 0 },
-      ...overrides
+function checkAnswer(button, selected){
+  if(locked) return;
+  locked = true;
+
+  const allButtons = choices.querySelectorAll("button");
+  allButtons.forEach(btn => btn.disabled = true);
+
+  rounds++;
+
+  const correct = selected === current.vertices;
+
+  if(correct){
+    ok++;
+    button.classList.add("correct");
+    playChime();
+    showResult("✅ Correct!");
+    voiceCheer();
+    confettiBurst();
+  }else{
+    no++;
+    button.classList.add("wrong");
+
+    allButtons.forEach(btn => {
+      if(btn.textContent.startsWith(String(current.vertices))){
+        btn.classList.add("correct");
+      }
+    });
+
+    playSoftTryAgainSound();
+    showResult("💪 Try again next one!");
+    speak("Good try. The correct answer is " + current.vertices + " vertices. Let us try the next one.");
+  }
+
+  updateHUD();
+
+  setTimeout(() => {
+    if(rounds >= maxRounds){
+      finish();
+    }else{
+      newRound();
+    }
+  }, correct ? 1200 : 1700);
+}
+
+function resetGame(){
+  ok = 0;
+  no = 0;
+  rounds = 0;
+  updateHUD();
+  readInstructions();
+  setTimeout(newRound, 500);
+}
+
+function readInstructions(){
+  const text = "Welcome to Corner Count Parade. Look at each shape. Count the sharp corners called vertices. A circle has zero vertices. A triangle has three vertices. A square has four vertices. Tap the correct number to earn stars.";
+  instructionText.textContent = "🔊 Look at each shape, count the vertices, and tap the correct answer.";
+  speak(text);
+}
+
+async function finish(){
+  locked = true;
+
+  const total = Math.max(1, ok + no);
+  const score = Math.round((ok / total) * 100);
+  const stars = getStars();
+
+  updateHUD();
+
+  playChime();
+  setTimeout(playChime, 300);
+  confettiBurst();
+
+  speak("Game finished! Your score is " + score + " percent. You earned " + stars + " stars. Great work!");
+
+  if(window.GPTrack && typeof window.GPTrack.finish === "function"){
+    try{
+      await window.GPTrack.finish({
+        pageId: "LA_Game3",
+        level: "A",
+        activityType: "game",
+        score,
+        stars,
+        skills: {
+          reading: 0,
+          writing: 0,
+          speaking: 0,
+          listening: 1
+        }
+      });
+    }catch(e){
+      console.warn("GPTrack finish failed:", e);
+    }
+  }else if(window.__LegacyTrack__ && typeof window.__LegacyTrack__.complete === "function"){
+    window.__LegacyTrack__.complete({
+      level: "A",
+      activityId: "LA_Game3",
+      score,
+      stars
     });
   }
+
+  setTimeout(() => {
+    alert(
+      "🏁 Finished!\n\n" +
+      "Score: " + score + "%\n" +
+      "Stars: " + ("⭐".repeat(stars) || "0") + "\n\n" +
+      "Tap New to play again or Next to continue."
+    );
+  }, 500);
+}
+
+/* =========================
+   Voice + Audio
+========================= */
+function getBestVoice(){
+  const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+
+  return (
+    voices.find(v => /en-US/i.test(v.lang) && /female|girl|samantha|zira|aria|jenny|natural/i.test(v.name)) ||
+    voices.find(v => /en-US/i.test(v.lang)) ||
+    voices.find(v => /en/i.test(v.lang)) ||
+    null
+  );
+}
+
+function speak(text){
+  if(!text || !window.speechSynthesis) return;
+
+  try{
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voice = getBestVoice();
+
+    if(voice) utterance.voice = voice;
+
+    utterance.lang = "en-US";
+    utterance.rate = 0.9;
+    utterance.pitch = 1.16;
+    utterance.volume = 1;
+
+    speechSynthesis.speak(utterance);
+  }catch(e){
+    console.warn("Speech failed:", e);
+  }
+}
+
+function voiceCheer(){
+  const cheers = [
+    "Great job!",
+    "Excellent!",
+    "Well done!",
+    "Awesome counting!",
+    "You are a star!"
+  ];
+
+  const cheer = cheers[Math.floor(Math.random() * cheers.length)];
+  speak(cheer);
+}
+
+function toggleSound(){
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔔 Sound On" : "🔕 Sound Off";
+
+  if(soundOn){
+    playChime();
+    speak("Sound is on.");
+  }
+}
+
+function playChime(){
+  if(!soundOn) return;
+
+  try{
+    chimeAudio.src = CHIME_SRC;
+    chimeAudio.currentTime = 0;
+
+    const playPromise = chimeAudio.play();
+
+    if(playPromise && typeof playPromise.catch === "function"){
+      playPromise.catch(() => fallbackChime());
+    }
+  }catch(e){
+    fallbackChime();
+  }
+}
+
+let audioCtx = null;
+
+function getAudioCtx(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume();
+  }
+
+  return audioCtx;
+}
+
+function beep(freq, duration, gain = 0.05, type = "triangle"){
+  if(!soundOn) return;
+
+  try{
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const vol = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.value = freq;
+    vol.gain.value = gain;
+
+    osc.connect(vol);
+    vol.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  }catch(e){}
+}
+
+function fallbackChime(){
+  beep(880, .08);
+  setTimeout(() => beep(1175, .10), 90);
+  setTimeout(() => beep(1568, .12), 200);
+}
+
+function playSoftTryAgainSound(){
+  beep(392, .08, .035, "sine");
+  setTimeout(() => beep(330, .10, .035, "sine"), 100);
+}
+
+function confettiBurst(){
+  const items = ["⭐","✨","🎉","🌟","💛","👏"];
+
+  for(let i = 0; i < 24; i++){
+    const span = document.createElement("span");
+    span.className = "confetti";
+    span.textContent = items[Math.floor(Math.random() * items.length)];
+    span.style.left = Math.random() * 100 + "vw";
+    span.style.animationDelay = Math.random() * 180 + "ms";
+    span.style.fontSize = (18 + Math.random() * 18) + "px";
+
+    celebrate.appendChild(span);
+
+    setTimeout(() => {
+      span.remove();
+    }, 1200);
+  }
+}
+
+/* =========================
+   Start
+========================= */
+window.addEventListener("load", () => {
+  setMini();
+  updateHUD();
+
+  if(window.speechSynthesis){
+    speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  setTimeout(() => {
+    readInstructions();
+    newRound();
+  }, 450);
+
+  if(window.GPTrack && typeof window.GPTrack.start === "function"){
+    const pageFile = ((location.pathname || "").split("/").pop() || "").replace(/\.html$/i, "");
+    GPTrack.start(pageFile || document.title || "LA_Game3");
+  }
+});
 </script>
+
+<script type="module" src="./progress-tracker.js"></script>
 </body>
 </html>
