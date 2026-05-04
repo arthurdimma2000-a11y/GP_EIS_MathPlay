@@ -330,6 +330,11 @@
     let introFinished = false;
     video.muted = true;
     video.volume = 0;
+    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1775986067/Tangramartclass_z7jidz.mp4";
+
+    function clearVideoSource(el) { if (!el) return; const source = el.querySelector("source"); if (source) source.src = ""; el.removeAttribute("src"); el.load(); }
+    function ensureLessonVideoLoaded() { if (!video) return; const source = video.querySelector("source"); const activeSrc = source && source.src ? source.src : (video.currentSrc || ""); if (!activeSrc || !activeSrc.includes(LESSON_VIDEO_URL)) { if (source) { source.src = LESSON_VIDEO_URL; video.load(); } else { video.src = LESSON_VIDEO_URL; } } }
+    clearVideoSource(video);
 
     function pauseVideo(el) {
       if (!el) return;
@@ -399,6 +404,13 @@
       turnOnSoundBtn.textContent = "Sound On";
       turnOnSoundBtn.disabled = true;
     }
+
+    const originalRevealPageContent = revealPageContent;
+    revealPageContent = function() { if (introFinished) return; originalRevealPageContent(); if (introVideo) { try { introVideo.muted = true; introVideo.volume = 0; introVideo.currentTime = 0; clearVideoSource(introVideo); } catch (e) {} } ensureLessonVideoLoaded(); video.muted = false; video.volume = 1; };
+    const originalReplayVideo = replayVideo;
+    replayVideo = function() { ensureLessonVideoLoaded(); originalReplayVideo(); };
+    const originalTogglePlayPause = togglePlayPause;
+    togglePlayPause = function() { ensureLessonVideoLoaded(); originalTogglePlayPause(); };
 
     introVideo.addEventListener("ended", revealPageContent);
     introVideo.addEventListener("error", revealPageContent);

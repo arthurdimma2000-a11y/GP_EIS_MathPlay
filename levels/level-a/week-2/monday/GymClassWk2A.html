@@ -486,10 +486,29 @@
       });
     });
 
-    if (video.querySelector("source")) {
-      video.querySelector("source").src = VIDEO_SRC;
-      video.load();
+    function clearVideoSource(videoEl) {
+      if (!videoEl) return;
+      const source = videoEl.querySelector("source");
+      if (source) source.src = "";
+      videoEl.removeAttribute("src");
+      videoEl.load();
     }
+
+    function ensureLessonVideoLoaded() {
+      if (!video) return;
+      const source = video.querySelector("source");
+      const activeSrc = source && source.src ? source.src : (video.currentSrc || "");
+      if (!activeSrc || !activeSrc.includes(VIDEO_SRC)) {
+        if (source) {
+          source.src = VIDEO_SRC;
+          video.load();
+        } else {
+          video.src = VIDEO_SRC;
+        }
+      }
+    }
+
+    clearVideoSource(video);
 
     function revealPageContent() {
       if (introFinished) return;
@@ -501,8 +520,15 @@
       if (introVideo) {
         try {
           introVideo.pause();
+          introVideo.muted = true;
+          introVideo.volume = 0;
+          introVideo.currentTime = 0;
+          clearVideoSource(introVideo);
         } catch (err) {}
       }
+      ensureLessonVideoLoaded();
+      video.muted = false;
+      video.volume = 1;
     }
 
     function goHome() {
@@ -526,6 +552,7 @@
     }
 
     function replayVideo() {
+      ensureLessonVideoLoaded();
       video.currentTime = 0;
       video.play().catch(() => {});
     }
@@ -544,6 +571,7 @@
 
     function togglePlayPause() {
       if (video.paused) {
+        ensureLessonVideoLoaded();
         video.play().catch(() => {});
       } else {
         video.pause();

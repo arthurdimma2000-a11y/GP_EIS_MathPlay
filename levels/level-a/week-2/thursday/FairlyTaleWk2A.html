@@ -496,7 +496,24 @@
       }
     }
 
-    setVideoSource(video, VIDEO_SRC);
+    function clearVideoSource(videoEl) {
+      if (!videoEl) return;
+      const source = videoEl.querySelector("source");
+      if (source) source.src = "";
+      videoEl.removeAttribute("src");
+      videoEl.load();
+    }
+
+    function ensureLessonVideoLoaded() {
+      if (!video) return;
+      const source = video.querySelector("source");
+      const activeSrc = source && source.src ? source.src : (video.currentSrc || "");
+      if (!activeSrc || !activeSrc.includes(VIDEO_SRC)) {
+        setVideoSource(video, VIDEO_SRC);
+      }
+    }
+
+    clearVideoSource(video);
     setVideoSource(introVideo, INTRO_VIDEO_URL);
 
     function revealPageContent() {
@@ -511,8 +528,15 @@
       if (introVideo) {
         try {
           introVideo.pause();
+          introVideo.muted = true;
+          introVideo.volume = 0;
+          introVideo.currentTime = 0;
+          clearVideoSource(introVideo);
         } catch (err) {}
       }
+      ensureLessonVideoLoaded();
+      video.muted = false;
+      video.volume = 1;
     }
 
     function goHome() {
@@ -538,6 +562,7 @@
     }
 
     function replayVideo() {
+      ensureLessonVideoLoaded();
       video.currentTime = 0;
       video.play().catch(() => {});
     }
@@ -556,6 +581,7 @@
 
     function togglePlayPause() {
       if (video.paused) {
+        ensureLessonVideoLoaded();
         video.play().catch(() => {});
       } else {
         video.pause();
