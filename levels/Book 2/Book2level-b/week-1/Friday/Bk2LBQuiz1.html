@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Horizontal Lines • Interactive Quiz</title>
+
+<style>
+  :root{
+    --red:#f2485b;
+    --blue:#18a8e8;
+    --green:#70c56f;
+    --yellow:#ffe27a;
+    --pink:#ff9aa8;
+    --ink:#202124;
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:16px;
+    color:var(--ink);
+    background:
+      linear-gradient(#e9eef7 1px, transparent 1px),
+      linear-gradient(90deg,#e9eef7 1px, transparent 1px),
+      radial-gradient(circle at 10% 10%,#ffd6ff,transparent 38%),
+      radial-gradient(circle at 90% 18%,#fff6a6,transparent 42%),
+      linear-gradient(135deg,#fffdf7,#d7f8ff);
+    background-size:28px 28px,28px 28px,auto,auto,auto;
+  }
+
+  .app{
+    width:min(1080px,98vw);
+  }
+
+  .home-float{
+    position:fixed;
+    top:18px;
+    right:18px;
+    z-index:1000;
+    width:74px;
+    transform-origin:top center;
+    animation:homeSwing 3.2s ease-in-out infinite;
+  }
+
+  .home-float img{display:block;width:100%;}
+
+  @keyframes homeSwing{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(7deg);}
+    75%{transform:rotate(-7deg);}
+  }
+
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:12px;
+  }
+
+  .badge{
+    background:#fff;
+    border-radius:999px;
+    padding:10px 15px;
+    box-shadow:0 12px 28px rgba(0,0,0,.12);
+    font-weight:1000;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+
+  .pill{
+    background:var(--red);
+    color:#fff;
+    border-radius:999px;
+    padding:7px 12px;
+    font-size:14px;
+  }
+
+  .nav{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    border-radius:18px;
+    padding:12px 16px;
+    font-weight:1000;
+    font-size:16px;
+    background:#fff;
+    color:#111;
+    box-shadow:0 10px 22px rgba(0,0,0,.13);
+    transition:transform .12s ease, filter .12s ease;
+  }
+
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#08230d}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#18a8e8);color:#06121d}
+  .btn.sound{background:linear-gradient(180deg,#ffe08a,#ffb703);color:#3d2a00}
+  .btn.red{background:linear-gradient(180deg,#ffb3bd,#f2485b);color:#fff}
+
+  .card{
+    background:#fff;
+    border-radius:28px;
+    overflow:hidden;
+    border:5px solid var(--red);
+    box-shadow:0 18px 50px rgba(0,0,0,.14);
+  }
+
+  .hero{
+    background:linear-gradient(180deg,#fff,#fff7fb);
+    padding:18px 20px 12px;
+    text-align:center;
+  }
+
+  .hero h1{
+    margin:0;
+    color:#fff;
+    font-size:clamp(34px,7vw,68px);
+    line-height:.95;
+    text-shadow:
+      4px 0 var(--red),
+      -4px 0 var(--red),
+      0 4px var(--red),
+      0 -4px var(--red),
+      3px 3px var(--red),
+      -3px 3px var(--red),
+      3px -3px var(--red),
+      -3px -3px var(--red);
+  }
+
+  .subtitle{
+    margin:10px auto 0;
+    font-size:clamp(17px,2.3vw,22px);
+    font-weight:1000;
+  }
+
+  .main{
+    padding:16px 18px 18px;
+    display:grid;
+    grid-template-columns:.9fr 1.1fr;
+    gap:16px;
+    background:linear-gradient(180deg,#fff,#f7fbff);
+  }
+
+  @media(max-width:900px){
+    .main{grid-template-columns:1fr}
+  }
+
+  .panel{
+    background:#fff;
+    border:2px solid rgba(0,0,0,.07);
+    border-radius:24px;
+    padding:14px;
+  }
+
+  .teacher-row{
+    display:flex;
+    align-items:flex-end;
+    gap:12px;
+    margin-bottom:12px;
+  }
+
+  .teacher{
+    width:92px;
+    min-width:92px;
+    animation:bob 1.8s ease-in-out infinite;
+  }
+
+  @keyframes bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+  }
+
+  .bubble{
+    background:#fff;
+    border:3px solid var(--blue);
+    border-radius:26px;
+    padding:12px 16px;
+    font-size:20px;
+    font-weight:1000;
+    line-height:1.3;
+    box-shadow:0 12px 25px rgba(0,0,0,.10);
+    position:relative;
+    flex:1;
+  }
+
+  .bubble::before{
+    content:"";
+    position:absolute;
+    left:-13px;
+    bottom:18px;
+    width:24px;
+    height:24px;
+    background:#fff;
+    border-left:3px solid var(--blue);
+    border-bottom:3px solid var(--blue);
+    transform:rotate(45deg);
+  }
+
+  .progress-wrap{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    margin-bottom:12px;
+  }
+
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    font-weight:1000;
+    margin-bottom:8px;
+  }
+
+  .progress{
+    height:20px;
+    border-radius:999px;
+    background:#edf2f7;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.05);
+  }
+
+  .bar{
+    width:0%;
+    height:100%;
+    background:linear-gradient(90deg,#63e6be,#4dabf7,#ffd43b,#ff6b6b);
+    transition:width .3s ease;
+  }
+
+  .stars{
+    text-align:center;
+    font-size:31px;
+    font-weight:1000;
+    margin:10px 0;
+  }
+
+  .scorebox{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .score{
+    background:#fff;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    border-radius:18px;
+    padding:12px;
+    text-align:center;
+    font-size:20px;
+    font-weight:1000;
+  }
+
+  .quiz-card{
+    background:#fff;
+    border-radius:24px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    padding:15px;
+    min-height:600px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .qtop{
+    text-align:center;
+    font-size:22px;
+    font-weight:1000;
+    color:#666;
+  }
+
+  .question{
+    text-align:center;
+    font-size:clamp(25px,4vw,38px);
+    font-weight:1000;
+    margin:10px 0 12px;
+  }
+
+  .visual{
+    border-radius:24px;
+    min-height:250px;
+    display:grid;
+    place-items:center;
+    background:
+      linear-gradient(#c9ecfb 1px,transparent 1px),
+      linear-gradient(90deg,#c9ecfb 1px,transparent 1px),
+      #fff;
+    background-size:24px 24px;
+    border:3px solid #ffc1cc;
+    overflow:hidden;
+    margin-bottom:14px;
+  }
+
+  .visual svg{
+    width:100%;
+    height:250px;
+    display:block;
+  }
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    margin-top:auto;
+  }
+
+  .opt{
+    border:0;
+    cursor:pointer;
+    border-radius:22px;
+    padding:15px 16px;
+    font-size:clamp(20px,3vw,28px);
+    font-weight:1000;
+    background:linear-gradient(180deg,#f7fbff,#ffffff);
+    color:#111;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+    border:3px solid transparent;
+    transition:transform .12s ease, opacity .12s ease, border-color .12s ease;
+  }
+
+  .opt:hover:not(:disabled){transform:translateY(-2px)}
+  .opt:active:not(:disabled){transform:translateY(1px)}
+  .opt:disabled{opacity:.72;cursor:not-allowed}
+  .opt.correct{background:#dcfce7;border-color:#22c55e}
+  .opt.wrong{background:#fff1f2;border-color:#f2485b}
+
+  .message{
+    margin-top:14px;
+    min-height:64px;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    padding:12px;
+    font-size:20px;
+    font-weight:1000;
+    text-align:center;
+  }
+
+  .message.good{background:#dcfce7}
+  .message.oops{background:#fff1f2}
+
+  .controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:12px;
+  }
+
+  .mini-poster{
+    border-radius:20px;
+    overflow:hidden;
+    border:3px solid var(--red);
+    background:#70c56f;
+    margin-top:12px;
+  }
+
+  .mini-poster svg{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+
+  .celebrate{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:99;
+  }
+
+  .confetti{
+    position:absolute;
+    top:-35px;
+    font-size:25px;
+    animation:fall 1000ms ease-in forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(115vh) rotate(360deg);opacity:.1}
+  }
+</style>
+</head>
+
+<body>
+<a class="home-float" href="../../../../../index.html" aria-label="Home"><img src="../../../Home1.png" alt="Home"></a>
+<audio id="chimeAudio" src="chime.mp3" preload="auto"></audio>
+<div class="celebrate" id="celebrate"></div>
+
+<div class="app">
+  <div class="top">
+    <div class="badge">
+      <span class="pill">Week 1</span>
+      <span>Horizontal Lines • Quiz</span>
+    </div>
+
+    <div class="nav">
+      <button class="btn" onclick="goBack()">⬅ Back</button>
+      <button class="btn sound" onclick="repeatQuestion()">🔊 Repeat</button>
+      <button class="btn red" onclick="startQuiz()">🔁 New</button>
+      <button class="btn next" onclick="goNext()">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hero">
+      <h1>Horizontal Lines</h1>
+      <div class="subtitle">Listen, look, and choose the correct answer.</div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <div class="teacher-row">
+          <div class="teacher" aria-hidden="true">
+            <svg viewBox="0 0 120 160" width="100%" height="100%">
+              <ellipse cx="60" cy="148" rx="34" ry="8" fill="rgba(0,0,0,.14)"/>
+              <circle cx="60" cy="34" r="22" fill="#ffd6a5"/>
+              <path d="M38 34 Q47 8 71 15 Q92 22 80 47 Q66 28 38 34Z" fill="#8d5a36"/>
+              <circle cx="52" cy="35" r="3" fill="#222"/>
+              <circle cx="68" cy="35" r="3" fill="#222"/>
+              <path d="M54 45 Q61 51 69 44" fill="none" stroke="#cc6b5a" stroke-width="3" stroke-linecap="round"/>
+              <path d="M38 61 Q62 50 84 61 L92 125 Q61 142 29 125Z" fill="#f2485b"/>
+              <path d="M37 72 Q21 89 20 110" fill="none" stroke="#ffd6a5" stroke-width="10" stroke-linecap="round"/>
+              <path d="M83 72 Q103 78 108 99" fill="none" stroke="#ffd6a5" stroke-width="10" stroke-linecap="round"/>
+              <path d="M44 126 L37 148" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/>
+              <path d="M76 126 L82 148" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="bubble" id="teacherBubble">
+            Press New to start the quiz. I will read each question.
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Quiz Progress</span>
+            <span id="progressText">0%</span>
+          </div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+        </div>
+
+        <div class="stars" id="stars">⭐ 0</div>
+
+        <div class="scorebox">
+          <div class="score">✅ Correct<br><span id="correctNum">0</span></div>
+          <div class="score">💪 Try Again<br><span id="wrongNum">0</span></div>
+        </div>
+
+        <div class="mini-poster">
+          <svg viewBox="0 0 460 360">
+            <rect width="460" height="360" fill="#70c56f"/>
+            <text x="230" y="45" text-anchor="middle" font-size="32" font-family="Comic Sans MS" font-weight="900" fill="#fff" stroke="#f2485b" stroke-width="5" paint-order="stroke">Lines go across</text>
+            <rect x="55" y="100" width="350" height="20" rx="10" fill="#f3d1c4"/>
+            <rect x="55" y="180" width="350" height="20" rx="10" fill="#f3d1c4"/>
+            <rect x="55" y="260" width="350" height="20" rx="10" fill="#f3d1c4"/>
+            <path d="M90 145 H370" stroke="#202124" stroke-width="6" stroke-dasharray="18 12"/>
+            <path d="M90 225 H370" stroke="#202124" stroke-width="6" stroke-dasharray="18 12"/>
+            <text x="230" y="325" text-anchor="middle" font-size="25" font-family="Comic Sans MS" font-weight="900">Left to right!</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="quiz-card">
+          <div class="qtop" id="qtop">Question 1 of 8</div>
+          <div class="question" id="questionText">Ready?</div>
+          <div class="visual" id="visual"></div>
+          <div class="options" id="options"></div>
+          <div class="message" id="message">Tap New to begin ⭐</div>
+
+          <div class="controls">
+            <button class="btn primary" onclick="startQuiz()">🎉 Start Quiz</button>
+            <button class="btn sound" onclick="repeatQuestion()">🔊 Repeat Question</button>
+            <button class="btn next" onclick="finishQuiz()">🏁 Finish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================
+   Navigation
+====================== */
+const BACK_PAGE = "Bk2LBGame1.html";
+const NEXT_PAGE = "../../../../../index.html";
+
+function goBack(){
+  location.href = BACK_PAGE;
+}
+
+function goNext(){
+  location.href = NEXT_PAGE;
+}
+
+/* ======================
+   Elements
+====================== */
+const chimeAudio = document.getElementById("chimeAudio");
+const teacherBubble = document.getElementById("teacherBubble");
+const bar = document.getElementById("bar");
+const progressText = document.getElementById("progressText");
+const starsEl = document.getElementById("stars");
+const correctNum = document.getElementById("correctNum");
+const wrongNum = document.getElementById("wrongNum");
+const qtop = document.getElementById("qtop");
+const questionText = document.getElementById("questionText");
+const visual = document.getElementById("visual");
+const optionsBox = document.getElementById("options");
+const message = document.getElementById("message");
+const celebrate = document.getElementById("celebrate");
+
+/* ======================
+   Quiz Data
+====================== */
+const questions = [
+  {
+    prompt:"Which line is horizontal?",
+    speak:"Which line is horizontal? A horizontal line goes across.",
+    answer:"The line that goes across",
+    choices:["The line that goes across","The line that goes up and down","The line that is slanted"],
+    visual:`
+      <svg viewBox="0 0 700 260">
+        <rect width="700" height="260" fill="white"/>
+        <text x="350" y="42" text-anchor="middle" font-size="28" font-family="Comic Sans MS" font-weight="900">Find the horizontal line</text>
+        <line x1="90" y1="110" x2="270" y2="110" stroke="#f2485b" stroke-width="12" stroke-linecap="round"/>
+        <line x1="350" y1="60" x2="350" y2="180" stroke="#18a8e8" stroke-width="12" stroke-linecap="round"/>
+        <line x1="480" y1="170" x2="620" y2="70" stroke="#22c55e" stroke-width="12" stroke-linecap="round"/>
+        <text x="180" y="170" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">Across</text>
+        <text x="350" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">Up</text>
+        <text x="550" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">Slanted</text>
+      </svg>`
+  },
+  {
+    prompt:"Horizontal lines go...",
+    speak:"Horizontal lines go across from left to right.",
+    answer:"Across from left to right",
+    choices:["Across from left to right","Up and down","Round and round"],
+    visual:`
+      <svg viewBox="0 0 700 260">
+        <rect width="700" height="260" fill="#70c56f"/>
+        <circle cx="100" cy="130" r="18" fill="#0b84c6"/>
+        <circle cx="600" cy="130" r="18" fill="#f2485b"/>
+        <path d="M100 130 H600" stroke="#202124" stroke-width="10" stroke-dasharray="18 12" stroke-linecap="round"/>
+        <text x="350" y="75" text-anchor="middle" font-size="34" font-family="Comic Sans MS" font-weight="900">Left to Right</text>
+        <text x="350" y="205" text-anchor="middle" font-size="28" font-family="Comic Sans MS" font-weight="900">Lines go across!</text>
+      </svg>`
+  },
+  {
+    prompt:"What has horizontal shelf lines?",
+    speak:"Look at the shopping shelves. Shelves have horizontal lines that go across.",
+    answer:"Shelves",
+    choices:["Shelves","A tall tree","A rainbow"],
+    visual:`
+      <svg viewBox="0 0 700 260">
+        <rect width="700" height="260" fill="#70c56f"/>
+        <text x="350" y="40" text-anchor="middle" font-size="30" font-family="Comic Sans MS" font-weight="900">What has lines that go across?</text>
+        <rect x="80" y="90" width="240" height="18" rx="9" fill="#f3d1c4"/>
+        <rect x="80" y="150" width="240" height="18" rx="9" fill="#f3d1c4"/>
+        <rect x="390" y="80" width="30" height="120" rx="15" fill="#8d5a36"/>
+        <circle cx="405" cy="60" r="45" fill="#22c55e"/>
+        <path d="M510 175 Q570 65 630 175" fill="none" stroke="#f2485b" stroke-width="16" stroke-linecap="round"/>
+        <text x="200" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">Shelves</text>
+        <text x="405" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">Tree</text>
+        <text x="570" y="220" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">Rainbow</text>
+      </svg>`
+  },
+  {
+    prompt:"10 + how many lines = 15?",
+    speak:"Ten plus how many horizontal lines equals fifteen?",
+    answer:"5",
+    choices:["4","5","6"],
+    visual:numberVisual(15)
+  },
+  {
+    prompt:"10 + how many lines = 17?",
+    speak:"Ten plus how many horizontal lines equals seventeen?",
+    answer:"7",
+    choices:["5","7","9"],
+    visual:numberVisual(17)
+  },
+  {
+    prompt:"10 + how many lines = 18?",
+    speak:"Ten plus how many horizontal lines equals eighteen?",
+    answer:"8",
+    choices:["6","8","10"],
+    visual:numberVisual(18)
+  },
+  {
+    prompt:"Which sentence is correct?",
+    speak:"Which sentence is correct? Shelves have lines that go across.",
+    answer:"Shelves have lines that go across.",
+    choices:["Shelves have lines that go across.","Horizontal lines go up and down.","A circle has straight shelf lines."],
+    visual:`
+      <svg viewBox="0 0 700 260">
+        <rect width="700" height="260" fill="#fff"/>
+        <rect x="120" y="90" width="460" height="22" rx="11" fill="#f3d1c4"/>
+        <rect x="120" y="155" width="460" height="22" rx="11" fill="#f3d1c4"/>
+        <path d="M150 110 H550" stroke="#202124" stroke-width="5" stroke-dasharray="16 12"/>
+        <path d="M150 175 H550" stroke="#202124" stroke-width="5" stroke-dasharray="16 12"/>
+        <text x="350" y="55" text-anchor="middle" font-size="32" font-family="Comic Sans MS" font-weight="900">Shopping shelves</text>
+        <text x="350" y="225" text-anchor="middle" font-size="27" font-family="Comic Sans MS" font-weight="900">Lines go across.</text>
+      </svg>`
+  },
+  {
+    prompt:"When tracing, where should you start?",
+    speak:"When tracing horizontal lines, start on the blue dot and move to the red dot.",
+    answer:"Start on blue and move to red",
+    choices:["Start on blue and move to red","Start in the air","Close your eyes"],
+    visual:`
+      <svg viewBox="0 0 700 260">
+        <rect width="700" height="260" fill="#fff"/>
+        <circle cx="120" cy="130" r="18" fill="#0b84c6"/>
+        <circle cx="580" cy="130" r="18" fill="#f2485b"/>
+        <path d="M120 130 H580" stroke="#202124" stroke-width="9" stroke-dasharray="20 14" stroke-linecap="round"/>
+        <path d="M320 105 L370 130 L320 155" fill="none" stroke="#ffb703" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="350" y="60" text-anchor="middle" font-size="32" font-family="Comic Sans MS" font-weight="900">Trace left to right</text>
+        <text x="120" y="190" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">Start</text>
+        <text x="580" y="190" text-anchor="middle" font-size="24" font-family="Comic Sans MS" font-weight="900">End</text>
+      </svg>`
+  }
+];
+
+function numberVisual(target){
+  const needed = target - 10;
+  let lines = "";
+  for(let i=0;i<needed;i++){
+    const y = 82 + i * 14;
+    lines += `<line x1="400" y1="${y}" x2="570" y2="${y}" stroke="#f12535" stroke-width="7" stroke-linecap="round"/>`;
+  }
+
+  return `
+    <svg viewBox="0 0 700 260">
+      <rect width="700" height="260" fill="#fff"/>
+      <text x="350" y="42" text-anchor="middle" font-size="30" font-family="Comic Sans MS" font-weight="900">Add horizontal lines</text>
+      <rect x="70" y="75" width="120" height="130" rx="14" fill="#f3c78d"/>
+      <text x="130" y="162" text-anchor="middle" font-size="70" font-family="Comic Sans MS" font-weight="900">10</text>
+      <text x="225" y="157" text-anchor="middle" font-size="70" font-family="Comic Sans MS" font-weight="900">+</text>
+      <rect x="300" y="75" width="305" height="130" rx="14" fill="#e9f8ff" stroke="#9bdffb" stroke-width="4"/>
+      ${lines}
+      <text x="640" y="157" text-anchor="middle" font-size="70" font-family="Comic Sans MS" font-weight="900">=</text>
+      <text x="350" y="238" text-anchor="middle" font-size="30" font-family="Comic Sans MS" font-weight="900">10 + ? = ${target}</text>
+    </svg>`;
+}
+
+/* ======================
+   State
+====================== */
+let order = [];
+let index = 0;
+let correct = 0;
+let wrong = 0;
+let locked = true;
+
+/* ======================
+   Audio + Voice
+====================== */
+let audioCtx = null;
+
+function getAudioCtx(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function beep(freq,dur,gain=.05,type="triangle"){
+  try{
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const vol = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    vol.gain.value = gain;
+    osc.connect(vol);
+    vol.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + dur);
+  }catch(e){}
+}
+
+function fallbackChime(){
+  beep(880,.08);
+  setTimeout(()=>beep(1175,.10),90);
+  setTimeout(()=>beep(1568,.12),200);
+}
+
+function playChime(){
+  try{
+    chimeAudio.currentTime = 0;
+    const p = chimeAudio.play();
+    if(p && p.catch) p.catch(()=>fallbackChime());
+  }catch(e){
+    fallbackChime();
+  }
+}
+
+function cheerSound(){
+  beep(523,.08,.05,"sine");
+  setTimeout(()=>beep(659,.08,.05,"sine"),90);
+  setTimeout(()=>beep(784,.10,.05,"sine"),180);
+  setTimeout(()=>beep(988,.14,.05,"sine"),290);
+}
+
+function getBestVoice(){
+  const voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
+  return voices.find(v => /en-US/i.test(v.lang) && /aria|jenny|samantha|zira|female|girl/i.test(v.name)) ||
+         voices.find(v => /en-US/i.test(v.lang)) ||
+         voices.find(v => /^en/i.test(v.lang)) ||
+         null;
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = .92;
+  u.pitch = 1.18;
+  u.volume = 1;
+  const voice = getBestVoice();
+  if(voice) u.voice = voice;
+  speechSynthesis.speak(u);
+}
+
+function sayCheer(){
+  const cheers = [
+    "Great job!",
+    "Excellent!",
+    "Wonderful work!",
+    "You are a star!",
+    "Awesome thinking!"
+  ];
+  speak(cheers[Math.floor(Math.random()*cheers.length)]);
+}
+
+/* ======================
+   Helpers
+====================== */
+function shuffle(arr){
+  return [...arr].sort(()=>Math.random() - .5);
+}
+
+function getStars(){
+  const score = correct / questions.length;
+  if(score >= .9) return 3;
+  if(score >= .65) return 2;
+  if(score >= .35) return 1;
+  return 0;
+}
+
+function updateHUD(){
+  const done = Math.min(index, questions.length);
+  const pct = Math.round((done / questions.length) * 100);
+  bar.style.width = pct + "%";
+  progressText.textContent = pct + "%";
+  correctNum.textContent = correct;
+  wrongNum.textContent = wrong;
+  starsEl.textContent = "⭐ " + getStars();
+}
+
+function setMessage(text,type=""){
+  message.className = "message" + (type ? " " + type : "");
+  message.textContent = text;
+}
+
+function renderQuestion(){
+  locked = false;
+  const q = order[index];
+
+  qtop.textContent = "Question " + (index + 1) + " of " + questions.length;
+  questionText.textContent = q.prompt;
+  visual.innerHTML = q.visual;
+  teacherBubble.textContent = "Listen carefully. Then tap the correct answer.";
+  setMessage("Tap the correct answer.");
+
+  optionsBox.innerHTML = "";
+  shuffle(q.choices).forEach(choice => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.type = "button";
+    b.textContent = choice;
+    b.onclick = () => chooseAnswer(b, choice);
+    optionsBox.appendChild(b);
+  });
+
+  updateHUD();
+  setTimeout(()=>speak(q.speak),350);
+}
+
+function repeatQuestion(){
+  if(!order.length || index >= questions.length){
+    speak("Press New to start the quiz.");
+    return;
+  }
+
+  const q = order[index];
+  speak(q.speak);
+  teacherBubble.textContent = q.prompt;
+}
+
+function chooseAnswer(button, choice){
+  if(locked) return;
+  locked = true;
+
+  const q = order[index];
+  const isCorrect = choice === q.answer;
+
+  [...optionsBox.children].forEach(btn => {
+    btn.disabled = true;
+    if(btn.textContent === q.answer){
+      btn.classList.add("correct");
+    }
+  });
+
+  if(isCorrect){
+    correct++;
+    button.classList.add("correct");
+    setMessage("✅ Correct! Great job!", "good");
+    teacherBubble.textContent = "Correct! You are doing great.";
+    playChime();
+    cheerSound();
+    sayCheer();
+    confetti();
+  }else{
+    wrong++;
+    button.classList.add("wrong");
+    setMessage("💪 Nice try! The correct answer is: " + q.answer, "oops");
+    teacherBubble.textContent = "Good try. The correct answer is " + q.answer + ".";
+    beep(300,.08,.04,"sine");
+    speak("Nice try. The correct answer is " + q.answer + ".");
+  }
+
+  index++;
+  updateHUD();
+
+  setTimeout(() => {
+    if(index >= questions.length){
+      finishQuiz();
+    }else{
+      renderQuestion();
+    }
+  }, isCorrect ? 1200 : 1900);
+}
+
+function startQuiz(){
+  order = shuffle(questions);
+  index = 0;
+  correct = 0;
+  wrong = 0;
+  locked = false;
+
+  setMessage("Let’s begin!");
+  teacherBubble.textContent = "Welcome! Let’s answer questions about horizontal lines.";
+  speak("Welcome to the horizontal lines quiz. Listen, look, and tap the correct answer.");
+
+  setTimeout(renderQuestion,700);
+}
+
+function saveProgress(score,stars){
+  const STORE = "gpeis_progress_v1";
+  let db = {};
+  try{ db = JSON.parse(localStorage.getItem(STORE) || "{}"); }catch(e){ db = {}; }
+
+  db.A = db.A || {level:"A",activities:{},updatedAt:new Date().toISOString()};
+  db.A.activities.HorizontalLinesQuiz = {
+    id:"HorizontalLinesQuiz",
+    completed:true,
+    lastScore:score,
+    bestScore:Math.max(score, db.A.activities.HorizontalLinesQuiz?.bestScore || 0),
+    lastStars:stars,
+    bestStars:Math.max(stars, db.A.activities.HorizontalLinesQuiz?.bestStars || 0),
+    lastAt:new Date().toISOString()
+  };
+  db.A.updatedAt = new Date().toISOString();
+
+  localStorage.setItem(STORE, JSON.stringify(db));
+}
+
+function finishQuiz(){
+  locked = true;
+  const score = Math.round((correct / questions.length) * 100);
+  const stars = getStars();
+
+  bar.style.width = "100%";
+  progressText.textContent = "100%";
+  starsEl.textContent = "⭐ " + stars;
+
+  questionText.textContent = "Quiz Finished!";
+  qtop.textContent = "Great work!";
+  visual.innerHTML = `
+    <svg viewBox="0 0 700 260">
+      <rect width="700" height="260" fill="#70c56f"/>
+      <text x="350" y="75" text-anchor="middle" font-size="44" font-family="Comic Sans MS" font-weight="900" fill="#fff" stroke="#f2485b" stroke-width="5" paint-order="stroke">Amazing!</text>
+      <text x="350" y="135" text-anchor="middle" font-size="34" font-family="Comic Sans MS" font-weight="900">Score: ${score}%</text>
+      <text x="350" y="195" text-anchor="middle" font-size="42" font-family="Comic Sans MS" font-weight="900">${"⭐".repeat(stars) || "Keep Trying!"}</text>
+    </svg>
+  `;
+  optionsBox.innerHTML = "";
+  setMessage("🎉 You got " + correct + " out of " + questions.length + ". Score: " + score + "%", "good");
+  teacherBubble.textContent = "Amazing work! You finished the horizontal lines quiz.";
+
+  saveProgress(score,stars);
+  playChime();
+  setTimeout(playChime,300);
+  cheerSound();
+  confetti();
+  speak("Amazing work. You finished the quiz. Your score is " + score + " percent. You earned " + stars + " stars.");
+}
+
+function confetti(){
+  const icons = ["⭐","✨","🎉","👏","🌟","💛"];
+  for(let i=0;i<26;i++){
+    const s = document.createElement("span");
+    s.className = "confetti";
+    s.textContent = icons[Math.floor(Math.random()*icons.length)];
+    s.style.left = Math.random()*100 + "vw";
+    s.style.animationDelay = Math.random()*160 + "ms";
+    s.style.fontSize = (18 + Math.random()*18) + "px";
+    celebrate.appendChild(s);
+    setTimeout(()=>s.remove(),1300);
+  }
+}
+
+window.addEventListener("load",() => {
+  updateHUD();
+  speak("Welcome to the horizontal lines quiz. Press New to start.");
+});
+
+if("speechSynthesis" in window){
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>

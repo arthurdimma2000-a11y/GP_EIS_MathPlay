@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Bk2LC7 - Greater Than</title>
+<style>
+  :root{
+    --red:#f24b5e;
+    --soft-red:#fff2f4;
+    --pink:#ffd7e4;
+    --ink:#25242a;
+    --blue:#58c6ff;
+    --green:#1fa85b;
+    --gold:#ffd24a;
+    --purple:#6c4bbf;
+    --paper:#fffdf7;
+    --shadow:0 14px 30px rgba(0,0,0,.12);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    color:var(--ink);
+    background:#fffaf1;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#f1e6d8 1px, transparent 1px),
+      linear-gradient(90deg, #f1e6d8 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(1000px,100%);
+    background:var(--paper);
+    border:8px solid var(--red);
+    border-radius:30px;
+    padding:14px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+
+  .home-btn{
+    position:absolute;
+    top:10px;
+    right:12px;
+    z-index:30;
+    width:66px;
+    height:66px;
+    border:none;
+    background:transparent;
+    padding:0;
+    cursor:pointer;
+    animation:swing 2.4s ease-in-out infinite;
+    transform-origin:top center;
+  }
+
+  .home-btn img{
+    width:66px;
+    height:66px;
+    display:block;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.22));
+  }
+
+  @keyframes swing{
+    0%,100%{transform:translateY(24%) rotate(-5deg);}
+    50%{transform:translateY(24%) rotate(7deg);}
+  }
+
+  .main-title{
+    margin:-12px auto 8px;
+    text-align:center;
+    font-size:clamp(3.2rem,10vw,6.2rem);
+    line-height:.9;
+    font-weight:1000;
+    color:#fff;
+    -webkit-text-stroke:8px var(--red);
+    paint-order:stroke fill;
+    text-shadow:0 5px 0 rgba(242,75,94,.22);
+  }
+
+  .week{
+    position:absolute;
+    right:26px;
+    top:96px;
+    background:#fff;
+    border:4px solid var(--red);
+    border-radius:12px;
+    padding:5px 12px;
+    font-weight:1000;
+    font-size:clamp(1rem,2.5vw,1.45rem);
+    z-index:5;
+  }
+
+  .poster-note{
+    width:min(900px,100%);
+    margin:4px auto 12px;
+    text-align:center;
+    background:#fff8fb;
+    border:3px dashed #ffd1df;
+    border-radius:18px;
+    padding:10px 12px;
+    font-size:clamp(1rem,2.6vw,1.22rem);
+    font-weight:1000;
+    color:#4b3960;
+  }
+
+  .poster-board{
+    width:min(900px,100%);
+    margin:0 auto;
+    border:4px solid #d7d7d7;
+    border-radius:14px;
+    background:
+      linear-gradient(#eef1ec 1px, transparent 1px),
+      linear-gradient(90deg, #eef1ec 1px, transparent 1px),
+      #fff;
+    background-size:18px 18px;
+    padding:14px;
+    display:grid;
+    gap:14px;
+  }
+
+  .row-card{
+    min-height:244px;
+    background:rgba(255,255,255,.92);
+    border:4px solid #d6d6d6;
+    border-radius:14px;
+    display:grid;
+    grid-template-columns:1fr 140px 1fr;
+    align-items:center;
+    gap:14px;
+    padding:14px;
+    position:relative;
+  }
+
+  .row-card.row-one{border-color:#f5c3c6;}
+  .row-card.row-two{border-color:#f6d77e;}
+  .row-card.row-three{border-color:#a9d875;}
+
+  .stick-zone{
+    min-height:150px;
+    position:relative;
+    border-radius:12px;
+  }
+
+  .stick{
+    position:absolute;
+    height:12px;
+    border:2px solid #4b2d1f;
+    border-radius:999px;
+    transform-origin:center;
+    box-shadow:0 2px 3px rgba(0,0,0,.16);
+  }
+
+  .twig{background:linear-gradient(90deg,#8b5434,#c48a59,#6e3b24);}
+  .wooden{background:linear-gradient(90deg,#d79c55,#f5cc83,#b97332);}
+  .toothpick{height:9px;border-color:#b48735;background:linear-gradient(90deg,#f8dc8d,#fff1b5,#c99a42);}
+  .matchstick{height:9px;border-color:#946f3b;background:linear-gradient(90deg,#e7c680,#f6df9e,#b98a43);}
+
+  .matchstick::after{
+    content:"";
+    position:absolute;
+    right:-8px;
+    top:50%;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    transform:translateY(-50%);
+    background:var(--head,#e74b4b);
+    border:2px solid rgba(0,0,0,.25);
+  }
+
+  .twig::after{
+    content:"";
+    position:absolute;
+    width:54px;
+    height:6px;
+    right:18px;
+    top:-10px;
+    border-radius:999px;
+    background:#7a4127;
+    border:2px solid #4b2d1f;
+    transform:rotate(-28deg);
+  }
+
+  .write-section{
+    display:grid;
+    gap:8px;
+    justify-items:center;
+    align-items:center;
+  }
+
+  .write-label{
+    font-size:.95rem;
+    font-weight:1000;
+    color:#7a4b69;
+    text-align:center;
+  }
+
+  .sign-box{
+    width:122px;
+    height:122px;
+    border:4px solid #f5b3c4;
+    border-radius:12px;
+    background:#fff;
+    font-size:4.9rem;
+    font-weight:1000;
+    text-align:center;
+    color:#e62f43;
+    outline:none;
+    box-shadow:inset 0 0 0 4px rgba(255,255,255,.85);
+  }
+
+  .sign-box::placeholder{color:#ffd0da;}
+  .sign-box.correct{border-color:#22b46b;background:#f0fff5;}
+  .sign-box.wrong{border-color:#ff8a8a;background:#fff1f1;}
+
+  .tap-write-btn{
+    border:none;
+    border-radius:999px;
+    background:#ffe5ec;
+    color:#9a2540;
+    padding:6px 12px;
+    font-size:.82rem;
+    font-weight:1000;
+    cursor:pointer;
+  }
+
+  .row-sentence{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:8px;
+    text-align:center;
+    font-size:clamp(1.45rem,4vw,2.2rem);
+    font-weight:900;
+    pointer-events:none;
+  }
+
+  .row-sentence .red{color:#e62f43;}
+
+  .practice{
+    width:min(900px,100%);
+    margin:16px auto 0;
+    display:grid;
+    gap:12px;
+  }
+
+  .practice-title{
+    text-align:center;
+    font-size:clamp(1.4rem,4vw,2.2rem);
+    font-weight:1000;
+    color:#fff;
+    background:var(--red);
+    border-radius:18px;
+    padding:8px 10px;
+    box-shadow:0 5px 0 rgba(0,0,0,.12);
+  }
+
+  .comparison-card{
+    background:#fff;
+    border:4px solid #ffd1df;
+    border-radius:22px;
+    padding:12px;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:12px;
+    align-items:center;
+    box-shadow:0 8px 18px rgba(0,0,0,.07);
+  }
+
+  .comparison-card.row-one{border-color:#f5c3c6;}
+  .comparison-card.row-two{border-color:#f6d77e;}
+  .comparison-card.row-three{border-color:#a9d875;}
+
+  .trace-box{
+    position:relative;
+    min-height:200px;
+    border:4px solid #ffd1df;
+    border-radius:18px;
+    background:
+      linear-gradient(#b7ebff 1px, transparent 1px),
+      linear-gradient(90deg, #b7ebff 1px, transparent 1px),
+      #fff;
+    background-size:24px 24px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 4px rgba(255,255,255,.65);
+  }
+
+  .trace-box.symbol{
+    width:min(160px,20vw);
+    min-width:125px;
+    background:#fff9fb;
+  }
+
+  .trace-label{
+    position:absolute;
+    left:8px;
+    top:6px;
+    z-index:6;
+    font-size:.95rem;
+    font-weight:1000;
+    color:#7a4b69;
+    background:rgba(255,255,255,.9);
+    border-radius:999px;
+    padding:4px 8px;
+    pointer-events:none;
+  }
+
+  .trace-svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    pointer-events:none;
+  }
+
+  .guide-path{
+    fill:none;
+    stroke:rgba(130,130,130,.55);
+    stroke-width:5.8;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:.5 8;
+  }
+
+  .guide-path.sign{
+    stroke:rgba(242,75,94,.58);
+    stroke-width:6.5;
+  }
+
+  .trace-canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    touch-action:none;
+    cursor:crosshair;
+    z-index:3;
+  }
+
+  .caption{
+    text-align:center;
+    font-size:clamp(1rem,2.8vw,1.35rem);
+    font-weight:1000;
+    margin-top:6px;
+    color:#3a2d5a;
+  }
+
+  .caption strong{color:#e62f43;}
+
+  .progress-card{
+    width:min(900px,100%);
+    margin:14px auto 0;
+    background:#fff8fb;
+    border:3px solid #ffd1df;
+    border-radius:20px;
+    padding:12px;
+    display:grid;
+    gap:10px;
+  }
+
+  .progress-title{
+    text-align:center;
+    font-weight:1000;
+    color:#4b3960;
+    font-size:1.1rem;
+  }
+
+  .bar{
+    width:100%;
+    height:16px;
+    background:#e8eef8;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.12);
+  }
+
+  .fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#58c6ff,#83e79f);
+    transition:width .2s ease;
+  }
+
+  .mini-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    text-align:center;
+    font-weight:1000;
+    color:#47506b;
+    font-size:.95rem;
+  }
+
+  .stat{
+    background:#fff;
+    border:2px solid #e7edf8;
+    border-radius:14px;
+    padding:7px;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.35em;
+    font-size:2rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);
+  }
+
+  .controls{
+    width:min(900px,100%);
+    margin:12px auto 0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:11px 18px;
+    font-size:.98rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.18);
+    transition:transform .1s ease,filter .1s ease;
+  }
+
+  .btn:hover{filter:brightness(1.04);transform:translateY(-1px);}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.14);}
+  .btn.read{background:var(--red);color:#fff;}
+  .btn.cheer{background:#c9f2d6;color:#166c38;}
+  .btn.clear{background:#dfeaff;color:#1f3b6b;}
+  .btn.nav{background:#f7dc6f;color:#8b5a00;}
+
+  .status{
+    width:min(900px,100%);
+    margin:10px auto 0;
+    min-height:1.5em;
+    text-align:center;
+    font-size:clamp(1rem,3vw,1.28rem);
+    font-weight:1000;
+    color:#5a3eb0;
+  }
+
+  .confetti-piece{
+    position:fixed;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    z-index:9999;
+    pointer-events:none;
+    animation:fall 1.7s linear forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(105vh) rotate(540deg);opacity:.1;}
+  }
+
+  @media(max-width:740px){
+    .app{border-width:6px;padding:10px;border-radius:22px;}
+    .week{top:72px;right:16px;}
+    .main-title{-webkit-text-stroke:5px var(--red);}
+    .row-card{grid-template-columns:1fr;min-height:490px;}
+    .stick-zone{min-height:120px;}
+    .sign-box{width:116px;height:100px;font-size:3.7rem;}
+    .row-sentence{bottom:6px;}
+    .comparison-card{grid-template-columns:1fr;}
+    .trace-box.symbol{width:100%;min-width:0;}
+    .mini-stats{grid-template-columns:1fr;}
+    .home-btn,.home-btn img{width:56px;height:56px;}
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <button class="home-btn" id="homeBtn" aria-label="Home">
+    <img src="../../../Home1.png" alt="Home">
+  </button>
+
+  <h1 class="main-title">Greater Than</h1>
+  <div class="week">Week 1</div>
+
+  <div class="poster-note" id="introText">
+    Write the greater-than sign in each blank box. Then trace the correctly shaped dotted numbers and greater-than signs.
+  </div>
+
+  <section class="poster-board" aria-label="Greater than poster activity">
+    <div class="row-card row-one" data-row="0">
+      <div class="stick-zone" aria-label="8 twigs">
+        <span class="stick twig" style="width:145px;left:12%;top:10%;transform:rotate(4deg);"></span>
+        <span class="stick twig" style="width:128px;left:7%;top:25%;transform:rotate(-15deg);"></span>
+        <span class="stick twig" style="width:136px;left:35%;top:22%;transform:rotate(12deg);"></span>
+        <span class="stick twig" style="width:144px;left:20%;top:42%;transform:rotate(7deg);"></span>
+        <span class="stick twig" style="width:122px;left:5%;top:58%;transform:rotate(15deg);"></span>
+        <span class="stick twig" style="width:130px;left:42%;top:55%;transform:rotate(-8deg);"></span>
+        <span class="stick twig" style="width:118px;left:13%;top:76%;transform:rotate(10deg);"></span>
+        <span class="stick twig" style="width:128px;left:45%;top:78%;transform:rotate(-12deg);"></span>
+      </div>
+
+      <div class="write-section">
+        <div class="write-label">Write &gt;</div>
+        <input class="sign-box" inputmode="text" maxlength="1" aria-label="Write greater than sign for 8 and 6" placeholder="?" data-answer=">">
+        <button class="tap-write-btn" type="button" data-fill="0">Tap to write &gt;</button>
+      </div>
+
+      <div class="stick-zone" aria-label="6 toothpicks">
+        <span class="stick toothpick" style="width:112px;left:12%;top:12%;transform:rotate(75deg);"></span>
+        <span class="stick toothpick" style="width:120px;left:30%;top:19%;transform:rotate(80deg);"></span>
+        <span class="stick toothpick" style="width:105px;left:50%;top:25%;transform:rotate(77deg);"></span>
+        <span class="stick toothpick" style="width:116px;left:18%;top:53%;transform:rotate(96deg);"></span>
+        <span class="stick toothpick" style="width:112px;left:42%;top:62%;transform:rotate(101deg);"></span>
+        <span class="stick toothpick" style="width:118px;left:67%;top:47%;transform:rotate(93deg);"></span>
+      </div>
+
+      <div class="row-sentence"><strong>8</strong> is <span class="red">greater than</span> <strong>6</strong>.</div>
+    </div>
+
+    <div class="row-card row-two" data-row="1">
+      <div class="stick-zone" aria-label="5 wooden sticks">
+        <span class="stick wooden" style="width:150px;left:10%;top:10%;transform:rotate(-16deg);"></span>
+        <span class="stick wooden" style="width:165px;left:15%;top:29%;transform:rotate(-2deg);"></span>
+        <span class="stick wooden" style="width:142px;left:8%;top:48%;transform:rotate(-13deg);"></span>
+        <span class="stick wooden" style="width:146px;left:35%;top:60%;transform:rotate(-15deg);"></span>
+        <span class="stick wooden" style="width:142px;left:18%;top:78%;transform:rotate(-9deg);"></span>
+      </div>
+
+      <div class="write-section">
+        <div class="write-label">Write &gt;</div>
+        <input class="sign-box" inputmode="text" maxlength="1" aria-label="Write greater than sign for 5 and 2" placeholder="?" data-answer=">">
+        <button class="tap-write-btn" type="button" data-fill="1">Tap to write &gt;</button>
+      </div>
+
+      <div class="stick-zone" aria-label="2 craft sticks">
+        <span class="stick wooden" style="width:170px;height:18px;left:15%;top:32%;transform:rotate(-14deg);"></span>
+        <span class="stick wooden" style="width:170px;height:18px;left:15%;top:62%;transform:rotate(-15deg);"></span>
+      </div>
+
+      <div class="row-sentence"><strong>5</strong> is <span class="red">greater than</span> <strong>2</strong>.</div>
+    </div>
+
+    <div class="row-card row-three" data-row="2">
+      <div class="stick-zone" aria-label="9 toothpicks">
+        <span class="stick toothpick" style="width:125px;left:12%;top:8%;transform:rotate(-2deg);"></span>
+        <span class="stick toothpick" style="width:130px;left:6%;top:23%;transform:rotate(-7deg);"></span>
+        <span class="stick toothpick" style="width:115px;left:38%;top:22%;transform:rotate(-13deg);"></span>
+        <span class="stick toothpick" style="width:125px;left:15%;top:40%;transform:rotate(9deg);"></span>
+        <span class="stick toothpick" style="width:128px;left:47%;top:42%;transform:rotate(-7deg);"></span>
+        <span class="stick toothpick" style="width:122px;left:8%;top:58%;transform:rotate(16deg);"></span>
+        <span class="stick toothpick" style="width:125px;left:38%;top:62%;transform:rotate(-13deg);"></span>
+        <span class="stick toothpick" style="width:120px;left:17%;top:78%;transform:rotate(-2deg);"></span>
+        <span class="stick toothpick" style="width:124px;left:51%;top:81%;transform:rotate(-2deg);"></span>
+      </div>
+
+      <div class="write-section">
+        <div class="write-label">Write &gt;</div>
+        <input class="sign-box" inputmode="text" maxlength="1" aria-label="Write greater than sign for 9 and 4" placeholder="?" data-answer=">">
+        <button class="tap-write-btn" type="button" data-fill="2">Tap to write &gt;</button>
+      </div>
+
+      <div class="stick-zone" aria-label="4 matchsticks">
+        <span class="stick matchstick" style="--head:#478fca;width:112px;left:24%;top:14%;transform:rotate(-4deg);"></span>
+        <span class="stick matchstick" style="--head:#e85048;width:138px;left:10%;top:38%;transform:rotate(21deg);"></span>
+        <span class="stick matchstick" style="--head:#e8cf38;width:112px;left:28%;top:62%;transform:rotate(-12deg);"></span>
+        <span class="stick matchstick" style="--head:#8055b8;width:134px;left:10%;top:78%;transform:rotate(20deg);"></span>
+      </div>
+
+      <div class="row-sentence"><strong>9</strong> is <span class="red">greater than</span> <strong>4</strong>.</div>
+    </div>
+  </section>
+
+  <section class="practice" aria-label="Trace numbers and greater than signs">
+    <div class="practice-title">Trace the numbers and greater-than signs</div>
+
+    <div class="comparison-card row-one" data-row="0">
+      <div>
+        <div class="trace-box trace-pad" data-pad-kind="8">
+          <span class="trace-label">Trace 8</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path" d="M50 16 C32 16 22 27 22 39 C22 49 31 57 50 59 C69 57 78 49 78 39 C78 27 68 16 50 16 Z" />
+            <path class="guide-path" d="M50 52 C28 52 18 64 18 78 C18 91 31 98 50 98 C69 98 82 91 82 78 C82 64 72 52 50 52 Z" />
+          </svg>
+          <canvas class="trace-canvas" data-kind="8" data-row="0"></canvas>
+        </div>
+        <div class="caption"><strong>8</strong> sticks</div>
+      </div>
+
+      <div>
+        <div class="trace-box symbol trace-pad" data-pad-kind=">">
+          <span class="trace-label">Trace &gt;</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path sign" d="M26 24 L76 50" />
+            <path class="guide-path sign" d="M76 50 L26 76" />
+          </svg>
+          <canvas class="trace-canvas" data-kind=">" data-row="0"></canvas>
+        </div>
+        <div class="caption">is <strong>greater than</strong></div>
+      </div>
+
+      <div>
+        <div class="trace-box trace-pad" data-pad-kind="6">
+          <span class="trace-label">Trace 6</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path" d="M74 18 C50 17 31 35 29 60 C28 82 43 96 62 96 C80 96 92 84 92 66 C92 50 80 39 63 39 C47 39 36 50 36 65 C36 79 47 88 62 88 C75 88 84 79 84 66 C84 55 75 48 63 48 C52 48 45 55 45 65" />
+          </svg>
+          <canvas class="trace-canvas" data-kind="6" data-row="0"></canvas>
+        </div>
+        <div class="caption"><strong>6</strong> sticks</div>
+      </div>
+    </div>
+
+    <div class="comparison-card row-two" data-row="1">
+      <div>
+        <div class="trace-box trace-pad" data-pad-kind="5">
+          <span class="trace-label">Trace 5</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path" d="M76 18 L32 18 L29 45 L58 45 C77 45 90 57 88 73 C86 88 72 97 54 94 C42 92 32 85 27 76" />
+          </svg>
+          <canvas class="trace-canvas" data-kind="5" data-row="1"></canvas>
+        </div>
+        <div class="caption"><strong>5</strong> sticks</div>
+      </div>
+
+      <div>
+        <div class="trace-box symbol trace-pad" data-pad-kind=">">
+          <span class="trace-label">Trace &gt;</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path sign" d="M26 24 L76 50" />
+            <path class="guide-path sign" d="M76 50 L26 76" />
+          </svg>
+          <canvas class="trace-canvas" data-kind=">" data-row="1"></canvas>
+        </div>
+        <div class="caption">is <strong>greater than</strong></div>
+      </div>
+
+      <div>
+        <div class="trace-box trace-pad" data-pad-kind="2">
+          <span class="trace-label">Trace 2</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path" d="M28 31 C36 18 57 14 72 22 C86 30 88 47 76 58 L28 88 L78 88" />
+          </svg>
+          <canvas class="trace-canvas" data-kind="2" data-row="1"></canvas>
+        </div>
+        <div class="caption"><strong>2</strong> sticks</div>
+      </div>
+    </div>
+
+    <div class="comparison-card row-three" data-row="2">
+      <div>
+        <div class="trace-box trace-pad" data-pad-kind="9">
+          <span class="trace-label">Trace 9</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path" d="M26 82 C48 90 74 78 78 52 C81 31 68 15 50 15 C32 15 20 28 20 45 C20 61 33 72 50 72 C67 72 79 61 79 45 C79 31 68 23 52 23 C38 23 29 32 29 45 C29 56 38 64 50 64 C61 64 70 56 70 45" />
+          </svg>
+          <canvas class="trace-canvas" data-kind="9" data-row="2"></canvas>
+        </div>
+        <div class="caption"><strong>9</strong> sticks</div>
+      </div>
+
+      <div>
+        <div class="trace-box symbol trace-pad" data-pad-kind=">">
+          <span class="trace-label">Trace &gt;</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path sign" d="M26 24 L76 50" />
+            <path class="guide-path sign" d="M76 50 L26 76" />
+          </svg>
+          <canvas class="trace-canvas" data-kind=">" data-row="2"></canvas>
+        </div>
+        <div class="caption">is <strong>greater than</strong></div>
+      </div>
+
+      <div>
+        <div class="trace-box trace-pad" data-pad-kind="4">
+          <span class="trace-label">Trace 4</span>
+          <svg class="trace-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="guide-path" d="M69 14 L28 60 L80 60" />
+            <path class="guide-path" d="M69 14 L69 90" />
+          </svg>
+          <canvas class="trace-canvas" data-kind="4" data-row="2"></canvas>
+        </div>
+        <div class="caption"><strong>4</strong> sticks</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="progress-card" aria-live="polite">
+    <div class="progress-title">Page progress: <span id="overallText">0%</span></div>
+    <div class="bar"><div class="fill" id="overallFill"></div></div>
+
+    <div class="mini-stats">
+      <div class="stat">8 &gt; 6: <span id="row0Text">0%</span></div>
+      <div class="stat">5 &gt; 2: <span id="row1Text">0%</span></div>
+      <div class="stat">9 &gt; 4: <span id="row2Text">0%</span></div>
+    </div>
+
+    <div class="stars" id="stars"></div>
+  </section>
+
+  <div class="controls">
+    <button class="btn read" id="startBtn" type="button">▶ Start Lesson</button>
+    <button class="btn read" id="readBtn" type="button">🔊 Read Sentences</button>
+    <button class="btn cheer" id="cheerBtn" type="button">👏 Cheer</button>
+    <button class="btn clear" id="clearBtn" type="button">Clear</button>
+    <button class="btn nav" id="prevBtn" type="button">← Previous page</button>
+    <button class="btn nav" id="nextBtn" type="button">Next page →</button>
+  </div>
+
+  <div class="status" id="status">Tap Start Lesson. Then write &gt; in each blank box and trace the numbers.</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  const PAGE_ID = "Bk2LC7";
+  const LEVEL = "C";
+  const CHIME_SOURCES = ["chime.mp3", "../../../../assets/audio/chimes/chime.mp3"];
+
+  const startBtn = document.getElementById("startBtn");
+  const readBtn = document.getElementById("readBtn");
+  const cheerBtn = document.getElementById("cheerBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const homeBtn = document.getElementById("homeBtn");
+  const statusEl = document.getElementById("status");
+  const overallText = document.getElementById("overallText");
+  const overallFill = document.getElementById("overallFill");
+  const rowTexts = [document.getElementById("row0Text"), document.getElementById("row1Text"), document.getElementById("row2Text")];
+  const starsEl = document.getElementById("stars");
+  const inputs = Array.from(document.querySelectorAll(".sign-box"));
+  const fillButtons = Array.from(document.querySelectorAll(".tap-write-btn"));
+  const canvases = Array.from(document.querySelectorAll(".trace-canvas"));
+
+  const rowTraceProgress = [
+    { values:[], input:false },
+    { values:[], input:false },
+    { values:[], input:false }
+  ];
+
+  let audioCtx = null;
+  let pads = [];
+  let completed = false;
+  let milestoneCheered = false;
+  let lastTick = 0;
+
+  function setStatus(text){
+    statusEl.textContent = text || "";
+  }
+
+  function getAudioCtx(){
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+
+  function pickVoice(){
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    return voices.find(v => /^en[-_]us/i.test(v.lang || "") && /jenny|aria|ava|allison|ellie|libby|olivia|emma|ivy|samantha|female|girl|zira/i.test(v.name || ""))
+      || voices.find(v => /^en[-_]us/i.test(v.lang || "") && !/male|boy|david|guy|michael|james|thomas|mark|paul|brian|steve|kevin|eric/i.test(v.name || ""))
+      || voices.find(v => /^en/i.test(v.lang || ""))
+      || voices[0]
+      || null;
+  }
+
+  function speak(text, onend){
+    if (!text || !("speechSynthesis" in window)) {
+      if (onend) onend();
+      return;
+    }
+    try { window.speechSynthesis.cancel(); } catch(_e) {}
+    const u = new SpeechSynthesisUtterance(String(text));
+    u.lang = "en-US";
+    u.rate = 0.88;
+    u.pitch = 1.16;
+    u.volume = 1;
+    const voice = pickVoice();
+    if (voice) u.voice = voice;
+    u.onend = () => { if (onend) onend(); };
+    u.onerror = () => { if (onend) onend(); };
+    window.speechSynthesis.speak(u);
+  }
+
+  function stopSpeaking(){
+    try { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); } catch(_e) {}
+  }
+
+  function playSynthChime(){
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    [660, 880, 1046].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const t = ctx.currentTime + i * 0.13;
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.22, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.35);
+    });
+  }
+
+  function playChime(){
+    getAudioCtx();
+    function trySource(index){
+      if (index >= CHIME_SOURCES.length) {
+        playSynthChime();
+        return;
+      }
+      try {
+        const audio = new Audio(CHIME_SOURCES[index]);
+        audio.volume = 0.9;
+        const p = audio.play();
+        if (p && typeof p.catch === "function") p.catch(() => trySource(index + 1));
+      } catch(_e) {
+        trySource(index + 1);
+      }
+    }
+    trySource(0);
+  }
+
+  function playTraceTick(){
+    const now = performance.now();
+    if (now - lastTick < 65) return;
+    lastTick = now;
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.value = 920;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.045, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.09);
+  }
+
+  function clap(){
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    for (let i = 0; i < 4; i++) {
+      const bufferSize = Math.floor(ctx.sampleRate * 0.08);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let j = 0; j < bufferSize; j++) data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufferSize, 2);
+      const noise = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      noise.buffer = buffer;
+      gain.gain.value = 0.24;
+      noise.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(ctx.currentTime + i * 0.14);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#f24b5e", "#ffd24a", "#58c6ff", "#83e79f", "#f7a6c9", "#9ed06a"];
+    for (let i = 0; i < 36; i++) {
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = (Math.random() * .35) + "s";
+      piece.style.transform = "rotate(" + (Math.random() * 180) + "deg)";
+      document.body.appendChild(piece);
+      piece.addEventListener("animationend", () => piece.remove());
+    }
+  }
+
+  function getGuideSamples(traceBox, cssW, cssH){
+    const paths = Array.from(traceBox.querySelectorAll(".guide-path"));
+    const samples = [];
+    paths.forEach(path => {
+      const total = path.getTotalLength();
+      const count = Math.max(45, Math.ceil(total / 2.5));
+      for (let i = 0; i <= count; i++) {
+        const p = path.getPointAtLength((i / count) * total);
+        samples.push({ x:(p.x / 100) * cssW, y:(p.y / 100) * cssH, hit:false });
+      }
+    });
+    return samples;
+  }
+
+  function distanceToSegment(px, py, ax, ay, bx, by){
+    const dx = bx - ax;
+    const dy = by - ay;
+    if (!dx && !dy) return Math.hypot(px - ax, py - ay);
+    const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
+    const x = ax + t * dx;
+    const y = ay + t * dy;
+    return Math.hypot(px - x, py - y);
+  }
+
+  function createTracePad(canvas){
+    const kind = canvas.dataset.kind;
+    const row = Number(canvas.dataset.row || 0);
+    const traceBox = canvas.closest(".trace-box");
+    const state = { drawing:false, last:null, samples:[], progress:0, done:false, half:false };
+    const ctx = canvas.getContext("2d");
+
+    function setup(){
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.max(120, Math.round(rect.width * dpr));
+      canvas.height = Math.max(100, Math.round(rect.height * dpr));
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      state.w = rect.width;
+      state.h = rect.height;
+      state.samples = getGuideSamples(traceBox, rect.width, rect.height);
+      state.progress = 0;
+      state.done = false;
+      state.half = false;
+      clearCanvas();
+    }
+
+    function clearCanvas(){
+      ctx.clearRect(0, 0, state.w, state.h);
+    }
+
+    function pointerPoint(ev){
+      const r = canvas.getBoundingClientRect();
+      return { x:ev.clientX - r.left, y:ev.clientY - r.top };
+    }
+
+    function mark(a, b){
+      const threshold = Math.max(18, Math.min(state.w, state.h) * 0.11);
+      let changed = false;
+      state.samples.forEach(s => {
+        if (s.hit) return;
+        if (distanceToSegment(s.x, s.y, a.x, a.y, b.x, b.y) <= threshold) {
+          s.hit = true;
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        state.progress = Math.round(state.samples.filter(s => s.hit).length / Math.max(1, state.samples.length) * 100);
+        updateOverall();
+        if (state.progress >= 50 && !state.half) {
+          state.half = true;
+          setStatus("Good tracing! Keep going.");
+        }
+        if (state.progress >= 88 && !state.done) {
+          state.done = true;
+          playChime();
+          speak(kind === ">" ? "Great! Greater-than sign traced." : "Amazing! Number " + kind + " is traced.");
+        }
+      }
+    }
+
+    function down(ev){
+      ev.preventDefault();
+      getAudioCtx();
+      state.drawing = true;
+      state.last = pointerPoint(ev);
+      mark(state.last, state.last);
+    }
+
+    function move(ev){
+      if (!state.drawing) return;
+      ev.preventDefault();
+      const p = pointerPoint(ev);
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(31,94,168,.96)";
+      ctx.lineWidth = kind === ">" ? 10 : 8;
+      ctx.beginPath();
+      ctx.moveTo(state.last.x, state.last.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      ctx.restore();
+      playTraceTick();
+      mark(state.last, p);
+      state.last = p;
+    }
+
+    function up(){
+      state.drawing = false;
+      state.last = null;
+    }
+
+    canvas.addEventListener("pointerdown", down, {passive:false});
+    canvas.addEventListener("pointermove", move, {passive:false});
+    window.addEventListener("pointerup", up, {passive:true});
+    canvas.addEventListener("pointercancel", up, {passive:true});
+    window.addEventListener("resize", setup);
+
+    setup();
+
+    return {
+      row,
+      kind,
+      get progress(){ return state.progress; },
+      reset(){ setup(); updateOverall(); }
+    };
+  }
+
+  function normalizeSign(value){
+    const v = String(value || "").trim();
+    if (v === ">" || v === "＞") return ">";
+    return v;
+  }
+
+  function validateInput(input, speakFeedback){
+    const value = normalizeSign(input.value);
+    const ok = value === ">";
+    input.classList.toggle("correct", ok);
+    input.classList.toggle("wrong", value.length > 0 && !ok);
+
+    if (speakFeedback) {
+      if (ok) {
+        playChime();
+        setStatus("Correct! That is the greater-than sign.");
+        speak("Correct! That is the greater-than sign.");
+      } else if (value.length > 0) {
+        setStatus("Try the greater-than sign. It opens to the bigger group.");
+        speak("Try the greater-than sign. It opens to the bigger group.");
+      }
+    }
+    return ok;
+  }
+
+  function saveProgress(score){
+    try {
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+      store[PAGE_ID] = {
+        pageId:PAGE_ID,
+        file:PAGE_ID + ".html",
+        level:LEVEL,
+        type:"lesson",
+        activityType:"lesson",
+        score:Math.round(score),
+        tracing:Math.round(score),
+        stars:score >= 95 ? 3 : score >= 70 ? 2 : score >= 40 ? 1 : 0,
+        completed:score >= 95,
+        skills:{ reading:1, writing:score >= 70 ? 2 : score > 0 ? 1 : 0, speaking:1, listening:1 },
+        savedAt:new Date().toISOString(),
+        ts:Date.now()
+      };
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE", PAGE_ID + ".html");
+    } catch(_e) {}
+  }
+
+  function updateOverall(){
+    rowTraceProgress.forEach((rowData, rowIndex) => {
+      const rowPads = pads.filter(p => p.row === rowIndex);
+      rowData.values = rowPads.map(p => p.progress);
+      rowData.input = validateInput(inputs[rowIndex], false);
+    });
+
+    const rowScores = rowTraceProgress.map(rowData => {
+      const traceAvg = rowData.values.length ? rowData.values.reduce((a,b) => a + b, 0) / rowData.values.length : 0;
+      const inputScore = rowData.input ? 100 : 0;
+      return Math.round(traceAvg * 0.82 + inputScore * 0.18);
+    });
+
+    rowScores.forEach((score, i) => {
+      if (rowTexts[i]) rowTexts[i].textContent = score + "%";
+    });
+
+    const overall = Math.round(rowScores.reduce((a,b) => a + b, 0) / rowScores.length);
+    overallText.textContent = overall + "%";
+    overallFill.style.width = overall + "%";
+
+    starsEl.textContent = overall >= 95 ? "⭐ ⭐ ⭐" : overall >= 70 ? "⭐ ⭐" : overall >= 40 ? "⭐" : "";
+
+    if (overall >= 70 && !milestoneCheered && overall < 95) {
+      milestoneCheered = true;
+      clap();
+      speak("Great work! Keep tracing and writing.");
+    }
+
+    if (overall >= 95 && !completed) {
+      completed = true;
+      playChime();
+      clap();
+      confetti();
+      setStatus("Wow! You are super smart!");
+      speak("Wow! You are super smart! You traced the numbers and wrote the greater-than signs.");
+    }
+
+    if (overall < 95) completed = false;
+    if (overall < 70) milestoneCheered = false;
+    saveProgress(overall);
+  }
+
+  function readInstructions(){
+    getAudioCtx();
+    setStatus("Listen carefully.");
+    speak("Welcome to Greater Than. Look at the sticks. The bigger group opens the greater-than sign. Write the greater-than sign in each blank box. Then trace the correctly shaped numbers eight, six, five, two, nine, and four. Also trace the greater-than signs.");
+  }
+
+  function readSentences(){
+    getAudioCtx();
+    speak("Eight is greater than six. Five is greater than two. Nine is greater than four.");
+  }
+
+  function resetPage(){
+    stopSpeaking();
+    completed = false;
+    milestoneCheered = false;
+    pads.forEach(p => p.reset());
+    inputs.forEach(input => {
+      input.value = "";
+      input.classList.remove("correct", "wrong");
+    });
+    starsEl.textContent = "";
+    setStatus("Cleared. Write the greater-than signs and trace again.");
+    speak("Cleared. Start again.");
+    updateOverall();
+  }
+
+  inputs.forEach(input => {
+    input.addEventListener("focus", () => {
+      getAudioCtx();
+      input.select();
+      setStatus("Write the greater-than sign in the blank box.");
+    });
+    input.addEventListener("input", () => {
+      input.value = input.value.slice(0,1);
+      validateInput(input, true);
+      updateOverall();
+    });
+    input.addEventListener("click", getAudioCtx);
+  });
+
+  fillButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      getAudioCtx();
+      const index = Number(btn.dataset.fill || 0);
+      const input = inputs[index];
+      if (!input) return;
+      input.value = ">";
+      validateInput(input, true);
+      updateOverall();
+    });
+  });
+
+  pads = canvases.map(canvas => createTracePad(canvas));
+
+  startBtn.addEventListener("click", readInstructions);
+  readBtn.addEventListener("click", readSentences);
+
+  cheerBtn.addEventListener("click", () => {
+    getAudioCtx();
+    playChime();
+    clap();
+    confetti();
+    setStatus("You can do it! Great job!");
+    speak("You can do it! Great job!");
+  });
+
+  clearBtn.addEventListener("click", resetPage);
+
+  prevBtn.addEventListener("click", () => {
+    stopSpeaking();
+    window.location.href = "Bk2LC3.html";
+  });
+
+  nextBtn.addEventListener("click", () => {
+    stopSpeaking();
+    window.location.href = "../Thursday/Bk2FairlyTaleC.html";
+  });
+
+  homeBtn.addEventListener("click", () => {
+    stopSpeaking();
+    window.location.href = "../../../../../index.html";
+  });
+
+  if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = () => {};
+
+  window.addEventListener("beforeunload", stopSpeaking);
+
+  window.addEventListener("load", () => {
+    updateOverall();
+    setTimeout(() => {
+      speak("Greater Than. Write the greater-than sign in the blank boxes. Then trace the correctly shaped dotted numbers and signs.");
+    }, 600);
+  }, { once:true });
+})();
+</script>
+</body>
+</html>

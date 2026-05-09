@@ -1,0 +1,1263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Numbers 6 7 8 • Straight Lines Game</title>
+
+<style>
+  :root{
+    --red:#f2485b;
+    --pink:#f5a7cf;
+    --blue:#27a8df;
+    --green:#16a34a;
+    --yellow:#ffe58a;
+    --cream:#fffaf2;
+    --ink:#202124;
+    --shadow:0 18px 50px rgba(0,0,0,.14);
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    min-height:100%;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:16px;
+    color:var(--ink);
+    background:
+      linear-gradient(#e8edf4 1px, transparent 1px),
+      linear-gradient(90deg,#e8edf4 1px, transparent 1px),
+      radial-gradient(circle at 12% 10%,#ffd6ff,transparent 36%),
+      radial-gradient(circle at 88% 15%,#fff4a6,transparent 42%),
+      linear-gradient(135deg,#fffdf7,#dff8ff);
+    background-size:28px 28px,28px 28px,auto,auto,auto;
+  }
+
+  .app{
+    width:min(1160px,98vw);
+  }
+
+  .home-float{
+    position:fixed;
+    top:18px;
+    right:18px;
+    z-index:1000;
+    width:74px;
+    transform-origin:top center;
+    animation:homeSwing 3.2s ease-in-out infinite;
+  }
+
+  .home-float img{display:block;width:100%;}
+
+  @keyframes homeSwing{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(7deg);}
+    75%{transform:rotate(-7deg);}
+  }
+
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:12px;
+  }
+
+  .badge{
+    background:#fff;
+    border-radius:999px;
+    padding:10px 15px;
+    box-shadow:0 12px 28px rgba(0,0,0,.12);
+    font-weight:1000;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .pill{
+    background:var(--red);
+    color:#fff;
+    border-radius:999px;
+    padding:7px 12px;
+    font-size:14px;
+  }
+
+  .nav{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    border-radius:17px;
+    padding:12px 16px;
+    background:#fff;
+    color:#111;
+    font-weight:1000;
+    font-size:16px;
+    box-shadow:0 10px 22px rgba(0,0,0,.13);
+    transition:transform .12s ease,filter .12s ease;
+  }
+
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#06230d}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#18a8e8);color:#06121d}
+  .btn.sound{background:linear-gradient(180deg,#ffe08a,#ffb703);color:#3d2a00}
+  .btn.red{background:linear-gradient(180deg,#ffb3bd,#f2485b);color:#fff}
+
+  .card{
+    background:#fff;
+    border:5px solid var(--red);
+    border-radius:30px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+
+  .hero{
+    text-align:center;
+    padding:16px 20px 10px;
+    background:linear-gradient(180deg,#fff,#fff6fa);
+  }
+
+  .hero h1{
+    margin:0;
+    color:#fff;
+    font-size:clamp(42px,8vw,82px);
+    line-height:.95;
+    letter-spacing:1px;
+    text-shadow:
+      4px 0 var(--red),-4px 0 var(--red),
+      0 4px var(--red),0 -4px var(--red),
+      3px 3px var(--red),-3px 3px var(--red),
+      3px -3px var(--red),-3px -3px var(--red);
+  }
+
+  .subtitle{
+    margin:10px auto 0;
+    font-size:clamp(17px,2.3vw,22px);
+    font-weight:1000;
+  }
+
+  .main{
+    display:grid;
+    grid-template-columns:.9fr 1.1fr;
+    gap:16px;
+    padding:16px 18px 18px;
+    background:linear-gradient(180deg,#fff,#f7fbff);
+  }
+
+  @media(max-width:940px){
+    .main{grid-template-columns:1fr}
+  }
+
+  .panel{
+    background:#fff;
+    border:2px solid rgba(0,0,0,.07);
+    border-radius:24px;
+    padding:14px;
+  }
+
+  .teacher-row{
+    display:flex;
+    align-items:flex-end;
+    gap:12px;
+    margin-bottom:12px;
+  }
+
+  .teacher{
+    width:92px;
+    min-width:92px;
+    animation:bob 1.8s ease-in-out infinite;
+  }
+
+  @keyframes bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+  }
+
+  .bubble{
+    background:#fff;
+    border:3px solid #78be43;
+    border-radius:26px;
+    padding:12px 16px;
+    font-size:20px;
+    line-height:1.35;
+    font-weight:1000;
+    box-shadow:0 12px 25px rgba(0,0,0,.10);
+    position:relative;
+    flex:1;
+  }
+
+  .bubble::before{
+    content:"";
+    position:absolute;
+    left:-13px;
+    bottom:18px;
+    width:24px;
+    height:24px;
+    background:#fff;
+    border-left:3px solid #78be43;
+    border-bottom:3px solid #78be43;
+    transform:rotate(45deg);
+  }
+
+  .progress-wrap{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    margin-bottom:12px;
+  }
+
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    font-weight:1000;
+    margin-bottom:8px;
+  }
+
+  .progress{
+    height:20px;
+    border-radius:999px;
+    background:#edf2f7;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.05);
+  }
+
+  .bar{
+    width:0%;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#63e6be,#4dabf7,#ffd43b,#ff6b6b);
+    transition:width .3s ease;
+  }
+
+  .stars{
+    text-align:center;
+    font-size:31px;
+    font-weight:1000;
+    margin:10px 0;
+  }
+
+  .scorebox{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .score{
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    padding:12px;
+    text-align:center;
+    font-size:20px;
+    font-weight:1000;
+  }
+
+  .side-card{
+    background:linear-gradient(180deg,#fff7c2,#fff);
+    border-radius:22px;
+    padding:14px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    margin-top:12px;
+  }
+
+  .side-card h3{
+    margin:0 0 8px;
+    font-size:23px;
+  }
+
+  .side-card p{
+    font-size:18px;
+    line-height:1.35;
+    margin:6px 0;
+    font-weight:800;
+  }
+
+  .stage-card{
+    min-height:660px;
+    background:#fff;
+    border-radius:24px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .mode-title{
+    text-align:center;
+    font-size:clamp(24px,3.5vw,36px);
+    font-weight:1000;
+    margin:0 0 10px;
+  }
+
+  .trace-stage{
+    position:relative;
+    border-radius:24px;
+    overflow:hidden;
+    min-height:500px;
+    background:
+      linear-gradient(#bde9fb 1px, transparent 1px),
+      linear-gradient(90deg,#bde9fb 1px, transparent 1px),
+      #fff;
+    background-size:26px 26px;
+    border:3px solid #ffc1cc;
+    touch-action:none;
+  }
+
+  .trace-stage svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+
+  .trace-stage canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:5;
+    touch-action:none;
+  }
+
+  .message{
+    margin-top:14px;
+    min-height:64px;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    padding:12px;
+    font-size:20px;
+    font-weight:1000;
+    text-align:center;
+  }
+
+  .message.good{background:#dcfce7}
+  .message.oops{background:#fff1f2}
+
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-top:12px;
+  }
+
+  .celebrate{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:99;
+  }
+
+  .confetti{
+    position:absolute;
+    top:-35px;
+    font-size:25px;
+    animation:fall 1000ms ease-in forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(115vh) rotate(360deg);opacity:.1}
+  }
+</style>
+</head>
+
+<body>
+<a class="home-float" href="../../../../../index.html" aria-label="Home"><img src="../../../Home1.png" alt="Home"></a>
+<audio id="chimeAudio" src="chime.mp3" preload="auto"></audio>
+<div class="celebrate" id="celebrate"></div>
+
+<div class="app">
+  <div class="top">
+    <div class="badge">
+      <span class="pill">Week 1</span>
+      <span>Numbers 6, 7, 8 • Straight Lines Game</span>
+    </div>
+
+    <div class="nav">
+      <button class="btn" onclick="goBack()">⬅ Back</button>
+      <button class="btn sound" onclick="repeatInstruction()">🔊 Read</button>
+      <button class="btn red" onclick="startGame()">🔁 New</button>
+      <button class="btn next" onclick="goNext()">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hero">
+      <h1>Numbers</h1>
+      <div class="subtitle">Trace straight lines. Then write numbers 6, 7, and 8.</div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <div class="teacher-row">
+          <div class="teacher" aria-hidden="true">
+            <svg viewBox="0 0 120 160" width="100%" height="100%">
+              <ellipse cx="60" cy="148" rx="34" ry="8" fill="rgba(0,0,0,.14)"/>
+              <circle cx="60" cy="34" r="22" fill="#ffd6a5"/>
+              <path d="M38 28 Q50 5 72 18 Q91 30 78 50 Q65 25 38 28Z" fill="#c97961"/>
+              <circle cx="52" cy="35" r="3" fill="#222"/>
+              <circle cx="68" cy="35" r="3" fill="#222"/>
+              <circle cx="50" cy="35" r="10" fill="none" stroke="#1ba7df" stroke-width="3"/>
+              <circle cx="70" cy="35" r="10" fill="none" stroke="#1ba7df" stroke-width="3"/>
+              <path d="M54 45 Q61 51 69 44" fill="none" stroke="#cc6b5a" stroke-width="3" stroke-linecap="round"/>
+              <path d="M38 61 Q62 50 84 61 L92 125 Q61 142 29 125Z" fill="#d7e56a"/>
+              <path d="M37 72 Q21 89 20 110" fill="none" stroke="#ffd6a5" stroke-width="10" stroke-linecap="round"/>
+              <path d="M83 72 Q103 78 108 99" fill="none" stroke="#ffd6a5" stroke-width="10" stroke-linecap="round"/>
+              <path d="M44 126 L37 148" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/>
+              <path d="M76 126 L82 148" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="bubble" id="teacherBubble">
+            Welcome! Trace the straight line from the green dot to the red dot.
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Game Progress</span>
+            <span id="progressText">0%</span>
+          </div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+        </div>
+
+        <div class="stars" id="stars">⭐ 0</div>
+
+        <div class="scorebox">
+          <div class="score">✅ Done<br><span id="doneNum">0</span></div>
+          <div class="score">💪 Try Again<br><span id="tryNum">0</span></div>
+        </div>
+
+        <div class="side-card">
+          <h3>Today’s Learning</h3>
+          <p>✅ A straight line has <b>2 points</b>.</p>
+          <p>✅ Trace from green dot to red dot.</p>
+          <p>✅ Write numbers <b>6, 7, and 8</b>.</p>
+          <p>✅ Count cakes and say the number.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="stage-card">
+          <div class="mode-title" id="modeTitle">Trace the straight cake lines</div>
+
+          <div class="trace-stage" id="traceStage">
+            <svg id="stageSvg" viewBox="0 0 800 520" preserveAspectRatio="none"></svg>
+            <canvas id="traceCanvas"></canvas>
+          </div>
+
+          <div class="message" id="message">Tap New to start ⭐</div>
+
+          <div class="controls">
+            <button class="btn primary" onclick="startGame()">🎉 Start Game</button>
+            <button class="btn sound" onclick="repeatInstruction()">🔊 Repeat</button>
+            <button class="btn next" onclick="finishGame()">🏁 Finish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BACK_PAGE = "../Thursday/Bk2FairlyTaleA.html";
+const NEXT_PAGE = "B2LAQuiz1.html";
+
+function goBack(){ location.href = BACK_PAGE; }
+function goNext(){ location.href = NEXT_PAGE; }
+
+const chimeAudio = document.getElementById("chimeAudio");
+const celebrate = document.getElementById("celebrate");
+const teacherBubble = document.getElementById("teacherBubble");
+const progressText = document.getElementById("progressText");
+const bar = document.getElementById("bar");
+const starsEl = document.getElementById("stars");
+const doneNum = document.getElementById("doneNum");
+const tryNum = document.getElementById("tryNum");
+const modeTitle = document.getElementById("modeTitle");
+const message = document.getElementById("message");
+const traceStage = document.getElementById("traceStage");
+const stageSvg = document.getElementById("stageSvg");
+const canvas = document.getElementById("traceCanvas");
+const ctx = canvas.getContext("2d");
+
+let audioCtx = null;
+let mode = "straight";
+let drawing = false;
+let currentPath = [];
+let activeLine = null;
+let tries = 0;
+let completedLines = 0;
+let completedNumbers = 0;
+let currentNumberIndex = 0;
+let currentNumber = 6;
+let touched = new Set();
+let numberSolved = false;
+
+const VIEW_W = 800;
+const VIEW_H = 520;
+
+const numbers = [6,7,8];
+const totalTasks = 6;
+
+const straightTargets = [
+  {id:"chocolate", y:140, x1:150, x2:660, done:false},
+  {id:"cream", y:272, x1:245, x2:575, done:false},
+  {id:"strawberry", y:405, x1:105, x2:695, done:false}
+];
+
+/*
+  These points are now professionally placed inside the large number digits.
+  The visible number digit is drawn with the same center path.
+  The dotted trace line follows this same center path, so it stays inside the digit.
+*/
+const numberPaths = {
+  6:[
+    [625,112],[555,118],[492,155],[450,212],[432,278],
+    [438,350],[480,410],[548,438],[620,428],[675,383],
+    [688,322],[657,276],[602,258],[548,270],[510,310],
+    [505,360],[538,395],[592,398],[635,370],[642,326],
+    [620,296],[575,292]
+  ],
+  7:[
+    [410,130],[690,130],[650,190],[608,255],
+    [565,325],[525,392],[485,455]
+  ],
+  8:[
+    [565,112],[505,130],[468,174],[478,224],[526,258],
+    [590,260],[652,226],[665,175],[628,130],[565,112],
+    [535,270],[482,300],[458,360],[486,420],[555,450],
+    [630,436],[674,382],[660,322],[610,285],[535,270]
+  ]
+};
+
+function svgPath(points){
+  return points.map((p,i) => (i ? "L" : "M") + p[0] + " " + p[1]).join(" ");
+}
+
+function setMessage(text,type=""){
+  message.className = "message" + (type ? " " + type : "");
+  message.textContent = text;
+}
+
+function updateHUD(){
+  const done = completedLines + completedNumbers;
+  const pct = Math.round((done / totalTasks) * 100);
+  bar.style.width = pct + "%";
+  progressText.textContent = pct + "%";
+  doneNum.textContent = done;
+  tryNum.textContent = tries;
+
+  const stars = done >= 6 ? 3 : done >= 4 ? 2 : done >= 2 ? 1 : 0;
+  starsEl.textContent = "⭐ " + stars;
+}
+
+function resizeCanvas(){
+  const rect = traceStage.getBoundingClientRect();
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  canvas.style.width = rect.width + "px";
+  canvas.style.height = rect.height + "px";
+
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  drawLayer();
+}
+
+function toPx(point){
+  const rect = traceStage.getBoundingClientRect();
+  return {
+    x:(point[0] / VIEW_W) * rect.width,
+    y:(point[1] / VIEW_H) * rect.height
+  };
+}
+
+function toPxXY(x,y){
+  const rect = traceStage.getBoundingClientRect();
+  return {
+    x:(x / VIEW_W) * rect.width,
+    y:(y / VIEW_H) * rect.height
+  };
+}
+
+function pointFromEvent(e){
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x:e.clientX - rect.left,
+    y:e.clientY - rect.top
+  };
+}
+
+/* =========================
+   Straight Line Section
+========================= */
+function renderStraightScene(){
+  mode = "straight";
+  numberSolved = false;
+  currentPath = [];
+
+  modeTitle.textContent = "Trace the straight cake lines";
+  stageSvg.innerHTML = `
+    <rect width="800" height="520" fill="#f4a9ce"/>
+    <text x="400" y="58" text-anchor="middle" font-size="58" font-family="Comic Sans MS" font-weight="900" fill="#222">Can I help you?</text>
+
+    <g transform="translate(70 80)">
+      <circle cx="75" cy="70" r="45" fill="#ffd6a5"/>
+      <path d="M35 55 Q70 20 110 54" fill="#3b2619"/>
+      <circle cx="58" cy="72" r="5" fill="#222"/>
+      <circle cx="92" cy="72" r="5" fill="#222"/>
+      <path d="M62 94 Q78 106 95 92" fill="none" stroke="#d65f5f" stroke-width="5" stroke-linecap="round"/>
+      <path d="M35 118 Q75 98 115 118 L128 185 Q75 210 22 185Z" fill="#f6b4d6"/>
+      <rect x="5" y="10" width="65" height="34" rx="18" fill="#fff"/>
+      <rect x="45" y="-8" width="65" height="48" rx="22" fill="#fff"/>
+      <rect x="86" y="4" width="50" height="35" rx="18" fill="#fff"/>
+    </g>
+
+    <g transform="translate(585 135)">
+      <circle cx="75" cy="70" r="44" fill="#ffd6a5"/>
+      <path d="M32 57 Q67 20 116 58" fill="#c97961"/>
+      <circle cx="58" cy="72" r="5" fill="#222"/>
+      <circle cx="92" cy="72" r="5" fill="#222"/>
+      <circle cx="56" cy="72" r="12" fill="none" stroke="#1ba7df" stroke-width="3"/>
+      <circle cx="94" cy="72" r="12" fill="none" stroke="#1ba7df" stroke-width="3"/>
+      <path d="M64 94 Q78 105 94 92" fill="none" stroke="#d65f5f" stroke-width="5" stroke-linecap="round"/>
+      <path d="M35 118 Q75 98 115 118 L128 185 Q75 210 22 185Z" fill="#d7e56a"/>
+    </g>
+
+    ${cakeSvg(400,150,470,105,"#5a2e1c","#f7d894","#3d1f12","chocolate")}
+    ${cakeSvg(400,275,330,110,"#fff4cf","#fff","#e8d39a","cream")}
+    ${cakeSvg(400,405,630,112,"#f09aaa","#f9b9c0","#a84855","strawberry")}
+
+    <text x="400" y="500" text-anchor="middle" font-size="42" font-family="Comic Sans MS" font-weight="900" fill="#222">
+      A straight line has <tspan fill="#f2485b">2 points</tspan>.
+    </text>
+  `;
+
+  teacherBubble.textContent = "Trace each straight line from the green dot to the red dot.";
+  setMessage("Start on the green dot. Trace straight to the red dot.");
+  resizeCanvas();
+}
+
+function cakeSvg(cx,cy,w,h,top,cream,border,type){
+  const x = cx - w/2;
+  const y = cy - h/2;
+  let decor = "";
+
+  if(type === "chocolate"){
+    for(let i=0;i<8;i++){
+      decor += `<circle cx="${x+50+i*55}" cy="${y-8+(i%2)*4}" r="14" fill="#3a1f14" stroke="#111" stroke-width="3"/>`;
+    }
+  }else if(type === "cream"){
+    for(let i=0;i<3;i++){
+      decor += `<path d="M${cx-90+i*90} ${y-10} Q${cx-70+i*90} ${y-45} ${cx-45+i*90} ${y-10}Z" fill="#fff" stroke="#222" stroke-width="3"/>`;
+    }
+  }else{
+    for(let i=0;i<6;i++){
+      decor += `<path d="M${x+65+i*95} ${y-18} C${x+48+i*95} ${y-45} ${x+88+i*95} ${y-45} ${x+72+i*95} ${y-18}Z" fill="#f2485b" stroke="#222" stroke-width="3"/>
+                <circle cx="${x+65+i*95}" cy="${y-32}" r="3" fill="#222"/>`;
+    }
+  }
+
+  return `
+    <g>
+      ${decor}
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20" fill="${top}" stroke="#222" stroke-width="5"/>
+      <rect x="${x}" y="${y+h*.45}" width="${w}" height="${h*.16}" fill="${cream}" stroke="#222" stroke-width="3"/>
+      <rect x="${x}" y="${y+h*.62}" width="${w}" height="${h*.35}" rx="15" fill="${top}" opacity=".88"/>
+      <path d="M${x+25} ${y+h*.72} Q${cx} ${y+h*.86} ${x+w-25} ${y+h*.72}" fill="none" stroke="${border}" stroke-width="3" opacity=".5"/>
+    </g>
+  `;
+}
+
+/* =========================
+   Number Section
+========================= */
+function renderNumberScene(){
+  mode = "number";
+  currentNumber = numbers[currentNumberIndex];
+  touched = new Set();
+  currentPath = [];
+  numberSolved = false;
+
+  const color = currentNumber === 6 ? "#dfa300" : currentNumber === 7 ? "#4ebfd5" : "#82b847";
+  const softColor = currentNumber === 6 ? "#f8df8a" : currentNumber === 7 ? "#8bd2e5" : "#9ccd64";
+  const path = svgPath(numberPaths[currentNumber]);
+
+  modeTitle.textContent = "Write number " + currentNumber;
+  teacherBubble.textContent = "Trace number " + currentNumber + ". Follow the dotted line inside the big number.";
+  setMessage("Trace inside the big number " + currentNumber + ".");
+
+  stageSvg.innerHTML = `
+    <rect width="800" height="520" fill="#fff"/>
+
+    <text x="400" y="52" text-anchor="middle" font-size="56" font-family="Comic Sans MS" font-weight="900"
+      fill="#fff" stroke="#f2485b" stroke-width="8" paint-order="stroke">
+      Let's write ${currentNumber}
+    </text>
+
+    <rect x="38" y="84" width="252" height="368" rx="20" fill="${softColor}"/>
+    ${cakeGroup(currentNumber)}
+    <text x="164" y="480" text-anchor="middle" font-size="30" font-family="Comic Sans MS" font-weight="900">
+      Count ${currentNumber} cakes
+    </text>
+
+    <g>
+      <path d="${path}"
+        fill="none"
+        stroke="rgba(0,0,0,.14)"
+        stroke-width="96"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        transform="translate(10 10)"/>
+
+      <path d="${path}"
+        fill="none"
+        stroke="#fff"
+        stroke-width="96"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+      <path d="${path}"
+        fill="none"
+        stroke="${color}"
+        stroke-width="88"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity=".95"/>
+
+      <path d="${path}"
+        fill="none"
+        stroke="#fffdf5"
+        stroke-width="54"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity=".96"/>
+    </g>
+
+    <text x="540" y="505" text-anchor="middle" font-size="28" font-family="Comic Sans MS" font-weight="900" fill="#555">
+      Follow the dotted line inside the digit.
+    </text>
+  `;
+
+  resizeCanvas();
+  speak("Now write number " + currentNumber + ". Trace inside the big number. Follow the dotted line.");
+}
+
+function cakeGroup(count){
+  let out = "";
+
+  for(let i=0;i<count;i++){
+    const col = i % 3;
+    const row = Math.floor(i / 3);
+    const x = 68 + col * 70;
+    const y = 130 + row * 88;
+
+    const colors = [
+      ["#5a2e1c","#3d1f12"],
+      ["#fff4cf","#e8d39a"],
+      ["#f09aaa","#a84855"],
+      ["#f5be42","#c78313"]
+    ];
+    const c = colors[i % colors.length];
+
+    out += `
+      <g transform="translate(${x} ${y})">
+        <rect x="0" y="20" width="58" height="32" rx="7" fill="${c[0]}" stroke="#222" stroke-width="2"/>
+        <rect x="0" y="35" width="58" height="8" fill="#fff3d2" opacity=".85"/>
+        <path d="M5 18 Q28 -6 53 18" fill="${c[0]}" stroke="#222" stroke-width="2"/>
+        <circle cx="29" cy="12" r="5" fill="${i%3===0 ? "#8b4a2b" : "#fff"}"/>
+      </g>
+    `;
+  }
+
+  return out;
+}
+
+/* =========================
+   Canvas Drawing Layer
+========================= */
+function drawLayer(){
+  const rect = traceStage.getBoundingClientRect();
+  ctx.clearRect(0,0,rect.width,rect.height);
+
+  if(mode === "straight"){
+    straightTargets.forEach(t => {
+      const p1 = toPxXY(t.x1,t.y);
+      const p2 = toPxXY(t.x2,t.y);
+
+      ctx.save();
+      ctx.lineWidth = t.done ? 9 : 5;
+      ctx.lineCap = "round";
+      ctx.setLineDash(t.done ? [] : [14,12]);
+      ctx.strokeStyle = t.done ? "#22c55e" : "#4444aa";
+      ctx.beginPath();
+      ctx.moveTo(p1.x,p1.y);
+      ctx.lineTo(p2.x,p2.y);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = t.done ? "#22c55e" : "#16a34a";
+      ctx.beginPath();
+      ctx.arc(p1.x,p1.y,12,0,Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle = t.done ? "#22c55e" : "#f2485b";
+      ctx.beginPath();
+      ctx.arc(p2.x,p2.y,12,0,Math.PI*2);
+      ctx.fill();
+    });
+  }else{
+    const points = numberPaths[currentNumber].map(toPx);
+
+    ctx.save();
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.setLineDash([13,12]);
+    ctx.strokeStyle = "#6f6f6f";
+    ctx.beginPath();
+    points.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+    ctx.stroke();
+    ctx.restore();
+
+    points.forEach((p,i) => {
+      const done = touched.has(i);
+
+      ctx.fillStyle = done ? "#22c55e" : (i === 0 ? "#111" : "#f2485b");
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,done ? 12 : 10,0,Math.PI*2);
+      ctx.fill();
+
+      if(i < 2){
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 14px Comic Sans MS";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(i+1,p.x,p.y);
+      }
+    });
+  }
+
+  if(currentPath.length > 1){
+    ctx.save();
+    ctx.lineWidth = 13;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#ff5fa2";
+    ctx.beginPath();
+    currentPath.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#fff";
+    ctx.beginPath();
+    currentPath.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+/* =========================
+   Pointer Logic
+========================= */
+function pointerDown(e){
+  e.preventDefault();
+
+  const p = pointFromEvent(e);
+  drawing = true;
+  currentPath = [p];
+
+  if(mode === "straight"){
+    activeLine = null;
+
+    for(const t of straightTargets){
+      if(t.done) continue;
+
+      const start = toPxXY(t.x1,t.y);
+      if(Math.abs(p.x - start.x) < 55 && Math.abs(p.y - start.y) < 55){
+        activeLine = t;
+        speak("Good. Trace straight to the red dot.");
+        break;
+      }
+    }
+
+    if(!activeLine){
+      drawing = false;
+      tries++;
+      updateHUD();
+      setMessage("Start on the green dot.", "oops");
+      speak("Start on the green dot.");
+    }
+  }else{
+    checkNumberDots(p);
+  }
+
+  drawLayer();
+}
+
+function pointerMove(e){
+  if(!drawing) return;
+  e.preventDefault();
+
+  const p = pointFromEvent(e);
+  currentPath.push(p);
+
+  if(mode === "number"){
+    checkNumberDots(p);
+    checkNumberComplete();
+  }
+
+  drawLayer();
+}
+
+function pointerUp(e){
+  if(!drawing) return;
+  e.preventDefault();
+
+  if(mode === "straight"){
+    finishStraightTrace();
+  }else{
+    checkNumberComplete();
+  }
+
+  drawing = false;
+  activeLine = null;
+  drawLayer();
+}
+
+function finishStraightTrace(){
+  if(!activeLine || currentPath.length < 2){
+    currentPath = [];
+    return;
+  }
+
+  const t = activeLine;
+  const p1 = toPxXY(t.x1,t.y);
+  const p2 = toPxXY(t.x2,t.y);
+  const first = currentPath[0];
+  const last = currentPath[currentPath.length - 1];
+  const minX = Math.min(...currentPath.map(p => p.x));
+  const maxX = Math.max(...currentPath.map(p => p.x));
+  const avgY = currentPath.reduce((sum,p)=>sum + Math.abs(p.y - p1.y),0) / currentPath.length;
+
+  const good =
+    Math.abs(first.x - p1.x) < 65 &&
+    Math.abs(first.y - p1.y) < 65 &&
+    Math.abs(last.x - p2.x) < 80 &&
+    Math.abs(last.y - p2.y) < 70 &&
+    maxX > p2.x - 60 &&
+    minX < p1.x + 60 &&
+    avgY < 45 &&
+    last.x > first.x + 120;
+
+  if(good){
+    t.done = true;
+    completedLines++;
+    currentPath = [];
+
+    playChime();
+    cheerSound();
+    confetti();
+
+    setMessage("✅ Great! That is a straight line.", "good");
+    teacherBubble.textContent = "Great job! Trace the next straight line.";
+    speak("Great job. A straight line has two points.");
+    updateHUD();
+
+    if(completedLines === straightTargets.length){
+      setTimeout(() => {
+        currentNumberIndex = 0;
+        renderNumberScene();
+      }, 1200);
+    }
+  }else{
+    tries++;
+    currentPath = [];
+    setMessage("💪 Try again. Keep your line straight from green to red.", "oops");
+    speak("Try again. Trace straight from green dot to red dot.");
+    wrongSound();
+    updateHUD();
+  }
+}
+
+function checkNumberDots(p){
+  if(numberSolved) return;
+
+  const points = numberPaths[currentNumber].map(toPx);
+
+  points.forEach((pt,i) => {
+    const d = Math.hypot(p.x - pt.x, p.y - pt.y);
+    if(d < 44) touched.add(i);
+  });
+}
+
+function checkNumberComplete(){
+  if(numberSolved || mode !== "number") return;
+
+  const needed = Math.ceil(numberPaths[currentNumber].length * .76);
+  const enoughDrawing = currentPath.length >= 8;
+
+  if(touched.size >= needed && enoughDrawing){
+    numberSolved = true;
+    completedNumbers++;
+
+    playChime();
+    cheerSound();
+    confetti();
+
+    setMessage("✅ Beautiful! You wrote number " + currentNumber + ".", "good");
+    teacherBubble.textContent = "Wonderful! You wrote number " + currentNumber + ".";
+    speak("Beautiful. You wrote number " + currentNumber + ".");
+    updateHUD();
+
+    currentNumberIndex++;
+
+    touched = new Set();
+    currentPath = [];
+    drawing = false;
+
+    if(currentNumberIndex >= numbers.length){
+      setTimeout(finishGame, 1200);
+    }else{
+      setTimeout(renderNumberScene, 1200);
+    }
+  }
+}
+
+canvas.addEventListener("pointerdown", pointerDown);
+canvas.addEventListener("pointermove", pointerMove);
+canvas.addEventListener("pointerup", pointerUp);
+canvas.addEventListener("pointercancel", pointerUp);
+window.addEventListener("resize", resizeCanvas);
+
+/* =========================
+   Game Controls
+========================= */
+function startGame(){
+  completedLines = 0;
+  completedNumbers = 0;
+  currentNumberIndex = 0;
+  tries = 0;
+  currentPath = [];
+  touched = new Set();
+  numberSolved = false;
+  straightTargets.forEach(t => t.done = false);
+
+  updateHUD();
+  renderStraightScene();
+
+  speak("Welcome. Trace the straight line from the green dot to the red dot. Then write numbers six, seven, and eight.");
+}
+
+function repeatInstruction(){
+  if(mode === "straight"){
+    teacherBubble.textContent = "Trace from the green dot to the red dot. A straight line has two points.";
+    speak("Trace from the green dot to the red dot. A straight line has two points.");
+  }else{
+    teacherBubble.textContent = "Follow the dotted line inside number " + currentNumber + ".";
+    speak("Follow the dotted line inside number " + currentNumber + ".");
+  }
+}
+
+function saveProgress(score,stars){
+  const STORE = "gpeis_progress_v1";
+  let db = {};
+
+  try{
+    db = JSON.parse(localStorage.getItem(STORE) || "{}");
+  }catch(e){
+    db = {};
+  }
+
+  db.A = db.A || {level:"A",activities:{},updatedAt:new Date().toISOString()};
+  db.A.activities.NumbersStraightLinesGame = {
+    id:"NumbersStraightLinesGame",
+    completed:true,
+    lastScore:score,
+    bestScore:Math.max(score, db.A.activities.NumbersStraightLinesGame?.bestScore || 0),
+    lastStars:stars,
+    bestStars:Math.max(stars, db.A.activities.NumbersStraightLinesGame?.bestStars || 0),
+    lastAt:new Date().toISOString()
+  };
+  db.A.updatedAt = new Date().toISOString();
+
+  localStorage.setItem(STORE, JSON.stringify(db));
+}
+
+function finishGame(){
+  const done = completedLines + completedNumbers;
+  const score = Math.round((done / totalTasks) * 100);
+  const stars = done >= 6 ? 3 : done >= 4 ? 2 : done >= 2 ? 1 : 0;
+
+  saveProgress(score,stars);
+  updateHUD();
+
+  modeTitle.textContent = "Game Finished!";
+  mode = "finished";
+  currentPath = [];
+  touched = new Set();
+
+  stageSvg.innerHTML = `
+    <rect width="800" height="520" fill="#f5a7cf"/>
+    <text x="400" y="120" text-anchor="middle" font-size="64" font-family="Comic Sans MS" font-weight="900"
+      fill="#fff" stroke="#f2485b" stroke-width="8" paint-order="stroke">Amazing!</text>
+    <text x="400" y="220" text-anchor="middle" font-size="48" font-family="Comic Sans MS" font-weight="900">Score: ${score}%</text>
+    <text x="400" y="315" text-anchor="middle" font-size="60" font-family="Comic Sans MS" font-weight="900">${"⭐".repeat(stars) || "Keep Trying!"}</text>
+    <text x="400" y="410" text-anchor="middle" font-size="34" font-family="Comic Sans MS" font-weight="900">
+      I can trace straight lines and write 6, 7, 8!
+    </text>
+  `;
+
+  resizeCanvas();
+
+  setMessage("🎉 Finished! You earned " + stars + " star(s).", "good");
+  teacherBubble.textContent = "Amazing work! You finished the game.";
+
+  playChime();
+  setTimeout(playChime,300);
+  cheerSound();
+  confetti();
+
+  speak("Amazing work. You finished the game. Your score is " + score + " percent.");
+}
+
+/* =========================
+   Voice + Sounds
+========================= */
+function getBestVoice(){
+  const voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
+  return voices.find(v => /en-US/i.test(v.lang) && /aria|jenny|samantha|zira|female|girl/i.test(v.name)) ||
+         voices.find(v => /en-US/i.test(v.lang)) ||
+         voices.find(v => /^en/i.test(v.lang)) ||
+         null;
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+
+  try{
+    speechSynthesis.cancel();
+  }catch(e){}
+
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = .9;
+  u.pitch = 1.18;
+  u.volume = 1;
+
+  const voice = getBestVoice();
+  if(voice) u.voice = voice;
+
+  speechSynthesis.speak(u);
+}
+
+function playChime(){
+  try{
+    chimeAudio.currentTime = 0;
+    const p = chimeAudio.play();
+    if(p && p.catch) p.catch(()=>fallbackChime());
+  }catch(e){
+    fallbackChime();
+  }
+}
+
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function beep(freq,dur,gain=.05,type="triangle"){
+  try{
+    const a = getAudioCtx();
+    const o = a.createOscillator();
+    const g = a.createGain();
+
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+
+    o.connect(g);
+    g.connect(a.destination);
+
+    o.start();
+    o.stop(a.currentTime + dur);
+  }catch(e){}
+}
+
+function fallbackChime(){
+  beep(880,.08);
+  setTimeout(()=>beep(1175,.10),90);
+  setTimeout(()=>beep(1568,.12),200);
+}
+
+function cheerSound(){
+  beep(523,.08,.05,"sine");
+  setTimeout(()=>beep(659,.08,.05,"sine"),90);
+  setTimeout(()=>beep(784,.10,.05,"sine"),180);
+  setTimeout(()=>beep(988,.14,.05,"sine"),290);
+}
+
+function wrongSound(){
+  beep(300,.08,.04,"sine");
+  setTimeout(()=>beep(220,.08,.04,"sine"),100);
+}
+
+function confetti(){
+  const icons = ["⭐","✨","🎉","👏","🌟","💛"];
+
+  for(let i=0;i<26;i++){
+    const s = document.createElement("span");
+    s.className = "confetti";
+    s.textContent = icons[Math.floor(Math.random()*icons.length)];
+    s.style.left = Math.random()*100 + "vw";
+    s.style.animationDelay = Math.random()*160 + "ms";
+    s.style.fontSize = (18 + Math.random()*18) + "px";
+
+    celebrate.appendChild(s);
+
+    setTimeout(()=>s.remove(),1300);
+  }
+}
+
+/* =========================
+   Start
+========================= */
+window.addEventListener("load", () => {
+  updateHUD();
+  renderStraightScene();
+
+  setTimeout(() => {
+    speak("Welcome. Press New to start the numbers and straight lines game.");
+  }, 400);
+});
+
+if("speechSynthesis" in window){
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>

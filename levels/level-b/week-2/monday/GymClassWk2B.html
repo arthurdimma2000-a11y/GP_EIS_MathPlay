@@ -372,6 +372,7 @@
         id="lessonVideo"
         controls
         playsinline
+        autoplay
         preload="metadata"
       >
         <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1776525364/Finalwk2gymclassb_fsm27q.mp4" type="video/mp4" />
@@ -381,10 +382,9 @@
       <div class="start-overlay" id="startOverlay">
         <div class="start-card">
           <h2>Gym Class Wk2B</h2>
-          <p>Tap Play to start the gym class video. You can also turn sound on and use the navigation buttons around the video page.</p>
+          <p>The gym class video should start automatically with sound. If your browser blocks autoplay, tap Play to continue.</p>
           <div class="start-actions">
             <button type="button" class="start-btn play" id="startPlayBtn">▶ Play Video</button>
-            <button type="button" class="start-btn sound" id="soundBtn">🔊 Sound On</button>
           </div>
         </div>
       </div>
@@ -430,7 +430,6 @@
     const videoShell = document.getElementById("videoShell");
     const startOverlay = document.getElementById("startOverlay");
     const startPlayBtn = document.getElementById("startPlayBtn");
-    const soundBtn = document.getElementById("soundBtn");
 
     const homeBtn = document.getElementById("homeBtn");
     const backBtn = document.getElementById("backBtn");
@@ -458,18 +457,21 @@
       startOverlay.classList.add("hidden");
     }
 
-    function startVideoWithSound() {
+    function startVideoWithAudio() {
       video.muted = false;
       video.volume = 1;
+      const playAttempt = video.play();
+      if (playAttempt && typeof playAttempt.then === "function") {
+        playAttempt.then(() => {
+          hideStartOverlay();
+          showNavigation();
+        }).catch(() => {
+          startOverlay.classList.remove("hidden");
+          showNavigation();
+        });
+        return;
+      }
       hideStartOverlay();
-      video.play().catch(() => {});
-      showNavigation();
-    }
-
-    function startVideoMuted() {
-      video.muted = true;
-      hideStartOverlay();
-      video.play().catch(() => {});
       showNavigation();
     }
 
@@ -494,6 +496,8 @@
     }
 
     function replayVideo() {
+      video.muted = false;
+      video.volume = 1;
       video.currentTime = 0;
       video.play().catch(() => {});
       hideStartOverlay();
@@ -535,6 +539,8 @@
 
     function togglePlayPause() {
       if (video.paused) {
+        video.muted = false;
+        video.volume = 1;
         hideStartOverlay();
         video.play().catch(() => {});
       } else {
@@ -543,8 +549,7 @@
       showTapHint();
     }
 
-    startPlayBtn.addEventListener("click", startVideoMuted);
-    soundBtn.addEventListener("click", startVideoWithSound);
+    startPlayBtn.addEventListener("click", startVideoWithAudio);
 
     homeBtn.addEventListener("click", goHome);
     backBtn.addEventListener("click", goBackPage);
@@ -584,6 +589,7 @@
 
     updateNextButtons();
     showNavigation();
+    startVideoWithAudio();
   </script>
 <script src="../../../../shared/js/activity-standardizer-shared.js"></script>
 </body>

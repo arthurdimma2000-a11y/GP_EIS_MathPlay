@@ -367,7 +367,6 @@
         id="lbIntroVideo"
         playsinline
         autoplay
-        muted
         preload="metadata"
       >
         <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777183063/LBWk3FairlyTale_uh7q0o.mp4" type="video/mp4" />
@@ -375,7 +374,6 @@
       </video>
 
       <div class="intro-actions">
-        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
 
@@ -393,7 +391,7 @@
         <video
           id="lessonVideo"
           controls
-          playsinline
+          playsinline autoplay
           preload="metadata"
         >
           <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777183063/LBWk3FairlyTale_uh7q0o.mp4" type="video/mp4" />
@@ -452,7 +450,6 @@
     const tapOverlay = document.getElementById("tapOverlay");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
-    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
 
     let introFinished = false;
@@ -489,8 +486,8 @@
     setVideoSource(introVideo, INTRO_VIDEO_URL);
     if (video) {
       try { video.pause(); } catch (err) {}
-      video.muted = true;
-      video.volume = 0;
+      video.muted = false;
+        video.volume = 1;
     }
 
     function revealPageContent() {
@@ -516,6 +513,7 @@
         ensureLessonVideoLoaded();
         video.muted = false;
         video.volume = 1;
+        video.play().catch(() => {});
       }
     }
 
@@ -569,17 +567,6 @@
       showTapHint();
     }
 
-    function enableIntroSound() {
-      if (!introVideo) return;
-      introVideo.muted = false;
-      introVideo.volume = 1;
-      if (introVideo.paused) {
-        introVideo.play().catch(() => {});
-      }
-      turnOnSoundBtn.textContent = "Sound On";
-      turnOnSoundBtn.disabled = true;
-    }
-
     function showNavigation() {
       topNav.classList.remove("nav-hidden");
       topNav.classList.add("nav-visible");
@@ -611,14 +598,11 @@
           }
         }, 1200);
       });
-
+      introVideo.muted = false;
+      introVideo.volume = 1;
       introVideo.play().catch(() => {});
     } else {
       revealPageContent();
-    }
-
-    if (turnOnSoundBtn) {
-      turnOnSoundBtn.addEventListener("click", enableIntroSound);
     }
 
     if (skipIntroBtn) {

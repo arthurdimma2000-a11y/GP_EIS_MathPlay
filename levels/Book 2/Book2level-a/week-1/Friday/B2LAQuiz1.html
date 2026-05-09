@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Numbers and Straight Lines Quiz</title>
+
+<style>
+  :root{
+    --red:#f24b5e;
+    --pink:#f7a6c9;
+    --soft-pink:#ffe6f1;
+    --yellow:#f8df8a;
+    --blue:#84d7ee;
+    --green:#9ed06a;
+    --cream:#fffdf5;
+    --ink:#28242a;
+    --good:#1fa85b;
+    --bad:#e03245;
+    --gold:#ffd24a;
+    --shadow:0 16px 34px rgba(0,0,0,.13);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:#fff9ef;
+    color:var(--ink);
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#f1e6d8 1px, transparent 1px),
+      linear-gradient(90deg, #f1e6d8 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(980px,100%);
+    background:#fffdf7;
+    border:8px solid var(--red);
+    border-radius:30px;
+    box-shadow:var(--shadow);
+    padding:18px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .main-title{
+    margin:-12px auto 10px;
+    text-align:center;
+    font-size:clamp(3rem,9vw,6rem);
+    line-height:.9;
+    font-weight:1000;
+    color:#fff;
+    -webkit-text-stroke:8px var(--red);
+    paint-order:stroke fill;
+    text-shadow:0 5px 0 rgba(242,75,94,.20);
+  }
+
+  .week{
+    position:absolute;
+    right:20px;
+    top:22px;
+    background:#fff;
+    border:4px solid var(--red);
+    border-radius:12px;
+    padding:5px 12px;
+    font-weight:1000;
+    font-size:clamp(1rem,2.6vw,1.45rem);
+  }
+
+  .hero{
+    display:grid;
+    grid-template-columns:150px 1fr;
+    gap:16px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+
+    .poster-boy{
+      width:130px;
+      height:178px;
+      position:relative;
+      margin:auto;
+    }
+
+    .poster-boy-img,
+    .chef-person-img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:contain;
+    }
+
+  .poster-boy .head{
+    position:absolute;
+    left:20px;
+    top:10px;
+    width:84px;
+    height:92px;
+    background:#ffd2b6;
+    border:4px solid #222;
+    border-radius:48% 48% 44% 44%;
+    transform:rotate(-2deg);
+  }
+
+  .poster-boy .hair{
+    position:absolute;
+    left:11px;
+    top:0;
+    width:106px;
+    height:45px;
+    background:
+      radial-gradient(circle at 18px 26px,#c77960 0 12px,transparent 13px),
+      radial-gradient(circle at 36px 18px,#c77960 0 13px,transparent 14px),
+      radial-gradient(circle at 56px 17px,#c77960 0 14px,transparent 15px),
+      radial-gradient(circle at 78px 21px,#c77960 0 13px,transparent 14px),
+      radial-gradient(circle at 94px 28px,#c77960 0 10px,transparent 11px);
+    z-index:4;
+  }
+
+  .poster-boy .eye{
+    position:absolute;
+    top:44px;
+    width:18px;
+    height:18px;
+    background:#fff;
+    border:3px solid #2b82c8;
+    border-radius:50%;
+    z-index:5;
+  }
+
+  .poster-boy .eye.left{left:32px;}
+  .poster-boy .eye.right{left:73px;}
+
+  .poster-boy .eye::after{
+    content:"";
+    position:absolute;
+    left:5px;
+    top:5px;
+    width:5px;
+    height:5px;
+    background:#111;
+    border-radius:50%;
+  }
+
+  .poster-boy .nose{
+    position:absolute;
+    left:55px;
+    top:62px;
+    width:22px;
+    height:12px;
+    border-bottom:4px solid #dc3f32;
+    border-radius:50%;
+    transform:rotate(-10deg);
+    z-index:5;
+  }
+
+  .poster-boy .smile{
+    position:absolute;
+    left:46px;
+    top:75px;
+    width:34px;
+    height:15px;
+    border-bottom:4px solid #d94141;
+    border-radius:50%;
+    z-index:5;
+  }
+
+  .poster-boy .body{
+    position:absolute;
+    left:28px;
+    top:100px;
+    width:74px;
+    height:76px;
+    background:#d9ef70;
+    border:4px solid #222;
+    border-radius:24px 24px 12px 12px;
+  }
+
+  .poster-boy .arm{
+    position:absolute;
+    left:75px;
+    top:105px;
+    width:13px;
+    height:52px;
+    background:#ffd2b6;
+    border:3px solid #222;
+    border-radius:999px;
+    transform:rotate(22deg);
+    z-index:6;
+  }
+
+  /* Poster-style chef */
+  .chef-person{
+    width:130px;
+    height:180px;
+    position:relative;
+    margin:auto;
+  }
+
+  .chef-person .hat{
+    position:absolute;
+    left:16px;
+    top:0;
+    width:92px;
+    height:52px;
+    background:
+      radial-gradient(circle at 18px 30px,#fff 0 21px,transparent 22px),
+      radial-gradient(circle at 47px 18px,#fff 0 28px,transparent 29px),
+      radial-gradient(circle at 74px 27px,#fff 0 23px,transparent 24px);
+    filter:drop-shadow(0 2px 0 #222);
+    z-index:7;
+  }
+
+  .chef-person .hair{
+    position:absolute;
+    left:18px;
+    top:54px;
+    width:92px;
+    height:80px;
+    border-left:24px solid #74462c;
+    border-right:18px solid #74462c;
+    border-bottom:18px solid #74462c;
+    border-radius:26px;
+    z-index:3;
+  }
+
+  .chef-person .head{
+    position:absolute;
+    left:25px;
+    top:52px;
+    width:78px;
+    height:82px;
+    background:#ffd2b6;
+    border:4px solid #222;
+    border-radius:46% 46% 44% 44%;
+    z-index:4;
+  }
+
+  .chef-person .face{
+    position:absolute;
+    left:25px;
+    top:52px;
+    width:78px;
+    height:82px;
+    z-index:8;
+  }
+
+  .chef-person .face::before,
+  .chef-person .face::after{
+    content:"";
+    position:absolute;
+    top:31px;
+    width:12px;
+    height:12px;
+    border:3px solid #222;
+    border-radius:50%;
+    background:#fff;
+  }
+
+  .chef-person .face::before{left:18px;}
+  .chef-person .face::after{right:18px;}
+
+  .chef-person .smile{
+    position:absolute;
+    left:30px;
+    top:52px;
+    width:28px;
+    height:12px;
+    border-bottom:3px solid #d94141;
+    border-radius:50%;
+  }
+
+  .chef-person .body{
+    position:absolute;
+    left:30px;
+    top:132px;
+    width:72px;
+    height:48px;
+    background:#f4b9d7;
+    border:4px solid #222;
+    border-radius:10px 10px 4px 4px;
+    z-index:2;
+  }
+
+  .chef-person .roller{
+    position:absolute;
+    left:22px;
+    top:145px;
+    width:92px;
+    height:13px;
+    background:#b87545;
+    border:3px solid #222;
+    border-radius:999px;
+    transform:rotate(-28deg);
+    z-index:9;
+  }
+
+  .speech{
+    background:#fff;
+    border:4px solid #78bd43;
+    border-radius:50%;
+    padding:16px 20px;
+    min-height:80px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:clamp(1.2rem,3.5vw,1.8rem);
+    font-weight:1000;
+    box-shadow:0 6px 0 rgba(0,0,0,.08);
+    position:relative;
+  }
+
+  .speech::after{
+    content:"";
+    position:absolute;
+    left:-26px;
+    bottom:18px;
+    width:34px;
+    height:22px;
+    border-left:4px solid #78bd43;
+    border-bottom:4px solid #78bd43;
+    background:#fffdf7;
+    border-radius:0 0 0 22px;
+    transform:rotate(-12deg);
+  }
+
+  .poster-preview{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin:10px 0 16px;
+  }
+
+  .poster-card{
+    border:5px solid var(--red);
+    border-radius:20px;
+    background:#fff;
+    overflow:hidden;
+    min-height:250px;
+    position:relative;
+  }
+
+  .poster-head{
+    background:var(--red);
+    color:#fff;
+    text-align:center;
+    font-size:clamp(1.6rem,4vw,2.8rem);
+    font-weight:1000;
+    padding:8px;
+  }
+
+  .numbers-poster{
+    background:#fff;
+  }
+
+  .number-row{
+    display:grid;
+    grid-template-columns:38% 62%;
+    min-height:88px;
+    border-bottom:3px solid rgba(255,255,255,.85);
+  }
+
+  .number-row:last-child{
+    border-bottom:none;
+  }
+
+  .cake-box{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    align-content:center;
+    justify-items:center;
+    gap:8px;
+    padding:12px 8px;
+  }
+
+  .number-row.yellow .cake-box{background:var(--yellow);}
+  .number-row.blue .cake-box{background:var(--blue);}
+  .number-row.green .cake-box{background:var(--green);}
+
+  .number-zone{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-around;
+    background-image:
+      linear-gradient(#b8edff 1px, transparent 1px),
+      linear-gradient(90deg, #b8edff 1px, transparent 1px);
+    background-size:22px 22px;
+    background-color:#fff;
+  }
+
+  .row-num{
+    font-size:clamp(3.2rem,9vw,5.3rem);
+    line-height:1;
+    font-weight:1000;
+    color:#fff;
+    paint-order:stroke fill;
+    filter:drop-shadow(5px 5px 4px rgba(0,0,0,.22));
+  }
+
+  .row-num.six{
+    -webkit-text-stroke:5px #d9a719;
+  }
+
+  .row-num.seven{
+    -webkit-text-stroke:5px #59bfd9;
+  }
+
+  .row-num.eight{
+    -webkit-text-stroke:5px #7fb844;
+  }
+
+  .row-num.ghost{
+    color:rgba(70,70,70,.22);
+    -webkit-text-stroke:0;
+    filter:none;
+  }
+
+  .cake{
+    width:46px;
+    height:28px;
+    position:relative;
+    border:3px solid #222;
+    border-radius:8px;
+    background:#f6d477;
+  }
+
+  .cake.choco{background:#6d4228;}
+  .cake.white{background:#fff4cc;}
+  .cake.pink{background:#f5a2ad;}
+
+  .cake::before{
+    content:"";
+    position:absolute;
+    left:-3px;
+    right:-3px;
+    top:-10px;
+    height:13px;
+    border:3px solid #222;
+    border-bottom:none;
+    border-radius:50% 50% 8px 8px;
+    background:#fff6cf;
+  }
+
+  .cake.choco::before{background:#3f2418;}
+  .cake.pink::before{background:#ffc2ca;}
+
+  .line-scene{
+    background:var(--pink);
+    padding:16px;
+    min-height:210px;
+    display:grid;
+    grid-template-columns:115px 1fr;
+    gap:12px;
+    align-items:center;
+  }
+
+  .line-cake{
+    height:82px;
+    background:#f7c751;
+    border:4px solid #222;
+    border-radius:24px;
+    position:relative;
+    margin:12px 10px;
+  }
+
+  .line-cake::before{
+    content:"";
+    position:absolute;
+    left:-4px;
+    right:-4px;
+    top:-22px;
+    height:26px;
+    background:#fff7b5;
+    border:4px solid #222;
+    border-bottom:none;
+    border-radius:50% 50% 8px 8px;
+  }
+
+  .straight-line{
+    position:absolute;
+    left:34px;
+    right:34px;
+    top:50%;
+    transform:translateY(-50%);
+    border-top:5px dashed #2448d8;
+  }
+
+  .point{
+    position:absolute;
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:2;
+  }
+
+  .point.green{left:10px;background:#0aa850;}
+  .point.red{right:10px;background:#ef4050;}
+
+  .line-caption{
+    text-align:center;
+    font-weight:1000;
+    font-size:clamp(1.2rem,3vw,1.8rem);
+  }
+
+  .line-caption span{color:var(--red);}
+
+  .quiz-panel{
+    background:#fff8fb;
+    border:4px solid #ffd1df;
+    border-radius:24px;
+    padding:14px;
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
+    position:relative;
+  }
+
+  .quiz-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+
+  .question-count{
+    font-size:1rem;
+    font-weight:1000;
+    color:#6c4bbf;
+  }
+
+  .score-box{
+    font-size:1rem;
+    font-weight:1000;
+    color:#166c38;
+  }
+
+  .question{
+    min-height:78px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:#fff;
+    border:3px dashed #f5b3c4;
+    border-radius:18px;
+    padding:14px;
+    font-size:clamp(1.35rem,4vw,2rem);
+    font-weight:1000;
+  }
+
+  .answers{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+  }
+
+  .answer-btn{
+    border:none;
+    border-radius:18px;
+    min-height:88px;
+    padding:12px;
+    font-size:clamp(1.15rem,3.5vw,1.85rem);
+    font-weight:1000;
+    cursor:pointer;
+    background:#eef6ff;
+    color:#17375e;
+    box-shadow:0 6px 0 rgba(0,0,0,.15);
+    transition:transform .1s ease, filter .1s ease, background .12s ease;
+  }
+
+  .answer-btn:hover{
+    transform:translateY(-2px) scale(1.01);
+    filter:brightness(1.04);
+  }
+
+  .answer-btn:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 rgba(0,0,0,.12);
+  }
+
+  .answer-btn.correct{
+    background:#c9f5d8;
+    color:#0a6c34;
+    animation:correctPop .45s ease;
+  }
+
+  .answer-btn.wrong{
+    background:#ffd4dc;
+    color:#a31325;
+    animation:wrongShake .35s ease;
+  }
+
+  @keyframes correctPop{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.08);}
+    100%{transform:scale(1);}
+  }
+
+  @keyframes wrongShake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-8px);}
+    75%{transform:translateX(8px);}
+  }
+
+  .controls{
+    margin-top:14px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:11px 18px;
+    font-size:1rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.18);
+    transition:transform .1s ease, filter .1s ease;
+  }
+
+  .btn:hover{filter:brightness(1.04);transform:translateY(-1px);}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.14);}
+
+  .btn.read{background:var(--red);color:#fff;}
+  .btn.next{background:#f7dc6f;color:#8b5a00;}
+  .btn.reset{background:#dfeaff;color:#1f3b6b;}
+  .btn.cheer{background:#c9f2d6;color:#166c38;}
+
+  .status{
+    margin-top:12px;
+    min-height:1.5em;
+    text-align:center;
+    font-size:clamp(1rem,3vw,1.35rem);
+    font-weight:1000;
+    color:#5a3eb0;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.3em;
+    font-size:2.1rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);
+  }
+
+  .progress-wrap{
+    margin-top:12px;
+  }
+
+  .progress-label{
+    text-align:center;
+    font-weight:1000;
+    color:#4b3960;
+    margin-bottom:6px;
+  }
+
+  .bar{
+    height:16px;
+    background:#e8eef8;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.12);
+  }
+
+  .fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#58c6ff,#83e79f);
+    transition:width .25s ease;
+  }
+
+  .confetti-piece{
+    position:fixed;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    z-index:9999;
+    pointer-events:none;
+    animation:confettiFall 1.7s linear forwards;
+  }
+
+  .home-float{
+    position:fixed;
+    top:18px;
+    right:18px;
+    z-index:1000;
+    width:74px;
+    transform-origin:top center;
+    animation:homeSwing 3.2s ease-in-out infinite;
+  }
+
+  .home-float img{
+    width:100%;
+    display:block;
+  }
+
+  @keyframes homeSwing{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(7deg);}
+    75%{transform:rotate(-7deg);}
+  }
+
+  @keyframes confettiFall{
+    to{
+      transform:translateY(105vh) rotate(540deg);
+      opacity:.1;
+    }
+  }
+
+  @media(max-width:780px){
+    .hero{grid-template-columns:1fr;}
+    .poster-preview{grid-template-columns:1fr;}
+    .answers{grid-template-columns:1fr;}
+    .week{top:14px;right:14px;}
+    .main-title{-webkit-text-stroke:5px var(--red);}
+    .line-scene{grid-template-columns:1fr;}
+    .chef-person{height:165px;}
+  }
+</style>
+</head>
+
+<body>
+<a class="home-float" href="../../../../../index.html" aria-label="Home">
+  <img src="../../../Home1.png" alt="Home">
+</a>
+<main class="app">
+  <div class="week">Week 1</div>
+  <h1 class="main-title">Quiz</h1>
+
+  <section class="hero">
+        <img class="poster-boy poster-boy-img" src="../../../1stBoyA2.png" alt="Boy from the numbers poster">
+
+    <div class="speech">Let’s write numbers and find straight lines!</div>
+  </section>
+
+  <section class="poster-preview" aria-label="Poster inspired learning area">
+    <div class="poster-card numbers-poster">
+      <div class="poster-head">Numbers</div>
+
+      <div class="number-row yellow">
+        <div class="cake-box">
+          <div class="cake choco"></div><div class="cake white"></div><div class="cake pink"></div>
+          <div class="cake"></div><div class="cake pink"></div><div class="cake white"></div>
+        </div>
+        <div class="number-zone">
+          <span class="row-num six">6</span>
+          <span class="row-num ghost">6</span>
+          <span class="row-num ghost">6</span>
+        </div>
+      </div>
+
+      <div class="number-row blue">
+        <div class="cake-box">
+          <div class="cake"></div><div class="cake pink"></div><div class="cake white"></div>
+          <div class="cake white"></div><div class="cake"></div><div class="cake choco"></div>
+        </div>
+        <div class="number-zone">
+          <span class="row-num seven">7</span>
+          <span class="row-num ghost">7</span>
+          <span class="row-num ghost">7</span>
+        </div>
+      </div>
+
+      <div class="number-row green">
+        <div class="cake-box">
+          <div class="cake white"></div><div class="cake"></div><div class="cake pink"></div>
+          <div class="cake choco"></div><div class="cake"></div><div class="cake pink"></div>
+        </div>
+        <div class="number-zone">
+          <span class="row-num eight">8</span>
+          <span class="row-num ghost">8</span>
+          <span class="row-num ghost">8</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="poster-card">
+      <div class="poster-head">Straight Lines</div>
+      <div class="line-scene">
+          <img class="chef-person chef-person-img" src="../../../BakerA2.png" alt="Baker from the straight lines poster">
+
+        <div>
+          <div class="line-cake">
+            <div class="point green"></div>
+            <div class="straight-line"></div>
+            <div class="point red"></div>
+          </div>
+          <div class="line-caption">A straight line has <span>2 points</span>.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quiz-panel">
+    <div class="quiz-top">
+      <div class="question-count" id="questionCount">Question 1 of 10</div>
+      <div class="score-box" id="scoreBox">Score: 0</div>
+    </div>
+
+    <div class="question" id="questionText">Loading question…</div>
+    <div class="answers" id="answers"></div>
+
+    <div class="progress-wrap">
+      <div class="progress-label">Quiz progress: <span id="progressText">0%</span></div>
+      <div class="bar"><div class="fill" id="progressFill"></div></div>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button class="btn read" id="readBtn">🔊 Read Question</button>
+    <button class="btn next" id="nextBtn">Next Question →</button>
+    <button class="btn cheer" id="cheerBtn">👏 Cheer</button>
+    <button class="btn reset" id="resetBtn">Reset Quiz</button>
+  </div>
+
+  <div class="stars" id="stars"></div>
+  <div class="status" id="status">Tap “Read Question” and choose the correct answer.</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  const questions = [
+    {
+      text:"Which number is on the yellow cake row?",
+      answers:["6","7","8"],
+      correct:"6",
+      speak:"Which number is on the yellow cake row? Is it 6, 7, or 8?"
+    },
+    {
+      text:"Which number is on the blue cake row?",
+      answers:["6","7","8"],
+      correct:"7",
+      speak:"Which number is on the blue cake row?"
+    },
+    {
+      text:"Which number is on the green cake row?",
+      answers:["6","7","8"],
+      correct:"8",
+      speak:"Which number is on the green cake row?"
+    },
+    {
+      text:"Which color row has number 7?",
+      answers:["Yellow row","Blue row","Green row"],
+      correct:"Blue row",
+      speak:"Which color row has number 7?"
+    },
+    {
+      text:"Which color row has number 8?",
+      answers:["Green row","Blue row","Yellow row"],
+      correct:"Green row",
+      speak:"Which color row has number 8?"
+    },
+    {
+      text:"What comes after 6?",
+      answers:["5","7","8"],
+      correct:"7",
+      speak:"What comes after 6?"
+    },
+    {
+      text:"What comes after 7?",
+      answers:["6","8","9"],
+      correct:"8",
+      speak:"What comes after 7?"
+    },
+    {
+      text:"A straight line has how many points?",
+      answers:["1 point","2 points","4 points"],
+      correct:"2 points",
+      speak:"A straight line has how many points?"
+    },
+    {
+      text:"Which one shows a straight line?",
+      answers:["Curvy line","Zigzag line","Line from point to point"],
+      correct:"Line from point to point",
+      speak:"Which one shows a straight line?"
+    },
+    {
+      text:"Who is holding the rolling pin?",
+      answers:["The chef","The boy","The cake"],
+      correct:"The chef",
+      speak:"Who is holding the rolling pin?"
+    }
+  ];
+
+  const questionCount = document.getElementById("questionCount");
+  const scoreBox = document.getElementById("scoreBox");
+  const questionText = document.getElementById("questionText");
+  const answersEl = document.getElementById("answers");
+  const progressText = document.getElementById("progressText");
+  const progressFill = document.getElementById("progressFill");
+  const statusEl = document.getElementById("status");
+  const starsEl = document.getElementById("stars");
+
+  const readBtn = document.getElementById("readBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const cheerBtn = document.getElementById("cheerBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const HOME_PAGE = "../../../../../index.html";
+
+  let index = 0;
+  let score = 0;
+  let answered = false;
+
+  function setStatus(text){
+    statusEl.textContent = text || "";
+  }
+
+  function pickVoice(){
+    if(!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    return voices.find(v => /^en[-_]us/i.test(v.lang || "") && /jenny|aria|ava|allison|ellie|libby|olivia|emma|ivy|samantha|female|girl|zira/i.test(v.name || ""))
+      || voices.find(v => /^en[-_]us/i.test(v.lang || "") && !/male|boy|david|guy|michael|james|thomas|mark|paul|brian|steve|kevin|eric/i.test(v.name || ""))
+      || voices.find(v => /^en/i.test(v.lang || ""))
+      || voices[0]
+      || null;
+  }
+
+  function speak(text){
+    if(!text || !("speechSynthesis" in window)) return;
+    try{ window.speechSynthesis.cancel(); }catch(_){}
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 0.88;
+    u.pitch = 1.16;
+    u.volume = 1;
+    const voice = pickVoice();
+    if(voice) u.voice = voice;
+    window.speechSynthesis.speak(u);
+  }
+
+  let audioCtx = null;
+
+  function getAudioCtx(){
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if(!AudioContext) return null;
+    if(!audioCtx) audioCtx = new AudioContext();
+    if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+
+  function chime(){
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    [660, 880, 1046].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.13;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.22, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.34);
+    });
+  }
+
+  function wrongSound(){
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(180, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.16);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  }
+
+  function clap(){
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+
+    for(let i = 0; i < 4; i++){
+      const bufferSize = Math.floor(ctx.sampleRate * 0.08);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for(let j = 0; j < bufferSize; j++){
+        data[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / bufferSize, 2);
+      }
+
+      const noise = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      noise.buffer = buffer;
+      gain.gain.value = 0.24;
+      noise.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(ctx.currentTime + i * 0.14);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#f24b5e","#ffd24a","#58c6ff","#83e79f","#f7a6c9","#9ed06a"];
+
+    for(let i = 0; i < 38; i++){
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = (Math.random() * .35) + "s";
+      piece.style.transform = "rotate(" + (Math.random() * 180) + "deg)";
+      document.body.appendChild(piece);
+      piece.addEventListener("animationend", () => piece.remove());
+    }
+  }
+
+  function saveProgress(){
+    try{
+      const percent = Math.round((index / questions.length) * 100);
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+
+      store.NumbersStraightLinesQuiz = {
+        pageId:"NumbersStraightLinesQuiz",
+        file:"NumbersStraightLinesQuiz.html",
+        level:"A",
+        activityType:"quiz",
+        score:score,
+        quizProgress:percent,
+        stars:score >= 8 ? 3 : score >= 5 ? 2 : score >= 3 ? 1 : 0,
+        completed:index >= questions.length,
+        savedAt:new Date().toISOString(),
+        ts:Date.now()
+      };
+
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+    }catch(_){}
+  }
+
+  function updateProgress(){
+    const percent = Math.round((index / questions.length) * 100);
+    progressText.textContent = percent + "%";
+    progressFill.style.width = percent + "%";
+    scoreBox.textContent = "Score: " + score;
+
+    if(score >= 8) starsEl.textContent = "⭐ ⭐ ⭐";
+    else if(score >= 5) starsEl.textContent = "⭐ ⭐";
+    else if(score >= 3) starsEl.textContent = "⭐";
+    else starsEl.textContent = "";
+  }
+
+  function renderQuestion(){
+    answered = false;
+
+    if(index >= questions.length){
+      questionCount.textContent = "Quiz Complete";
+      questionText.textContent = "Great job! You finished the quiz.";
+      answersEl.innerHTML = "";
+      progressText.textContent = "100%";
+      progressFill.style.width = "100%";
+
+      let message = "Great try! Keep practicing.";
+      if(score >= 8) message = "Wow! You are super smart!";
+      else if(score >= 5) message = "Amazing job!";
+      else if(score >= 3) message = "Good job! Nice try!";
+
+      setStatus(message + " Score: " + score + " out of " + questions.length + ".");
+      chime();
+      clap();
+      confetti();
+      speak(message + " Your score is " + score + " out of " + questions.length + ".");
+      saveProgress();
+      nextBtn.textContent = "Go Home →";
+      return;
+    }
+
+    const q = questions[index];
+    nextBtn.textContent = "Next Question →";
+    questionCount.textContent = "Question " + (index + 1) + " of " + questions.length;
+    questionText.textContent = q.text;
+    answersEl.innerHTML = "";
+
+    q.answers.forEach(answer => {
+      const btn = document.createElement("button");
+      btn.className = "answer-btn";
+      btn.type = "button";
+      btn.textContent = answer;
+      btn.addEventListener("click", () => chooseAnswer(btn, answer));
+      answersEl.appendChild(btn);
+    });
+
+    setStatus("Choose the correct answer.");
+    updateProgress();
+    saveProgress();
+  }
+
+  function chooseAnswer(button, answer){
+    if(answered) return;
+
+    answered = true;
+    getAudioCtx();
+
+    const q = questions[index];
+    const allButtons = Array.from(document.querySelectorAll(".answer-btn"));
+
+    allButtons.forEach(btn => {
+      if(btn.textContent === q.correct) btn.classList.add("correct");
+      if(btn === button && answer !== q.correct) btn.classList.add("wrong");
+      btn.disabled = true;
+    });
+
+    if(answer === q.correct){
+      score += 1;
+      chime();
+      clap();
+      confetti();
+      setStatus("Correct! Great job!");
+      speak("Correct! Great job!");
+    }else{
+      wrongSound();
+      setStatus("Sorry, try again next time. The correct answer is " + q.correct + ".");
+      speak("Sorry, try again next time. The correct answer is " + q.correct + ".");
+    }
+
+    index += 1;
+    updateProgress();
+    saveProgress();
+
+    setTimeout(() => {
+      if(index < questions.length){
+        setStatus("Tap Next Question.");
+      }
+    }, 1000);
+  }
+
+  readBtn.addEventListener("click", () => {
+    getAudioCtx();
+
+    if(index >= questions.length){
+      speak("The quiz is complete. Your score is " + score + " out of " + questions.length + ".");
+      return;
+    }
+
+    speak(questions[index].speak);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    getAudioCtx();
+    if(index >= questions.length){
+      window.location.href = HOME_PAGE;
+      return;
+    }
+    renderQuestion();
+
+    if(index < questions.length){
+      speak(questions[index].speak);
+    }
+  });
+
+  cheerBtn.addEventListener("click", () => {
+    getAudioCtx();
+    clap();
+    chime();
+    confetti();
+    setStatus("You can do it!");
+    speak("You can do it! Keep going!");
+  });
+
+  resetBtn.addEventListener("click", () => {
+    try{ window.speechSynthesis.cancel(); }catch(_){}
+
+    index = 0;
+    score = 0;
+    answered = false;
+    starsEl.textContent = "";
+
+    renderQuestion();
+    setStatus("Quiz reset. Tap Read Question to begin.");
+    speak("Quiz reset. Let's start again.");
+  });
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  window.addEventListener("load", () => {
+    renderQuestion();
+
+    setTimeout(() => {
+      speak("Welcome to the numbers and straight lines quiz. Look at the boy, the chef, the cakes, and the numbers. Tap Read Question, then choose the correct answer.");
+    }, 600);
+  }, {once:true});
+
+})();
+</script>
+</body>
+</html>

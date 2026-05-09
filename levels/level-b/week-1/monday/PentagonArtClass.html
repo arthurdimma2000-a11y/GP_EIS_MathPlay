@@ -49,11 +49,10 @@
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
       <div class="intro-title">Pentagon Art Class Intro</div>
-      <video id="lbIntroVideo" playsinline autoplay muted preload="metadata">
+      <video id="lbIntroVideo" playsinline autoplay preload="metadata">
         <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777791982/Newbartclass_x85ya1.mp4" type="video/mp4">
       </video>
       <div class="intro-actions">
-        <button type="button" class="intro-btn sound" id="turnOnSoundBtn">Turn On Sound</button>
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
       <div class="intro-help">Skip Intro will go straight to LB2.html.</div>
@@ -75,7 +74,7 @@
           <button class="nav-btn" onclick="replayVideo()">🔁 Replay</button>
         </div>
 
-        <video id="lessonVideo" controls playsinline preload="metadata">
+        <video id="lessonVideo" controls playsinline autoplay preload="metadata">
           <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1777791982/Newbartclass_x85ya1.mp4" type="video/mp4">
         </video>
 
@@ -98,7 +97,6 @@
     const video = document.getElementById("lessonVideo");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
-    const turnOnSoundBtn = document.getElementById("turnOnSoundBtn");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
     let introFinished = false;
     video.muted = true;
@@ -174,16 +172,8 @@
       }
     }
 
-    function enableIntroSound(){
-      introVideo.muted = false;
-      introVideo.volume = 1;
-      introVideo.play().catch(()=>{});
-      turnOnSoundBtn.textContent = "Sound On";
-      turnOnSoundBtn.disabled = true;
-    }
-
     const originalRevealPageContent = revealPageContent;
-    revealPageContent = function(){ if(introFinished) return; originalRevealPageContent(); if(introVideo){ try{ introVideo.muted = true; introVideo.volume = 0; introVideo.currentTime = 0; clearVideoSource(introVideo); }catch(e){} } ensureLessonVideoLoaded(); video.muted = false; video.volume = 1; };
+    revealPageContent = function(){ if(introFinished) return; originalRevealPageContent(); if(introVideo){ try{ introVideo.muted = true; introVideo.volume = 0; introVideo.currentTime = 0; clearVideoSource(introVideo); }catch(e){} } ensureLessonVideoLoaded(); video.muted = false; video.volume = 1; video.play().catch(()=>{}); };
     const originalRestoreLessonAudio = restoreLessonAudio;
     restoreLessonAudio = function(){ ensureLessonVideoLoaded(); originalRestoreLessonAudio(); };
     const originalReplayVideo = replayVideo;
@@ -201,8 +191,7 @@
       restoreLessonAudio();
     });
 
-    introVideo.play().catch(()=>{});
-    turnOnSoundBtn.addEventListener("click", enableIntroSound);
+    introVideo.muted = false; introVideo.volume = 1; introVideo.play().catch(()=>{});
     skipIntroBtn.addEventListener("click", skipIntroAndGoNext);
 
     document.addEventListener("keydown", (e) => {

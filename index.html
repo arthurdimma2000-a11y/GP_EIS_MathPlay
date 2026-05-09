@@ -2836,7 +2836,7 @@
               <span class="badge">Choose a level hero</span>
               <span class="badge">Press Start Learning</span>
               <span class="badge">Month 1 open: Weeks 1 to 4</span>
-              <span class="badge">Months 2 to 12 are locked</span>
+              <span class="badge">Month 2 open: Week 1 only</span>
             </div>
           </div>
 
@@ -2881,7 +2881,7 @@
               <div class="row">
                 <span class="badge">Choose a level first</span>
                 <span class="badge">Then press Start Learning</span>
-                <span class="badge">Only Month 1 is open now</span>
+                <span class="badge">Month 2 is open with Week 1 only</span>
                 <span class="badge">Students login to enter lesson pages</span>
               </div>
             </div>
@@ -5918,7 +5918,7 @@
       if (selectedLevel !== sessionLevel) {
         selectedLevel = sessionLevel;
       }
-      if (selectedMonth !== 1) {
+      if (!isMonthAutoUnlocked(selectedMonth)) {
         selectedMonth = 1;
       }
       const week = getWeekFromPath(file);
@@ -6042,9 +6042,11 @@
     }
 
     function getUnlockedWeeksForMonth(month){
-          const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
-          return safeMonth === 1 ? 4 : 0;
-        }
+      const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
+      if (safeMonth === 1) return 4;
+      if (safeMonth === 2) return 1;
+      return 0;
+    }
 
     function formatOpenedWeeksMessage(unlockedWeeks){
       const count = Math.max(0, Math.min(4, Number(unlockedWeeks) || 0));
@@ -6056,8 +6058,7 @@
     }
 
     function isMonthAutoUnlocked(month){
-      const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
-      return safeMonth === 1;
+      return getUnlockedWeeksForMonth(month) > 0;
     }
 
     function updateQuickLevelHeading(){
@@ -6086,8 +6087,8 @@
         const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
         const monthIsOpen = isMonthAutoUnlocked(selectedMonth);
         weekWindowIntroText.textContent = monthIsOpen
-            ? `Week 1 to Week 4 are shown here. All four weeks are open in Month 1.`
-            : `This month is locked for now. Only Month 1 is currently open.`;
+          ? `Week 1 to Week 4 are shown here. ${formatOpenedWeeksMessage(unlockedWeeks)}`
+          : `This month is locked for now. Only Month 1 and Month 2 are currently open.`;
       }
       if (weekWindowStatusBadge) {
         const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
@@ -6131,7 +6132,7 @@
         const autoUnlocked = isMonthAutoUnlocked(month);
         const unlockedWeeks = getUnlockedWeeksForMonth(month);
         const isCurrentMonth = month === currentMonth;
-          const statusText = autoUnlocked ? "Open Weeks 1 to 4" : "Locked";
+          const statusText = autoUnlocked ? `Open Weeks: ${unlockedWeeks}` : "Locked";
         html += `
           <article
             class="month-card ${month === selectedMonth ? "active-month" : "future-month"} month-clickable ${autoUnlocked ? "month-open" : "month-locked locked-month"} ${isCurrentMonth ? "current-marker" : ""}"
@@ -6449,7 +6450,7 @@
       if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance !== "function") return;
       const openWeeks = getUnlockedWeeksForMonth(1);
       const weekMessage = openWeeks > 0 ? formatOpenedWeeksMessage(openWeeks) : "No weeks are opened at the moment.";
-      const message = `Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Month 1 is open. All four weeks are open in Month 1. Months 2 to 12 are locked. Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then login to access the lesson activities on this app.`;
+      const message = `Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Month 1 is open with Weeks 1 to 4. Month 2 is open with Week 1 only. Months 3 to 12 are locked. Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then login to access the lesson activities on this app.`;
       try {
         indexWelcomeNarrationDone = true;
         duckIndexBackgroundMusic(true);

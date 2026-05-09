@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Counting Sticks • Interactive Quiz</title>
+
+<style>
+  :root{
+    --red:#f2485b;
+    --pink:#f7b7c7;
+    --grid:#e9eef7;
+    --ink:#202124;
+    --blue:#00a6d6;
+    --green:#6bcf9c;
+    --yellow:#ffd166;
+    --shadow:0 18px 50px rgba(0,0,0,.14);
+    font-family:"Comic Sans MS","Baloo 2","Segoe UI",system-ui,-apple-system,Arial;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:16px;
+    color:var(--ink);
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px, transparent 1px),
+      radial-gradient(circle at 12% 10%,#ffd6ff,transparent 36%),
+      radial-gradient(circle at 90% 20%,#fff3a6,transparent 42%),
+      linear-gradient(135deg,#fffdf7,#def8ff);
+    background-size:28px 28px,28px 28px,auto,auto,auto;
+  }
+
+  .app{
+    width:min(1120px,98vw);
+  }
+
+  .home-float{
+    position:fixed;
+    top:18px;
+    right:18px;
+    z-index:1000;
+    width:74px;
+    transform-origin:top center;
+    animation:homeSwing 3.2s ease-in-out infinite;
+  }
+
+  .home-float img{display:block;width:100%;}
+
+  @keyframes homeSwing{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(7deg);}
+    75%{transform:rotate(-7deg);}
+  }
+
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:12px;
+  }
+
+  .badge{
+    background:#fff;
+    border-radius:999px;
+    padding:10px 15px;
+    box-shadow:0 12px 28px rgba(0,0,0,.12);
+    font-weight:1000;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .pill{
+    background:var(--red);
+    color:#fff;
+    border-radius:999px;
+    padding:7px 12px;
+    font-size:14px;
+  }
+
+  .nav{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .btn{
+    border:0;
+    cursor:pointer;
+    font-weight:1000;
+    font-size:16px;
+    border-radius:17px;
+    padding:12px 16px;
+    background:#fff;
+    color:#111;
+    box-shadow:0 10px 22px rgba(0,0,0,.13);
+    transition:transform .12s ease, filter .12s ease;
+  }
+
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(180deg,#63e6be,#22c55e);color:#08230d}
+  .btn.next{background:linear-gradient(180deg,#74c0fc,#00a6d6);color:#06121d}
+  .btn.sound{background:linear-gradient(180deg,#ffe08a,#ffb703);color:#3d2a00}
+  .btn.red{background:linear-gradient(180deg,#ffb3bd,#f2485b);color:#fff}
+
+  .card{
+    background:#fff;
+    border:5px solid var(--red);
+    border-radius:30px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+
+  .hero{
+    text-align:center;
+    padding:18px 20px 12px;
+    background:linear-gradient(180deg,#fff,#fff6fa);
+  }
+
+  .hero h1{
+    margin:0;
+    color:#fff;
+    font-size:clamp(38px,8vw,76px);
+    line-height:.95;
+    letter-spacing:1px;
+    text-shadow:
+      4px 0 var(--red),
+      -4px 0 var(--red),
+      0 4px var(--red),
+      0 -4px var(--red),
+      3px 3px var(--red),
+      -3px 3px var(--red),
+      3px -3px var(--red),
+      -3px -3px var(--red);
+  }
+
+  .subtitle{
+    margin:10px auto 0;
+    font-size:clamp(17px,2.3vw,22px);
+    font-weight:1000;
+  }
+
+  .main{
+    display:grid;
+    grid-template-columns:.88fr 1.12fr;
+    gap:16px;
+    padding:16px 18px 18px;
+    background:linear-gradient(180deg,#fff,#f7fbff);
+  }
+
+  @media(max-width:940px){
+    .main{grid-template-columns:1fr}
+  }
+
+  .panel{
+    background:#fff;
+    border:2px solid rgba(0,0,0,.07);
+    border-radius:24px;
+    padding:14px;
+  }
+
+  .teacher-row{
+    display:flex;
+    align-items:flex-end;
+    gap:12px;
+    margin-bottom:12px;
+  }
+
+  .teacher{
+    width:92px;
+    min-width:92px;
+    animation:bob 1.8s ease-in-out infinite;
+  }
+
+  @keyframes bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+  }
+
+  .bubble{
+    background:#fff;
+    border:3px solid var(--blue);
+    border-radius:26px;
+    padding:12px 16px;
+    font-size:20px;
+    line-height:1.35;
+    font-weight:1000;
+    box-shadow:0 12px 25px rgba(0,0,0,.10);
+    position:relative;
+    flex:1;
+  }
+
+  .bubble::before{
+    content:"";
+    position:absolute;
+    left:-13px;
+    bottom:18px;
+    width:24px;
+    height:24px;
+    background:#fff;
+    border-left:3px solid var(--blue);
+    border-bottom:3px solid var(--blue);
+    transform:rotate(45deg);
+  }
+
+  .progress-wrap{
+    background:#fff;
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    margin-bottom:12px;
+  }
+
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    font-weight:1000;
+    margin-bottom:8px;
+  }
+
+  .progress{
+    height:20px;
+    border-radius:999px;
+    background:#edf2f7;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.05);
+  }
+
+  .bar{
+    width:0%;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#63e6be,#4dabf7,#ffd43b,#ff6b6b);
+    transition:width .3s ease;
+  }
+
+  .stars{
+    text-align:center;
+    font-size:31px;
+    font-weight:1000;
+    margin:10px 0;
+  }
+
+  .scorebox{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .score{
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    padding:12px;
+    text-align:center;
+    font-size:20px;
+    font-weight:1000;
+  }
+
+  .quiz-card{
+    min-height:640px;
+    background:#fff;
+    border-radius:24px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    padding:15px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .qtop{
+    text-align:center;
+    font-size:21px;
+    color:#666;
+    font-weight:1000;
+  }
+
+  .question{
+    text-align:center;
+    font-size:clamp(25px,4vw,38px);
+    font-weight:1000;
+    margin:10px 0 12px;
+  }
+
+  .visual{
+    border-radius:24px;
+    min-height:300px;
+    display:grid;
+    place-items:center;
+    background:
+      linear-gradient(#d7edf7 1px,transparent 1px),
+      linear-gradient(90deg,#d7edf7 1px,transparent 1px),
+      #fff;
+    background-size:24px 24px;
+    border:3px solid #ffc1cc;
+    overflow:hidden;
+    margin-bottom:14px;
+  }
+
+  .visual svg{
+    width:100%;
+    min-height:300px;
+    display:block;
+  }
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    margin-top:auto;
+  }
+
+  .opt{
+    border:0;
+    cursor:pointer;
+    border-radius:22px;
+    padding:15px 16px;
+    font-size:clamp(20px,3vw,28px);
+    font-weight:1000;
+    background:linear-gradient(180deg,#f7fbff,#ffffff);
+    color:#111;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+    border:3px solid transparent;
+    transition:transform .12s ease, opacity .12s ease, border-color .12s ease;
+  }
+
+  .opt:hover:not(:disabled){transform:translateY(-2px)}
+  .opt:active:not(:disabled){transform:translateY(1px)}
+  .opt:disabled{opacity:.72;cursor:not-allowed}
+  .opt.correct{background:#dcfce7;border-color:#22c55e}
+  .opt.wrong{background:#fff1f2;border-color:#f2485b}
+
+  .message{
+    margin-top:14px;
+    min-height:64px;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.06);
+    padding:12px;
+    font-size:20px;
+    font-weight:1000;
+    text-align:center;
+  }
+
+  .message.good{background:#dcfce7}
+  .message.oops{background:#fff1f2}
+
+  .side-card{
+    background:linear-gradient(180deg,#fff7c2,#fff);
+    border-radius:22px;
+    padding:14px;
+    box-shadow:0 10px 22px rgba(0,0,0,.10);
+    margin-top:12px;
+  }
+
+  .side-card h3{
+    margin:0 0 8px;
+    font-size:23px;
+  }
+
+  .side-card p{
+    font-size:18px;
+    line-height:1.35;
+    margin:6px 0;
+    font-weight:800;
+  }
+
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-top:12px;
+  }
+
+  .celebrate{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:99;
+  }
+
+  .confetti{
+    position:absolute;
+    top:-35px;
+    font-size:25px;
+    animation:fall 1000ms ease-in forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(115vh) rotate(360deg);opacity:.1}
+  }
+</style>
+</head>
+
+<body>
+<a class="home-float" href="../../../../../index.html" aria-label="Home"><img src="../../../Home1.png" alt="Home"></a>
+<audio id="chimeAudio" src="chime.mp3" preload="auto"></audio>
+<div class="celebrate" id="celebrate"></div>
+
+<div class="app">
+  <div class="top">
+    <div class="badge">
+      <span class="pill">Week 1</span>
+      <span>Counting Sticks • Quiz</span>
+    </div>
+
+    <div class="nav">
+      <button class="btn" onclick="goBack()">⬅ Back</button>
+      <button class="btn sound" onclick="repeatQuestion()">🔊 Repeat</button>
+      <button class="btn red" onclick="startQuiz()">🔁 New</button>
+      <button class="btn next" onclick="goNext()">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hero">
+      <h1>Counting Sticks</h1>
+      <div class="subtitle">Answer counting and greater-than questions.</div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <div class="teacher-row">
+          <div class="teacher" aria-hidden="true">
+            <svg viewBox="0 0 120 160" width="100%" height="100%">
+              <ellipse cx="60" cy="148" rx="34" ry="8" fill="rgba(0,0,0,.14)"/>
+              <circle cx="60" cy="34" r="22" fill="#ffd6a5"/>
+              <path d="M38 34 Q47 8 71 15 Q92 22 80 47 Q66 28 38 34Z" fill="#333"/>
+              <circle cx="52" cy="35" r="3" fill="#222"/>
+              <circle cx="68" cy="35" r="3" fill="#222"/>
+              <path d="M54 45 Q61 51 69 44" fill="none" stroke="#cc6b5a" stroke-width="3" stroke-linecap="round"/>
+              <path d="M38 61 Q62 50 84 61 L92 125 Q61 142 29 125Z" fill="#00a6d6"/>
+              <path d="M37 72 Q21 89 20 110" fill="none" stroke="#ffd6a5" stroke-width="10" stroke-linecap="round"/>
+              <path d="M83 72 Q103 78 108 99" fill="none" stroke="#ffd6a5" stroke-width="10" stroke-linecap="round"/>
+              <path d="M44 126 L37 148" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/>
+              <path d="M76 126 L82 148" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="bubble" id="teacherBubble">
+            Press New to start the quiz. I will read each question.
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Quiz Progress</span>
+            <span id="progressText">0%</span>
+          </div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+        </div>
+
+        <div class="stars" id="stars">⭐ 0</div>
+
+        <div class="scorebox">
+          <div class="score">✅ Correct<br><span id="correctNum">0</span></div>
+          <div class="score">💪 Try Again<br><span id="wrongNum">0</span></div>
+        </div>
+
+        <div class="side-card">
+          <h3>Quiz Skills</h3>
+          <p>✅ Count matchsticks, twigs, craft sticks, wooden sticks, and toothpicks.</p>
+          <p>✅ Compare numbers using greater than.</p>
+          <p>✅ Read sentences like: <b>9 is greater than 4.</b></p>
+        </div>
+
+        <div class="side-card">
+          <h3>Remember</h3>
+          <p><b>Greater than</b> means the bigger number.</p>
+          <p>Example: <b>8 is greater than 6.</b></p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="quiz-card">
+          <div class="qtop" id="qtop">Question 1 of 10</div>
+          <div class="question" id="questionText">Ready?</div>
+          <div class="visual" id="visual"></div>
+          <div class="options" id="options"></div>
+          <div class="message" id="message">Tap New to begin ⭐</div>
+
+          <div class="controls">
+            <button class="btn primary" onclick="startQuiz()">🎉 Start Quiz</button>
+            <button class="btn sound" onclick="repeatQuestion()">🔊 Repeat Question</button>
+            <button class="btn next" onclick="finishQuiz()">🏁 Finish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================
+   Navigation
+====================== */
+const BACK_PAGE = "Bk2LCGame1.html";
+const NEXT_PAGE = "../../../../../index.html";
+
+function goBack(){
+  location.href = BACK_PAGE;
+}
+
+function goNext(){
+  location.href = NEXT_PAGE;
+}
+
+/* ======================
+   Elements
+====================== */
+const chimeAudio = document.getElementById("chimeAudio");
+const celebrate = document.getElementById("celebrate");
+const teacherBubble = document.getElementById("teacherBubble");
+const bar = document.getElementById("bar");
+const progressText = document.getElementById("progressText");
+const starsEl = document.getElementById("stars");
+const correctNum = document.getElementById("correctNum");
+const wrongNum = document.getElementById("wrongNum");
+const qtop = document.getElementById("qtop");
+const questionText = document.getElementById("questionText");
+const visual = document.getElementById("visual");
+const optionsBox = document.getElementById("options");
+const message = document.getElementById("message");
+
+/* ======================
+   SVG Helpers
+====================== */
+function oneStick(type,x,y,rot,i){
+  if(type === "match"){
+    const head = ["#f2485b","#00a6d6","#ffd166","#9b5de5","#444","#6bcf9c"][i % 6];
+    return `
+      <g transform="translate(${x} ${y}) rotate(${rot})">
+        <line x1="-42" y1="0" x2="42" y2="0" stroke="#dfb675" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="-46" cy="0" r="8" fill="${head}" stroke="#555" stroke-width="1.5"/>
+      </g>`;
+  }
+
+  if(type === "wood"){
+    return `
+      <g transform="translate(${x} ${y}) rotate(${rot})">
+        <rect x="-58" y="-7" width="116" height="14" rx="7" fill="#d59a55" stroke="#7a4d22" stroke-width="2"/>
+        <path d="M-45 -2 Q-20 5 5 -2 T45 -1" fill="none" stroke="#8a5a2b" stroke-width="2" opacity=".65"/>
+      </g>`;
+  }
+
+  if(type === "craft"){
+    return `
+      <g transform="translate(${x} ${y}) rotate(${rot})">
+        <rect x="-62" y="-8" width="124" height="16" rx="10" fill="#f1c884" stroke="#8a5a2b" stroke-width="2"/>
+      </g>`;
+  }
+
+  if(type === "twig"){
+    return `
+      <g transform="translate(${x} ${y}) rotate(${rot})">
+        <path d="M-58 0 C-25 -5 10 3 58 0" fill="none" stroke="#8a5a35" stroke-width="12" stroke-linecap="round"/>
+        <path d="M-4 -2 L22 -24" stroke="#8a5a35" stroke-width="7" stroke-linecap="round"/>
+        <path d="M26 0 L50 -18" stroke="#8a5a35" stroke-width="6" stroke-linecap="round"/>
+      </g>`;
+  }
+
+  return `
+    <g transform="translate(${x} ${y}) rotate(${rot})">
+      <path d="M-4 50 L4 -50" fill="none" stroke="#dfb675" stroke-width="8" stroke-linecap="round"/>
+      <path d="M-8 -52 L8 -52 L0 -68 Z" fill="#c79b4f" stroke="#6a4d1e" stroke-width="1"/>
+    </g>`;
+}
+
+function stickGroup(type,count,xStart,yStart,boxW,boxH){
+  let out = "";
+  const cols = count > 6 ? 5 : Math.min(count,4);
+  const gapX = boxW / Math.max(1, cols);
+  const gapY = count > 5 ? 54 : 70;
+
+  for(let i=0;i<count;i++){
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = xStart + col * gapX + 35 + (row % 2) * 12;
+    const y = yStart + row * gapY + 35;
+    const rot = [-18,-8,5,13,22,-26,15,-12,7,19][i % 10];
+    out += oneStick(type,x,y,rot,i);
+  }
+
+  return out;
+}
+
+function countVisual(type,count,label){
+  return `
+    <svg viewBox="0 0 760 330">
+      <rect width="760" height="330" fill="#fff"/>
+      <text x="380" y="45" text-anchor="middle" font-size="30" font-family="Comic Sans MS" font-weight="900">Count the ${label}</text>
+      ${stickGroup(type,count,80,75,590,190)}
+      <text x="380" y="300" text-anchor="middle" font-size="26" font-family="Comic Sans MS" font-weight="900" fill="#f2485b">How many?</text>
+    </svg>`;
+}
+
+function compareVisual(left,right){
+  return `
+    <svg viewBox="0 0 760 330">
+      <rect width="760" height="330" fill="#fff"/>
+      <text x="380" y="42" text-anchor="middle" font-size="30" font-family="Comic Sans MS" font-weight="900">Choose the true sentence</text>
+      <rect x="35" y="70" width="300" height="190" rx="18" fill="#fff" stroke="#cfd8dc" stroke-width="4"/>
+      <rect x="425" y="70" width="300" height="190" rx="18" fill="#fff" stroke="#cfd8dc" stroke-width="4"/>
+      <rect x="350" y="120" width="60" height="70" rx="10" fill="#fff3f5" stroke="#f7a6b3" stroke-width="4"/>
+      ${stickGroup(left.type,left.count,45,92,245,120)}
+      ${stickGroup(right.type,right.count,435,92,245,120)}
+      <text x="185" y="292" text-anchor="middle" font-size="28" font-family="Comic Sans MS" font-weight="900">${left.count}</text>
+      <text x="380" y="170" text-anchor="middle" font-size="42" font-family="Comic Sans MS" font-weight="900" fill="#f2485b">?</text>
+      <text x="575" y="292" text-anchor="middle" font-size="28" font-family="Comic Sans MS" font-weight="900">${right.count}</text>
+    </svg>`;
+}
+
+/* ======================
+   Quiz Questions
+====================== */
+const questions = [
+  {
+    prompt:"How many matchsticks are there?",
+    speak:"Count the matchsticks. How many matchsticks are there?",
+    answer:"10",
+    choices:["8","9","10","11"],
+    visual:countVisual("match",10,"matchsticks")
+  },
+  {
+    prompt:"How many wooden sticks are there?",
+    speak:"Count the wooden sticks. How many wooden sticks are there?",
+    answer:"6",
+    choices:["5","6","7","8"],
+    visual:countVisual("wood",6,"wooden sticks")
+  },
+  {
+    prompt:"How many craft sticks are there?",
+    speak:"Count the craft sticks. How many craft sticks are there?",
+    answer:"8",
+    choices:["6","7","8","9"],
+    visual:countVisual("craft",8,"craft sticks")
+  },
+  {
+    prompt:"How many twigs are there?",
+    speak:"Count the twigs. How many twigs are there?",
+    answer:"4",
+    choices:["3","4","5","6"],
+    visual:countVisual("twig",4,"twigs")
+  },
+  {
+    prompt:"How many toothpicks are there?",
+    speak:"Count the toothpicks. How many toothpicks are there?",
+    answer:"9",
+    choices:["7","8","9","10"],
+    visual:countVisual("toothpick",9,"toothpicks")
+  },
+  {
+    prompt:"Which sentence is true?",
+    speak:"Look at the two groups. Which sentence is true?",
+    answer:"8 is greater than 6.",
+    choices:["8 is greater than 6.","6 is greater than 8.","8 is equal to 6.","6 is equal to 8."],
+    visual:compareVisual({type:"twig",count:8},{type:"toothpick",count:6})
+  },
+  {
+    prompt:"Which sentence is true?",
+    speak:"Look carefully. Which sentence is true?",
+    answer:"5 is greater than 2.",
+    choices:["5 is greater than 2.","2 is greater than 5.","5 is equal to 2.","2 is equal to 5."],
+    visual:compareVisual({type:"wood",count:5},{type:"craft",count:2})
+  },
+  {
+    prompt:"Which sentence is true?",
+    speak:"Compare the sticks. Which sentence is true?",
+    answer:"9 is greater than 4.",
+    choices:["9 is greater than 4.","4 is greater than 9.","9 is equal to 4.","4 is equal to 9."],
+    visual:compareVisual({type:"toothpick",count:9},{type:"match",count:4})
+  },
+  {
+    prompt:"What does greater than mean?",
+    speak:"What does greater than mean?",
+    answer:"The number is bigger.",
+    choices:["The number is bigger.","The number is smaller.","The numbers are the same.","The number disappears."],
+    visual:`
+      <svg viewBox="0 0 760 330">
+        <rect width="760" height="330" fill="#fff"/>
+        <text x="380" y="70" text-anchor="middle" font-size="38" font-family="Comic Sans MS" font-weight="900">Greater Than</text>
+        <text x="380" y="150" text-anchor="middle" font-size="70" font-family="Comic Sans MS" font-weight="900" fill="#f2485b">8 &gt; 6</text>
+        <text x="380" y="230" text-anchor="middle" font-size="32" font-family="Comic Sans MS" font-weight="900">8 is greater than 6</text>
+      </svg>`
+  },
+  {
+    prompt:"Which group has more sticks?",
+    speak:"Which group has more sticks?",
+    answer:"The left group has more sticks.",
+    choices:["The left group has more sticks.","The right group has more sticks.","Both groups are equal.","There are no sticks."],
+    visual:compareVisual({type:"match",count:10},{type:"wood",count:6})
+  }
+];
+
+let order = [];
+let index = 0;
+let correct = 0;
+let wrong = 0;
+let locked = true;
+
+/* ======================
+   Audio + Voice
+====================== */
+let audioCtx = null;
+
+function getAudioCtx(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function beep(freq,dur,gain=.05,type="triangle"){
+  try{
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const vol = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    vol.gain.value = gain;
+    osc.connect(vol);
+    vol.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + dur);
+  }catch(e){}
+}
+
+function fallbackChime(){
+  beep(880,.08);
+  setTimeout(()=>beep(1175,.10),90);
+  setTimeout(()=>beep(1568,.12),200);
+}
+
+function playChime(){
+  try{
+    chimeAudio.currentTime = 0;
+    const p = chimeAudio.play();
+    if(p && p.catch) p.catch(()=>fallbackChime());
+  }catch(e){
+    fallbackChime();
+  }
+}
+
+function cheerSound(){
+  beep(523,.08,.05,"sine");
+  setTimeout(()=>beep(659,.08,.05,"sine"),90);
+  setTimeout(()=>beep(784,.10,.05,"sine"),180);
+  setTimeout(()=>beep(988,.14,.05,"sine"),290);
+}
+
+function wrongSound(){
+  beep(300,.08,.04,"sine");
+  setTimeout(()=>beep(220,.08,.04,"sine"),100);
+}
+
+function getBestVoice(){
+  const voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
+  return voices.find(v => /en-US/i.test(v.lang) && /aria|jenny|samantha|zira|female|girl/i.test(v.name)) ||
+         voices.find(v => /en-US/i.test(v.lang)) ||
+         voices.find(v => /^en/i.test(v.lang)) ||
+         null;
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = .92;
+  u.pitch = 1.18;
+  u.volume = 1;
+  const voice = getBestVoice();
+  if(voice) u.voice = voice;
+  speechSynthesis.speak(u);
+}
+
+function sayCheer(){
+  const cheers = [
+    "Great job!",
+    "Excellent!",
+    "Wonderful thinking!",
+    "You are a star!",
+    "Super counting!"
+  ];
+  speak(cheers[Math.floor(Math.random()*cheers.length)]);
+}
+
+/* ======================
+   Helpers
+====================== */
+function shuffle(arr){
+  return [...arr].sort(()=>Math.random() - .5);
+}
+
+function getStars(){
+  const pct = correct / questions.length;
+  if(pct >= .9) return 3;
+  if(pct >= .65) return 2;
+  if(pct >= .35) return 1;
+  return 0;
+}
+
+function updateHUD(){
+  const done = Math.min(index, questions.length);
+  const pct = Math.round((done / questions.length) * 100);
+  bar.style.width = pct + "%";
+  progressText.textContent = pct + "%";
+  starsEl.textContent = "⭐ " + getStars();
+  correctNum.textContent = correct;
+  wrongNum.textContent = wrong;
+}
+
+function setMessage(text,type=""){
+  message.className = "message" + (type ? " " + type : "");
+  message.textContent = text;
+}
+
+function renderQuestion(){
+  if(index >= questions.length){
+    finishQuiz();
+    return;
+  }
+
+  locked = false;
+  const q = order[index];
+
+  qtop.textContent = "Question " + (index + 1) + " of " + questions.length;
+  questionText.textContent = q.prompt;
+  visual.innerHTML = q.visual;
+  teacherBubble.textContent = "Listen carefully. Then tap the correct answer.";
+  setMessage("Tap the correct answer.");
+
+  optionsBox.innerHTML = "";
+  shuffle(q.choices).forEach(choice => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.type = "button";
+    b.textContent = choice;
+    b.onclick = () => chooseAnswer(b, choice);
+    optionsBox.appendChild(b);
+  });
+
+  updateHUD();
+  setTimeout(()=>speak(q.speak),350);
+}
+
+function repeatQuestion(){
+  if(!order.length || index >= questions.length){
+    speak("Press New to start the counting sticks quiz.");
+    teacherBubble.textContent = "Press New to start.";
+    return;
+  }
+
+  const q = order[index];
+  speak(q.speak);
+  teacherBubble.textContent = q.prompt;
+}
+
+function chooseAnswer(button, choice){
+  if(locked) return;
+  locked = true;
+
+  const q = order[index];
+  const isCorrect = choice === q.answer;
+
+  [...optionsBox.children].forEach(btn => {
+    btn.disabled = true;
+    if(btn.textContent === q.answer){
+      btn.classList.add("correct");
+    }
+  });
+
+  if(isCorrect){
+    correct++;
+    button.classList.add("correct");
+    setMessage("✅ Correct! Great job!", "good");
+    teacherBubble.textContent = "Correct! You are doing great.";
+    playChime();
+    cheerSound();
+    sayCheer();
+    confetti();
+  }else{
+    wrong++;
+    button.classList.add("wrong");
+    setMessage("💪 Nice try! Correct answer: " + q.answer, "oops");
+    teacherBubble.textContent = "Good try. The correct answer is " + q.answer;
+    wrongSound();
+    speak("Nice try. The correct answer is " + q.answer);
+  }
+
+  index++;
+  updateHUD();
+
+  setTimeout(() => {
+    if(index >= questions.length){
+      finishQuiz();
+    }else{
+      renderQuestion();
+    }
+  }, isCorrect ? 1200 : 2100);
+}
+
+function startQuiz(){
+  order = shuffle(questions);
+  index = 0;
+  correct = 0;
+  wrong = 0;
+  locked = false;
+
+  setMessage("Let’s begin!");
+  teacherBubble.textContent = "Welcome! Let’s answer counting sticks questions.";
+  speak("Welcome to the counting sticks quiz. Count carefully and choose the correct answer.");
+
+  setTimeout(renderQuestion,800);
+}
+
+/* ======================
+   Save + Finish
+====================== */
+function saveProgress(score,stars){
+  const STORE = "gpeis_progress_v1";
+  let db = {};
+  try{ db = JSON.parse(localStorage.getItem(STORE) || "{}"); }catch(e){ db = {}; }
+
+  db.C = db.C || {level:"C",activities:{},updatedAt:new Date().toISOString()};
+  db.C.activities.CountingSticksQuiz = {
+    id:"CountingSticksQuiz",
+    completed:true,
+    lastScore:score,
+    bestScore:Math.max(score, db.C.activities.CountingSticksQuiz?.bestScore || 0),
+    lastStars:stars,
+    bestStars:Math.max(stars, db.C.activities.CountingSticksQuiz?.bestStars || 0),
+    lastAt:new Date().toISOString()
+  };
+  db.C.updatedAt = new Date().toISOString();
+
+  localStorage.setItem(STORE, JSON.stringify(db));
+}
+
+function finishQuiz(){
+  locked = true;
+  const score = Math.round((correct / questions.length) * 100);
+  const stars = getStars();
+
+  bar.style.width = "100%";
+  progressText.textContent = "100%";
+  starsEl.textContent = "⭐ " + stars;
+
+  questionText.textContent = "Quiz Finished!";
+  qtop.textContent = "Great work!";
+  visual.innerHTML = `
+    <svg viewBox="0 0 760 330">
+      <rect width="760" height="330" fill="#f7b7c7"/>
+      <text x="380" y="90" text-anchor="middle" font-size="48" font-family="Comic Sans MS" font-weight="900" fill="#fff" stroke="#f2485b" stroke-width="6" paint-order="stroke">Amazing!</text>
+      <text x="380" y="160" text-anchor="middle" font-size="38" font-family="Comic Sans MS" font-weight="900">Score: ${score}%</text>
+      <text x="380" y="225" text-anchor="middle" font-size="48" font-family="Comic Sans MS" font-weight="900">${"⭐".repeat(stars) || "Keep Trying!"}</text>
+      <text x="380" y="285" text-anchor="middle" font-size="28" font-family="Comic Sans MS" font-weight="900">I can count sticks!</text>
+    </svg>
+  `;
+  optionsBox.innerHTML = "";
+  setMessage("🎉 You got " + correct + " out of " + questions.length + ". Score: " + score + "%", "good");
+  teacherBubble.textContent = "Amazing work! You finished the counting sticks quiz.";
+
+  saveProgress(score,stars);
+  playChime();
+  setTimeout(playChime,300);
+  cheerSound();
+  confetti();
+  speak("Amazing work. You finished the quiz. Your score is " + score + " percent. You earned " + stars + " stars.");
+}
+
+function confetti(){
+  const icons = ["⭐","✨","🎉","👏","🌟","💛"];
+  for(let i=0;i<26;i++){
+    const s = document.createElement("span");
+    s.className = "confetti";
+    s.textContent = icons[Math.floor(Math.random()*icons.length)];
+    s.style.left = Math.random()*100 + "vw";
+    s.style.animationDelay = Math.random()*160 + "ms";
+    s.style.fontSize = (18 + Math.random()*18) + "px";
+    celebrate.appendChild(s);
+    setTimeout(()=>s.remove(),1300);
+  }
+}
+
+window.addEventListener("load",() => {
+  updateHUD();
+  speak("Welcome to the counting sticks quiz. Press New to start.");
+});
+
+if("speechSynthesis" in window){
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
