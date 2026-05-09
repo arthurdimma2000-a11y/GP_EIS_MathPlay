@@ -13,17 +13,17 @@
   function getIntroSrc(pageFile){
     pageFile = pageFile || "";
     if (/^LA(?:[2-9]|1\d|2[0-5])$/i.test(pageFile)) {
-      return "../../../../assets/video/" + pageFile + "avideo.mp4";
+      return "/assets/video/" + pageFile + "avideo.mp4";
     }
     var lbMatch = /^LB(\d{1,2})$/i.exec(pageFile);
     if (lbMatch) {
       var lbNum = Number(lbMatch[1]);
-      if (lbNum >= 2 && lbNum <= 25) return "../../../../assets/video/LB" + lbNum + "bvideo.mp4";
+      if (lbNum >= 2 && lbNum <= 25) return "/assets/video/LB" + lbNum + "bvideo.mp4";
     }
     var lcMatch = /^LevelC(\d{1,2})$/i.exec(pageFile);
     if (lcMatch) {
       var lcNum = Number(lcMatch[1]);
-      if (lcNum >= 2 && lcNum <= 25) return "../../../../assets/video/LC" + lcNum + "cvideo.mp4";
+      if (lcNum >= 2 && lcNum <= 25) return "/assets/video/LC" + lcNum + "cvideo.mp4";
     }
     return "";
   }

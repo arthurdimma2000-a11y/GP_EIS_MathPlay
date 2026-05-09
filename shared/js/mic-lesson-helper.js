@@ -8,8 +8,8 @@
 
   const girlTarget = document.querySelector('#tapGirl, #girlBtn, .tap-girl, .girl-spot, .girl-inline, [aria-label="Tap the girl"]');
   const statusEl = document.querySelector('#conversationStatus, .conversation-status, .status, .lesson-status, .footer-note, .note');
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
-  const cheerAudio = new Audio("../../../../assets/audio/sfx-cheer.mp3");
+  const chimeAudio = new Audio("/assets/audio/chimes/chime.mp3");
+  const cheerAudio = new Audio("/assets/audio/sfx-cheer.mp3");
   chimeAudio.preload = "auto";
   cheerAudio.preload = "auto";
 

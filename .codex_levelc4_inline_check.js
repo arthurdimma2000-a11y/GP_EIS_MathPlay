@@ -248,7 +248,7 @@
 
           if (isLastLine) {
 
-            const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+            const chime = new Audio("/assets/audio/chimes/chime.mp3.mp3");
             chime.preload = "auto";
 
             chime.play().catch(() => {});
@@ -512,7 +512,7 @@
 
       if(!homeBtn) return;
 
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+      const chime = new Audio("/assets/audio/chimes/chime.mp3.mp3");
       chime.preload = "auto";
 
       homeBtn.addEventListener('click', () => {

@@ -233,7 +233,7 @@
 
 <div class="toast" id="toast"></div>
 
-<audio id="instructionAudio" src="../../../../assets/audio/chimes/InstructionAudio.mp3" preload="auto" loop></audio>
+<audio id="instructionAudio" src="/assets/audio/chimes/InstructionAudio.mp3" preload="auto" loop></audio>
 
 <script>
 /* ====== Level C tracker payload (localStorage) ====== */
@@ -366,7 +366,7 @@ const modePill = document.getElementById("modePill");
 const hintEl = document.getElementById("hint");
 const toast = document.getElementById("toast");
 
-const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+const chimeAudio = new Audio("/assets/audio/chimes/chime.mp3");
 chimeAudio.preload = "auto";
 
 let qIndex=0, score=0, stars=0, locked=false;

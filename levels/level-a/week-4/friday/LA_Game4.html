@@ -41,7 +41,7 @@
 <body>
 <div class="card">
   <div class="poster-area">
-    <img class="poster-img" src="../../../../assets/images/shapes/A19.png" alt="Numbers poster">
+    <img class="poster-img" src="/assets/images/Bk1shapes/A19.png" alt="Numbers poster">
     <div class="convo-bubble convo-kid bubble-left">Let’s write numbers.</div>
     <div class="trace-layer">
       <div class="trace-grid">
@@ -80,7 +80,7 @@
   let traceCelebrated = false;
   let lastTraceSound = 0;
 
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+  const chimeAudio = new Audio("/assets/audio/chimes/chime.mp3");
   chimeAudio.preload = "auto";
   function playChime(){ try{ const s=chimeAudio.cloneNode(true); s.play().catch(()=>{});}catch(e){} }
   function speak(text){ if(!('speechSynthesis' in window)) return; const u=new SpeechSynthesisUtterance(text); u.rate=1;u.pitch=1.05;window.speechSynthesis.speak(u);}  

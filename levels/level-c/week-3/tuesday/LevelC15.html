@@ -39,7 +39,7 @@
 <body>
   <div class="app">
     <div class="wrap" id="wrap">
-      <img id="poster" src="../../../../assets/images/shapes/C15cc.png" alt="Shape Sides Week 3" />
+      <img id="poster" src="/assets/images/Bk1shapes/C15cc.png" alt="Shape Sides Week 3" />
       <canvas id="ink"></canvas>
     </div>
 
@@ -55,7 +55,7 @@
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn" id="clearBtn">Clear</button>
       <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat instruction">
-        <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
+        <img src="/assets/images/avatars/Microphone.png" alt="Microphone">
       </button>
       <button class="btn next" id="nextBtn">Next page &#8594;</button>
     </div>
@@ -127,7 +127,7 @@
   }
 
   function playChime(){
-    try{ new Audio('../../../../assets/audio/chimes/chime.mp3.mp3').play().catch(()=>{}); }catch(_e){}
+    try{ new Audio('/assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_e){}
   }
 
   function playCelebration(){

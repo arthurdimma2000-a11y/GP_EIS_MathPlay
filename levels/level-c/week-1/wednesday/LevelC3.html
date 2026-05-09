@@ -164,7 +164,7 @@
 
   <div class="page">
     <div class="poster-wrap" id="posterWrap">
-      <img class="poster-img" id="posterImage" src="../../../../assets/images/shapes/LevelC3.png" alt="Shape Sides poster">
+      <img class="poster-img" id="posterImage" src="/assets/images/Bk1shapes/LevelC3.png" alt="Shape Sides poster">
       <div class="draw-instruction show">Draw Triangles by drawing lines to connect the red dots. Then fill in the number of vertices in the boxes below.</div>
 
       <canvas class="draw-layer tri-1" id="tri1"></canvas>
@@ -222,7 +222,7 @@
     const TOTAL_TRACE_EDGES = boards.length * TRACE_EDGES_PER_BOARD;
     let combinedProgress = 0;
     let loadIntroStarted = false;
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    const instructionAudio = new Audio("/assets/audio/chimes/InstructionAudio.mp3");
     instructionAudio.preload = "auto";
 
     function progressMessageFor(score){
@@ -243,7 +243,7 @@
     }
 
     function playCelebration(){
-      try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_e){}
+      try{ new Audio('/assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_e){}
       window.GPTracing?.playTraceCelebration?.();
     }
 

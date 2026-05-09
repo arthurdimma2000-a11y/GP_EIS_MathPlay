@@ -148,7 +148,7 @@
 
     async function completeMatching(){
       try {
-        const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+        const chime = new Audio("/assets/audio/chimes/chime.mp3.mp3");
         chime.preload = "auto";
         chime.play().catch(() => {});
       } catch (_) {}
@@ -228,7 +228,7 @@
             micExpectingRepeat = true;
           }
           if (isLastLine) {
-            const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+            const chime = new Audio("/assets/audio/chimes/chime.mp3.mp3");
             chime.preload = "auto";
             chime.play().catch(() => {});
             speakLine("Amazing Job!");
@@ -419,7 +419,7 @@
   (function(){
     const homeBtn = document.querySelector('.home-btn');
     if(!homeBtn) return;
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+    const chime = new Audio("/assets/audio/chimes/chime.mp3.mp3");
     chime.preload = "auto";
     homeBtn.addEventListener('click', () => {
       try{

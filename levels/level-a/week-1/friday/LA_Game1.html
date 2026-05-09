@@ -198,7 +198,7 @@
   <div class="toast" id="toast"></div>
 </div>
 
-<audio id="instructionAudio" src="../../../../assets/audio/chimes/InstructionAudio.mp3" preload="auto" loop></audio>
+<audio id="instructionAudio" src="/assets/audio/chimes/InstructionAudio.mp3" preload="auto" loop></audio>
 
 <script src="../../../../shared/js/storage.js"></script>
 <script src="../../../../shared/js/progress.js"></script>
@@ -215,7 +215,7 @@
   const starsEl = document.getElementById("stars");
   const startBtn = document.getElementById("startBtn");
   const instructionAudio = document.getElementById("instructionAudio");
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+  const chimeAudio = new Audio("/assets/audio/chimes/chime.mp3");
   chimeAudio.preload = "auto";
 
   document.getElementById("homeBtn").onclick = () => location.href = "../../../../index.html";

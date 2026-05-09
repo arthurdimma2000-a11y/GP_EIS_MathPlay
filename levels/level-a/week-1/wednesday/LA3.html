@@ -308,14 +308,14 @@
   <div class="card">
 
     <a class="home-btn" href="../../../../index.html" aria-label="Home">
-      <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
+      <img src="/assets/images/avatars/Home1.png" alt="Home">
       <div class="home-label">Week1</div>
     </a>
 
     <div class="canvas-title"></div>
 
     <div class="mini-trace-area" id="miniTraceArea">
-      <img src="../../../../assets/images/shapes/Circle3aa.png" alt="Circle practice sheet">
+      <img src="/assets/images/Bk1shapes/Circle3aa.png" alt="Circle practice sheet">
       <div class="mini-overlay">
         <div class="mini-cell">
           <svg viewBox="0 0 100 100" aria-hidden="true">
@@ -405,7 +405,7 @@
         <button class="btn-nav" id="nextBtn">Next page -></button>
         <div class="mascot-spot" id="boyWrap">
           <div class="mascot tap-boy" id="boyBtn">
-            <img src="../../../../assets/images/shapes/jnb.png" alt="Circle helper">
+            <img src="/assets/images/Bk1shapes/jnb.png" alt="Circle helper">
           </div>
           <div class="mascot-hint">Tap the boy</div>
         </div>
@@ -510,9 +510,9 @@
   let combinedProgress = 0;
   let loadIntroStarted = false;
 
-  const chimeAudio = new Audio("../../../../assets/audio/chimes/chime.mp3");
+  const chimeAudio = new Audio("/assets/audio/chimes/chime.mp3");
   chimeAudio.preload = "auto";
-  const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+  const instructionAudio = new Audio("/assets/audio/chimes/InstructionAudio.mp3");
   instructionAudio.preload = "auto";
 
   function playChime(){
@@ -822,7 +822,7 @@
     const homeBtn = document.querySelector('.home-btn');
     if(!homeBtn) return;
 
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+    const chime = new Audio("/assets/audio/chimes/chime.mp3");
     chime.preload = "auto";
 
     homeBtn.addEventListener('click', () => {

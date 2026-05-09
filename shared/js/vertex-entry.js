@@ -180,7 +180,7 @@
       global.GPAudio.playSfx("chime", 0.9);
     } else {
       try{
-        new Audio("../../../../assets/audio/chimes/chime.mp3").play().catch(() => {});
+        new Audio("/assets/audio/chimes/chime.mp3").play().catch(() => {});
       }catch(_e){}
     }
     global.GPTracing?.playTraceCelebration?.();
@@ -196,7 +196,7 @@
       return;
     }
     try{
-      new Audio("../../../../assets/audio/sfx-cheer.mp3").play().catch(() => {});
+      new Audio("/assets/audio/sfx-cheer.mp3").play().catch(() => {});
     }catch(_e){}
   }
 

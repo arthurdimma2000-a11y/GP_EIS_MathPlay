@@ -45,14 +45,14 @@
 </head>
 <body>
 <div class="app">
-  <a class="home-btn" href="../../../../index.html" aria-label="Home"><img src="../../../../assets/images/shapes/Home1.png" alt="Home"></a>
+  <a class="home-btn" href="../../../../index.html" aria-label="Home"><img src="/assets/images/Bk1shapes/Home1.png" alt="Home"></a>
   <div class="board">
     <div class="girl-spot">
-      <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Girl helper" id="girlBtn">
+      <img src="/assets/images/Bk1shapes/CirckleGirlWk1.png" alt="Girl helper" id="girlBtn">
       <div class="girl-hint">Tap the girl</div>
     </div>
     <div class="trace-wrap" id="traceWrap">
-      <img src="../../../../assets/images/shapes/B13.png" alt="Numbers poster" id="designImage">
+      <img src="/assets/images/Bk1shapes/B13.png" alt="Numbers poster" id="designImage">
       <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the dotted numbers"></canvas>
       <div class="designer-text" id="designerText">Look at the hexagons.</div>
       <div class="designer-sub" id="designerSub">Subtract the even numbers.</div>
@@ -84,7 +84,7 @@
     <button class="btn prev" id="prevBtn">← Previous page</button>
     <button class="btn next" id="nextBtn">Next page →</button>
     <button class="btn stop" id="clearBtn">Clear</button>
-    <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone"></button>
+    <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><img src="/assets/images/Bk1shapes/Microphone.png" alt="Microphone"></button>
     <button class="btn read" id="recordBtn" type="button">Record</button>
     <div class="recording"><audio id="recordingPlayback" controls></audio></div>
   </div>
@@ -242,7 +242,7 @@ function createMicController(config){
         finished = true;
         const remark = remarkList[Math.floor(Math.random()*remarkList.length)];
         updateStatus(remark);
-        try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_){}
+        try{ new Audio('/assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_){}
         await speak(remark, {kid:true});
         await pushProgress({score:100, completed:true});
         onComplete && onComplete();
@@ -375,7 +375,7 @@ function createTraceBoard({canvas, image, progressFill, progressText, pageId, le
     });
     if(percent >= 90 && !celebrated){
       celebrated = true;
-      try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_){}
+      try{ new Audio('/assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_){}
       speak('Amazing job!', {kid:true});
     }
   }

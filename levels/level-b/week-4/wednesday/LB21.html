@@ -461,7 +461,7 @@ body{
     <div class="week">Week 4</div>
 
     <button class="teacher" id="teacherBtn" type="button" aria-label="Tap the teacher for instruction">
-      <img id="teacherImg" src="TeacherVertices.png" alt="Teacher helper">
+      <img id="teacherImg" src="/assets/images/Bk1shapes/TeacherVertices.png" alt="Teacher helper">
       <small>Tap</small>
     </button>
 
@@ -626,8 +626,7 @@ const chimeSources = [
   "./chime.mp3",
   "chime(1).mp3",
   "./chime(1).mp3",
-  "../../../../assets/audio/chime.mp3",
-  "../../../../assets/audio/chime.mp3.mp3"
+  "/assets/audio/chimes/chime.mp3"
 ];
 
 let chimeIndex = 0;
@@ -646,12 +645,7 @@ function fixTeacherImage(){
   const btn = document.getElementById("teacherBtn");
 
   const imagePaths = [
-    "TeacherVertices.png",
-    "./TeacherVertices.png",
-    "VerticesTeacher.png",
-    "./VerticesTeacher.png",
-    "../../../../assets/images/shapes/TeacherVertices.png",
-    "../../../../assets/images/shapes/VerticesTeacher.png"
+    "/assets/images/Bk1shapes/TeacherVertices.png"
   ];
 
   let imageIndex = 0;

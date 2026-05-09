@@ -122,7 +122,7 @@
       if (matchCompleted) return;
       matchCompleted = true;
       try {
-        const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+        const chime = new Audio("/assets/audio/chimes/chime.mp3.mp3");
         chime.preload = "auto";
         chime.play().catch(() => {});
       } catch (_) {}

@@ -421,7 +421,7 @@
   <div class="instruction-note" id="instructionNote">Connect the vertices to find the number of sides</div>
 
   <div class="teacher" aria-hidden="true">
-    <img src="../../../../assets/images/shapes/OrangeHeadWoman.png" alt="">
+    <img src="/assets/images/Bk1shapes/OrangeHeadWoman.png" alt="">
   </div>
 
   <div class="topicRow">
@@ -469,7 +469,7 @@
       <button id="checkBtn" type="button">✓ Check</button>
 
       <div class="girl-inline">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="tapGirl">
+        <img src="/assets/images/Bk1shapes/CirckleGirlWk1.png" alt="Tap the girl" id="tapGirl">
         <span>Tap the girl</span>
       </div>
     </div>
@@ -571,8 +571,8 @@
   }
 
   function playCelebration(){
-    try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_e){}
-    try{ new Audio('../../../../assets/audio/sfx-cheer.mp3').play().catch(()=>{}); }catch(_e){}
+    try{ new Audio('/assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(_e){}
+    try{ new Audio('/assets/audio/sfx-cheer.mp3').play().catch(()=>{}); }catch(_e){}
   }
 
   const squarePoints = [
@@ -933,7 +933,7 @@
     if (introStarted) return;
     introStarted = true;
 
-    const instructionAudio = new Audio("../../../../assets/audio/chimes/InstructionAudio.mp3");
+    const instructionAudio = new Audio("/assets/audio/chimes/InstructionAudio.mp3");
     instructionAudio.preload = "auto";
     instructionAudio.volume = 0.28;
 

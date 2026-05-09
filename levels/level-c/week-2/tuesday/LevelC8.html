@@ -53,8 +53,8 @@
 <body>
   <div class="card">
     <div class="poster-area" id="posterArea">
-      <div class="girl-spot"><span class="finger-cue show" id="girlFinger" aria-hidden="true">👇</span><img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn"><div class="girl-hint">Tap the girl</div></div>
-      <img class="poster-img" src="../../../../assets/images/shapes/LevelC8.png" alt="Understanding Shapes poster">
+      <div class="girl-spot"><span class="finger-cue show" id="girlFinger" aria-hidden="true">👇</span><img src="/assets/images/Bk1shapes/CirckleGirlWk1.png" alt="Tap the girl" id="girlBtn"><div class="girl-hint">Tap the girl</div></div>
+      <img class="poster-img" src="/assets/images/Bk1shapes/LevelC8.png" alt="Understanding Shapes poster">
       <div class="row convo-line line1">
         <div class="bubble-stack">
           <div class="bubble baker big">Let's eat brownies together.</div>
@@ -82,7 +82,7 @@
     <div class="status-line" id="statusLine"></div>
     <div class="controls">
       <button id="prevBtn"><- Previous page</button>
-      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><span class="finger-cue" id="micFinger" aria-hidden="true">👇</span><img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone"></button>
+      <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation"><span class="finger-cue" id="micFinger" aria-hidden="true">👇</span><img src="/assets/images/Bk1shapes/Microphone.png" alt="Microphone"></button>
       <button id="clearBtn">Clear [X]</button>
       <button id="nextBtn">Next page -></button>
     </div>
@@ -96,7 +96,7 @@
   }
 
   // Load instruction audio
-  const instructionAudio = new Audio('../../../../assets/audio/chimes/InstructionAudio.mp3');
+  const instructionAudio = new Audio('/assets/audio/chimes/InstructionAudio.mp3');
   instructionAudio.preload = 'auto';
   instructionAudio.volume = 0.28;
 
@@ -160,7 +160,7 @@
 
   function playKidEngineSound(){
     try {
-      new Audio('../../../../assets/audio/sfx-click.mp3').play().catch(()=>{});
+      new Audio('/assets/audio/sfx-click.mp3').play().catch(()=>{});
     } catch(_e) {}
   }
 

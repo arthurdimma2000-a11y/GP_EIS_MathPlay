@@ -7,7 +7,7 @@
   let localSpeechPatchInstalled = false;
   let speechCancelStamp = 0;
   const sharedScriptSrc = (document.currentScript && document.currentScript.src) || window.location.href;
-  const instructionAudioSrc = new URL("../../assets/audio/chimes/InstructionAudio.mp3", sharedScriptSrc).href;
+  const instructionAudioSrc = new URL("/assets/audio/chimes/InstructionAudio.mp3", sharedScriptSrc).href;
   let pageInstructionAudio = null;
   let pageInstructionAudioBound = false;
   let pageInstructionAudioStarted = false;
@@ -1067,14 +1067,14 @@
 
     if (numericMatch && level) {
       const fileName = getAutoIntroFileName(level, numericMatch[1]);
-      if (fileName) pushUniqueCandidate(candidates, "../../../../assets/video/" + fileName);
+      if (fileName) pushUniqueCandidate(candidates, "/assets/video/" + fileName);
     }
 
     if (!numericMatch && level && /revision|game|quiz|finalquiz/i.test(file)) {
       const week = inferWeekFromPage();
       const trailingLesson = week > 0 ? Math.min(25, (week * 6) + 1) : 0;
       const fileName = getAutoIntroFileName(level, trailingLesson);
-      if (fileName) pushUniqueCandidate(candidates, "../../../../assets/video/" + fileName);
+      if (fileName) pushUniqueCandidate(candidates, "/assets/video/" + fileName);
     }
 
     return candidates.map((entry) => entry.src);
@@ -1385,9 +1385,9 @@
         "Amazing Job",
         "Great Try! keep it up!!!"
       ];
-      const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+      const chime = new Audio("/assets/audio/chimes/chime.mp3");
       chime.preload = "auto";
-      const cheer = new Audio("../../../../assets/audio/sfx-cheer.mp3");
+      const cheer = new Audio("/assets/audio/sfx-cheer.mp3");
       cheer.preload = "auto";
       const state = {
         fallbackActive: false,

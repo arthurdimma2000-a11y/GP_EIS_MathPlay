@@ -53,7 +53,7 @@
 <body>
   <div class="card">
     <div class="poster-area" id="posterArea">
-      <img class="poster-img" src="../../../../assets/images/shapes/A15.png" alt="Squares tracing poster">
+      <img class="poster-img" src="/assets/images/Bk1shapes/A15.png" alt="Squares tracing poster">
       <canvas class="draw-layer" id="drawLayer"></canvas>
       <div class="sentence" id="girlSentence"></div>
     </div>
@@ -66,7 +66,7 @@
       </div>
       <div id="vertexEntryMount"></div>
       <div class="tap-row">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn" class="tap-girl">
+        <img src="/assets/images/Bk1shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn" class="tap-girl">
         <div class="tap-label">Tap the girl</div>
       </div>
       <div class="button-row">
@@ -136,7 +136,7 @@
   }
 
   function playChime(){
-    try{ const chime = new Audio('../../../../assets/audio/chimes/chime.mp3.mp3'); chime.play().catch(()=>{}); }catch(e){}
+    try{ const chime = new Audio('/assets/audio/chimes/chime.mp3'); chime.play().catch(()=>{}); }catch(e){}
   }
 
   function playTraceTick(){

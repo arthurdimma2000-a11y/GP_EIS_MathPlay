@@ -1541,7 +1541,7 @@
 
     function playSuccessChime(){
       if (!sharedSuccessAudio) {
-        sharedSuccessAudio = getSharedAudio("../../../../assets/audio/chimes/chime.mp3");
+        sharedSuccessAudio = getSharedAudio("/assets/audio/chimes/chime.mp3");
       }
       if (!sharedSuccessAudio) {
         playTraceCelebration({ volume: 0.12 });
@@ -1560,7 +1560,7 @@
 
     function playCheerAudio(){
       if (!sharedCheerAudio) {
-        sharedCheerAudio = getSharedAudio("../../../../assets/audio/sfx-cheer.mp3");
+        sharedCheerAudio = getSharedAudio("/assets/audio/sfx-cheer.mp3");
       }
       if (!sharedCheerAudio) return;
       try {
@@ -1706,18 +1706,18 @@
     if (!number) return candidates;
 
     if (/^LA$/i.test(page.levelCode || "")) {
-      add("../../../../assets/video/LA" + number + "avideo.mp4");
-      add("../../../../assets/video/LA" + number + "aavideo.mp4");
+      add("/assets/video/LA" + number + "avideo.mp4");
+      add("/assets/video/LA" + number + "aavideo.mp4");
     } else if (/^LB$/i.test(page.levelCode || "")) {
-      add("../../../../assets/video/LB" + number + "bvideo.mp4");
-      add("../../../../assets/video/LB" + number + "bbvideo.mp4");
-      add("../../../../assets/video/LB" + number + "bVideo.mp4");
-      add("../../../../assets/video/LB" + number + "Bvideo.mp4");
-      add("../../../../assets/video/LB" + number + "b_video.mp4");
+      add("/assets/video/LB" + number + "bvideo.mp4");
+      add("/assets/video/LB" + number + "bbvideo.mp4");
+      add("/assets/video/LB" + number + "bVideo.mp4");
+      add("/assets/video/LB" + number + "Bvideo.mp4");
+      add("/assets/video/LB" + number + "b_video.mp4");
     } else if (/^LevelC$/i.test(page.levelCode || "")) {
-      add("../../../../assets/video/LevelC" + number + "c.mp4");
-      add("../../../../assets/video/LC" + number + "cvideo.mp4");
-      add("../../../../assets/video/LevelC" + number + "cvideo.mp4");
+      add("/assets/video/LevelC" + number + "c.mp4");
+      add("/assets/video/LC" + number + "cvideo.mp4");
+      add("/assets/video/LevelC" + number + "cvideo.mp4");
     }
 
     return candidates;
@@ -1904,7 +1904,7 @@
     const attempts = new Array(expectedLines.length).fill(0);
     const starsAwarded = new Array(expectedLines.length).fill(0);
     const maxAttempts = 3;
-    const chime = new Audio("../../../../assets/audio/chimes/chime.mp3");
+    const chime = new Audio("/assets/audio/chimes/chime.mp3");
     chime.preload = "auto";
 
     let currentLineIndex = -1;

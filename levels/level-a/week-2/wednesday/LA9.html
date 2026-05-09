@@ -151,10 +151,10 @@
     <div class="poster-area" id="posterArea">
       <div class="poster-wrap" id="posterWrap">
         <a class="home-btn" href="../../../../index.html" aria-label="Home">
-          <img src="../../../../assets/images/avatars/Home1.png" alt="Home">
+          <img src="/assets/images/avatars/Home1.png" alt="Home">
         </a>
 
-        <img class="poster-img" id="posterImg" src="../../../../assets/images/shapes/A9.png" alt="Triangle tracing poster">
+        <img class="poster-img" id="posterImg" src="/assets/images/Bk1shapes/A9.png" alt="Triangle tracing poster">
 
         <!-- IMPORTANT: preserveAspectRatio MUST NOT be 'none' or it distorts the triangle positions -->
         <svg class="dot-layer" id="dotLayer" preserveAspectRatio="xMidYMid meet"></svg>
@@ -172,7 +172,7 @@
       <div id="vertexEntryMount"></div>
 
       <div class="tap-row">
-        <img src="../../../../assets/images/shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn">
+        <img src="/assets/images/Bk1shapes/CirckleGirlWk1.png" alt="Tap the girl" class="tap-girl" id="girlBtn">
         <div class="tap-label">Tap the girl</div>
       </div>
 
@@ -260,7 +260,7 @@
   let traceCompleteCheerPlayed = false;
 
   function playChime(){
-    try{ new Audio('../../../../assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(e){}
+    try{ new Audio('/assets/audio/chimes/chime.mp3').play().catch(()=>{}); }catch(e){}
   }
 
   let lastTraceSound = 0;

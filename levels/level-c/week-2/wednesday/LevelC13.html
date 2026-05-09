@@ -54,7 +54,7 @@
 <body>
   <main class="card">
     <section class="poster-wrap" aria-label="Tangram lesson poster">
-      <img class="poster-img" alt="Tangram poster asking students to name the tangram shapes" src="../../../../assets/images/shapes/LC13ccb.png">
+      <img class="poster-img" alt="Tangram poster asking students to name the tangram shapes" src="/assets/images/Bk1shapes/LC13ccb.png">
       <div class="write-box name-box name-square" contenteditable="true" spellcheck="false" aria-label="Write square" data-placeholder="Square"></div>
       <div class="write-box name-box name-parallelogram" contenteditable="true" spellcheck="false" aria-label="Write parallelogram" data-placeholder="Parallelogram"></div>
       <div class="write-box name-box name-triangle" contenteditable="true" spellcheck="false" aria-label="Write triangle" data-placeholder="Triangle"></div>
@@ -66,7 +66,7 @@
     <section class="controls" aria-label="Page controls">
       <button class="nav-btn prev" id="prevBtn" type="button">← Previous page</button>
       <button class="mic-btn" id="micBtn" type="button" aria-label="Repeat after me speaking activity">
-        <img src="../../../../assets/images/shapes/Microphone.png" alt="Microphone" aria-hidden="true">
+        <img src="/assets/images/Bk1shapes/Microphone.png" alt="Microphone" aria-hidden="true">
       </button>
       <button class="nav-btn next" id="nextBtn" type="button">Next page →</button>
     </section>
@@ -114,8 +114,8 @@ const stars = [document.getElementById('star1'), document.getElementById('star2'
 const writingBoxes = Array.from(document.querySelectorAll('.write-box'));
 const writingProgressFill = document.getElementById('writingProgressFill');
 const writingProgressValue = document.getElementById('writingProgressValue');
-const chimeAudio = new Audio('../../../../assets/audio/chimes/chime.mp3');
-const cheerAudio = new Audio('../../../../assets/audio/sfx-cheer.mp3');
+const chimeAudio = new Audio('/assets/audio/chimes/chime.mp3');
+const cheerAudio = new Audio('/assets/audio/sfx-cheer.mp3');
 let phase = 'reveal';
 let attempts = 0;
 let finished = false;

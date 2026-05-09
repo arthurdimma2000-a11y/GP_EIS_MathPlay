@@ -118,7 +118,7 @@
 <body>
   <div class="card">
     <div class="poster-area" id="posterArea">
-        <img class="poster-img" src="../../../../assets/images/shapes/LC19c.png" alt="Tangram match poster">
+        <img class="poster-img" src="/assets/images/Bk1shapes/LC19c.png" alt="Tangram match poster">
 
       <div class="bubble left" id="bubbleLeft">What are they?</div>
       <div class="bubble right" id="bubbleRight">I made hanging animal using Tangram Pieces.</div>
@@ -130,7 +130,7 @@
       <button class="btn prev" id="prevBtn">&#8592; Previous page</button>
       <button class="btn" id="resetBtn">Reset</button>
       <button class="mic-icon-btn" id="micIconBtn" type="button" aria-label="Repeat conversation">
-        <img src="../../../../assets/images/avatars/Microphone.png" alt="Microphone">
+        <img src="/assets/images/avatars/Microphone.png" alt="Microphone">
       </button>
       <button class="btn" id="recordBtn">
         <svg class="record-icon" viewBox="0 0 64 64" aria-hidden="true">
@@ -293,7 +293,7 @@
       if (matchCompleted) return;
       matchCompleted = true;
       try {
-        const chime = new Audio("../../../../assets/audio/chimes/chime.mp3.mp3");
+        const chime = new Audio("/assets/audio/chimes/chime.mp3");
         chime.preload = "auto";
         chime.play().catch(() => {});
       } catch (_) {}
