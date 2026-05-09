@@ -5557,11 +5557,15 @@
       sessionBannerSub.textContent = "Please login or signup to continue.";
     }
 
-    function syncLevelUI(){
-        reconcileAuthRecords();
-        const conf = APP_CONFIG[selectedLevel] || APP_CONFIG.A;
-        const lastFile = storageGetItem(STORAGE_KEYS.lastFile) || "None";
-        const studentSession = getSession();
+      function syncLevelUI(){
+          reconcileAuthRecords();
+          const sessionLevel = getActiveStudentLevel();
+          if (sessionLevel && selectedRole === "student" && selectedLevel !== sessionLevel) {
+            selectedLevel = sessionLevel;
+          }
+          const conf = APP_CONFIG[selectedLevel] || APP_CONFIG.A;
+          const lastFile = storageGetItem(STORAGE_KEYS.lastFile) || "None";
+          const studentSession = getSession();
         const teacherSession = getTeacherSession();
         const parentSession = getParentSession();
         const hasActiveLogin = !!(
@@ -5591,11 +5595,31 @@
       homeSelectedBadge.textContent = conf.label + " • " + getRoleLabel();
       summaryLevel.textContent = selectedLevel;
       summaryRole.textContent = getRoleLabel();
-      summaryLastLesson.textContent = shorten(lastFile, 18);
-      roleBadgeTop.textContent = "Current Role: " + getRoleLabel();
+        summaryLastLesson.textContent = shorten(lastFile, 18);
+        roleBadgeTop.textContent = "Current Role: " + getRoleLabel();
 
-      syncProgressUI();
-      const monthRoadmapKey = [
+        ["A","B","C"].forEach((levelCode) => {
+          const selectBtn = document.getElementById(`selectLevel${levelCode}Btn`);
+          const openBtn = document.getElementById(`openFirstLevel${levelCode}Btn`);
+          const lockedToOtherLevel = !!(sessionLevel && selectedRole === "student" && sessionLevel !== levelCode);
+          const activeText = sessionLevel && selectedRole === "student"
+            ? (sessionLevel === levelCode ? "Your Level" : `Locked to Level ${sessionLevel}`)
+            : `Select ${levelCode}`;
+          const openText = sessionLevel && selectedRole === "student"
+            ? (sessionLevel === levelCode ? `Open Level ${levelCode}` : `Level ${levelCode} Locked`)
+            : `Open Level ${levelCode}`;
+          if (selectBtn) {
+            selectBtn.disabled = lockedToOtherLevel;
+            selectBtn.textContent = activeText;
+          }
+          if (openBtn) {
+            openBtn.disabled = lockedToOtherLevel;
+            openBtn.textContent = openText;
+          }
+        });
+
+        syncProgressUI();
+        const monthRoadmapKey = [
         selectedMonth,
         hasAppAccess() ? "open" : "locked"
       ].join("|");
@@ -5663,10 +5687,22 @@
       FX.toast(`${capitalize(role)} mode selected.`, "🎯");
     }
 
-    function selectLevel(level){
-      selectedLevel = level;
-      if (studentLevelInput && studentLevelInput.dataset.userSelected !== "1") {
-        studentLevelInput.value = level;
+      function selectLevel(level){
+        const sessionLevel = getActiveStudentLevel();
+        if (selectedRole === "student" && sessionLevel && sessionLevel !== level) {
+          selectedLevel = sessionLevel;
+          scheduleSyncLevelUI();
+          showPanel("panel-levels");
+          safePlay("warning");
+          FX.toast(`This student can only use Level ${sessionLevel}.`, "🔒");
+          if (studentLoginStatus) {
+            studentLoginStatus.innerHTML = `<span class="danger">This student can only access Level ${sessionLevel} lesson pages.</span>`;
+          }
+          return;
+        }
+        selectedLevel = level;
+        if (studentLevelInput && studentLevelInput.dataset.userSelected !== "1") {
+          studentLevelInput.value = level;
       }
       scheduleSyncLevelUI();
       showPanel("panel-levels");
@@ -5674,10 +5710,22 @@
       FX.toast(`${APP_CONFIG[level].label} selected. Press Start Learning to open the months window.`, "🎯");
     }
 
-    function startLearningForLevel(level){
-      selectedLevel = level;
-      selectedMonth = 1;
-      if (studentLevelInput && studentLevelInput.dataset.userSelected !== "1") {
+      function startLearningForLevel(level){
+        const sessionLevel = getActiveStudentLevel();
+        if (selectedRole === "student" && sessionLevel && sessionLevel !== level) {
+          selectedLevel = sessionLevel;
+          scheduleSyncLevelUI();
+          showPanel("panel-levels");
+          safePlay("warning");
+          FX.toast(`This student can only use Level ${sessionLevel}.`, "🔒");
+          if (studentLoginStatus) {
+            studentLoginStatus.innerHTML = `<span class="danger">This student can only access Level ${sessionLevel} lesson pages.</span>`;
+          }
+          return;
+        }
+        selectedLevel = level;
+        selectedMonth = 1;
+        if (studentLevelInput && studentLevelInput.dataset.userSelected !== "1") {
         studentLevelInput.value = level;
       }
       scheduleSyncLevelUI();
