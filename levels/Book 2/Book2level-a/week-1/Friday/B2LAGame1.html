@@ -380,7 +380,10 @@
 </head>
 
 <body>
-<a class="home-float" href="../../../../../index.html" aria-label="Home"><img src="../../../Home1.png" alt="Home"></a>
+<a class="home-float" href="../../../../../index.html" aria-label="Home">
+  <img src="../../../Home1.png" alt="Home">
+</a>
+
 <audio id="chimeAudio" src="chime.mp3" preload="auto"></audio>
 <div class="celebrate" id="celebrate"></div>
 
@@ -392,10 +395,10 @@
     </div>
 
     <div class="nav">
-      <button class="btn" onclick="goBack()">⬅ Back</button>
-      <button class="btn sound" onclick="repeatInstruction()">🔊 Read</button>
-      <button class="btn red" onclick="startGame()">🔁 New</button>
-      <button class="btn next" onclick="goNext()">Next ▶</button>
+      <button class="btn" type="button" onclick="goBack()">⬅ Prev</button>
+      <button class="btn sound" type="button" onclick="repeatInstruction()">🔊 Read</button>
+      <button class="btn red" type="button" onclick="startGame()">🔁 New</button>
+      <button class="btn next" type="button" onclick="goNext()">Next ▶</button>
     </div>
   </div>
 
@@ -467,9 +470,9 @@
           <div class="message" id="message">Tap New to start ⭐</div>
 
           <div class="controls">
-            <button class="btn primary" onclick="startGame()">🎉 Start Game</button>
-            <button class="btn sound" onclick="repeatInstruction()">🔊 Repeat</button>
-            <button class="btn next" onclick="finishGame()">🏁 Finish</button>
+            <button class="btn primary" type="button" onclick="startGame()">🎉 Start Game</button>
+            <button class="btn sound" type="button" onclick="repeatInstruction()">🔊 Repeat</button>
+            <button class="btn next" type="button" onclick="finishGame()">🏁 Finish</button>
           </div>
         </div>
       </div>
@@ -478,7 +481,7 @@
 </div>
 
 <script>
-const BACK_PAGE = "../Thursday/Bk2FairlyTaleA.html";
+const BACK_PAGE = "../Thursday/Bk2POEMA.html";
 const NEXT_PAGE = "B2LAQuiz1.html";
 
 function goBack(){ location.href = BACK_PAGE; }
@@ -512,6 +515,10 @@ let currentNumber = 6;
 let touched = new Set();
 let numberSolved = false;
 
+let numberTraceStarted = false;
+let nextNumberDotIndex = 0;
+let numberTraceOffCount = 0;
+
 const VIEW_W = 800;
 const VIEW_H = 520;
 
@@ -519,16 +526,18 @@ const numbers = [6,7,8];
 const totalTasks = 6;
 
 const straightTargets = [
-  {id:"chocolate", y:140, x1:150, x2:660, done:false},
-  {id:"cream", y:272, x1:245, x2:575, done:false},
-  {id:"strawberry", y:405, x1:105, x2:695, done:false}
+  {id:"chocolate", y:140, x1:150, x2:660, done:false, startRadius:70, endRadius:90, maxOff:48, maxOffRatio:.26, minLength:140},
+
+  /*
+    Middle cream-cake task fixed:
+    This line now has its own wider touch area and more forgiving accuracy rule,
+    so children can trace smoothly from the green dot to the red dot on phones/tablets.
+  */
+  {id:"cream", y:272, x1:225, x2:590, done:false, startRadius:95, endRadius:115, maxOff:74, maxOffRatio:.42, minLength:90},
+
+  {id:"strawberry", y:405, x1:105, x2:695, done:false, startRadius:70, endRadius:90, maxOff:50, maxOffRatio:.28, minLength:150}
 ];
 
-/*
-  These points are now professionally placed inside the large number digits.
-  The visible number digit is drawn with the same center path.
-  The dotted trace line follows this same center path, so it stays inside the digit.
-*/
 const numberPaths = {
   6:[
     [625,112],[555,118],[492,155],[450,212],[432,278],
@@ -607,6 +616,46 @@ function pointFromEvent(e){
   };
 }
 
+function distance(a,b){
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function getNumberTracePoints(){
+  return numberPaths[currentNumber].map(toPx);
+}
+
+function distanceToSegment(p,a,b){
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const lenSq = dx * dx + dy * dy;
+
+  if(lenSq === 0) return distance(p,a);
+
+  let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+
+  return Math.hypot(
+    p.x - (a.x + t * dx),
+    p.y - (a.y + t * dy)
+  );
+}
+
+function distanceToTracePath(p,points){
+  let best = Infinity;
+
+  for(let i=0;i<points.length - 1;i++){
+    best = Math.min(best, distanceToSegment(p, points[i], points[i + 1]));
+  }
+
+  return best;
+}
+
+function resetNumberTraceState(){
+  numberTraceStarted = false;
+  nextNumberDotIndex = 0;
+  numberTraceOffCount = 0;
+}
+
 /* =========================
    Straight Line Section
 ========================= */
@@ -614,6 +663,7 @@ function renderStraightScene(){
   mode = "straight";
   numberSolved = false;
   currentPath = [];
+  resetNumberTraceState();
 
   modeTitle.textContent = "Trace the straight cake lines";
   stageSvg.innerHTML = `
@@ -697,6 +747,7 @@ function renderNumberScene(){
   touched = new Set();
   currentPath = [];
   numberSolved = false;
+  resetNumberTraceState();
 
   const color = currentNumber === 6 ? "#dfa300" : currentNumber === 7 ? "#4ebfd5" : "#82b847";
   const softColor = currentNumber === 6 ? "#f8df8a" : currentNumber === 7 ? "#8bd2e5" : "#9ccd64";
@@ -759,7 +810,7 @@ function renderNumberScene(){
   `;
 
   resizeCanvas();
-  speak("Now write number " + currentNumber + ". Trace inside the big number. Follow the dotted line.");
+  speak("Now write number " + currentNumber + ". Start on the green dot and trace to the red dot.");
 }
 
 function cakeGroup(count){
@@ -794,6 +845,7 @@ function cakeGroup(count){
 
 /* =========================
    Canvas Drawing Layer
+   Fixed tracing accuracy
 ========================= */
 function drawLayer(){
   const rect = traceStage.getBoundingClientRect();
@@ -805,9 +857,9 @@ function drawLayer(){
       const p2 = toPxXY(t.x2,t.y);
 
       ctx.save();
-      ctx.lineWidth = t.done ? 9 : 5;
+      ctx.lineWidth = t.done ? 10 : 6;
       ctx.lineCap = "round";
-      ctx.setLineDash(t.done ? [] : [14,12]);
+      ctx.setLineDash(t.done ? [] : [16,12]);
       ctx.strokeStyle = t.done ? "#22c55e" : "#4444aa";
       ctx.beginPath();
       ctx.moveTo(p1.x,p1.y);
@@ -815,24 +867,24 @@ function drawLayer(){
       ctx.stroke();
       ctx.restore();
 
-      ctx.fillStyle = t.done ? "#22c55e" : "#16a34a";
+      ctx.fillStyle = "#16a34a";
       ctx.beginPath();
-      ctx.arc(p1.x,p1.y,12,0,Math.PI*2);
+      ctx.arc(p1.x,p1.y,15,0,Math.PI*2);
       ctx.fill();
 
       ctx.fillStyle = t.done ? "#22c55e" : "#f2485b";
       ctx.beginPath();
-      ctx.arc(p2.x,p2.y,12,0,Math.PI*2);
+      ctx.arc(p2.x,p2.y,15,0,Math.PI*2);
       ctx.fill();
     });
-  }else{
-    const points = numberPaths[currentNumber].map(toPx);
+  }else if(mode === "number"){
+    const points = getNumberTracePoints();
 
     ctx.save();
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 7;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.setLineDash([13,12]);
+    ctx.setLineDash([14,12]);
     ctx.strokeStyle = "#6f6f6f";
     ctx.beginPath();
     points.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
@@ -841,25 +893,36 @@ function drawLayer(){
 
     points.forEach((p,i) => {
       const done = touched.has(i);
+      const isStart = i === 0;
+      const isEnd = i === points.length - 1;
 
-      ctx.fillStyle = done ? "#22c55e" : (i === 0 ? "#111" : "#f2485b");
+      if(done){
+        ctx.fillStyle = "#22c55e";
+      }else if(isStart){
+        ctx.fillStyle = "#16a34a";
+      }else if(isEnd){
+        ctx.fillStyle = "#f2485b";
+      }else{
+        ctx.fillStyle = "#f2485b";
+      }
+
       ctx.beginPath();
-      ctx.arc(p.x,p.y,done ? 12 : 10,0,Math.PI*2);
+      ctx.arc(p.x,p.y,done ? 13 : 11,0,Math.PI*2);
       ctx.fill();
 
-      if(i < 2){
+      if(isStart || isEnd){
         ctx.fillStyle = "#fff";
         ctx.font = "bold 14px Comic Sans MS";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(i+1,p.x,p.y);
+        ctx.fillText(isStart ? "1" : "2", p.x, p.y);
       }
     });
   }
 
   if(currentPath.length > 1){
     ctx.save();
-    ctx.lineWidth = 13;
+    ctx.lineWidth = 14;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.strokeStyle = "#ff5fa2";
@@ -882,9 +945,14 @@ function drawLayer(){
 
 /* =========================
    Pointer Logic
+   Fixed: number does not complete early
 ========================= */
 function pointerDown(e){
   e.preventDefault();
+
+  try{
+    canvas.setPointerCapture(e.pointerId);
+  }catch(err){}
 
   const p = pointFromEvent(e);
   drawing = true;
@@ -897,22 +965,47 @@ function pointerDown(e){
       if(t.done) continue;
 
       const start = toPxXY(t.x1,t.y);
-      if(Math.abs(p.x - start.x) < 55 && Math.abs(p.y - start.y) < 55){
+      const startRadius = t.startRadius || 70;
+
+      if(distance(p,start) <= startRadius){
         activeLine = t;
-        speak("Good. Trace straight to the red dot.");
+        speak(t.id === "cream" ? "Good. Trace the middle line to the red dot." : "Good. Trace straight to the red dot.");
         break;
       }
     }
 
     if(!activeLine){
       drawing = false;
+      currentPath = [];
       tries++;
       updateHUD();
       setMessage("Start on the green dot.", "oops");
       speak("Start on the green dot.");
     }
-  }else{
-    checkNumberDots(p);
+  }else if(mode === "number"){
+    resetNumberTraceState();
+
+    const points = getNumberTracePoints();
+    const start = points[0];
+
+    if(!start || distance(p,start) > 68){
+      drawing = false;
+      currentPath = [];
+      tries++;
+      updateHUD();
+      setMessage("Start on the green dot number 1.", "oops");
+      speak("Start on the green dot number one.");
+      drawLayer();
+      return;
+    }
+
+    touched = new Set();
+    touched.add(0);
+    numberTraceStarted = true;
+    nextNumberDotIndex = 1;
+    numberTraceOffCount = 0;
+
+    setMessage("Good! Keep tracing on the dotted line until the red dot.", "good");
   }
 
   drawLayer();
@@ -927,7 +1020,13 @@ function pointerMove(e){
 
   if(mode === "number"){
     checkNumberDots(p);
-    checkNumberComplete();
+    checkNumberPathAccuracy(p);
+
+    /*
+      Important fix:
+      Do not complete the number during pointerMove.
+      The number is checked only after the child lifts the finger/stylus.
+    */
   }
 
   drawLayer();
@@ -937,9 +1036,13 @@ function pointerUp(e){
   if(!drawing) return;
   e.preventDefault();
 
+  const p = pointFromEvent(e);
+  currentPath.push(p);
+
   if(mode === "straight"){
     finishStraightTrace();
-  }else{
+  }else if(mode === "number"){
+    checkNumberDots(p);
     checkNumberComplete();
   }
 
@@ -959,19 +1062,34 @@ function finishStraightTrace(){
   const p2 = toPxXY(t.x2,t.y);
   const first = currentPath[0];
   const last = currentPath[currentPath.length - 1];
+
   const minX = Math.min(...currentPath.map(p => p.x));
   const maxX = Math.max(...currentPath.map(p => p.x));
-  const avgY = currentPath.reduce((sum,p)=>sum + Math.abs(p.y - p1.y),0) / currentPath.length;
+  const traveledX = maxX - minX;
+
+  const startRadius = t.startRadius || 70;
+  const endRadius = t.endRadius || 90;
+  const maxOff = t.maxOff || 50;
+  const maxOffRatio = typeof t.maxOffRatio === "number" ? t.maxOffRatio : .28;
+  const minLength = t.minLength || 130;
+
+  const distances = currentPath.map(p => distanceToSegment(p,p1,p2));
+  const avgDist = distances.reduce((sum,value)=>sum + value,0) / Math.max(1,distances.length);
+  const offCount = distances.filter(value => value > maxOff).length;
+  const offRatio = offCount / Math.max(1,currentPath.length);
+
+  const startedCorrectly = distance(first,p1) <= startRadius;
+  const endedCorrectly = distance(last,p2) <= endRadius || distance(currentPath[currentPath.length - 2] || last,p2) <= endRadius;
+  const reachedRedDotArea = maxX >= p2.x - endRadius;
+  const movedForward = last.x > first.x + minLength || traveledX > minLength;
 
   const good =
-    Math.abs(first.x - p1.x) < 65 &&
-    Math.abs(first.y - p1.y) < 65 &&
-    Math.abs(last.x - p2.x) < 80 &&
-    Math.abs(last.y - p2.y) < 70 &&
-    maxX > p2.x - 60 &&
-    minX < p1.x + 60 &&
-    avgY < 45 &&
-    last.x > first.x + 120;
+    startedCorrectly &&
+    endedCorrectly &&
+    reachedRedDotArea &&
+    movedForward &&
+    avgDist <= maxOff * .72 &&
+    offRatio <= maxOffRatio;
 
   if(good){
     t.done = true;
@@ -982,9 +1100,9 @@ function finishStraightTrace(){
     cheerSound();
     confetti();
 
-    setMessage("✅ Great! That is a straight line.", "good");
+    setMessage(t.id === "cream" ? "✅ Great! You traced the middle line from green to red." : "✅ Great! You traced from green dot to red dot.", "good");
     teacherBubble.textContent = "Great job! Trace the next straight line.";
-    speak("Great job. A straight line has two points.");
+    speak(t.id === "cream" ? "Great job. You traced the middle line from green dot to red dot." : "Great job. You traced from green dot to red dot.");
     updateHUD();
 
     if(completedLines === straightTargets.length){
@@ -996,31 +1114,58 @@ function finishStraightTrace(){
   }else{
     tries++;
     currentPath = [];
-    setMessage("💪 Try again. Keep your line straight from green to red.", "oops");
-    speak("Try again. Trace straight from green dot to red dot.");
+    setMessage(t.id === "cream" ? "💪 Try the middle line again. Start on green and end on red." : "💪 Try again. Start on green and finish on red.", "oops");
+    speak(t.id === "cream" ? "Try the middle line again. Start on the green dot and finish on the red dot." : "Try again. Start on the green dot and finish on the red dot.");
     wrongSound();
     updateHUD();
   }
 }
 
 function checkNumberDots(p){
-  if(numberSolved) return;
+  if(numberSolved || !numberTraceStarted) return;
 
-  const points = numberPaths[currentNumber].map(toPx);
+  const points = getNumberTracePoints();
 
-  points.forEach((pt,i) => {
-    const d = Math.hypot(p.x - pt.x, p.y - pt.y);
-    if(d < 44) touched.add(i);
-  });
+  while(nextNumberDotIndex < points.length){
+    const target = points[nextNumberDotIndex];
+    const d = distance(p,target);
+
+    if(d <= 60){
+      touched.add(nextNumberDotIndex);
+      nextNumberDotIndex++;
+    }else{
+      break;
+    }
+  }
+}
+
+function checkNumberPathAccuracy(p){
+  if(numberSolved || !numberTraceStarted) return;
+
+  const points = getNumberTracePoints();
+  const offDistance = distanceToTracePath(p,points);
+
+  if(offDistance > 78){
+    numberTraceOffCount++;
+  }
 }
 
 function checkNumberComplete(){
   if(numberSolved || mode !== "number") return;
 
-  const needed = Math.ceil(numberPaths[currentNumber].length * .76);
-  const enoughDrawing = currentPath.length >= 8;
+  const points = getNumberTracePoints();
+  const lastPoint = points[points.length - 1];
+  const lastDrawn = currentPath[currentPath.length - 1];
 
-  if(touched.size >= needed && enoughDrawing){
+  const needed = Math.ceil(points.length * 0.90);
+  const enoughDots = touched.size >= needed;
+  const endedCorrectly = lastDrawn && distance(lastDrawn,lastPoint) <= 82;
+  const enoughDrawing = currentPath.length >= 14;
+
+  const offRatio = numberTraceOffCount / Math.max(1,currentPath.length);
+  const stayedOnLine = offRatio <= 0.28;
+
+  if(enoughDots && endedCorrectly && enoughDrawing && stayedOnLine){
     numberSolved = true;
     completedNumbers++;
 
@@ -1035,22 +1180,44 @@ function checkNumberComplete(){
 
     currentNumberIndex++;
 
-    touched = new Set();
     currentPath = [];
-    drawing = false;
+    touched = new Set();
+    resetNumberTraceState();
 
     if(currentNumberIndex >= numbers.length){
       setTimeout(finishGame, 1200);
     }else{
       setTimeout(renderNumberScene, 1200);
     }
+
+    return;
   }
+
+  tries++;
+  currentPath = [];
+  touched = new Set();
+  resetNumberTraceState();
+
+  if(!endedCorrectly){
+    setMessage("💪 Almost! Trace all the way to the red ending dot.", "oops");
+    speak("Almost. Trace all the way to the red ending dot.");
+  }else if(!stayedOnLine){
+    setMessage("💪 Try again. Keep your finger on the dotted line.", "oops");
+    speak("Try again. Keep your finger on the dotted line.");
+  }else{
+    setMessage("💪 Try again. Follow more of the dotted line.", "oops");
+    speak("Try again. Follow more of the dotted line.");
+  }
+
+  wrongSound();
+  updateHUD();
 }
 
 canvas.addEventListener("pointerdown", pointerDown);
 canvas.addEventListener("pointermove", pointerMove);
 canvas.addEventListener("pointerup", pointerUp);
 canvas.addEventListener("pointercancel", pointerUp);
+canvas.addEventListener("pointerleave", pointerUp);
 window.addEventListener("resize", resizeCanvas);
 
 /* =========================
@@ -1064,6 +1231,7 @@ function startGame(){
   currentPath = [];
   touched = new Set();
   numberSolved = false;
+  resetNumberTraceState();
   straightTargets.forEach(t => t.done = false);
 
   updateHUD();
@@ -1076,9 +1244,11 @@ function repeatInstruction(){
   if(mode === "straight"){
     teacherBubble.textContent = "Trace from the green dot to the red dot. A straight line has two points.";
     speak("Trace from the green dot to the red dot. A straight line has two points.");
-  }else{
+  }else if(mode === "number"){
     teacherBubble.textContent = "Follow the dotted line inside number " + currentNumber + ".";
-    speak("Follow the dotted line inside number " + currentNumber + ".");
+    speak("Follow the dotted line inside number " + currentNumber + ". Start on the green dot and trace to the red dot.");
+  }else{
+    speak("Great job. You finished the game.");
   }
 }
 
@@ -1119,6 +1289,7 @@ function finishGame(){
   mode = "finished";
   currentPath = [];
   touched = new Set();
+  resetNumberTraceState();
 
   stageSvg.innerHTML = `
     <rect width="800" height="520" fill="#f5a7cf"/>

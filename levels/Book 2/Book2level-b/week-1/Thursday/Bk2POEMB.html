@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bk2FairlyTaleA</title>
+  <title>Bk2POEMB</title>
   <style>
     :root{
       --bg1:#fff6da; --bg2:#ffe18a; --bg3:#ffc84d;
@@ -19,7 +19,7 @@
     @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
     .header{text-align:center;margin-bottom:18px;background:rgba(255,255,255,.58);backdrop-filter:blur(6px);border-radius:24px;padding:18px 14px;box-shadow:var(--shadow);border:2px solid rgba(255,255,255,.55)}
     .header h1{font-size:clamp(1.7rem,3vw,2.6rem);color:#8c4300;margin-bottom:8px;font-weight:900}
-    .header p{font-size:clamp(.95rem,1.8vw,1.08rem);font-weight:700;color:#7a4900}
+    .header p{font-size:clamp(.95rem,1.8vw,1.08rem);font-weight:700;color:#7a4900;display:none}
     .video-card{position:relative;border-radius:var(--radius);overflow:hidden;background:#000;box-shadow:var(--shadow);border:4px solid rgba(255,255,255,.65)}
     video{width:100%;height:auto;display:block;background:#000}
     .top-bar,.bottom-bar{position:absolute;left:0;width:100%;z-index:5;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;pointer-events:none}
@@ -30,7 +30,7 @@
     .nav-btn.dark{background:linear-gradient(180deg,#515151,#2b2b2b)}
     .nav-btn.green{background:linear-gradient(180deg,#2ecc71,#16924d)}
     .nav-btn.red{background:linear-gradient(180deg,#ff7b61,#e74c3c)}
-    .lesson-note{margin-top:16px;background:rgba(255,255,255,.7);border-radius:22px;padding:14px 16px;box-shadow:var(--shadow);text-align:center;font-weight:700;color:#7a4900;line-height:1.55}
+    .lesson-note{display:none}
     #pageContent{opacity:0;visibility:hidden;transition:opacity .28s ease}
     body.intro-complete #pageContent{opacity:1;visibility:visible}
     #lbIntroVideoOverlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.82);z-index:9999}
@@ -48,26 +48,23 @@
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
-      <div class="intro-title">Bk2 Fairly Tale A Intro</div>
+      <div class="intro-title">Bk2 POEM B Intro</div>
       <video id="lbIntroVideo" playsinline autoplay preload="metadata">
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1778258218/B2fairlytalea_qj4umb.mp4" type="video/mp4">
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1778258219/B2fairlytaleb_exuzkj.mp4" type="video/mp4">
       </video>
       <div class="intro-actions">
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
-      <div class="intro-help">Skip Intro will go straight to B2LAGame1.html.</div>
+      <div class="intro-help">Skip Intro will go straight to Bk2LBGame1.html.</div>
     </div>
   </div>
 
   <div id="pageContent">
     <div class="page">
-      <div class="floating-shape shape1"></div>
-      <div class="floating-shape shape2"></div>
-      <div class="floating-shape shape3"></div>
-
+      <div class="floating-shape shape1"></div><div class="floating-shape shape2"></div><div class="floating-shape shape3"></div>
       <div class="header">
-        <h1>📖 Bk2 Fairly Tale A</h1>
-        <p>Bk2LA7.html → Bk2FairlyTaleA.html → B2LAGame1.html</p>
+        <h1>📖 Bk2 POEM B</h1>
+        <p>BK2LB7.html → Bk2POEMB.html → Bk2LBGame1.html</p>
       </div>
 
       <div class="video-card">
@@ -78,7 +75,7 @@
         </div>
 
         <video id="lessonVideo" controls playsinline autoplay preload="metadata">
-          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1778258218/B2fairlytalea_qj4umb.mp4" type="video/mp4">
+          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1778258219/B2fairlytaleb_exuzkj.mp4" type="video/mp4">
         </video>
 
         <div class="bottom-bar">
@@ -88,26 +85,24 @@
         </div>
       </div>
 
-      <div class="lesson-note">Back goes to Bk2LA7.html. Next goes to B2LAGame1.html. Skip Intro jumps immediately to B2LAGame1.html.</div>
+      <div class="lesson-note">Back goes to BK2LB7.html. Next goes to Bk2LBGame1.html. Skip Intro jumps immediately to Bk2LBGame1.html.</div>
     </div>
   </div>
 
   <script>
     const HOME_PAGE = "../../../../../index.html";
-    const PREVIOUS_PAGE = "../Wednesday/Bk2LA7.html";
-    const NEXT_PAGE = "../Friday/B2LAGame1.html";
+    const PREVIOUS_PAGE = "../Wednesday/BK2LB7.html";
+    const NEXT_PAGE = "../Friday/Bk2LBGame1.html";
 
     const video = document.getElementById("lessonVideo");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
-
     let introFinished = false;
-
     video.muted = true;
     video.volume = 0;
 
-    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1778258218/B2fairlytalea_qj4umb.mp4";
+    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1778258219/B2fairlytaleb_exuzkj.mp4";
 
     function clearVideoSource(videoEl){
       if(!videoEl) return;

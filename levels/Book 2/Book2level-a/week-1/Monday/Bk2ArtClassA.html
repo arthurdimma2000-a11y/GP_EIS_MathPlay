@@ -19,7 +19,7 @@
     @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
     .header{text-align:center;margin-bottom:18px;background:rgba(255,255,255,.58);backdrop-filter:blur(6px);border-radius:24px;padding:18px 14px;box-shadow:var(--shadow);border:2px solid rgba(255,255,255,.55)}
     .header h1{font-size:clamp(1.7rem,3vw,2.6rem);color:#8c4300;margin-bottom:8px;font-weight:900}
-    .header p{font-size:clamp(.95rem,1.8vw,1.08rem);font-weight:700;color:#7a4900}
+    .header p{font-size:clamp(.95rem,1.8vw,1.08rem);font-weight:700;color:#7a4900;display:none}
     .video-card{position:relative;border-radius:var(--radius);overflow:hidden;background:#000;box-shadow:var(--shadow);border:4px solid rgba(255,255,255,.65)}
     video{width:100%;height:auto;display:block;background:#000}
     .top-bar,.bottom-bar{position:absolute;left:0;width:100%;z-index:5;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;pointer-events:none}
@@ -30,7 +30,7 @@
     .nav-btn.dark{background:linear-gradient(180deg,#515151,#2b2b2b)}
     .nav-btn.green{background:linear-gradient(180deg,#2ecc71,#16924d)}
     .nav-btn.red{background:linear-gradient(180deg,#ff7b61,#e74c3c)}
-    .lesson-note{margin-top:16px;background:rgba(255,255,255,.7);border-radius:22px;padding:14px 16px;box-shadow:var(--shadow);text-align:center;font-weight:700;color:#7a4900;line-height:1.55}
+    .lesson-note{display:none}
     #pageContent{opacity:0;visibility:hidden;transition:opacity .28s ease}
     body.intro-complete #pageContent{opacity:1;visibility:visible}
     #lbIntroVideoOverlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.82);z-index:9999}

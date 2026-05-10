@@ -102,7 +102,7 @@ window.__PAGE_CONFIG__ = {
   level: "A",
   homeHref: "../../../../../index.html",
   prevHref: "Bk2LA3.html",
-  nextHref: "../Thursday/Bk2FairlyTaleA.html"
+  nextHref: "../Thursday/Bk2POEMA.html"
 };
 </script>
 
@@ -406,7 +406,7 @@ window.__PAGE_CONFIG__ = {
 
   readBtn.addEventListener("click", startIntro);
   prevBtn.addEventListener("click", () => { stopSpeaking(); window.location.href = CONFIG.prevHref || "Bk2LA3.html"; });
-  nextBtn.addEventListener("click", () => { stopSpeaking(); window.location.href = CONFIG.nextHref || "../Thursday/Bk2FairlyTaleA.html"; });
+  nextBtn.addEventListener("click", () => { stopSpeaking(); window.location.href = CONFIG.nextHref || "../Thursday/Bk2POEMA.html"; });
   if (homeBtn) homeBtn.addEventListener("click", () => stopSpeaking());
 
   if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = () => {};

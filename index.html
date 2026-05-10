@@ -3745,7 +3745,7 @@
                 "levels/Book 2/Book2level-a/week-1/Tuesday/Bk2LA2.html",
                 "levels/Book 2/Book2level-a/week-1/Wednesday/Bk2LA3.html",
                 "levels/Book 2/Book2level-a/week-1/Wednesday/Bk2LA7.html",
-                "levels/Book 2/Book2level-a/week-1/Thursday/Bk2FairlyTaleA.html",
+                "levels/Book 2/Book2level-a/week-1/Thursday/Bk2POEMA.html",
                 "levels/Book 2/Book2level-a/week-1/Friday/B2LAGame1.html",
                 "levels/Book 2/Book2level-a/week-1/Friday/B2LAQuiz1.html"
               ]
@@ -3806,7 +3806,7 @@
                 "levels/Book 2/Book2level-b/week-1/Tuesday/BK2LB2.html",
                 "levels/Book 2/Book2level-b/week-1/Wednesday/BK2LB3.html",
                 "levels/Book 2/Book2level-b/week-1/Wednesday/BK2LB7.html",
-                "levels/Book 2/Book2level-b/week-1/Thursday/Bk2FairlyTaleB.html",
+                "levels/Book 2/Book2level-b/week-1/Thursday/Bk2POEMB.html",
                 "levels/Book 2/Book2level-b/week-1/Friday/Bk2LBGame1.html",
                 "levels/Book 2/Book2level-b/week-1/Friday/Bk2LBQuiz1.html"
               ]
@@ -3867,7 +3867,7 @@
                 "levels/Book 2/Book2level-c/week-1/Tuesday/Bk2LC2.html",
                 "levels/Book 2/Book2level-c/week-1/Wednesday/Bk2LC3.html",
                 "levels/Book 2/Book2level-c/week-1/Wednesday/Bk2LC7.html",
-                "levels/Book 2/Book2level-c/week-1/Thursday/Bk2FairlyTaleC.html",
+                "levels/Book 2/Book2level-c/week-1/Thursday/Bk2POEMC.html",
                 "levels/Book 2/Book2level-c/week-1/Friday/Bk2LCGame1.html",
                 "levels/Book 2/Book2level-c/week-1/Friday/Bk2LCQuiz1.html"
               ]
@@ -3898,11 +3898,12 @@
     };
 
     function getWeekDayLabel(weekNumber, day){
-      if (day === "monday") {
-        if (weekNumber === 2) return "Gym Class";
-        if (weekNumber === 3) return "Science Class";
-        if (weekNumber === 4) return "Music Class";
-      }
+      if (selectedMonth === 2 && day === "thursday") return "Poem";
+        if (day === "monday") {
+          if (weekNumber === 2) return "Gym Class";
+          if (weekNumber === 3) return "Science Class";
+          if (weekNumber === 4) return "Music Class";
+        }
       if (day === "thursday" && weekNumber === 4) return "Music Fairly-tale";
       return DAY_LABELS[day] || "";
     }
