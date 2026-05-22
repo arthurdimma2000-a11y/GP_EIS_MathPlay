@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Measuring Sticks Lesson</title>
+
+<style>
+  :root{
+    --green:#35ad4a;
+    --deep-green:#1c8e39;
+    --pink:#f64d91;
+    --red:#ff2e3a;
+    --cream:#fff8ef;
+    --soft:#eefbe9;
+    --ink:#262329;
+    --gold:#ffd94d;
+    --blue:#0a7bdc;
+    --purple:#aa4ab0;
+    --shadow:0 18px 38px rgba(0,0,0,.14);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    min-height:100%;
+    background:#fff9ef;
+    color:var(--ink);
+  }
+
+  body{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#f1e6d8 1px, transparent 1px),
+      linear-gradient(90deg, #f1e6d8 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(980px,100%);
+    border:8px solid var(--green);
+    border-radius:30px;
+    background:#fffdf8;
+    box-shadow:var(--shadow);
+    padding:12px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .top-tools{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+
+  .lesson-title{
+    margin:0;
+    text-align:center;
+    font-size:clamp(1.35rem,4.5vw,2.4rem);
+    color:var(--deep-green);
+    font-weight:1000;
+    line-height:1.05;
+    text-shadow:0 2px 0 #fff, 0 4px 0 rgba(53,173,74,.18);
+  }
+
+  .poster-wrap{
+    position:relative;
+    width:min(868px,100%);
+    margin:0 auto;
+    border-radius:22px;
+    overflow:hidden;
+    background:#b9dfb3;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+  }
+
+  .poster-img{
+    width:100%;
+    display:block;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+
+  .talk-target{
+    position:absolute;
+    z-index:8;
+    pointer-events:none;
+    border:5px solid transparent;
+    border-radius:999px;
+    opacity:0;
+    transform:scale(.98);
+    transition:opacity .18s ease, transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .talk-target.active{
+    opacity:1;
+    transform:scale(1);
+    border-color:rgba(255,217,77,.98);
+    box-shadow:
+      0 0 0 8px rgba(255,217,77,.28),
+      0 0 22px rgba(255,217,77,.9);
+    animation:sparkle 1s ease-in-out infinite;
+  }
+
+  @keyframes sparkle{
+    0%,100%{filter:drop-shadow(0 0 3px #fff)}
+    50%{filter:drop-shadow(0 0 12px #ffd94d)}
+  }
+
+  .target-left{left:15%;top:27%;width:28%;height:8%;}
+  .target-right{left:50%;top:27%;width:32%;height:8%;}
+  .target-bottom{left:8%;bottom:9%;width:83%;height:8%;border-radius:22px;}
+
+  .stick-hit{
+    position:absolute;
+    z-index:7;
+    border:4px solid transparent;
+    border-radius:20px;
+    background:rgba(255,255,255,.001);
+    cursor:pointer;
+    touch-action:manipulation;
+    transition:transform .14s ease, border-color .14s ease, background .14s ease, box-shadow .14s ease;
+  }
+
+  .stick-hit:hover,
+  .stick-hit.focused{
+    border-color:rgba(255,217,77,.9);
+    background:rgba(255,255,255,.12);
+    box-shadow:0 0 0 6px rgba(255,217,77,.22),0 8px 18px rgba(0,0,0,.16);
+    transform:scale(1.015);
+  }
+
+  .stick-hit.done{
+    border-color:rgba(35,169,91,.96);
+    background:rgba(35,169,91,.13);
+    box-shadow:0 0 0 7px rgba(35,169,91,.18),0 0 20px rgba(35,169,91,.42);
+  }
+
+  .stick-hit.wiggle{
+    animation:wiggle .35s ease;
+  }
+
+  @keyframes wiggle{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}
+  }
+
+  .s1{left:40%;top:59%;width:24%;height:4.2%;transform:rotate(0deg);}
+  .s2{left:62%;top:61%;width:20%;height:4.2%;transform:rotate(60deg);}
+  .s3{left:62%;top:72%;width:20%;height:4.2%;transform:rotate(120deg);}
+  .s4{left:40%;top:80%;width:24%;height:4.2%;transform:rotate(0deg);}
+  .s5{left:24%;top:72%;width:20%;height:4.2%;transform:rotate(60deg);}
+  .s6{left:24%;top:61%;width:20%;height:4.2%;transform:rotate(120deg);}
+
+  .activity-panel{
+    margin:14px auto 0;
+    width:min(868px,100%);
+    background:#fff8fb;
+    border:3px solid #cdf2cd;
+    border-radius:22px;
+    padding:12px;
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
+  }
+
+  .prompt-card{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+    background:#fff;
+    border:3px dashed #9be69f;
+    border-radius:18px;
+    padding:12px 14px;
+  }
+
+  .prompt-text{
+    font-size:clamp(1.05rem,3.4vw,1.65rem);
+    line-height:1.25;
+    font-weight:1000;
+    color:#31533a;
+  }
+
+  .target-pill{
+    min-width:92px;
+    min-height:64px;
+    display:grid;
+    place-items:center;
+    border-radius:18px;
+    background:linear-gradient(180deg,#fff9d4,#ffe8a3);
+    color:#8b5a00;
+    font-size:clamp(1.55rem,5vw,2.35rem);
+    font-weight:1000;
+    box-shadow:0 6px 0 rgba(0,0,0,.13);
+  }
+
+  .progress-wrap{margin-top:12px;}
+
+  .progress-label{
+    text-align:center;
+    font-weight:1000;
+    color:#31533a;
+    margin-bottom:6px;
+  }
+
+  .bar{
+    height:17px;
+    background:#e8eef8;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.12);
+  }
+
+  .fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#58c6ff,#83e79f);
+    transition:width .25s ease;
+  }
+
+  .mini-progress{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:8px;
+    margin-top:10px;
+    text-align:center;
+    font-weight:900;
+    font-size:.9rem;
+  }
+
+  .mini-box{
+    background:#fff;
+    border:2px solid #e7edf8;
+    border-radius:12px;
+    padding:7px 4px;
+  }
+
+  .mini-box.done{
+    border-color:#95e7b6;
+    background:#effff4;
+    color:#126b37;
+  }
+
+  .controls{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 18px;
+    font-size:1rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.18);
+    transition:transform .1s ease, filter .1s ease;
+  }
+
+  .btn:hover{filter:brightness(1.04);transform:translateY(-1px)}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.14)}
+  .btn.primary{background:var(--green);color:#fff}
+  .btn.yellow{background:#f7dc6f;color:#8b5a00}
+  .btn.pink{background:#ffd7e8;color:#9a1d59}
+  .btn.red{background:#ffe0e0;color:#9a1620}
+
+  .mic-big{
+    min-height:62px;
+    min-width:62px;
+    border:none;
+    border-radius:999px;
+    cursor:pointer;
+    background:#fff;
+    padding:5px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 5px rgba(53,173,74,.18);
+    transition:transform .12s ease, filter .12s ease, opacity .12s ease;
+    animation:micPulse 1.25s ease-in-out infinite;
+  }
+
+  .mic-big img{
+    width:50px;
+    height:50px;
+    object-fit:contain;
+    vertical-align:middle;
+  }
+
+  .mic-big:hover{transform:translateY(-1px)}
+  .mic-big:active{transform:translateY(3px)}
+  .mic-big.is-busy{opacity:.65;pointer-events:none;animation:none}
+
+  @keyframes micPulse{
+    0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 5px rgba(53,173,74,.18)}
+    50%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 10px rgba(53,173,74,.10)}
+  }
+
+  .status{
+    margin-top:11px;
+    min-height:1.5em;
+    text-align:center;
+    font-size:clamp(1rem,3vw,1.35rem);
+    font-weight:1000;
+    color:#18833a;
+  }
+
+  .repeat-box{
+    margin:10px auto 0;
+    max-width:760px;
+    min-height:48px;
+    background:#fff;
+    border:3px solid #d9efd9;
+    border-radius:18px;
+    padding:10px 12px;
+    text-align:center;
+    font-size:clamp(1rem,3vw,1.25rem);
+    font-weight:900;
+    color:#31533a;
+    line-height:1.35;
+  }
+
+  .repeat-box.good{
+    border-color:#72d88e;
+    background:#effff4;
+    color:#126b37;
+  }
+
+  .repeat-box.try{
+    border-color:#ffb0b5;
+    background:#fff1f2;
+    color:#a51b2c;
+  }
+
+  .student-repeat{
+    color:#16843a;
+    font-weight:1000;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.3em;
+    font-size:2.1rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);
+  }
+
+  .nav-row{
+    width:min(868px,100%);
+    margin:14px auto 0;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .nav-link{
+    text-decoration:none;
+    text-align:center;
+    flex:1 1 160px;
+    border-radius:18px;
+    padding:12px 14px;
+    font-size:1.05rem;
+    font-weight:1000;
+    color:#fff;
+    background:var(--deep-green);
+    box-shadow:0 5px 0 rgba(0,0,0,.18);
+  }
+
+  .nav-link:hover{filter:brightness(1.05)}
+
+  .confetti-piece{
+    position:fixed;
+    top:-24px;
+    width:10px;
+    height:16px;
+    border-radius:4px;
+    z-index:9999;
+    pointer-events:none;
+    animation:fall 1.8s linear forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(105vh) rotate(540deg);opacity:.05}
+  }
+
+  @media(max-width:700px){
+    body{padding:6px}
+    .app{border-width:5px;border-radius:20px;padding:7px}
+    .prompt-card{grid-template-columns:1fr;text-align:center}
+    .target-pill{margin:auto}
+    .mini-progress{grid-template-columns:repeat(3,1fr)}
+    .nav-link{flex-basis:120px}
+  }
+</style>
+</head>
+
+<body>
+<main class="app">
+  <div class="top-tools">
+    <h1 class="lesson-title">Measuring Sticks</h1>
+  </div>
+
+  <section class="poster-wrap" aria-label="Measuring Sticks poster">
+    <img
+      class="poster-img"
+      id="posterImg"
+      src="/assets/images/Bk2Shapes/MeasuringSticks.png"
+      alt="Measuring Sticks poster with two children and a hexagon made from equal sticks"
+    >
+
+    <!-- Highlight targets only. No mic icons are placed on the poster. -->
+    <span class="talk-target target-left" id="targetLeft" aria-hidden="true"></span>
+    <span class="talk-target target-right" id="targetRight" aria-hidden="true"></span>
+    <span class="talk-target target-bottom" id="targetBottom" aria-hidden="true"></span>
+
+    <!-- Tap zones for the six measuring sticks. -->
+    <button class="stick-hit s1" type="button" data-stick="1" aria-label="Tap top stick"></button>
+    <button class="stick-hit s2" type="button" data-stick="2" aria-label="Tap upper right stick"></button>
+    <button class="stick-hit s3" type="button" data-stick="3" aria-label="Tap lower right stick"></button>
+    <button class="stick-hit s4" type="button" data-stick="4" aria-label="Tap bottom stick"></button>
+    <button class="stick-hit s5" type="button" data-stick="5" aria-label="Tap lower left stick"></button>
+    <button class="stick-hit s6" type="button" data-stick="6" aria-label="Tap upper left stick"></button>
+  </section>
+
+  <section class="activity-panel" aria-label="Measuring sticks activity">
+    <div class="prompt-card">
+      <div class="prompt-text" id="promptText">
+        Tap Start Lesson. Then tap all the sticks around the hexagon.
+      </div>
+      <div class="target-pill" id="targetPill">5 cm</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label" id="progressLabel">Measuring progress: 0%</div>
+      <div class="bar" aria-hidden="true">
+        <div class="fill" id="fill"></div>
+      </div>
+
+      <div class="mini-progress" id="miniProgress">
+        <div class="mini-box">Stick 1</div>
+        <div class="mini-box">Stick 2</div>
+        <div class="mini-box">Stick 3</div>
+        <div class="mini-box">Stick 4</div>
+        <div class="mini-box">Stick 5</div>
+        <div class="mini-box">Stick 6</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="startBtn" type="button">▶ Start Lesson</button>
+      <button class="btn yellow" id="readBtn" type="button">🔊 Read Poster</button>
+
+      <!-- This is the only mic icon. It follows the speaking-first protocol. -->
+      <button class="mic-big" id="repeatBtn" type="button" aria-label="Speak first with the microphone">
+        <img alt="Mic" src="/assets/images/Bk2Shapes/Microphone.png">
+        </button>
+
+      <button class="btn pink" id="cheerBtn" type="button">🎉 Cheer</button>
+      <button class="btn red" id="resetBtn" type="button">↺ Reset</button>
+    </div>
+
+    <div class="status" id="status">Ready! Tap Start Lesson.</div>
+    <div class="repeat-box" id="repeatBox">
+      Mic practice: tap the center mic, speak first, and follow each sentence step by step.
+    </div>
+    <div class="stars" id="stars" aria-live="polite"></div>
+  </section>
+
+  <nav class="nav-row" aria-label="Lesson navigation">
+      <a class="nav-link" id="prevBtn" href="../../week-2/Friday/Bk2LCQuiz2.html">⬅ Prev</a>
+    <a class="nav-link" id="homeBtn" href="../../../../../index.html">🏠 Home</a>
+      <a class="nav-link" id="nextBtn" href="../Wednesday/Bk2LC15.html">Next ➜</a>
+  </nav>
+
+  <audio id="chimeSound" preload="auto" src="/assets/audio/chimes/chime.mp3"></audio>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const posterLines = [
+    {
+      visible:"It’s a heaxagon.",
+      speech:"It is a hexagon.",
+      target:"targetLeft"
+    },
+    {
+      visible:"Each stick is 5cm.",
+      speech:"Each stick is five centimeters.",
+      target:"targetRight"
+    },
+    {
+      visible:"The sticks are the same length.",
+      speech:"The sticks are the same length.",
+      target:"targetBottom"
+    }
+  ];
+
+  const startBtn = document.getElementById("startBtn");
+  const readBtn = document.getElementById("readBtn");
+  const repeatBtn = document.getElementById("repeatBtn");
+  const cheerBtn = document.getElementById("cheerBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  const status = document.getElementById("status");
+  const repeatBox = document.getElementById("repeatBox");
+  const promptText = document.getElementById("promptText");
+  const targetPill = document.getElementById("targetPill");
+  const fill = document.getElementById("fill");
+  const progressLabel = document.getElementById("progressLabel");
+  const miniBoxes = Array.from(document.querySelectorAll(".mini-box"));
+  const stickButtons = Array.from(document.querySelectorAll(".stick-hit"));
+  const chimeSound = document.getElementById("chimeSound");
+  const stars = document.getElementById("stars");
+
+  let completedSticks = new Set();
+  let started = false;
+  let currentRepeatIndex = 0;
+  let audioCtx = null;
+  let busy = false;
+
+  function setStatus(text){
+    status.textContent = text;
+  }
+
+  function chooseVoice(){
+    const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+    const preferred = ["Samantha","Ava","Jenny","Aria","Zira","Microsoft Zira","Google US English"];
+
+    for (const name of preferred){
+      const found = voices.find(v =>
+        v.name &&
+        v.name.toLowerCase().includes(name.toLowerCase()) &&
+        /en[-_]US/i.test(v.lang || "")
+      );
+      if (found) return found;
+    }
+
+    return voices.find(v => /en[-_]US/i.test(v.lang || "") && /female|woman|zira|samantha|ava|jenny|aria/i.test(v.name || ""))
+        || voices.find(v => /en[-_]US/i.test(v.lang || ""))
+        || voices.find(v => /^en/i.test(v.lang || ""))
+        || null;
+  }
+
+  function speak(text, opts={}){
+    return new Promise(resolve => {
+      if (!window.speechSynthesis){
+        resolve();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.voice = chooseVoice();
+      u.rate = opts.rate || 0.86;
+      u.pitch = opts.pitch || 1.18;
+      u.volume = opts.volume || 1;
+      u.onend = () => resolve();
+      u.onerror = () => resolve();
+
+      window.speechSynthesis.speak(u);
+      setTimeout(resolve, Math.max(2500, text.length * 95));
+    });
+  }
+
+  function getAudioCtx(){
+    if (!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq, start, dur, type="sine", gain=.08){
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+
+    g.gain.setValueAtTime(0, ctx.currentTime + start);
+    g.gain.linearRampToValueAtTime(gain, ctx.currentTime + start + .02);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + start + dur);
+
+    osc.connect(g).connect(ctx.destination);
+    osc.start(ctx.currentTime + start);
+    osc.stop(ctx.currentTime + start + dur + .04);
+  }
+
+  function playChime(){
+    try{
+      chimeSound.currentTime = 0;
+      chimeSound.play().catch(() => {
+        playTone(659,0,.18,"triangle",.08);
+        playTone(880,.15,.22,"triangle",.08);
+        playTone(1047,.34,.26,"triangle",.075);
+      });
+    }catch(_){
+      playTone(659,0,.18,"triangle",.08);
+      playTone(880,.15,.22,"triangle",.08);
+      playTone(1047,.34,.26,"triangle",.075);
+    }
+  }
+
+  function applause(){
+    try{
+      const ctx = getAudioCtx();
+
+      for (let i=0;i<16;i++){
+        const buffer = ctx.createBuffer(1, ctx.sampleRate * .055, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        for (let j=0;j<data.length;j++){
+          data[j] = (Math.random()*2-1) * Math.exp(-j/data.length*4);
+        }
+
+        const src = ctx.createBufferSource();
+        const g = ctx.createGain();
+
+        g.gain.value = .025;
+        src.buffer = buffer;
+        src.connect(g).connect(ctx.destination);
+        src.start(ctx.currentTime + i*.045);
+      }
+    }catch(_){}
+  }
+
+  function confetti(){
+    const colors = ["#35ad4a","#ffd94d","#f64d91","#38bdf8","#a855f7","#ff7a59"];
+
+    for (let i=0;i<56;i++){
+      const p = document.createElement("span");
+      p.className = "confetti-piece";
+      p.style.left = Math.random()*100 + "vw";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDelay = Math.random()*0.4 + "s";
+      p.style.transform = `rotate(${Math.random()*180}deg)`;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2300);
+    }
+  }
+
+  function normalize(text){
+    return (text || "")
+      .toLowerCase()
+      .replace(/[’']/g, "")
+      .replace(/5\s?cm|5\s?centimeters?|five\s?centimeters?/g, "five centimeters")
+      .replace(/heaxagon/g, "hexagon")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function wordMatchScore(expected, heard){
+    const e = new Set(normalize(expected).split(" ").filter(Boolean));
+    const h = new Set(normalize(heard).split(" ").filter(Boolean));
+
+    if (!e.size) return 0;
+
+    let ok = 0;
+    e.forEach(w => {
+      if (h.has(w)) ok++;
+    });
+
+    return ok / e.size;
+  }
+
+  function listenOnce(){
+    return new Promise(resolve => {
+      const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!Rec){
+        resolve({supported:false,text:""});
+        return;
+      }
+
+      const rec = new Rec();
+      rec.lang = "en-US";
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+
+      let finished = false;
+
+      const done = result => {
+        if (finished) return;
+        finished = true;
+        try{ rec.stop(); }catch(_){}
+        resolve(result);
+      };
+
+      rec.onresult = e => {
+        const text = e.results && e.results[0] && e.results[0][0]
+          ? e.results[0][0].transcript
+          : "";
+        done({supported:true,text});
+      };
+
+      rec.onerror = () => done({supported:true,text:""});
+      rec.onend = () => done({supported:true,text:""});
+
+      try{
+        rec.start();
+      }catch(_){
+        done({supported:true,text:""});
+      }
+
+      setTimeout(() => done({supported:true,text:""}), 6500);
+    });
+  }
+
+  function activateTarget(index){
+    document.querySelectorAll(".talk-target").forEach(el => el.classList.remove("active"));
+
+    const id = posterLines[index] && posterLines[index].target;
+    const target = document.getElementById(id);
+
+    if (target){
+      target.classList.add("active");
+    }
+  }
+
+  function clearTargets(){
+    document.querySelectorAll(".talk-target").forEach(el => el.classList.remove("active"));
+  }
+
+  async function repeatProtocol(index){
+    if (busy) return;
+
+    busy = true;
+    repeatBtn.classList.add("is-busy");
+    getAudioCtx();
+
+    const line = posterLines[index] || posterLines[0];
+
+    activateTarget(index);
+    repeatBox.className = "repeat-box";
+    repeatBox.innerHTML = "<strong>Your turn first!</strong> Say: “" + line.visible + "”";
+    setStatus("Listening now. Speak the highlighted poster sentence.");
+
+    const result = await listenOnce();
+
+    if (!result.supported){
+      repeatBox.className = "repeat-box try";
+      repeatBox.innerHTML = "Voice listening is not supported in this browser. Use Chrome, then tap the center mic and speak first.";
+      setStatus("Voice listening needs Chrome or a supported browser.");
+      await speak("Voice listening is not supported in this browser. Please use Chrome for speaking practice.", {
+        rate:.86,
+        pitch:1.12
+      });
+    } else {
+      const score = wordMatchScore(line.speech, result.text);
+
+      if (score >= .5){
+        repeatBox.className = "repeat-box good";
+        repeatBox.innerHTML =
+          "<strong>Great speaking!</strong><br>" +
+          "Original: “" + line.visible + "”<br>" +
+          "<span class=\"student-repeat\">You said: “" + (result.text || line.visible) + "”</span>";
+
+        playChime();
+        stars.textContent = stars.textContent + "⭐";
+        setStatus("Wonderful! You repeated it well.");
+
+        await speak("Wonderful speaking! You repeated it well.", {
+          rate:.84,
+          pitch:1.24
+        });
+
+        if (index < posterLines.length - 1){
+          currentRepeatIndex = index + 1;
+          activateTarget(currentRepeatIndex);
+
+          const nextLine = posterLines[currentRepeatIndex];
+
+          repeatBox.innerHTML +=
+            "<br><br><strong>Next:</strong> Tap the center mic and say: “" +
+            nextLine.visible +
+            "”";
+
+          setStatus("Next sentence is ready. Tap the center mic and speak first.");
+
+          await speak("Next sentence. Tap the microphone and speak first.", {
+            rate:.86,
+            pitch:1.18
+          });
+        } else {
+          currentRepeatIndex = 0;
+          clearTargets();
+          confetti();
+          applause();
+          playChime();
+
+          promptText.textContent = "Great! Now measure the sticks. Each stick is 5cm.";
+          setStatus("Excellent speaking! Now tap the sticks to measure.");
+
+          await speak("Excellent! You finished the speaking practice. Now tap the sticks to measure.", {
+            rate:.84,
+            pitch:1.24
+          });
+        }
+      } else {
+        repeatBox.className = "repeat-box try";
+        repeatBox.innerHTML = result.text
+          ? "I heard: “" + result.text + "”.<br><strong>Sorry, try again!</strong><br>Tap the center mic and say: “" + line.visible + "”"
+          : "<strong>Sorry, I did not hear you.</strong><br>Tap the center mic and say: “" + line.visible + "”";
+
+        setStatus("Sorry, try again! The sentence is still waiting.");
+
+        await speak("Sorry, try again!", {
+          rate:.86,
+          pitch:1.1
+        });
+      }
+    }
+
+    repeatBtn.classList.remove("is-busy");
+    busy = false;
+  }
+
+  function updateProgress(){
+    const percent = Math.round((completedSticks.size / 6) * 100);
+
+    fill.style.width = percent + "%";
+    progressLabel.textContent = "Measuring progress: " + percent + "%";
+
+    miniBoxes.forEach((box, idx) => {
+      box.classList.toggle("done", completedSticks.has(idx + 1));
+    });
+  }
+
+  async function startLesson(){
+    getAudioCtx();
+
+    started = true;
+    promptText.textContent = "Each stick is 5cm. Tap each stick around the hexagon.";
+    targetPill.textContent = "5 cm";
+
+    setStatus("Let’s measure! Tap every stick on the hexagon.");
+
+    stickButtons.forEach(b => b.classList.add("focused"));
+
+    await speak("Welcome to Measuring Sticks. Let’s measure! Each stick is five centimeters. Tap each stick around the hexagon. Then use the center microphone to speak first.", {
+      rate:.84,
+      pitch:1.2
+    });
+  }
+
+  async function readPoster(){
+    getAudioCtx();
+
+    setStatus("Reading the poster.");
+
+    await speak("Measuring Sticks. Measuring Lengths. Let’s measure!", {
+      rate:.84,
+      pitch:1.2
+    });
+
+    for (let i=0;i<posterLines.length;i++){
+      activateTarget(i);
+      repeatBox.textContent = "“" + posterLines[i].visible + "”";
+
+      await speak(posterLines[i].speech, {
+        rate:.82,
+        pitch:1.2
+      });
+
+      playChime();
+      await new Promise(r => setTimeout(r, 250));
+    }
+
+    clearTargets();
+    setStatus("Now use the center mic to speak first, or tap the sticks to measure.");
+  }
+
+  async function tapStick(btn){
+    getAudioCtx();
+
+    if (!started){
+      await startLesson();
+      return;
+    }
+
+    const n = Number(btn.dataset.stick);
+
+    if (completedSticks.has(n)){
+      btn.classList.add("wiggle");
+      setTimeout(() => btn.classList.remove("wiggle"), 420);
+
+      setStatus("You already measured this stick. Find another stick.");
+
+      await speak("You already measured this stick. Find another stick.", {
+        rate:.88,
+        pitch:1.12
+      });
+
+      return;
+    }
+
+    completedSticks.add(n);
+    btn.classList.remove("focused");
+    btn.classList.add("done");
+
+    updateProgress();
+    playChime();
+
+    const count = completedSticks.size;
+
+    setStatus("Great! This stick is 5cm. You measured " + count + " of 6 sticks.");
+
+    await speak("Great! This stick is five centimeters.", {
+      rate:.84,
+      pitch:1.22
+    });
+
+    if (completedSticks.size === 6){
+      promptText.textContent = "Fantastic! The sticks are the same length.";
+      targetPill.textContent = "Done!";
+      stars.textContent = "⭐⭐⭐⭐⭐⭐";
+
+      setStatus("Fantastic! The sticks are the same length.");
+
+      applause();
+      confetti();
+      playChime();
+
+      await speak("Fantastic! The sticks are the same length. You measured all the sticks around the hexagon!", {
+        rate:.84,
+        pitch:1.24
+      });
+    } else {
+      await speak("Tap another stick.", {
+        rate:.88,
+        pitch:1.15
+      });
+    }
+  }
+
+  function resetLesson(){
+    try{
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+    }catch(_){}
+
+    completedSticks = new Set();
+    started = false;
+    currentRepeatIndex = 0;
+    busy = false;
+
+    clearTargets();
+
+    stickButtons.forEach(b => b.classList.remove("done","focused","wiggle"));
+    repeatBtn.classList.remove("is-busy");
+
+    stars.textContent = "";
+    promptText.textContent = "Tap Start Lesson. Then tap all the sticks around the hexagon.";
+    targetPill.textContent = "5 cm";
+
+    repeatBox.className = "repeat-box";
+    repeatBox.textContent = "Mic practice: tap the center mic, speak first, and follow each sentence step by step.";
+
+    setStatus("Ready! Tap Start Lesson.");
+    updateProgress();
+  }
+
+  repeatBtn.addEventListener("click", () => repeatProtocol(currentRepeatIndex));
+  stickButtons.forEach(btn => btn.addEventListener("click", () => tapStick(btn)));
+  startBtn.addEventListener("click", startLesson);
+  readBtn.addEventListener("click", readPoster);
+  resetBtn.addEventListener("click", resetLesson);
+
+  cheerBtn.addEventListener("click", async () => {
+    getAudioCtx();
+
+    applause();
+    confetti();
+    playChime();
+
+    setStatus("You can do it! Measuring is fun!");
+
+    await speak("You can do it! Measuring is fun!", {
+      rate:.84,
+      pitch:1.25
+    });
+  });
+
+  document.getElementById("prevBtn").addEventListener("click", () => {
+    try{ window.speechSynthesis.cancel(); }catch(_){}
+  });
+
+  document.getElementById("homeBtn").addEventListener("click", () => {
+    try{ window.speechSynthesis.cancel(); }catch(_){}
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    try{ window.speechSynthesis.cancel(); }catch(_){}
+  });
+
+  if (window.speechSynthesis){
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  window.addEventListener("load", () => {
+    updateProgress();
+
+    setTimeout(() => {
+      speak("Welcome! This page is Measuring Sticks. Tap Start Lesson. Use the center microphone between Read Poster and Cheer. Tap it, speak first, and follow the sentence practice.", {
+        rate:.86,
+        pitch:1.18
+      });
+    }, 600);
+  }, {once:true});
+})();
+</script>
+</body>
+</html>

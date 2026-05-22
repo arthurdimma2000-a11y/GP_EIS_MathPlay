@@ -1,0 +1,1347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vertical Numbers Adventure Game</title>
+
+<style>
+:root{
+  --blue:#5f8fd3;
+  --blue2:#82b6ff;
+  --red:#f24b5e;
+  --pink:#f7a6b5;
+  --yellow:#f8df8a;
+  --green:#9ed06a;
+  --sky:#86d5eb;
+  --purple:#6c4bbf;
+  --ink:#25242a;
+  --gold:#ffd24a;
+  --good:#18a85b;
+  --bad:#e03245;
+  --paper:#fffdf7;
+  font-family:"Comic Sans MS","Segoe UI",Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  padding:0;
+  color:var(--ink);
+  background:#fff9ef;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:10px;
+  background-image:
+    linear-gradient(#efe4d6 1px,transparent 1px),
+    linear-gradient(90deg,#efe4d6 1px,transparent 1px);
+  background-size:28px 28px;
+}
+
+.app{
+  width:min(1120px,100%);
+  background:var(--paper);
+  border:8px solid var(--blue);
+  border-radius:30px;
+  padding:14px;
+  box-shadow:0 18px 38px rgba(0,0,0,.16);
+  overflow:hidden;
+  position:relative;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.badge{
+  background:#fff;
+  border:3px solid #d7e8ff;
+  color:#315f9d;
+  border-radius:999px;
+  padding:9px 15px;
+  font-weight:1000;
+  box-shadow:0 7px 14px rgba(0,0,0,.08);
+}
+
+.nav,.controls{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.btn{
+  border:0;
+  border-radius:999px;
+  padding:11px 17px;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 5px 0 rgba(0,0,0,.18);
+  font-size:15px;
+  transition:.12s;
+}
+
+.btn:hover{transform:translateY(-1px) scale(1.02)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.home{background:#25d17d;color:#fff}
+.back{background:#dfeaff;color:#173b69}
+.next{background:#f7dc6f;color:#7a5200}
+.start{background:var(--red);color:#fff}
+.cheer{background:#c9f2d6;color:#166c38}
+.clear{background:#e9edff;color:#253c7a}
+
+.title{
+  text-align:center;
+  font-size:clamp(2.5rem,8vw,5.9rem);
+  line-height:.92;
+  margin:6px 0 10px;
+  color:#fff;
+  font-weight:1000;
+  -webkit-text-stroke:7px var(--blue);
+  paint-order:stroke fill;
+  text-shadow:0 6px 0 rgba(95,143,211,.2);
+}
+
+.hero{
+  display:grid;
+  grid-template-columns:115px 1fr 115px;
+  gap:12px;
+  align-items:center;
+  background:
+    radial-gradient(circle at 10% 20%,rgba(248,223,138,.55),transparent 27%),
+    radial-gradient(circle at 90% 20%,rgba(134,213,235,.55),transparent 29%),
+    linear-gradient(180deg,#fff,#f7fbff);
+  border:4px dashed #c9ddfb;
+  border-radius:24px;
+  padding:12px;
+  margin-bottom:12px;
+}
+
+.character{
+  height:140px;
+  position:relative;
+}
+
+.face{
+  position:absolute;
+  left:23px;
+  top:26px;
+  width:68px;
+  height:76px;
+  background:#ffd2b6;
+  border:4px solid #222;
+  border-radius:45%;
+}
+
+.hair{
+  position:absolute;
+  left:14px;
+  top:16px;
+  width:90px;
+  height:36px;
+  background:#8a5a38;
+  border-radius:50% 50% 10px 10px;
+  z-index:3;
+}
+
+.eye{
+  position:absolute;
+  top:54px;
+  width:13px;
+  height:13px;
+  border:3px solid #222;
+  background:#fff;
+  border-radius:50%;
+  z-index:4;
+}
+.eye.l{left:40px}
+.eye.r{left:68px}
+.eye:after{
+  content:"";
+  position:absolute;
+  left:3px;
+  top:3px;
+  width:4px;
+  height:4px;
+  background:#111;
+  border-radius:50%;
+}
+.smile{
+  position:absolute;
+  left:49px;
+  top:79px;
+  width:29px;
+  height:13px;
+  border-bottom:4px solid #d94141;
+  border-radius:50%;
+  z-index:4;
+}
+.body{
+  position:absolute;
+  left:25px;
+  top:97px;
+  width:66px;
+  height:43px;
+  background:#e84f5a;
+  border:4px solid #222;
+  border-radius:16px 16px 6px 6px;
+}
+
+.teacher .hair{
+  background:
+    radial-gradient(circle at 15px 18px,#7d7470 0 14px,transparent 15px),
+    radial-gradient(circle at 35px 12px,#7d7470 0 17px,transparent 18px),
+    radial-gradient(circle at 58px 13px,#7d7470 0 16px,transparent 17px),
+    radial-gradient(circle at 77px 20px,#7d7470 0 14px,transparent 15px);
+}
+.teacher .body{background:#6db3b8}
+
+.speech{
+  background:#fff;
+  border:4px solid #2fab55;
+  border-radius:32px;
+  padding:16px;
+  min-height:90px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:clamp(1.1rem,3vw,1.8rem);
+  font-weight:1000;
+  box-shadow:0 7px 0 rgba(0,0,0,.08);
+}
+
+.hud{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.chip{
+  background:#fff;
+  border:3px solid #eaf1ff;
+  border-radius:16px;
+  padding:8px;
+  text-align:center;
+  font-weight:1000;
+  box-shadow:0 7px 14px rgba(0,0,0,.06);
+}
+.chip span{color:var(--purple)}
+
+.game-board{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:14px;
+}
+
+.panel{
+  background:#fff;
+  border:4px solid #d7e8ff;
+  border-radius:24px;
+  padding:12px;
+  box-shadow:0 8px 18px rgba(0,0,0,.06);
+}
+
+.panel h2{
+  text-align:center;
+  margin:0 0 10px;
+  color:#315f9d;
+  font-size:clamp(1.25rem,3vw,2rem);
+}
+
+.mission-card{
+  border:5px solid var(--blue2);
+  border-radius:24px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.mission-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  background:var(--blue);
+  color:white;
+  padding:10px 14px;
+  font-size:1.2rem;
+  font-weight:1000;
+}
+
+.equation-big{
+  min-height:94px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:13px;
+  font-size:clamp(2.1rem,6vw,4.2rem);
+  font-weight:1000;
+  background:
+    linear-gradient(#b8ecff 1px,transparent 1px),
+    linear-gradient(90deg,#b8ecff 1px,transparent 1px),
+    #fff;
+  background-size:23px 23px;
+}
+
+.eq-piece{
+  min-width:62px;
+  text-align:center;
+}
+
+.answer-box{
+  background:#fff7d9;
+  border:4px dashed #ffbf4a;
+  border-radius:18px;
+  min-width:95px;
+  padding:4px 10px;
+  color:var(--red);
+}
+
+.build-zone{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  padding:12px;
+}
+
+.stick-bank,.line-machine{
+  border-radius:20px;
+  min-height:230px;
+  padding:10px;
+}
+
+.stick-bank{
+  border:4px dashed #b9d2ff;
+  background:#f6fbff;
+}
+
+.line-machine{
+  border:4px solid #ffd1df;
+  background:
+    linear-gradient(#b8ecff 1px,transparent 1px),
+    linear-gradient(90deg,#b8ecff 1px,transparent 1px),
+    #fff;
+  background-size:22px 22px;
+  position:relative;
+}
+
+.machine-title,.bank-title{
+  text-align:center;
+  font-weight:1000;
+  color:#4b3960;
+  margin-bottom:8px;
+}
+
+.bank-sticks,.placed-sticks{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  align-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:160px;
+}
+
+.loose-stick,.placed-stick{
+  width:16px;
+  height:86px;
+  border-radius:999px;
+  background:#3556b5;
+  box-shadow:inset 3px 0 0 rgba(255,255,255,.45),3px 0 0 rgba(0,0,0,.16);
+  cursor:pointer;
+  border:2px solid rgba(0,0,0,.25);
+}
+
+.loose-stick{
+  animation:wobble 1.2s ease-in-out infinite;
+}
+
+.loose-stick.used{
+  opacity:.18;
+  pointer-events:none;
+  transform:scale(.8);
+}
+
+.placed-stick{
+  animation:dropIn .28s ease both;
+}
+
+@keyframes wobble{
+  0%,100%{transform:rotate(-2deg)}
+  50%{transform:rotate(2deg)}
+}
+
+@keyframes dropIn{
+  from{transform:translateY(-30px) scale(.75);opacity:.2}
+  to{transform:translateY(0) scale(1);opacity:1}
+}
+
+.count-label{
+  text-align:center;
+  margin-top:8px;
+  font-weight:1000;
+  color:#315f9d;
+  font-size:1.1rem;
+}
+
+.answer-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:12px;
+}
+
+.answer-btn{
+  border:4px solid #e9efff;
+  border-radius:18px;
+  min-height:76px;
+  background:#fff;
+  font-size:clamp(2rem,6vw,3.5rem);
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 6px 0 rgba(0,0,0,.13);
+}
+
+.answer-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.answer-btn.correct{
+  background:#d9ffdf;
+  border-color:var(--good);
+  animation:pop .45s ease;
+}
+
+.answer-btn.wrong{
+  background:#ffd9e1;
+  border-color:var(--bad);
+  animation:shake .35s ease;
+}
+
+@keyframes pop{
+  50%{transform:scale(1.08)}
+}
+
+@keyframes shake{
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+
+.trace-box{
+  height:360px;
+  border:5px solid #ffd1df;
+  border-radius:24px;
+  background:
+    linear-gradient(#b8ecff 1px,transparent 1px),
+    linear-gradient(90deg,#b8ecff 1px,transparent 1px),
+    #fff;
+  background-size:24px 24px;
+  position:relative;
+  overflow:hidden;
+}
+
+.playground-title{
+  background:#f7a6b5;
+  color:#fff;
+  text-align:center;
+  padding:9px;
+  font-size:1.7rem;
+  font-weight:1000;
+}
+
+.playground{
+  position:absolute;
+  left:0;
+  right:0;
+  top:54px;
+  bottom:0;
+  pointer-events:none;
+}
+
+.pole{
+  position:absolute;
+  top:30px;
+  bottom:38px;
+  width:24px;
+  border-radius:999px;
+  background:#9fd5e9;
+  border:4px solid #222;
+}
+
+.pole:before,.pole:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  transform:translateX(-50%);
+}
+.pole:before{top:-10px;background:#e93555}
+.pole:after{bottom:-10px;background:#1788c7}
+
+.p1{left:18%}
+.p2{left:38%;background:#cfe7a5}
+.p3{left:58%;background:#9fd5e9}
+.p4{left:78%;background:#fff}
+
+.target-line{
+  position:absolute;
+  top:82px;
+  bottom:40px;
+  width:22px;
+  border:4px dashed #111;
+  border-radius:999px;
+  z-index:2;
+}
+
+.target-line:before,.target-line:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  transform:translateX(-50%);
+}
+.target-line:before{top:-10px;background:#e93555}
+.target-line:after{bottom:-10px;background:#1788c7}
+
+.trace-target-0{left:18%}
+.trace-target-1{left:38%}
+.trace-target-2{left:58%}
+.trace-target-3{left:78%}
+.trace-target-4{left:78%}
+
+.trace-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:5;
+  touch-action:none;
+}
+
+.trace-message{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:8px;
+  text-align:center;
+  font-weight:1000;
+  color:#5a3eb0;
+  background:rgba(255,255,255,.88);
+  border-radius:999px;
+  padding:6px;
+  z-index:6;
+}
+
+.progress{
+  margin-top:14px;
+  background:#fff8fb;
+  border:3px solid #ffd1df;
+  border-radius:18px;
+  padding:10px;
+}
+
+.progress-title{
+  text-align:center;
+  font-weight:1000;
+  margin-bottom:6px;
+}
+
+.bar{
+  height:17px;
+  background:#e7eef8;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#58c6ff,#83e79f);
+  transition:.25s;
+}
+
+.controls{
+  margin-top:12px;
+}
+
+.stars{
+  text-align:center;
+  min-height:40px;
+  font-size:2rem;
+  color:var(--gold);
+  text-shadow:0 2px 0 #b87900,0 5px 12px rgba(0,0,0,.25);
+}
+
+.status{
+  text-align:center;
+  min-height:36px;
+  font-size:1.15rem;
+  font-weight:1000;
+  color:#5a3eb0;
+}
+
+.confetti{
+  position:fixed;
+  top:-20px;
+  width:10px;
+  height:16px;
+  border-radius:3px;
+  animation:fall 1.6s linear forwards;
+  z-index:9999;
+}
+
+@keyframes fall{
+  to{transform:translateY(105vh) rotate(540deg);opacity:.1}
+}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hud{grid-template-columns:repeat(2,1fr)}
+  .game-board{grid-template-columns:1fr}
+  .build-zone{grid-template-columns:1fr}
+  .title{-webkit-text-stroke:5px var(--blue)}
+  .trace-box{height:330px}
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+  <div class="top">
+    <div class="badge">🎮 Vertical Numbers Adventure Game</div>
+    <div class="nav">
+      <button class="btn back" id="backBtn">⬅ Back</button>
+      <button class="btn next" id="nextPageBtn">Next ➜</button>
+      <button class="btn home" id="homeBtn">🏠 Home</button>
+    </div>
+  </div>
+
+  <h1 class="title">Vertical Numbers</h1>
+
+  <section class="hero">
+    <div class="character teacher">
+      <div class="hair"></div><div class="face"></div><div class="eye l"></div><div class="eye r"></div><div class="smile"></div><div class="body"></div>
+    </div>
+
+    <div class="speech" id="speech">Add the vertical lines to 10. Then trace lines that go up and down.</div>
+
+    <div class="character girl">
+      <div class="hair"></div><div class="face"></div><div class="eye l"></div><div class="eye r"></div><div class="smile"></div><div class="body"></div>
+    </div>
+  </section>
+
+  <section class="hud">
+    <div class="chip">Mission: <span id="missionText">1</span>/5</div>
+    <div class="chip">Lines Added: <span id="lineCountText">0</span></div>
+    <div class="chip">Correct Numbers: <span id="numScore">0</span>/5</div>
+    <div class="chip">Traces: <span id="traceScore">0</span>/5</div>
+    <div class="chip">Coins: <span id="coinText">0</span> 🪙</div>
+  </section>
+
+  <section class="game-board">
+    <div class="panel">
+      <h2>Part 1: Build the Number</h2>
+
+      <div class="mission-card">
+        <div class="mission-head">
+          <div id="missionName">Mission 1</div>
+          <div id="missionHint">Tap the vertical sticks.</div>
+        </div>
+
+        <div class="equation-big">
+          <div class="eq-piece">10</div>
+          <div class="eq-piece">+</div>
+          <div class="eq-piece answer-box" id="placedNumber">0</div>
+          <div class="eq-piece">=</div>
+          <div class="eq-piece answer-box">?</div>
+        </div>
+
+        <div class="build-zone">
+          <div class="stick-bank">
+            <div class="bank-title">Tap these vertical lines</div>
+            <div class="bank-sticks" id="bankSticks"></div>
+          </div>
+
+          <div class="line-machine" id="lineMachine">
+            <div class="machine-title">Line Box</div>
+            <div class="placed-sticks" id="placedSticks"></div>
+            <div class="count-label" id="countLabel">0 lines added</div>
+          </div>
+        </div>
+
+        <div class="answer-row" id="answerRow"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Part 2: Trace the Playground Line</h2>
+
+      <div class="trace-box">
+        <div class="playground-title">Trace from red dot to blue dot</div>
+        <div class="playground">
+          <div class="pole p1"></div>
+          <div class="pole p2"></div>
+          <div class="pole p3"></div>
+          <div class="pole p4"></div>
+        </div>
+        <div class="target-line trace-target-0" id="targetLine"></div>
+        <canvas class="trace-canvas" id="traceCanvas"></canvas>
+        <div class="trace-message" id="traceMessage">Answer the number first, then trace.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="progress">
+    <div class="progress-title">Game Progress: <span id="progressText">0%</span></div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </section>
+
+  <div class="controls">
+    <button class="btn start" id="startBtn">▶ Start Game</button>
+    <button class="btn start" id="readBtn">🔊 Read Instructions</button>
+    <button class="btn cheer" id="cheerBtn">👏 Cheer</button>
+    <button class="btn clear" id="resetMissionBtn">Reset Mission</button>
+    <button class="btn clear" id="clearBtn">Clear All</button>
+  </div>
+
+  <div class="stars" id="stars"></div>
+  <div class="status" id="status">Tap Start Game to begin.</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  const HOME_PAGE = "../../../../../index.html";
+  const PREVIOUS_PAGE = "Bk2LC13.html";
+  const NEXT_PAGE = "VerticalNumbers_Quiz.html";
+  const PAGE_ID = "VerticalNumbers_Game";
+
+  const missions = [
+    {add:6,total:16,choices:[15,16,17],name:"Build 16",targetClass:"trace-target-0"},
+    {add:7,total:17,choices:[16,17,18],name:"Build 17",targetClass:"trace-target-1"},
+    {add:8,total:18,choices:[17,18,19],name:"Build 18",targetClass:"trace-target-2"},
+    {add:9,total:19,choices:[18,19,20],name:"Build 19",targetClass:"trace-target-3"},
+    {add:10,total:20,choices:[19,20,21],name:"Build 20",targetClass:"trace-target-4"}
+  ];
+
+  const speech = document.getElementById("speech");
+  const missionText = document.getElementById("missionText");
+  const lineCountText = document.getElementById("lineCountText");
+  const numScore = document.getElementById("numScore");
+  const traceScore = document.getElementById("traceScore");
+  const coinText = document.getElementById("coinText");
+  const missionName = document.getElementById("missionName");
+  const missionHint = document.getElementById("missionHint");
+  const bankSticks = document.getElementById("bankSticks");
+  const placedSticks = document.getElementById("placedSticks");
+  const placedNumber = document.getElementById("placedNumber");
+  const countLabel = document.getElementById("countLabel");
+  const answerRow = document.getElementById("answerRow");
+  const targetLine = document.getElementById("targetLine");
+  const traceCanvas = document.getElementById("traceCanvas");
+  const traceMessage = document.getElementById("traceMessage");
+  const progressText = document.getElementById("progressText");
+  const fill = document.getElementById("fill");
+  const stars = document.getElementById("stars");
+  const status = document.getElementById("status");
+
+  let audioCtx = null;
+  let current = 0;
+  let placed = 0;
+  let numberCorrect = 0;
+  let traceCorrect = 0;
+  let coins = 0;
+  let answerReady = false;
+  let answeredCorrect = false;
+  let traceDone = false;
+  let tracePad = null;
+
+  function setStatus(text){
+    status.textContent = text || "";
+  }
+
+  function pickVoice(){
+    if(!("speechSynthesis" in window)) return null;
+    const voices = speechSynthesis.getVoices() || [];
+
+    return voices.find(v => /^en[-_]us/i.test(v.lang || "") && /jenny|aria|ava|samantha|zira|female|girl|ivy|allison|olivia/i.test(v.name || ""))
+      || voices.find(v => /^en[-_]us/i.test(v.lang || ""))
+      || voices.find(v => /^en/i.test(v.lang || ""))
+      || voices[0]
+      || null;
+  }
+
+  function speak(text){
+    if(!("speechSynthesis" in window) || !text) return;
+
+    try{ speechSynthesis.cancel(); }catch(e){}
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = .88;
+    u.pitch = 1.16;
+    u.volume = 1;
+
+    const v = pickVoice();
+    if(v) u.voice = v;
+
+    speechSynthesis.speak(u);
+  }
+
+  function ctx(){
+    const A = window.AudioContext || window.webkitAudioContext;
+    if(!A) return null;
+
+    if(!audioCtx) audioCtx = new A();
+    if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+
+    return audioCtx;
+  }
+
+  function chime(){
+    ctx();
+
+    try{
+      const a = new Audio("chime.mp3");
+      a.volume = .9;
+      a.play().catch(synthChime);
+    }catch(e){
+      synthChime();
+    }
+  }
+
+  function synthChime(){
+    const c = ctx();
+    if(!c) return;
+
+    [660,880,1046].forEach((f,i)=>{
+      const o = c.createOscillator();
+      const g = c.createGain();
+      const t = c.currentTime + i * .12;
+
+      o.frequency.value = f;
+      o.type = "sine";
+
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.exponentialRampToValueAtTime(.22,t+.03);
+      g.gain.exponentialRampToValueAtTime(.0001,t+.3);
+
+      o.connect(g);
+      g.connect(c.destination);
+
+      o.start(t);
+      o.stop(t+.34);
+    });
+  }
+
+  function wrongSound(){
+    const c = ctx();
+    if(!c) return;
+
+    const o = c.createOscillator();
+    const g = c.createGain();
+
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(180,c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(120,c.currentTime+.18);
+
+    g.gain.setValueAtTime(.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.08,c.currentTime+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.22);
+
+    o.connect(g);
+    g.connect(c.destination);
+
+    o.start();
+    o.stop(c.currentTime+.24);
+  }
+
+  let lastTick = 0;
+
+  function tick(){
+    const now = performance.now();
+    if(now - lastTick < 65) return;
+    lastTick = now;
+
+    const c = ctx();
+    if(!c) return;
+
+    const o = c.createOscillator();
+    const g = c.createGain();
+
+    o.type = "triangle";
+    o.frequency.value = 920;
+
+    g.gain.setValueAtTime(.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.04,c.currentTime+.01);
+    g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.08);
+
+    o.connect(g);
+    g.connect(c.destination);
+
+    o.start();
+    o.stop(c.currentTime+.09);
+  }
+
+  function clap(){
+    const c = ctx();
+    if(!c) return;
+
+    for(let i=0;i<4;i++){
+      const size = Math.floor(c.sampleRate*.08);
+      const buffer = c.createBuffer(1,size,c.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for(let j=0;j<size;j++){
+        data[j] = (Math.random()*2-1) * Math.pow(1-j/size,2);
+      }
+
+      const src = c.createBufferSource();
+      const g = c.createGain();
+
+      src.buffer = buffer;
+      g.gain.value = .22;
+
+      src.connect(g);
+      g.connect(c.destination);
+
+      src.start(c.currentTime + i*.13);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#f24b5e","#ffd24a","#58c6ff","#83e79f","#f7a6c9","#9ed06a"];
+
+    for(let i=0;i<38;i++){
+      const p = document.createElement("div");
+      p.className = "confetti";
+      p.style.left = Math.random()*100 + "vw";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDelay = Math.random()*.35 + "s";
+
+      document.body.appendChild(p);
+      p.addEventListener("animationend",()=>p.remove());
+    }
+  }
+
+  function renderMission(){
+    const m = missions[current];
+
+    placed = 0;
+    answerReady = false;
+    answeredCorrect = false;
+    traceDone = false;
+
+    missionText.textContent = current + 1;
+    missionName.textContent = "Mission " + (current + 1) + ": " + m.name;
+    missionHint.textContent = "Tap " + m.add + " vertical sticks.";
+    speech.textContent = "Add " + m.add + " vertical lines to 10. Build number " + m.total + "!";
+    placedNumber.textContent = "0";
+    lineCountText.textContent = "0";
+    countLabel.textContent = "0 lines added";
+    traceMessage.textContent = "Answer the number first, then trace.";
+    traceMessage.style.color = "#5a3eb0";
+
+    targetLine.className = "target-line " + m.targetClass;
+
+    bankSticks.innerHTML = "";
+    placedSticks.innerHTML = "";
+    answerRow.innerHTML = "";
+
+    for(let i=0;i<m.add;i++){
+      const s = document.createElement("button");
+      s.className = "loose-stick";
+      s.type = "button";
+      s.setAttribute("aria-label","vertical stick");
+      s.addEventListener("click",()=>addStick(s));
+      bankSticks.appendChild(s);
+    }
+
+    m.choices.forEach(choice=>{
+      const btn = document.createElement("button");
+      btn.className = "answer-btn";
+      btn.type = "button";
+      btn.textContent = choice;
+      btn.disabled = true;
+      btn.addEventListener("click",()=>chooseAnswer(btn,choice));
+      answerRow.appendChild(btn);
+    });
+
+    if(tracePad) tracePad.reset();
+
+    updateProgress();
+  }
+
+  function addStick(stickBtn){
+    ctx();
+    const m = missions[current];
+
+    if(stickBtn.classList.contains("used") || placed >= m.add || answeredCorrect) return;
+
+    stickBtn.classList.add("used");
+
+    const newStick = document.createElement("span");
+    newStick.className = "placed-stick";
+    placedSticks.appendChild(newStick);
+
+    placed++;
+    placedNumber.textContent = placed;
+    lineCountText.textContent = placed;
+    countLabel.textContent = placed + " of " + m.add + " lines added";
+
+    tick();
+
+    if(placed < m.add){
+      setStatus("Good! Add more vertical lines.");
+    }else{
+      answerReady = true;
+      Array.from(answerRow.children).forEach(b=>b.disabled=false);
+      setStatus("Great! Now choose the answer.");
+      speak("Great! Ten plus " + m.add + " equals what number?");
+      chime();
+    }
+  }
+
+  function chooseAnswer(btn,choice){
+    ctx();
+    const m = missions[current];
+
+    if(!answerReady || answeredCorrect) return;
+
+    if(choice === m.total){
+      btn.classList.add("correct");
+      answeredCorrect = true;
+      numberCorrect++;
+      coins += 5;
+
+      chime();
+      clap();
+
+      setStatus("Correct! Now trace the vertical line.");
+      traceMessage.textContent = "Trace now! Start at the red dot and go down.";
+      traceMessage.style.color = "#166c38";
+      speech.textContent = "Correct! Trace the vertical playground line.";
+      speak("Correct! Now trace the vertical line from red dot to blue dot.");
+    }else{
+      btn.classList.add("wrong");
+      wrongSound();
+      setStatus("Oops! Count again. Try another answer.");
+      speak("Oops! Count again. Try another answer.");
+    }
+
+    updateProgress();
+  }
+
+  function makeTracePad(canvas){
+    const state = {
+      drawing:false,
+      last:null,
+      points:[],
+      hit:[],
+      progress:0,
+      done:false,
+      lineX:0,
+      yMin:0,
+      yMax:0
+    };
+
+    const c2d = canvas.getContext("2d");
+
+    function setup(){
+      const r = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.width = Math.round(r.width * dpr);
+      canvas.height = Math.round(r.height * dpr);
+      c2d.setTransform(dpr,0,0,dpr,0,0);
+
+      const targetRect = targetLine.getBoundingClientRect();
+      const canvasRect = canvas.getBoundingClientRect();
+
+      const x = targetRect.left - canvasRect.left + targetRect.width / 2;
+      const y1 = targetRect.top - canvasRect.top;
+      const y2 = targetRect.bottom - canvasRect.top;
+
+      state.lineX = x;
+      state.yMin = Math.min(y1,y2);
+      state.yMax = Math.max(y1,y2);
+
+      state.points = [];
+      for(let i=0;i<=120;i++){
+        const t = i / 120;
+        state.points.push({
+          x:state.lineX,
+          y:state.yMin + (state.yMax - state.yMin) * t
+        });
+      }
+
+      state.hit = state.points.map(()=>false);
+      state.progress = 0;
+      state.done = false;
+      state.drawing = false;
+      state.last = null;
+
+      c2d.clearRect(0,0,r.width,r.height);
+    }
+
+    function rawPoint(ev){
+      const r = canvas.getBoundingClientRect();
+      return {
+        x:ev.clientX - r.left,
+        y:ev.clientY - r.top
+      };
+    }
+
+    function snapToVerticalLine(raw){
+      return {
+        x:state.lineX,
+        y:Math.max(state.yMin,Math.min(state.yMax,raw.y))
+      };
+    }
+
+    function mark(pt){
+      const threshold = 26;
+      let changed = false;
+
+      state.points.forEach((sample,i)=>{
+        if(state.hit[i]) return;
+
+        const dx = sample.x - pt.x;
+        const dy = sample.y - pt.y;
+
+        if(dx*dx + dy*dy <= threshold*threshold){
+          state.hit[i] = true;
+          changed = true;
+        }
+      });
+
+      if(changed){
+        state.progress = Math.round(
+          state.hit.filter(Boolean).length / state.hit.length * 100
+        );
+
+        traceMessage.textContent = "Tracing: " + state.progress + "%";
+
+        if(state.progress >= 88 && !state.done){
+          state.done = true;
+          completeTrace();
+        }
+      }
+    }
+
+    function down(ev){
+      ev.preventDefault();
+      ctx();
+
+      if(!answeredCorrect){
+        setStatus("Choose the correct number first.");
+        speak("Choose the correct number first.");
+        return;
+      }
+
+      state.drawing = true;
+      state.last = snapToVerticalLine(rawPoint(ev));
+      mark(state.last);
+    }
+
+    function move(ev){
+      if(!state.drawing) return;
+      ev.preventDefault();
+
+      const pt = snapToVerticalLine(rawPoint(ev));
+
+      c2d.strokeStyle = "#2367d9";
+      c2d.lineWidth = 11;
+      c2d.lineCap = "round";
+      c2d.lineJoin = "round";
+
+      c2d.beginPath();
+      c2d.moveTo(state.last.x,state.last.y);
+      c2d.lineTo(pt.x,state.last.y === pt.y ? pt.y + 0.1 : pt.y);
+      c2d.stroke();
+
+      tick();
+      mark(pt);
+
+      state.last = pt;
+    }
+
+    function up(){
+      state.drawing = false;
+      state.last = null;
+    }
+
+    canvas.addEventListener("pointerdown",down,{passive:false});
+    canvas.addEventListener("pointermove",move,{passive:false});
+    window.addEventListener("pointerup",up);
+    window.addEventListener("resize",setup);
+
+    setTimeout(setup,100);
+
+    return {
+      reset:setup,
+      get progress(){
+        return state.progress;
+      }
+    };
+  }
+
+  function completeTrace(){
+    if(traceDone) return;
+
+    traceDone = true;
+    traceCorrect++;
+    coins += 10;
+
+    chime();
+    clap();
+    confetti();
+
+    setStatus("Mission complete! Great tracing.");
+    traceMessage.textContent = "Mission complete!";
+    traceMessage.style.color = "#166c38";
+    speech.textContent = "Mission complete! You are doing great.";
+    speak("Mission complete! Great tracing.");
+
+    updateProgress();
+
+    setTimeout(()=>{
+      if(current < missions.length - 1){
+        current++;
+        renderMission();
+        speak("Next mission. Add the vertical lines to ten.");
+      }else{
+        finishGame();
+      }
+    },1400);
+  }
+
+  function finishGame(){
+    chime();
+    clap();
+    confetti();
+
+    setStatus("Wow! You are super smart!");
+    speech.textContent = "Wow! You are super smart!";
+    speak("Wow! You are super smart! You added the numbers and traced the vertical lines.");
+
+    updateProgress();
+  }
+
+  function updateProgress(){
+    const percent = Math.round(((numberCorrect + traceCorrect) / 10) * 100);
+    const star = percent >= 95 ? 3 : percent >= 65 ? 2 : percent >= 35 ? 1 : 0;
+
+    numScore.textContent = numberCorrect;
+    traceScore.textContent = traceCorrect;
+    coinText.textContent = coins;
+    progressText.textContent = percent + "%";
+    fill.style.width = percent + "%";
+    stars.textContent = "⭐ ".repeat(star).trim();
+
+    saveProgress(percent,star);
+  }
+
+  function saveProgress(score,star){
+    try{
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+
+      store[PAGE_ID] = {
+        pageId:PAGE_ID,
+        file:PAGE_ID + ".html",
+        level:"A",
+        week:2,
+        type:"game",
+        activityType:"game",
+        score,
+        stars:star,
+        coins,
+        completed:score >= 95,
+        savedAt:new Date().toISOString(),
+        ts:Date.now()
+      };
+
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS",JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE",PAGE_ID + ".html");
+    }catch(e){}
+  }
+
+  function intro(){
+    ctx();
+    setStatus("Listen carefully and start playing.");
+    speech.textContent = "Tap the vertical sticks. Build the number. Then trace up and down.";
+    speak("Welcome to Vertical Numbers Adventure. Tap the vertical sticks to add them to ten. Choose the correct number. Then trace the vertical line from red dot to blue dot.");
+  }
+
+  function resetMission(){
+    ctx();
+    renderMission();
+    setStatus("Mission reset. Try again.");
+    speak("Mission reset. Try again.");
+  }
+
+  function clearAll(){
+    ctx();
+
+    current = 0;
+    placed = 0;
+    numberCorrect = 0;
+    traceCorrect = 0;
+    coins = 0;
+    answerReady = false;
+    answeredCorrect = false;
+    traceDone = false;
+
+    renderMission();
+
+    setStatus("Cleared. Start again.");
+    speak("Cleared. Start again.");
+  }
+
+  document.getElementById("startBtn").addEventListener("click",intro);
+  document.getElementById("readBtn").addEventListener("click",intro);
+  document.getElementById("resetMissionBtn").addEventListener("click",resetMission);
+  document.getElementById("clearBtn").addEventListener("click",clearAll);
+
+  document.getElementById("cheerBtn").addEventListener("click",()=>{
+    ctx();
+    chime();
+    clap();
+    confetti();
+    setStatus("You can do it! Great job!");
+    speak("You can do it! Great job!");
+  });
+
+  document.getElementById("homeBtn").addEventListener("click",()=>location.href=HOME_PAGE);
+  document.getElementById("backBtn").addEventListener("click",()=>location.href=PREVIOUS_PAGE);
+  document.getElementById("nextPageBtn").addEventListener("click",()=>location.href=NEXT_PAGE);
+
+  if("speechSynthesis" in window) speechSynthesis.onvoiceschanged = ()=>{};
+
+  tracePad = makeTracePad(traceCanvas);
+  renderMission();
+
+  window.addEventListener("load",()=>{
+    setTimeout(intro,600);
+  },{once:true});
+})();
+</script>
+</body>
+</html>

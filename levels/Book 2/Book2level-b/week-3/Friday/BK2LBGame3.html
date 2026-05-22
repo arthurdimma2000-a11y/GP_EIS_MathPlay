@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Bk2 Diagonal Lines Game</title>
+
+<style>
+  :root{
+    --ink:#2d2d2d;
+    --paper:#fffaf2;
+    --blue:#2876d9;
+    --red:#f13a52;
+    --green:#35b64b;
+    --gold:#ffd24a;
+    --purple:#6c4bbf;
+    --orange:#ff8a5b;
+    --shadow:0 14px 32px rgba(0,0,0,.13);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    width:100%;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#ece2d3 1px,transparent 1px),
+      linear-gradient(90deg,#ece2d3 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(1080px,100%);
+    background:#fff;
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:12px;
+    border:5px solid var(--green);
+  }
+
+  .title{
+    text-align:center;
+    color:var(--green);
+    font-size:clamp(2.1rem,7vw,5.3rem);
+    line-height:.9;
+    font-weight:1000;
+    text-shadow:
+      -4px -4px 0 #fff,
+      4px -4px 0 #fff,
+      -4px 4px 0 #fff,
+      4px 4px 0 #fff,
+      0 8px 0 rgba(0,0,0,.08);
+    margin:4px 0 12px;
+  }
+
+  .week-badge{
+    display:inline-block;
+    border:3px solid var(--green);
+    background:#fff;
+    border-radius:12px;
+    padding:4px 12px;
+    color:#222;
+    font-size:clamp(1rem,2.4vw,1.35rem);
+    font-weight:1000;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+
+  .poster-strip{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin:6px auto 12px;
+  }
+
+  .poster-card{
+    background:#fffdf2;
+    border:3px solid #dff3df;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+  }
+
+  .poster-card img{
+    width:100%;
+    height:155px;
+    object-fit:cover;
+    object-position:top center;
+    display:block;
+    background:#fff;
+  }
+
+  .poster-label{
+    text-align:center;
+    padding:7px 8px;
+    font-weight:1000;
+    color:#2b6b34;
+    font-size:.85rem;
+  }
+
+  .game-panel{
+    display:grid;
+    grid-template-columns:1.08fr .92fr;
+    gap:12px;
+    align-items:stretch;
+  }
+
+  .board{
+    position:relative;
+    min-height:510px;
+    border-radius:22px;
+    background:linear-gradient(180deg,#fff8c8,#fff0a2);
+    border:4px solid var(--green);
+    overflow:hidden;
+    box-shadow:0 10px 24px rgba(0,0,0,.10);
+  }
+
+  .board-header{
+    position:absolute;
+    top:12px;
+    left:12px;
+    background:#ef394c;
+    color:#fff;
+    font-size:1.05rem;
+    font-weight:1000;
+    padding:9px 20px;
+    border-radius:0 999px 999px 0;
+    z-index:7;
+  }
+
+  .scene-poster{
+    position:absolute;
+    left:14px;
+    bottom:16px;
+    width:39%;
+    height:330px;
+    border-radius:22px;
+    background:#fff;
+    border:3px solid #bde6ff;
+    overflow:hidden;
+    box-shadow:0 8px 16px rgba(0,0,0,.12);
+    z-index:4;
+  }
+
+  .scene-poster img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:top center;
+    display:block;
+  }
+
+  .speech{
+    position:absolute;
+    top:68px;
+    left:7%;
+    right:7%;
+    background:#fff;
+    border:4px solid var(--blue);
+    border-radius:34px;
+    min-height:86px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:16px 22px;
+    font-size:clamp(1.15rem,3.2vw,1.95rem);
+    font-weight:1000;
+    z-index:6;
+    box-shadow:0 8px 16px rgba(0,0,0,.08);
+  }
+
+  .trace-card{
+    position:absolute;
+    right:18px;
+    bottom:95px;
+    width:55%;
+    height:250px;
+    border-radius:22px;
+    background:rgba(255,255,255,.64);
+    border:4px dashed rgba(40,118,217,.28);
+    z-index:5;
+    touch-action:none;
+    overflow:hidden;
+  }
+
+  .trace-title{
+    position:absolute;
+    left:14px;
+    top:10px;
+    z-index:2;
+    background:#fff;
+    color:#174a9b;
+    border:2px solid #dbe7ff;
+    border-radius:999px;
+    padding:5px 12px;
+    font-weight:1000;
+    font-size:.9rem;
+  }
+
+  #traceCanvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+    touch-action:none;
+    cursor:crosshair;
+  }
+
+  .drop-zone{
+    position:absolute;
+    right:24px;
+    bottom:24px;
+    width:52%;
+    min-height:58px;
+    border:4px dashed #2a8740;
+    border-radius:18px;
+    background:rgba(255,255,255,.82);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:1000;
+    color:#2a8740;
+    z-index:7;
+    padding:8px;
+  }
+
+  .side-panel{
+    background:linear-gradient(180deg,#fff,#fff7fb);
+    border:3px solid rgba(95,136,204,.25);
+    border-radius:22px;
+    padding:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.07);
+  }
+
+  .progress-title{
+    text-align:center;
+    font-size:clamp(1rem,2.6vw,1.35rem);
+    font-weight:1000;
+    color:#3f5fa8;
+    margin-bottom:8px;
+  }
+
+  .progress-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:9px;
+  }
+
+  .progress-bar{
+    height:18px;
+    border-radius:999px;
+    background:#e8eef8;
+    overflow:hidden;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.16);
+    flex:1;
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#31b7ff,#83e79f);
+    border-radius:999px;
+    transition:width .12s ease-out;
+  }
+
+  .progress-percent{
+    min-width:54px;
+    text-align:right;
+    font-weight:1000;
+    color:#175ca8;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.3em;
+    font-size:2rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.25);
+  }
+
+  .status{
+    min-height:3.4em;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:clamp(1rem,2.5vw,1.2rem);
+    font-weight:1000;
+    color:var(--purple);
+    padding:8px;
+    line-height:1.25;
+  }
+
+  .items{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:9px;
+    margin-top:8px;
+  }
+
+  .item{
+    border:none;
+    border-radius:18px;
+    background:#fff;
+    border:3px solid #dbe7ff;
+    padding:12px 8px;
+    cursor:pointer;
+    font-size:1.05rem;
+    font-weight:1000;
+    color:#333;
+    box-shadow:0 5px 0 rgba(0,0,0,.12);
+    min-height:84px;
+  }
+
+  .item span{
+    display:block;
+    font-size:2rem;
+    margin-bottom:4px;
+  }
+
+  .item:hover{
+    filter:brightness(1.04);
+    transform:translateY(-1px);
+  }
+
+  .item:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 rgba(0,0,0,.12);
+  }
+
+  .item.correct{
+    border-color:#42c86f;
+    background:#eaffef;
+    color:#126c36;
+  }
+
+  .item.wrong{
+    border-color:#f13a52;
+    background:#ffe8ec;
+    color:#a01e31;
+    animation:shake .25s ease-in-out;
+  }
+
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-5px);}
+    75%{transform:translateX(5px);}
+  }
+
+  .buttons{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:9px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:10px 15px;
+    font-size:.95rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.17);
+    transition:transform .1s ease,filter .1s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .btn:hover{
+    filter:brightness(1.04);
+    transform:translateY(-1px);
+  }
+
+  .btn:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 rgba(0,0,0,.14);
+  }
+
+  .btn.home{background:#25d17d;color:#fff;}
+  .btn.prev,.btn.next{background:#f7dc6f;color:#8b5a00;}
+  .btn.read{background:#f04d5f;color:#fff;}
+  .btn.clear{background:#dfeaff;color:#1f3b6b;}
+  .btn.cheer{background:#c9f2d6;color:#166c38;}
+
+  .note{
+    text-align:center;
+    font-weight:900;
+    color:#666;
+    font-size:.9rem;
+    margin-top:8px;
+    line-height:1.35;
+  }
+
+  .confetti-piece{
+    position:fixed;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    z-index:9999;
+    pointer-events:none;
+    animation:fall 1.8s linear forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(105vh) rotate(540deg);opacity:.1;}
+  }
+
+  @media(max-width:900px){
+    .poster-strip{grid-template-columns:repeat(2,1fr);}
+    .poster-card img{height:190px;}
+    .game-panel{grid-template-columns:1fr;}
+    .board{min-height:560px;}
+  }
+
+  @media(max-width:620px){
+    body{padding:6px;}
+    .app{padding:8px;border-radius:18px;}
+    .poster-strip{grid-template-columns:1fr;}
+    .poster-card img{height:230px;}
+    .speech{top:64px;font-size:1.15rem;left:4%;right:4%;}
+    .scene-poster{
+      left:5%;
+      bottom:330px;
+      width:90%;
+      height:150px;
+    }
+    .trace-card{
+      right:5%;
+      width:90%;
+      bottom:105px;
+      height:210px;
+    }
+    .drop-zone{
+      right:5%;
+      width:90%;
+    }
+    .items{grid-template-columns:1fr;}
+    .btn{font-size:.85rem;padding:9px 12px;}
+  }
+</style>
+</head>
+
+<body>
+<main class="app" aria-label="Diagonal Lines clothes game">
+  <h1 class="title">Diagonal Lines <span class="week-badge">Week 3</span></h1>
+
+  <section class="poster-strip" aria-label="Poster guides">
+    <div class="poster-card">
+      <img data-file="DiagonalLinesWeek3.png" alt="Girl and boy asking for skirt and shorts on diagonal lines poster">
+      <div class="poster-label">I need a skirt. I need shorts.</div>
+    </div>
+
+    <div class="poster-card">
+      <img data-file="LineDirectionsClothes.png" alt="Clothes shop line directions poster">
+      <div class="poster-label">What do you need? I need clothes.</div>
+    </div>
+
+    <div class="poster-card">
+      <img data-file="LineDesignsClothesSizes.png" alt="Line designs clothes sizes sweater poster">
+      <div class="poster-label">Small and extra-large sweaters.</div>
+    </div>
+
+    <div class="poster-card">
+      <img data-file="NumbersSubtractLinesWeek3.png" alt="Numbers poster subtract the lines from 20">
+      <div class="poster-label">Subtract diagonal lines from 20.</div>
+    </div>
+  </section>
+
+  <section class="game-panel">
+    <div class="board">
+      <div class="board-header" id="stageLabel">Stage 1</div>
+
+      <div class="speech" id="speechText">
+        Trace the line, then choose the correct answer.
+      </div>
+
+      <div class="scene-poster">
+        <img id="stagePoster" alt="Current poster helper">
+      </div>
+
+      <div class="trace-card">
+        <div class="trace-title" id="traceTitle">Trace from blue dot to red dot</div>
+        <canvas id="traceCanvas" aria-label="Trace the diagonal line"></canvas>
+      </div>
+
+      <div class="drop-zone" id="dropZone">
+        After tracing, choose the correct answer.
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="progress-title">Game Progress</div>
+
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" id="totalFill"></div></div>
+        <div class="progress-percent" id="totalText">0%</div>
+      </div>
+
+      <div class="progress-title">Line Trace</div>
+
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" id="traceFill"></div></div>
+        <div class="progress-percent" id="traceText">0%</div>
+      </div>
+
+      <div class="stars" id="stars">☆ ☆ ☆</div>
+      <div class="status" id="statusText">
+        Listen carefully. Then trace from the blue dot to the red dot.
+      </div>
+
+      <div class="items" id="items"></div>
+
+      <div class="buttons">
+        <button class="btn prev" id="prevBtn" type="button">⬅ Previous</button>
+        <button class="btn read" id="readBtn" type="button">🔊 Read</button>
+        <button class="btn clear" id="resetBtn" type="button">Reset ✕</button>
+        <button class="btn cheer" id="hintBtn" type="button">💡 Hint</button>
+        <button class="btn next" id="nextBtn" type="button">Next ➜</button>
+        <a class="btn home" href="../../../../../index.html">🏠 Home</a>
+      </div>
+
+      <div class="note">
+        Trace across and down or across and up. Then help the poster friends choose clothes, sizes, stripes, and answers.
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script>
+  const HOME_PAGE = "../../../../../index.html";
+  const PREVIOUS_PAGE = "Bk2LB19.html";
+  const NEXT_PAGE = "Bk2LBQuiz3.html";
+
+  const IMAGE_BASES = [
+    "/assets/images/Bk2Shapes/",
+    "./",
+    "../",
+    "../../assets/images/Bk2Shapes/",
+    "../../../assets/images/Bk2Shapes/",
+    "../../../../assets/images/Bk2Shapes/",
+    "../../../../../assets/images/Bk2Shapes/"
+  ];
+
+  const CHIME_PATHS = [
+    "/assets/audio/chimes/chime.mp3",
+    "chime.mp3",
+    "../../assets/audio/chimes/chime.mp3",
+    "../../../assets/audio/chimes/chime.mp3",
+    "../../../../assets/audio/chimes/chime.mp3",
+    "../../../../../assets/audio/chimes/chime.mp3"
+  ];
+
+  const stages = [
+    {
+      title:"Stage 1",
+      request:"I need a skirt.",
+      helper:"Help the girl. Trace an across and down diagonal line, then choose the skirt.",
+      direction:"down",
+      correct:"skirt",
+      poster:"DiagonalLinesWeek3.png",
+      choicePrompt:"Choose the item the girl needs.",
+      options:[
+        {key:"skirt",label:"Skirt",emoji:"👗"},
+        {key:"shorts",label:"Shorts",emoji:"🩳"},
+        {key:"jacket",label:"Jacket",emoji:"🧥"},
+        {key:"sweater",label:"Sweater",emoji:"🧶"}
+      ]
+    },
+    {
+      title:"Stage 2",
+      request:"I need shorts.",
+      helper:"Help the boy. Trace an across and up diagonal line, then choose the shorts.",
+      direction:"up",
+      correct:"shorts",
+      poster:"DiagonalLinesWeek3.png",
+      choicePrompt:"Choose the item the boy needs.",
+      options:[
+        {key:"sweater",label:"Sweater",emoji:"🧶"},
+        {key:"skirt",label:"Skirt",emoji:"👗"},
+        {key:"shorts",label:"Shorts",emoji:"🩳"},
+        {key:"coat",label:"Coat",emoji:"🧥"}
+      ]
+    },
+    {
+      title:"Stage 3",
+      request:"What do you need?",
+      helper:"At the clothes sale, trace an across and down line, then choose clothes.",
+      direction:"down",
+      correct:"clothes",
+      poster:"LineDirectionsClothes.png",
+      choicePrompt:"Choose what the boy needs.",
+      options:[
+        {key:"food",label:"Food",emoji:"🍎"},
+        {key:"clothes",label:"Clothes",emoji:"👕"},
+        {key:"toy",label:"Toy",emoji:"🧸"},
+        {key:"book",label:"Book",emoji:"📘"}
+      ]
+    },
+    {
+      title:"Stage 4",
+      request:"This sweater is small.",
+      helper:"Trace an across and up line. Then choose the small sweater.",
+      direction:"up",
+      correct:"small",
+      poster:"LineDesignsClothesSizes.png",
+      choicePrompt:"Choose the sweater size.",
+      options:[
+        {key:"small",label:"Small",emoji:"🟣"},
+        {key:"extra-large",label:"Extra Large",emoji:"🟢"},
+        {key:"shorts",label:"Shorts",emoji:"🩳"},
+        {key:"skirt",label:"Skirt",emoji:"👗"}
+      ]
+    },
+    {
+      title:"Stage 5",
+      request:"How many purple stripes?",
+      helper:"Trace an across and down line. Then choose 8 purple stripes.",
+      direction:"down",
+      correct:"8",
+      poster:"LineDesignsClothesSizes.png",
+      choicePrompt:"Choose the number of purple stripes.",
+      options:[
+        {key:"6",label:"6",emoji:"🔢"},
+        {key:"8",label:"8",emoji:"✅"},
+        {key:"10",label:"10",emoji:"🔢"},
+        {key:"12",label:"12",emoji:"🔢"}
+      ]
+    },
+    {
+      title:"Stage 6",
+      request:"20 minus 6 lines equals 14.",
+      helper:"Trace an across and up line. Then choose the answer 14.",
+      direction:"up",
+      correct:"14",
+      poster:"NumbersSubtractLinesWeek3.png",
+      choicePrompt:"Choose the answer.",
+      options:[
+        {key:"12",label:"12",emoji:"🔢"},
+        {key:"14",label:"14",emoji:"✅"},
+        {key:"16",label:"16",emoji:"🔢"},
+        {key:"10",label:"10",emoji:"🔢"}
+      ]
+    },
+    {
+      title:"Stage 7",
+      request:"20 minus 7 lines equals 13.",
+      helper:"Trace an across and down line. Then choose the answer 13.",
+      direction:"down",
+      correct:"13",
+      poster:"NumbersSubtractLinesWeek3.png",
+      choicePrompt:"Choose the answer.",
+      options:[
+        {key:"13",label:"13",emoji:"✅"},
+        {key:"14",label:"14",emoji:"🔢"},
+        {key:"11",label:"11",emoji:"🔢"},
+        {key:"18",label:"18",emoji:"🔢"}
+      ]
+    },
+    {
+      title:"Stage 8",
+      request:"20 minus 10 lines equals 10.",
+      helper:"Trace an across and up line. Then choose the answer 10.",
+      direction:"up",
+      correct:"10",
+      poster:"NumbersSubtractLinesWeek3.png",
+      choicePrompt:"Choose the answer.",
+      options:[
+        {key:"11",label:"11",emoji:"🔢"},
+        {key:"13",label:"13",emoji:"🔢"},
+        {key:"10",label:"10",emoji:"✅"},
+        {key:"18",label:"18",emoji:"🔢"}
+      ]
+    }
+  ];
+
+  const stageLabel = document.getElementById("stageLabel");
+  const speechText = document.getElementById("speechText");
+  const stagePoster = document.getElementById("stagePoster");
+  const statusText = document.getElementById("statusText");
+  const items = document.getElementById("items");
+  const totalFill = document.getElementById("totalFill");
+  const totalText = document.getElementById("totalText");
+  const traceFill = document.getElementById("traceFill");
+  const traceText = document.getElementById("traceText");
+  const stars = document.getElementById("stars");
+  const traceTitle = document.getElementById("traceTitle");
+  const dropZone = document.getElementById("dropZone");
+  const canvas = document.getElementById("traceCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let stageIndex = 0;
+  let completed = new Array(stages.length).fill(false);
+  let samples = [];
+  let drawing = false;
+  let lastPoint = null;
+  let tracePercent = 0;
+  let traceCompletedThisStage = false;
+  let lastTick = 0;
+  let chimePathIndex = 0;
+  let chime = new Audio(CHIME_PATHS[chimePathIndex]);
+  chime.preload = "auto";
+
+  chime.addEventListener("error", () => {
+    chimePathIndex++;
+    if (chimePathIndex < CHIME_PATHS.length) {
+      chime.src = CHIME_PATHS[chimePathIndex];
+      chime.load();
+    }
+  });
+
+  function setImageWithFallback(img,file){
+    const paths = IMAGE_BASES.map(base => base + file);
+    let i = 0;
+
+    img.onerror = () => {
+      i++;
+      if (i < paths.length) {
+        img.src = paths[i];
+      } else {
+        img.onerror = null;
+      }
+    };
+
+    img.src = paths[0];
+  }
+
+  document.querySelectorAll("img[data-file]").forEach(img => {
+    setImageWithFallback(img,img.dataset.file);
+  });
+
+  function chooseFemaleVoice(){
+    if (!("speechSynthesis" in window)) return null;
+
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+
+    const english = voices.filter(v => /^en/i.test(v.lang || ""));
+
+    const preferred = [
+      "Jenny",
+      "Aria",
+      "Samantha",
+      "Victoria",
+      "Zira",
+      "Susan",
+      "Karen",
+      "Moira",
+      "Tessa",
+      "Serena",
+      "Google US English",
+      "Microsoft Zira"
+    ];
+
+    for (const name of preferred){
+      const found = english.find(v => (v.name || "").toLowerCase().includes(name.toLowerCase()));
+      if (found) return found;
+    }
+
+    return english.find(v => /us|united states/i.test(v.lang || v.name || ""))
+      || english[0]
+      || voices[0]
+      || null;
+  }
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = chooseFemaleVoice;
+  }
+
+  function speak(text,onDone){
+    if (!("speechSynthesis" in window)) {
+      if (onDone) onDone();
+      return;
+    }
+
+    try{
+      window.speechSynthesis.cancel();
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = 0.9;
+      u.pitch = 1.16;
+      u.volume = 1;
+
+      const voice = chooseFemaleVoice();
+      if (voice) u.voice = voice;
+
+      if (onDone) {
+        u.onend = onDone;
+        u.onerror = onDone;
+      }
+
+      window.speechSynthesis.speak(u);
+    }catch(e){
+      if (onDone) onDone();
+    }
+  }
+
+  function fallbackBeep(freq,duration){
+    try{
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+
+      osc.frequency.value = freq;
+      osc.type = "sine";
+      gain.gain.setValueAtTime(0.045, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + duration);
+
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start();
+      osc.stop(ac.currentTime + duration);
+    }catch(e){}
+  }
+
+  function playChime(){
+    try{
+      const s = chime.cloneNode(true);
+      s.volume = 1;
+      s.play().catch(() => fallbackBeep(880,0.08));
+    }catch(e){
+      fallbackBeep(880,0.08);
+    }
+  }
+
+  function playTick(){
+    const now = performance.now();
+    if (now - lastTick < 70) return;
+
+    lastTick = now;
+    fallbackBeep(620,0.045);
+  }
+
+  function playApplause(){
+    for (let i = 0; i < 12; i++){
+      setTimeout(() => fallbackBeep(420 + Math.random() * 520,0.055), i * 55);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#f13a52","#2876d9","#35b64b","#ffd24a","#ff8a5b","#8d5df7"];
+
+    for (let i = 0; i < 42; i++){
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      p.style.left = Math.random() * 100 + "vw";
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDelay = Math.random() * 0.3 + "s";
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(),2300);
+    }
+  }
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = Math.max(1,Math.round(rect.width * dpr));
+    canvas.height = Math.max(1,Math.round(rect.height * dpr));
+
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    buildSamples();
+    drawGuide();
+  }
+
+  function getGuide(){
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    const stage = stages[stageIndex];
+
+    if (stage.direction === "up") {
+      return {
+        start:{x:w * 0.08,y:h * 0.78},
+        end:{x:w * 0.92,y:h * 0.18}
+      };
+    }
+
+    return {
+      start:{x:w * 0.08,y:h * 0.22},
+      end:{x:w * 0.92,y:h * 0.80}
+    };
+  }
+
+  function buildSamples(){
+    const guide = getGuide();
+    samples = [];
+
+    for (let i = 0; i <= 110; i++){
+      const t = i / 110;
+
+      samples.push({
+        x:guide.start.x + (guide.end.x - guide.start.x) * t,
+        y:guide.start.y + (guide.end.y - guide.start.y) * t,
+        hit:false
+      });
+    }
+
+    tracePercent = 0;
+    traceCompletedThisStage = false;
+    updateTraceUI();
+  }
+
+  function drawGuide(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+
+    const guide = getGuide();
+    const min = Math.min(rect.width,rect.height);
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.strokeStyle = "rgba(40,118,217,.55)";
+    ctx.lineWidth = Math.max(10,min * 0.10);
+    ctx.setLineDash([14,10]);
+
+    ctx.beginPath();
+    ctx.moveTo(guide.start.x,guide.start.y);
+    ctx.lineTo(guide.end.x,guide.end.y);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    drawArrow(guide.start,guide.end,min);
+
+    ctx.fillStyle = "#2876d9";
+    ctx.beginPath();
+    ctx.arc(guide.start.x,guide.start.y,Math.max(8,min * 0.06),0,Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#f13a52";
+    ctx.beginPath();
+    ctx.arc(guide.end.x,guide.end.y,Math.max(8,min * 0.06),0,Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawArrow(start,end,min){
+    const angle = Math.atan2(end.y - start.y,end.x - start.x);
+    const headLen = Math.max(16,min * 0.10);
+
+    ctx.save();
+    ctx.fillStyle = "rgba(241,58,82,.9)";
+    ctx.translate(end.x,end.y);
+    ctx.rotate(angle);
+
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.lineTo(-headLen,-headLen * 0.55);
+    ctx.lineTo(-headLen,headLen * 0.55);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawStudentLine(a,b){
+    const rect = canvas.getBoundingClientRect();
+    const min = Math.min(rect.width,rect.height);
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(241,58,82,.95)";
+    ctx.lineWidth = Math.max(13,min * 0.13);
+
+    ctx.beginPath();
+    ctx.moveTo(a.x,a.y);
+    ctx.lineTo(b.x,b.y);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function getPoint(e){
+    const r = canvas.getBoundingClientRect();
+
+    return {
+      x:e.clientX - r.left,
+      y:e.clientY - r.top
+    };
+  }
+
+  function markPoint(p){
+    const rect = canvas.getBoundingClientRect();
+    const threshold = Math.max(28,Math.min(rect.width,rect.height) * 0.26);
+
+    for (const s of samples){
+      if (s.hit) continue;
+
+      if (Math.hypot(s.x - p.x,s.y - p.y) <= threshold) {
+        s.hit = true;
+      }
+    }
+
+    const hits = samples.filter(s => s.hit).length;
+    tracePercent = Math.round((hits / Math.max(1,samples.length)) * 100);
+
+    if (tracePercent >= 78) {
+      tracePercent = 100;
+      samples.forEach(s => s.hit = true);
+    }
+
+    updateTraceUI();
+
+    if (tracePercent >= 100 && !traceCompletedThisStage) {
+      traceCompletedThisStage = true;
+      playChime();
+      statusText.textContent = "Great tracing! Now choose the correct answer.";
+      speak("Great tracing! Now choose the correct answer.");
+    }
+  }
+
+  function markBetween(a,b){
+    const dist = Math.hypot(b.x - a.x,b.y - a.y);
+    const steps = Math.max(1,Math.ceil(dist / 3));
+
+    for (let i = 0; i <= steps; i++){
+      const t = i / steps;
+
+      markPoint({
+        x:a.x + (b.x - a.x) * t,
+        y:a.y + (b.y - a.y) * t
+      });
+    }
+  }
+
+  function updateTraceUI(){
+    traceFill.style.width = tracePercent + "%";
+    traceText.textContent = tracePercent + "%";
+    updateTotal();
+  }
+
+  canvas.addEventListener("pointerdown",e => {
+    e.preventDefault();
+
+    try{
+      canvas.setPointerCapture(e.pointerId);
+    }catch(err){}
+
+    drawing = true;
+    lastPoint = getPoint(e);
+
+    markPoint(lastPoint);
+    playTick();
+  });
+
+  canvas.addEventListener("pointermove",e => {
+    if (!drawing || !lastPoint) return;
+
+    e.preventDefault();
+
+    const p = getPoint(e);
+
+    drawStudentLine(lastPoint,p);
+    markBetween(lastPoint,p);
+    playTick();
+
+    lastPoint = p;
+  });
+
+  function stopDraw(e){
+    if (e && e.pointerId != null) {
+      try{
+        canvas.releasePointerCapture(e.pointerId);
+      }catch(err){}
+    }
+
+    drawing = false;
+    lastPoint = null;
+  }
+
+  canvas.addEventListener("pointerup",stopDraw);
+  canvas.addEventListener("pointercancel",stopDraw);
+  canvas.addEventListener("lostpointercapture",stopDraw);
+
+  function renderStage(){
+    const stage = stages[stageIndex];
+
+    stageLabel.textContent = stage.title;
+    speechText.textContent = stage.request;
+    statusText.textContent = stage.helper;
+    traceTitle.textContent = stage.direction === "up"
+      ? "Trace across and up"
+      : "Trace across and down";
+    dropZone.textContent = stage.choicePrompt;
+
+    setImageWithFallback(stagePoster,stage.poster);
+
+    items.innerHTML = "";
+
+    stage.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "item";
+      btn.type = "button";
+      btn.dataset.key = opt.key;
+      btn.innerHTML = `<span>${opt.emoji}</span>${opt.label}`;
+      btn.addEventListener("click",() => chooseItem(opt.key,btn));
+      items.appendChild(btn);
+    });
+
+    resizeCanvas();
+
+    setTimeout(() => {
+      speak(stage.helper);
+    },250);
+  }
+
+  function chooseItem(key,button){
+    const stage = stages[stageIndex];
+    const allButtons = Array.from(document.querySelectorAll(".item"));
+
+    allButtons.forEach(btn => btn.classList.remove("correct","wrong"));
+
+    if (tracePercent < 80) {
+      statusText.textContent = "Trace the diagonal line first.";
+      speak("Trace the diagonal line first. Start from the blue dot and go to the red dot.");
+      return;
+    }
+
+    if (key !== stage.correct) {
+      button.classList.add("wrong");
+      statusText.textContent = "Not yet. Try another answer.";
+      speak("Oops, try again. Look carefully at the poster.");
+      return;
+    }
+
+    button.classList.add("correct");
+    completed[stageIndex] = true;
+
+    playChime();
+    playApplause();
+    confetti();
+
+    statusText.textContent = "Great job! You helped the poster friend.";
+    speak("Great job! You traced the diagonal line and chose the correct answer.",() => {
+      if (stageIndex < stages.length - 1) {
+        stageIndex++;
+        renderStage();
+      } else {
+        finishGame();
+      }
+    });
+
+    updateTotal();
+  }
+
+  function updateTotal(){
+    const completedCount = completed.filter(Boolean).length;
+    const partial = completed[stageIndex] ? 0 : tracePercent / 100;
+    const total = Math.round(((completedCount + partial) / stages.length) * 100);
+
+    totalFill.style.width = Math.max(0,Math.min(100,total)) + "%";
+    totalText.textContent = Math.max(0,Math.min(100,total)) + "%";
+
+    if (completedCount >= stages.length) stars.textContent = "★ ★ ★";
+    else if (completedCount >= Math.ceil(stages.length * 0.66)) stars.textContent = "★ ★ ☆";
+    else if (completedCount >= 1) stars.textContent = "★ ☆ ☆";
+    else stars.textContent = "☆ ☆ ☆";
+
+    saveProgress(total);
+  }
+
+  function saveProgress(score){
+    try{
+      const payload = {
+        pageId:"Bk2DiagonalLinesGame",
+        file:"Bk2DiagonalLinesGame.html",
+        level:"A",
+        activityType:"game",
+        score:Math.max(0,Math.min(100,Math.round(score))),
+        tracing:Math.max(0,Math.min(100,Math.round(score))),
+        stars:score >= 90 ? 3 : score >= 60 ? 2 : score >= 30 ? 1 : 0,
+        completed:score >= 90,
+        skills:{
+          reading:1,
+          writing:1,
+          speaking:1,
+          listening:1,
+          tracing:1,
+          math:1
+        },
+        savedAt:new Date().toISOString()
+      };
+
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+
+      store.Bk2DiagonalLinesGame = {
+        ...(store.Bk2DiagonalLinesGame || {}),
+        ...payload
+      };
+
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS",JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE","Bk2DiagonalLinesGame.html");
+    }catch(e){}
+  }
+
+  function finishGame(){
+    statusText.textContent = "Excellent! You finished the Diagonal Lines game.";
+    speechText.textContent = "Excellent work!";
+    dropZone.textContent = "You learned lines, clothes, sizes, stripes, and subtraction.";
+    playChime();
+    playApplause();
+    confetti();
+    speak("Excellent! You finished the Diagonal Lines game. You learned across and down, across and up, clothes words, sweater sizes, stripes, and subtraction lines.");
+    updateTotal();
+  }
+
+  function readInstruction(){
+    const stage = stages[stageIndex];
+    speak(stage.helper);
+  }
+
+  function resetGame(){
+    completed = new Array(stages.length).fill(false);
+    stageIndex = 0;
+    tracePercent = 0;
+    traceCompletedThisStage = false;
+    updateTotal();
+    renderStage();
+    speak("Let us start again. Trace the diagonal line and choose the correct answer.");
+  }
+
+  function showHint(){
+    const stage = stages[stageIndex];
+    const directionText = stage.direction === "up" ? "across and up" : "across and down";
+
+    statusText.textContent = "Hint: trace " + directionText + ", then choose “" + stage.correct + ".”";
+    speak("Hint. This line goes " + directionText + ". The correct answer is " + stage.correct + ".");
+  }
+
+  document.getElementById("readBtn").addEventListener("click",readInstruction);
+  document.getElementById("resetBtn").addEventListener("click",resetGame);
+  document.getElementById("hintBtn").addEventListener("click",showHint);
+
+  document.getElementById("prevBtn").addEventListener("click",() => {
+    window.location.href = PREVIOUS_PAGE;
+  });
+
+  document.getElementById("nextBtn").addEventListener("click",() => {
+    window.location.href = NEXT_PAGE;
+  });
+
+  window.addEventListener("resize",() => {
+    clearTimeout(window.__gameResize);
+    window.__gameResize = setTimeout(resizeCanvas,180);
+  });
+
+  document.addEventListener("keydown",e => {
+    if (e.key === "ArrowLeft") window.location.href = PREVIOUS_PAGE;
+    if (e.key === "ArrowRight") window.location.href = NEXT_PAGE;
+    if (e.key.toLowerCase() === "h") window.location.href = HOME_PAGE;
+    if (e.key.toLowerCase() === "r") readInstruction();
+    if (e.key.toLowerCase() === "c") resetGame();
+  });
+
+  let firstTapDone = false;
+
+  document.addEventListener("pointerdown",() => {
+    if (firstTapDone) return;
+    firstTapDone = true;
+
+    try{
+      chime.load();
+    }catch(e){}
+
+    if (!window.speechSynthesis?.speaking) {
+      speak("Trace from the blue dot to the red dot. Then choose the correct answer.");
+    }
+  },{once:true});
+
+  window.addEventListener("load",() => {
+    updateTotal();
+    renderStage();
+
+    setTimeout(() => {
+      speak("Welcome to the Diagonal Lines game. Look at the poster friends. Trace from the blue dot to the red dot, then choose the correct answer.");
+    },700);
+  });
+</script>
+</body>
+</html>

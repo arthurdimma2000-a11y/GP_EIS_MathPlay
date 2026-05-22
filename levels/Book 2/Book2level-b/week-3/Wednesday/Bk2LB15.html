@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Diagonal Lines - Week 3</title>
+
+<style>
+  :root{
+    --ink:#2d2d2d;
+    --bg:#fff9f1;
+    --card:#ffffff;
+    --green:#35b64b;
+    --deep-green:#148b32;
+    --red:#f2475b;
+    --blue:#1687e8;
+    --gold:#ffd24a;
+    --purple:#6c4bbf;
+    --soft:#fff7fb;
+    --shadow:0 18px 38px rgba(0,0,0,.12);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+  }
+
+  body{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:10px;
+    overflow-x:hidden;
+    background-image:
+      linear-gradient(#f1e6d8 1px, transparent 1px),
+      linear-gradient(90deg, #f1e6d8 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .lesson-card{
+    width:min(980px,100%);
+    background:var(--card);
+    border:7px solid var(--green);
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    padding:10px 10px 16px;
+  }
+
+  .title-pill{
+    width:min(945px,100%);
+    margin:0 auto 10px;
+    background:#fff;
+    border:4px solid var(--green);
+    border-radius:999px;
+    padding:8px 14px;
+    text-align:center;
+    font-size:clamp(1.2rem,4vw,2.1rem);
+    font-weight:1000;
+    color:var(--deep-green);
+    box-shadow:0 6px 0 rgba(53,182,75,.18);
+  }
+
+  .poster-wrap{
+    position:relative;
+    width:min(868px,100%);
+    margin:0 auto;
+    border-radius:18px;
+    overflow:hidden;
+    background:#fff;
+  }
+
+  .poster-img{
+    display:block;
+    width:100%;
+    height:auto;
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+  }
+
+  .trace-canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:5;
+    touch-action:none;
+    cursor:crosshair;
+  }
+
+  .complete-layer{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:6;
+    pointer-events:none;
+  }
+
+  .complete-line{
+    opacity:0;
+    stroke:#19d66f;
+    stroke-width:12;
+    stroke-linecap:round;
+    vector-effect:non-scaling-stroke;
+    filter:url(#lineGlow);
+    transition:opacity .25s ease;
+  }
+
+  .complete-line.done{
+    opacity:.86;
+    animation:lineSparkle 1s ease-in-out infinite;
+  }
+
+  @keyframes lineSparkle{
+    0%,100%{filter:url(#lineGlow) brightness(1);}
+    50%{filter:url(#lineGlow) brightness(1.25);}
+  }
+
+  .controls-panel{
+    margin:12px auto 0;
+    width:min(945px,100%);
+    background:linear-gradient(180deg,#fff,#fff7fb);
+    border:3px solid rgba(53,182,75,.28);
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+  }
+
+  .progress-title{
+    font-size:clamp(1rem,2.6vw,1.35rem);
+    font-weight:1000;
+    text-align:center;
+    color:var(--deep-green);
+    margin-bottom:7px;
+  }
+
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .progress-bar{
+    flex:1;
+    height:18px;
+    background:#e7efff;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.16);
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#31b7ff,#84efab,#ffd24a);
+    border-radius:999px;
+    transition:width .14s ease-out;
+  }
+
+  .progress-percent{
+    min-width:58px;
+    text-align:right;
+    font-weight:1000;
+    color:#175ca8;
+    font-size:1.05rem;
+  }
+
+  .line-progress-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:9px;
+  }
+
+  .mini-progress{
+    background:#fff;
+    border:2px solid #d8f4dc;
+    border-radius:14px;
+    padding:8px 10px;
+    text-align:center;
+    font-weight:900;
+    color:#444;
+  }
+
+  .mini-progress span{
+    color:var(--red);
+  }
+
+  .mini-progress.done{
+    border-color:#71dd91;
+    background:#effff4;
+    color:#126b37;
+  }
+
+  .status{
+    min-height:1.45em;
+    text-align:center;
+    font-weight:1000;
+    color:var(--purple);
+    font-size:clamp(.95rem,2.5vw,1.15rem);
+    margin-top:8px;
+  }
+
+  .button-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+
+    button,.btn-home{
+      border:none;
+      border-radius:999px;
+    padding:10px 16px;
+    font-size:.95rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.16);
+    transition:transform .1s ease,filter .1s ease;
+  }
+
+  button:hover,.btn-home:hover{filter:brightness(1.04);}
+  button:active,.btn-home:active{
+    transform:translateY(2px);
+    box-shadow:0 2px 0 rgba(0,0,0,.14);
+  }
+
+    .btn-read{background:#f6da7b;color:#8b5a00;}
+    .btn-cheer{background:#c9f2d6;color:#166c38;}
+    .btn-clear{background:#dfeaff;color:#1f3b6b;}
+    .btn-prev,.btn-next{background:#ff8a5b;color:#fff;}
+    .btn-icon{
+      width:26px;
+      height:26px;
+      object-fit:contain;
+      vertical-align:middle;
+      margin-right:6px;
+    }
+  .btn-home{
+    background:#fff0f4;
+    color:#f2475b;
+    border:2px solid #ffd0db;
+    text-decoration:none;
+    display:inline-flex;
+  }
+
+  .footer-note{
+    margin-top:8px;
+    text-align:center;
+    color:#444;
+    font-weight:900;
+    font-size:.95rem;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.3em;
+    margin-top:8px;
+    font-size:2rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.25);
+  }
+
+  .confetti-piece{
+    position:fixed;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    z-index:9999;
+    pointer-events:none;
+    animation:confettiFall 1.7s linear forwards;
+  }
+
+  @keyframes confettiFall{
+    to{transform:translateY(105vh) rotate(540deg);opacity:.1;}
+  }
+
+  @media(max-width:720px){
+    .line-progress-grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  @media(max-width:620px){
+    body{padding:6px;}
+    .lesson-card{border-radius:16px;padding:6px 6px 12px;}
+    .controls-panel{padding:10px;border-radius:14px;}
+    button,.btn-home{font-size:.85rem;padding:9px 12px;}
+    .progress-row{gap:6px;}
+  }
+</style>
+</head>
+
+<body>
+<main class="lesson-card" aria-label="Diagonal Lines tracing lesson">
+  <div class="title-pill">Diagonal Lines · Week 3</div>
+
+  <section class="poster-wrap" id="posterWrap" aria-label="Diagonal Lines poster">
+    <!-- Save the attached poster as one of these names if needed:
+         /assets/images/Bk2Shapes/DiagonalLinesWeek3_15.png
+         /assets/images/Bk2Shapes/DiagonalLinesWeek3Clothes.png
+         /assets/images/Bk2Shapes/DiagonalLinesWeek3.png
+    -->
+      <img
+        class="poster-img"
+        id="posterImg"
+        src="/assets/images/Bk2Shapes/LineDirectionsClothes.png"
+        alt="Diagonal Lines Week 3 poster"
+      >
+
+    <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the diagonal lines on the poster"></canvas>
+
+    <svg class="complete-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <filter id="lineGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.6" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <line class="complete-line" data-complete="0" x1="7.7" y1="19.4" x2="25.8" y2="13.7"></line>
+      <line class="complete-line" data-complete="1" x1="7.9" y1="30.3" x2="34.8" y2="21.6"></line>
+      <line class="complete-line" data-complete="2" x1="7.7" y1="32.5" x2="44.5" y2="45.1"></line>
+      <line class="complete-line" data-complete="3" x1="75.1" y1="40.6" x2="92.9" y2="46.3"></line>
+      <line class="complete-line" data-complete="4" x1="65.8" y1="48.6" x2="93.0" y2="57.4"></line>
+      <line class="complete-line" data-complete="5" x1="56.2" y1="72.0" x2="85.1" y2="59.3"></line>
+    </svg>
+  </section>
+
+  <section class="controls-panel" aria-label="Tracing controls and progress">
+    <div class="progress-title">Tracing progress: <span id="overallText">0%</span></div>
+
+    <div class="progress-row">
+      <div class="progress-bar" aria-hidden="true">
+        <div class="progress-fill" id="overallFill"></div>
+      </div>
+      <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="line-progress-grid">
+      <div class="mini-progress" id="lineBox0">Line 1: <span id="linePct0">0%</span></div>
+      <div class="mini-progress" id="lineBox1">Line 2: <span id="linePct1">0%</span></div>
+      <div class="mini-progress" id="lineBox2">Line 3: <span id="linePct2">0%</span></div>
+      <div class="mini-progress" id="lineBox3">Line 4: <span id="linePct3">0%</span></div>
+      <div class="mini-progress" id="lineBox4">Line 5: <span id="linePct4">0%</span></div>
+      <div class="mini-progress" id="lineBox5">Line 6: <span id="linePct5">0%</span></div>
+    </div>
+
+    <div class="status" id="statusText">Trace each diagonal line on the clothes racks.</div>
+
+    <div class="button-row">
+      <button class="btn-read" id="readBtn" type="button"><img class="btn-icon" src="/assets/images/Bk2Shapes/Microphone.png" alt="Mic">Read Poster</button>
+      <button class="btn-cheer" id="cheerBtn" type="button">👏 Cheer</button>
+      <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+        <a class="btn-home" id="homeBtn" href="../../../../../index.html">🏠 Home</a>
+        <button class="btn-prev" id="prevBtn" type="button">← Previous page</button>
+        <button class="btn-next" id="nextBtn" type="button">Next page →</button>
+      </div>
+
+    <div class="footer-note">
+      Lines can be drawn across and down. Lines can be drawn across and up.
+    </div>
+
+    <div class="stars" id="stars" aria-live="polite"></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  const PAGE_ID = "DiagonalLinesWeek3_ClothesRack";
+  const LEVEL = "B";
+
+  const PREVIOUS_PAGE = "../Tuesday/Bk2LB14.html";
+  const NEXT_PAGE = "./Bk2LB19.html";
+
+    const POSTER_SOURCES = [
+      "/assets/images/Bk2Shapes/LineDirectionsClothes.png",
+      "/assets/images/Bk2Shapes/DiagonalLinesWeek3_15.png",
+      "/assets/images/Bk2Shapes/DiagonalLinesWeek3Clothes.png",
+      "/assets/images/Bk2Shapes/DiagonalLinesClothes.png",
+      "/assets/images/Bk2Shapes/DiagonalLinesWeek3.png",
+      "./LineDirectionsClothes.png",
+      "LineDirectionsClothes.png",
+      "./DiagonalLinesWeek3_15.png",
+      "./DiagonalLinesWeek3Clothes.png",
+      "./DiagonalLinesWeek3.png",
+    "DiagonalLinesWeek3_15.png",
+    "DiagonalLinesWeek3Clothes.png",
+    "DiagonalLinesWeek3.png"
+  ];
+
+  const CHIME_SOURCES = [
+    "chime.mp3",
+    "./chime.mp3",
+    "/assets/audio/chimes/chime.mp3",
+    "/assets/audio/chime.mp3",
+    "../../../../assets/audio/chimes/chime.mp3",
+    "../../../../assets/audio/chime.mp3"
+  ];
+
+  const traceSegments = [
+    {
+      name:"Left top line",
+      direction:"across and up",
+      x1:.077, y1:.194, x2:.258, y2:.137,
+      samples:34,
+      hits:new Set(),
+      done:false
+    },
+    {
+      name:"Left middle line",
+      direction:"across and up",
+      x1:.079, y1:.303, x2:.348, y2:.216,
+      samples:42,
+      hits:new Set(),
+      done:false
+    },
+    {
+      name:"Left lower line",
+      direction:"across and down",
+      x1:.077, y1:.325, x2:.445, y2:.451,
+      samples:50,
+      hits:new Set(),
+      done:false
+    },
+    {
+      name:"Right top line",
+      direction:"across and down",
+      x1:.751, y1:.406, x2:.929, y2:.463,
+      samples:34,
+      hits:new Set(),
+      done:false
+    },
+    {
+      name:"Right middle line",
+      direction:"across and down",
+      x1:.658, y1:.486, x2:.930, y2:.574,
+      samples:42,
+      hits:new Set(),
+      done:false
+    },
+    {
+      name:"Right lower line",
+      direction:"across and up",
+      x1:.562, y1:.720, x2:.851, y2:.593,
+      samples:48,
+      hits:new Set(),
+      done:false
+    }
+  ];
+
+  const posterImg = document.getElementById("posterImg");
+  const posterWrap = document.getElementById("posterWrap");
+  const traceCanvas = document.getElementById("traceCanvas");
+  const ctx = traceCanvas.getContext("2d");
+
+  const overallText = document.getElementById("overallText");
+  const overallFill = document.getElementById("overallFill");
+  const progressPercent = document.getElementById("progressPercent");
+  const statusText = document.getElementById("statusText");
+  const stars = document.getElementById("stars");
+
+  const readBtn = document.getElementById("readBtn");
+  const cheerBtn = document.getElementById("cheerBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  const completeLines = Array.from(document.querySelectorAll(".complete-line"));
+
+  let drawing = false;
+  let lastPoint = null;
+  let audioCtx = null;
+  let finalCelebrated = false;
+  let lastTraceTick = 0;
+  let lastVoiceCheer = 0;
+
+  function setStatus(text){
+    statusText.textContent = text || "";
+  }
+
+  function setupPosterFallback(){
+    let index = 0;
+
+    posterImg.addEventListener("error", function(){
+      index += 1;
+      if(index < POSTER_SOURCES.length){
+        posterImg.src = POSTER_SOURCES[index];
+      }
+    });
+
+    posterImg.src = POSTER_SOURCES[0];
+  }
+
+  function pickVoice(){
+    if(!("speechSynthesis" in window)) return null;
+
+    const voices = window.speechSynthesis.getVoices() || [];
+
+    return voices.find(v => /^en[-_]us/i.test(v.lang || "") && /jenny|aria|ava|allison|ellie|libby|olivia|emma|ivy|samantha|female|girl|zira/i.test(v.name || ""))
+      || voices.find(v => /^en[-_]us/i.test(v.lang || "") && !/male|boy|david|guy|michael|james|thomas|mark|paul|brian|steve|kevin|eric/i.test(v.name || ""))
+      || voices.find(v => /^en/i.test(v.lang || ""))
+      || voices[0]
+      || null;
+  }
+
+  function speak(text){
+    if(!text || !("speechSynthesis" in window)) return;
+
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+
+    const u = new SpeechSynthesisUtterance(String(text));
+    u.lang = "en-US";
+    u.rate = 0.88;
+    u.pitch = 1.16;
+    u.volume = 1;
+
+    const voice = pickVoice();
+    if(voice) u.voice = voice;
+
+    window.speechSynthesis.speak(u);
+  }
+
+  function stopSpeaking(){
+    try{
+      if("speechSynthesis" in window) window.speechSynthesis.cancel();
+    }catch(_){}
+  }
+
+  function getAudioContext(){
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if(!AudioContext) return null;
+
+    if(!audioCtx){
+      audioCtx = new AudioContext();
+    }
+
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume().catch(()=>{});
+    }
+
+    return audioCtx;
+  }
+
+  function playSynthChime(){
+    const ac = getAudioContext();
+    if(!ac) return;
+
+    [660,880,1046].forEach((freq,i)=>{
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      const t = ac.currentTime + i * .13;
+
+      osc.type = "sine";
+      osc.frequency.value = freq;
+
+      gain.gain.setValueAtTime(.0001,t);
+      gain.gain.exponentialRampToValueAtTime(.22,t + .03);
+      gain.gain.exponentialRampToValueAtTime(.0001,t + .32);
+
+      osc.connect(gain);
+      gain.connect(ac.destination);
+
+      osc.start(t);
+      osc.stop(t + .35);
+    });
+  }
+
+  function playChime(){
+    getAudioContext();
+
+    function trySource(index){
+      if(index >= CHIME_SOURCES.length){
+        playSynthChime();
+        return;
+      }
+
+      try{
+        const audio = new Audio(CHIME_SOURCES[index]);
+        audio.volume = .9;
+
+        const p = audio.play();
+
+        if(p && typeof p.catch === "function"){
+          p.catch(()=>trySource(index + 1));
+        }
+      }catch(_){
+        trySource(index + 1);
+      }
+    }
+
+    trySource(0);
+  }
+
+  function playTraceTick(){
+    const now = Date.now();
+    if(now - lastTraceTick < 38) return;
+    lastTraceTick = now;
+
+    const ac = getAudioContext();
+    if(!ac) return;
+
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.value = 820;
+
+    gain.gain.setValueAtTime(.0001, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.045, ac.currentTime + .01);
+    gain.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + .08);
+
+    osc.connect(gain);
+    gain.connect(ac.destination);
+
+    osc.start();
+    osc.stop(ac.currentTime + .09);
+  }
+
+  function applause(){
+    const ac = getAudioContext();
+    if(!ac) return;
+
+    for(let i=0;i<16;i++){
+      const bufferSize = Math.floor(ac.sampleRate * .055);
+      const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for(let j=0;j<bufferSize;j++){
+        data[j] = (Math.random() * 2 - 1) * Math.exp(-j / bufferSize * 4);
+      }
+
+      const src = ac.createBufferSource();
+      const gain = ac.createGain();
+
+      gain.gain.value = .03;
+      src.buffer = buffer;
+
+      src.connect(gain);
+      gain.connect(ac.destination);
+
+      src.start(ac.currentTime + i * .045);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#f2475b","#ffd24a","#58c6ff","#83e79f","#f7a6c9","#9ed06a"];
+
+    for(let i=0;i<42;i++){
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * .35 + "s";
+      piece.style.transform = "rotate(" + (Math.random() * 180) + "deg)";
+      document.body.appendChild(piece);
+      piece.addEventListener("animationend",()=>piece.remove());
+    }
+  }
+
+  function resizeCanvas(){
+    const rect = posterWrap.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+
+    traceCanvas.width = Math.max(1, Math.round(rect.width * ratio));
+    traceCanvas.height = Math.max(1, Math.round(rect.height * ratio));
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(ratio,ratio);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(255, 75, 75, .78)";
+    ctx.lineWidth = Math.max(7, rect.width * .013);
+  }
+
+  function clearCanvas(){
+    const rect = traceCanvas.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+  }
+
+  function getPoint(event){
+    const rect = traceCanvas.getBoundingClientRect();
+
+    return {
+      x:event.clientX - rect.left,
+      y:event.clientY - rect.top
+    };
+  }
+
+  function getTolerance(){
+    const rect = posterWrap.getBoundingClientRect();
+    return Math.max(18, rect.width * .034);
+  }
+
+  function pointToSegment(point, segment){
+    const rect = posterWrap.getBoundingClientRect();
+
+    const x1 = segment.x1 * rect.width;
+    const y1 = segment.y1 * rect.height;
+    const x2 = segment.x2 * rect.width;
+    const y2 = segment.y2 * rect.height;
+
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const lenSq = dx * dx + dy * dy || 1;
+
+    const t = Math.max(0, Math.min(1, ((point.x - x1) * dx + (point.y - y1) * dy) / lenSq));
+
+    const cx = x1 + t * dx;
+    const cy = y1 + t * dy;
+    const dist = Math.hypot(point.x - cx, point.y - cy);
+
+    return {dist,t};
+  }
+
+  function markTrace(point){
+    let changed = false;
+    const tolerance = getTolerance();
+
+    traceSegments.forEach((segment,index)=>{
+      const info = pointToSegment(point, segment);
+
+      if(info.dist <= tolerance){
+        const sample = Math.max(0, Math.min(segment.samples - 1, Math.round(info.t * (segment.samples - 1))));
+
+        for(let k=-2;k<=2;k++){
+          const hit = sample + k;
+
+          if(hit >= 0 && hit < segment.samples && !segment.hits.has(hit)){
+            segment.hits.add(hit);
+            changed = true;
+          }
+        }
+
+        if(!segment.done && getSegmentPercent(segment) >= 68){
+          completeSegment(index);
+        }
+      }
+    });
+
+    if(changed){
+      playTraceTick();
+      updateProgress();
+    }
+  }
+
+  function getSegmentPercent(segment){
+    if(segment.done) return 100;
+    return Math.min(99, Math.round((segment.hits.size / Math.max(1,segment.samples)) * 100));
+  }
+
+  function completeSegment(index){
+    const segment = traceSegments[index];
+    if(!segment || segment.done) return;
+
+    segment.done = true;
+    completeLines[index]?.classList.add("done");
+
+    const box = document.getElementById("lineBox" + index);
+    if(box) box.classList.add("done");
+
+    playChime();
+
+    setStatus(segment.name + " complete! This line goes " + segment.direction + ".");
+
+    const now = Date.now();
+    if(now - lastVoiceCheer > 1500){
+      lastVoiceCheer = now;
+      speak("Great tracing! This diagonal line goes " + segment.direction + ".");
+    }
+  }
+
+  function getOverallPercent(){
+    if(traceSegments.every(s => s.done)) return 100;
+
+    const totalSamples = traceSegments.reduce((sum,s)=>sum + s.samples,0);
+    const hitSamples = traceSegments.reduce((sum,s)=>sum + s.hits.size,0);
+
+    return Math.min(99, Math.round((hitSamples / Math.max(1,totalSamples)) * 100));
+  }
+
+  function updateProgress(){
+    const overall = getOverallPercent();
+
+    overallText.textContent = overall + "%";
+    progressPercent.textContent = overall + "%";
+    overallFill.style.width = overall + "%";
+
+    traceSegments.forEach((segment,index)=>{
+      const pct = getSegmentPercent(segment);
+      const el = document.getElementById("linePct" + index);
+      if(el) el.textContent = pct + "%";
+    });
+
+    const doneCount = traceSegments.filter(s => s.done).length;
+    stars.textContent = "⭐".repeat(Math.min(3, Math.ceil(doneCount / 2)));
+
+    saveProgress(overall, overall >= 100);
+
+    if(overall >= 100 && !finalCelebrated){
+      finalCelebrated = true;
+      playChime();
+      applause();
+      confetti();
+      setStatus("Amazing! You traced all the diagonal lines.");
+      speak("Amazing! You traced all the diagonal lines. Lines can be drawn across and down, and across and up.");
+    }
+  }
+
+  function saveProgress(score, completed){
+    const earnedStars = score >= 85 ? 3 : score >= 65 ? 2 : score >= 35 ? 1 : 0;
+
+    const payload = {
+      pageId: PAGE_ID,
+      file: PAGE_ID + ".html",
+      level: LEVEL,
+      activityType: "diagonal-line-tracing",
+      type: "lesson",
+      score: score,
+      tracing: score,
+      stars: earnedStars,
+      completed: !!completed,
+      skills:{
+        reading:1,
+        writing:score >= 65 ? 2 : score > 0 ? 1 : 0,
+        listening:1,
+        tracing:score
+      },
+      savedAt:new Date().toISOString(),
+      ts:Date.now()
+    };
+
+    try{
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+      store[payload.pageId] = Object.assign({}, store[payload.pageId] || {}, payload);
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE", payload.file);
+      localStorage.setItem("gpLatestProgress", JSON.stringify(payload));
+    }catch(_){}
+
+    try{
+      window.dispatchEvent(new CustomEvent("gp-progress-update",{detail:payload}));
+    }catch(_){}
+
+    if(typeof window.finishAndSave === "function"){
+      window.finishAndSave(payload).catch(()=>{});
+    }
+  }
+
+  function startTrace(event){
+    getAudioContext();
+    event.preventDefault();
+
+    try{
+      traceCanvas.setPointerCapture(event.pointerId);
+    }catch(_){}
+
+    drawing = true;
+    lastPoint = getPoint(event);
+    markTrace(lastPoint);
+  }
+
+  function moveTrace(event){
+    if(!drawing) return;
+
+    event.preventDefault();
+
+    const point = getPoint(event);
+
+    ctx.beginPath();
+    ctx.moveTo(lastPoint.x,lastPoint.y);
+    ctx.lineTo(point.x,point.y);
+    ctx.stroke();
+
+    lastPoint = point;
+    markTrace(point);
+  }
+
+  function endTrace(){
+    drawing = false;
+    lastPoint = null;
+  }
+
+  function readPoster(){
+    getAudioContext();
+
+    setStatus("Listen carefully. Then trace the diagonal lines.");
+
+    speak(
+      "Diagonal Lines. Week three. I need a skirt. I need shorts. Lines can be drawn across and down. Lines can be drawn across and up. Trace the wooden diagonal lines on the clothes racks from point to point."
+    );
+  }
+
+  function cheer(){
+    getAudioContext();
+    playChime();
+    applause();
+    confetti();
+
+    setStatus("You can do it! Trace the lines carefully.");
+    speak("You can do it! Great job. Trace each diagonal line carefully.");
+  }
+
+  function clearAll(){
+    stopSpeaking();
+
+    traceSegments.forEach(segment=>{
+      segment.hits.clear();
+      segment.done = false;
+    });
+
+    completeLines.forEach(line=>line.classList.remove("done"));
+
+    for(let i=0;i<traceSegments.length;i++){
+      const pct = document.getElementById("linePct" + i);
+      const box = document.getElementById("lineBox" + i);
+
+      if(pct) pct.textContent = "0%";
+      if(box) box.classList.remove("done");
+    }
+
+    finalCelebrated = false;
+    clearCanvas();
+    updateProgress();
+
+    setStatus("Cleared. Trace each diagonal line again.");
+    speak("Cleared. Trace each diagonal line again.");
+  }
+
+  traceCanvas.addEventListener("pointerdown",startTrace);
+  traceCanvas.addEventListener("pointermove",moveTrace);
+  traceCanvas.addEventListener("pointerup",endTrace);
+  traceCanvas.addEventListener("pointerleave",endTrace);
+  traceCanvas.addEventListener("pointercancel",endTrace);
+
+  readBtn.addEventListener("click",readPoster);
+  cheerBtn.addEventListener("click",cheer);
+  clearBtn.addEventListener("click",clearAll);
+
+  prevBtn.addEventListener("click",()=>{
+    stopSpeaking();
+    window.location.href = PREVIOUS_PAGE;
+  });
+
+  nextBtn.addEventListener("click",()=>{
+    stopSpeaking();
+    window.location.href = NEXT_PAGE;
+  });
+
+  window.addEventListener("resize",resizeCanvas);
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize",resizeCanvas);
+  }
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = ()=>{};
+  }
+
+  function unlockAudio(){
+    getAudioContext();
+  }
+
+  window.addEventListener("pointerdown",unlockAudio,{once:true});
+  window.addEventListener("touchstart",unlockAudio,{once:true});
+  window.addEventListener("keydown",unlockAudio,{once:true});
+  window.addEventListener("beforeunload",stopSpeaking);
+
+  posterImg.addEventListener("load",resizeCanvas);
+  setupPosterFallback();
+
+  window.addEventListener("load",()=>{
+    resizeCanvas();
+    updateProgress();
+
+    setTimeout(()=>{
+      speak("Welcome to Diagonal Lines. Trace the wooden lines on the clothes racks. Some lines go across and down. Some lines go across and up.");
+    },700);
+  },{once:true});
+})();
+</script>
+</body>
+</html>

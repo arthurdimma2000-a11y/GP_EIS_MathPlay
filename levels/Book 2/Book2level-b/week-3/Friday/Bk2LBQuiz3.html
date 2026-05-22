@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Bk2 Diagonal Lines Quiz</title>
+
+<style>
+  :root{
+    --ink:#2d2d2d;
+    --paper:#fffaf2;
+    --blue:#2876d9;
+    --red:#f13a52;
+    --green:#35b64b;
+    --gold:#ffd24a;
+    --purple:#6c4bbf;
+    --shadow:0 14px 32px rgba(0,0,0,.13);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    width:100%;
+    min-height:100%;
+    background:var(--paper);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#ece2d3 1px,transparent 1px),
+      linear-gradient(90deg,#ece2d3 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(1040px,100%);
+    background:#fff;
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:12px;
+    border:5px solid var(--green);
+  }
+
+  .title{
+    text-align:center;
+    color:var(--green);
+    font-size:clamp(2.1rem,7vw,5.2rem);
+    line-height:.9;
+    font-weight:1000;
+    text-shadow:
+      -4px -4px 0 #fff,
+      4px -4px 0 #fff,
+      -4px 4px 0 #fff,
+      4px 4px 0 #fff,
+      0 8px 0 rgba(0,0,0,.08);
+    margin:4px 0 12px;
+  }
+
+  .week-badge{
+    display:inline-block;
+    border:3px solid var(--green);
+    background:#fff;
+    border-radius:12px;
+    padding:4px 12px;
+    color:#222;
+    font-size:clamp(1rem,2.4vw,1.35rem);
+    font-weight:1000;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+
+  .quiz-grid{
+    display:grid;
+    grid-template-columns:.92fr 1.08fr;
+    gap:12px;
+  }
+
+  .poster-card{
+    background:#fffdf2;
+    border:3px solid #dff3df;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+  }
+
+  .poster-card img{
+    width:100%;
+    height:520px;
+    object-fit:cover;
+    object-position:top center;
+    display:block;
+  }
+
+  .poster-label{
+    text-align:center;
+    padding:9px 8px;
+    font-weight:1000;
+    color:#2b6b34;
+    font-size:1rem;
+  }
+
+  .quiz-panel{
+    background:linear-gradient(180deg,#fff,#fff7fb);
+    border:3px solid rgba(95,136,204,.25);
+    border-radius:22px;
+    padding:14px;
+    box-shadow:0 8px 20px rgba(0,0,0,.07);
+    min-height:580px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .progress-title{
+    text-align:center;
+    font-size:clamp(1rem,2.6vw,1.35rem);
+    font-weight:1000;
+    color:#3f5fa8;
+    margin-bottom:8px;
+  }
+
+  .progress-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:10px;
+  }
+
+  .progress-bar{
+    height:18px;
+    border-radius:999px;
+    background:#e8eef8;
+    overflow:hidden;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.16);
+    flex:1;
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#31b7ff,#83e79f);
+    border-radius:999px;
+    transition:width .12s ease-out;
+  }
+
+  .progress-percent{
+    min-width:54px;
+    text-align:right;
+    font-weight:1000;
+    color:#175ca8;
+  }
+
+  .question-card{
+    flex:1;
+    background:#fff;
+    border-radius:22px;
+    border:3px solid #dbe7ff;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .question-number{
+    display:inline-flex;
+    align-self:flex-start;
+    background:#ef394c;
+    color:#fff;
+    padding:8px 18px;
+    border-radius:999px;
+    font-weight:1000;
+    margin-bottom:14px;
+  }
+
+  .question{
+    font-size:clamp(1.45rem,4vw,2.25rem);
+    line-height:1.16;
+    text-align:center;
+    font-weight:1000;
+    color:#222;
+    margin-bottom:18px;
+  }
+
+  .answers{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .answer{
+    border:none;
+    border-radius:20px;
+    background:#fff8d9;
+    border:4px solid #f4d769;
+    padding:16px 12px;
+    cursor:pointer;
+    font-size:clamp(1rem,2.5vw,1.35rem);
+    font-weight:1000;
+    color:#533600;
+    min-height:86px;
+    box-shadow:0 6px 0 rgba(0,0,0,.14);
+  }
+
+  .answer:hover{
+    filter:brightness(1.04);
+    transform:translateY(-1px);
+  }
+
+  .answer:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 rgba(0,0,0,.14);
+  }
+
+  .answer.correct{
+    background:#eaffef;
+    border-color:#42c86f;
+    color:#126c36;
+  }
+
+  .answer.wrong{
+    background:#ffe8ec;
+    border-color:#f13a52;
+    color:#a01e31;
+  }
+
+  .line-choice{
+    height:70px;
+    position:relative;
+    background:#fff;
+    border-radius:14px;
+    overflow:hidden;
+  }
+
+  .line-choice::before{
+    content:"";
+    position:absolute;
+    left:8%;
+    right:8%;
+    top:50%;
+    height:8px;
+    background:#2876d9;
+    border-radius:999px;
+    transform-origin:center;
+  }
+
+  .line-down::before{transform:rotate(28deg);}
+  .line-up::before{transform:rotate(-28deg);}
+
+  .line-choice::after{
+    content:"Blue dot → Red dot";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:4px;
+    font-size:.75rem;
+    color:#555;
+    font-weight:900;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.3em;
+    font-size:2rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.25);
+    margin-top:8px;
+  }
+
+  .status{
+    min-height:2.5em;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:clamp(1rem,2.5vw,1.2rem);
+    font-weight:1000;
+    color:var(--purple);
+    padding:8px;
+  }
+
+  .buttons{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:9px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:10px 15px;
+    font-size:.95rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.17);
+    transition:transform .1s ease,filter .1s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .btn:hover{
+    filter:brightness(1.04);
+    transform:translateY(-1px);
+  }
+
+  .btn:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 rgba(0,0,0,.14);
+  }
+
+  .btn.home{background:#25d17d;color:#fff;}
+  .btn.prev,.btn.next{background:#f7dc6f;color:#8b5a00;}
+  .btn.read{background:#f04d5f;color:#fff;}
+  .btn.clear{background:#dfeaff;color:#1f3b6b;}
+
+  .confetti-piece{
+    position:fixed;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    z-index:9999;
+    pointer-events:none;
+    animation:fall 1.8s linear forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(105vh) rotate(540deg);opacity:.1;}
+  }
+
+  @media(max-width:860px){
+    .quiz-grid{grid-template-columns:1fr;}
+    .poster-card img{height:360px;}
+  }
+
+  @media(max-width:620px){
+    body{padding:6px;}
+    .app{padding:8px;border-radius:18px;}
+    .answers{grid-template-columns:1fr;}
+    .btn{font-size:.85rem;padding:9px 12px;}
+    .poster-card img{height:300px;}
+  }
+</style>
+</head>
+
+<body>
+<main class="app" aria-label="Diagonal Lines interactive quiz">
+  <h1 class="title">Diagonal Lines <span class="week-badge">Quiz</span></h1>
+
+  <section class="quiz-grid">
+    <aside class="poster-card">
+      <img id="posterImage" src="/assets/images/Bk2Shapes/DiagonalLinesWeek3.png" alt="Poster guide">
+      <div class="poster-label" id="posterLabel">Look at the poster friends before you answer.</div>
+    </aside>
+
+    <section class="quiz-panel">
+      <div class="progress-title">Quiz Progress</div>
+
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-percent" id="progressText">0%</div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-number" id="questionNumber">Question 1</div>
+        <div class="question" id="questionText">Loading question...</div>
+        <div class="answers" id="answers"></div>
+      </div>
+
+      <div class="stars" id="stars">☆ ☆ ☆</div>
+      <div class="status" id="statusText">Listen, look, and choose the best answer.</div>
+
+      <div class="buttons">
+        <button class="btn prev" id="prevBtn" type="button">⬅ Previous</button>
+        <button class="btn read" id="readBtn" type="button">🔊 Read</button>
+        <button class="btn clear" id="restartBtn" type="button">Restart ✕</button>
+        <button class="btn next" id="nextBtn" type="button">Next ➜</button>
+        <a class="btn home" href="../../../../../index.html">🏠 Home</a>
+      </div>
+    </section>
+  </section>
+</main>
+
+<script>
+  const HOME_PAGE = "../../../../../index.html";
+    const PREVIOUS_PAGE = "BK2LBGame3.html";
+    const NEXT_PAGE = "../../week-4/Tuesday/Bk2LB20.html";
+    const CHIME_SRC = "/assets/audio/chimes/chime.mp3";
+
+  const questions = [
+    {
+        poster:"/assets/images/Bk2Shapes/DiagonalLinesWeek3.png",
+      label:"Girl and boy poster",
+      q:"Who says, “I need a skirt”?",
+      correct:"The girl",
+      answers:["The boy","The girl","The teacher","The number 20"]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/DiagonalLinesWeek3.png",
+      label:"Girl and boy poster",
+      q:"Who says, “I need shorts”?",
+      correct:"The boy",
+      answers:["The girl","The teacher","The boy","The skirt"]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/DiagonalLinesWeek3.png",
+      label:"Diagonal line directions",
+      q:"Which line shows across and down?",
+      correct:"Across and down",
+      answers:[
+        {text:"Across and down",line:"down"},
+        {text:"Across and up",line:"up"},
+        "Straight up",
+        "Circle line"
+      ]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/LineDirectionsClothes.png",
+      label:"What do you need poster",
+      q:"In the clothes shop poster, what does the boy need?",
+      correct:"Clothes",
+      answers:["Food","Clothes","A toy","A book"]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/LineDirectionsClothes.png",
+      label:"Can I help you poster",
+      q:"What polite answer does the boy say?",
+      correct:"Yes, please.",
+      answers:["No way.","Yes, please.","Go away.","I am sleeping."]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/NumbersSubtractLinesWeek3.png",
+      label:"Subtract diagonal lines poster",
+      q:"20 minus 6 lines equals what?",
+      correct:"14",
+      answers:["14","12","10","8"]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/NumbersSubtractLinesWeek3.png",
+      label:"Subtract diagonal lines poster",
+      q:"20 minus 8 lines equals what?",
+      correct:"12",
+      answers:["18","14","12","9"]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/NumbersSubtractLinesWeek3.png",
+      label:"Subtract diagonal lines poster",
+      q:"20 minus 10 lines equals what?",
+      correct:"10",
+      answers:["10","11","12","20"]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/DiagonalLinesWeek3.png",
+      label:"Lesson sentence poster",
+      q:"Complete the sentence: Lines can be drawn across and ____.",
+      correct:"down",
+      answers:["down","round","sleep","jump"]
+    },
+    {
+        poster:"/assets/images/Bk2Shapes/DiagonalLinesWeek3.png",
+      label:"Lesson sentence poster",
+      q:"Complete the sentence: Lines can be drawn across and ____.",
+      correct:"up",
+      answers:["under","up","inside","behind"]
+    }
+  ];
+
+  const posterImage = document.getElementById("posterImage");
+  const posterLabel = document.getElementById("posterLabel");
+  const questionNumber = document.getElementById("questionNumber");
+  const questionText = document.getElementById("questionText");
+  const answers = document.getElementById("answers");
+  const progressFill = document.getElementById("progressFill");
+  const progressText = document.getElementById("progressText");
+  const stars = document.getElementById("stars");
+  const statusText = document.getElementById("statusText");
+
+  let index = 0;
+  let score = 0;
+  let locked = false;
+  let chime = new Audio(CHIME_SRC);
+  chime.preload = "auto";
+
+  function chooseFemaleVoice(){
+    if (!("speechSynthesis" in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+    const en = voices.filter(v => /^en/i.test(v.lang || ""));
+    const preferred = ["Jenny","Aria","Samantha","Victoria","Zira","Susan","Karen","Moira","Tessa","Serena","Google US English","Microsoft Zira"];
+    for (const name of preferred){
+      const found = en.find(v => (v.name || "").toLowerCase().includes(name.toLowerCase()));
+      if (found) return found;
+    }
+    return en.find(v => /us|united states/i.test(v.lang || v.name || "")) || en[0] || voices[0] || null;
+  }
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = chooseFemaleVoice;
+  }
+
+  function speak(text,onDone){
+    if (!("speechSynthesis" in window)) {
+      if (onDone) onDone();
+      return;
+    }
+    try{
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = .9;
+      u.pitch = 1.16;
+      u.volume = 1;
+      const voice = chooseFemaleVoice();
+      if (voice) u.voice = voice;
+      if (onDone) {
+        u.onend = onDone;
+        u.onerror = onDone;
+      }
+      window.speechSynthesis.speak(u);
+    }catch(e){
+      if (onDone) onDone();
+    }
+  }
+
+  function playChime(){
+    try{
+      const s = chime.cloneNode(true);
+      s.volume = 1;
+      s.play().catch(()=>fallbackBeep(880,.08));
+    }catch(e){
+      fallbackBeep(880,.08);
+    }
+  }
+
+  function fallbackBeep(freq,duration){
+    try{
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.frequency.value = freq;
+      osc.type = "sine";
+      gain.gain.setValueAtTime(.045, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001, ac.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start();
+      osc.stop(ac.currentTime + duration);
+    }catch(e){}
+  }
+
+  function playApplause(){
+    for (let i=0;i<12;i++){
+      setTimeout(()=>fallbackBeep(420 + Math.random()*520,.055), i*55);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#f13a52","#2876d9","#35b64b","#ffd24a","#ff8a5b","#8d5df7"];
+    for (let i=0;i<40;i++){
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      p.style.left = Math.random()*100 + "vw";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDelay = Math.random()*.3 + "s";
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),2200);
+    }
+  }
+
+  function render(){
+    locked = false;
+
+    const q = questions[index];
+    posterImage.src = q.poster;
+    posterLabel.textContent = q.label;
+    questionNumber.textContent = "Question " + (index + 1) + " of " + questions.length;
+    questionText.textContent = q.q;
+    answers.innerHTML = "";
+
+    q.answers.forEach(answer => {
+      const text = typeof answer === "string" ? answer : answer.text;
+
+      const btn = document.createElement("button");
+      btn.className = "answer";
+      btn.type = "button";
+
+      if (typeof answer === "object" && answer.line) {
+        btn.innerHTML = `<div class="line-choice line-${answer.line}"></div><div>${answer.text}</div>`;
+      } else {
+        btn.textContent = text;
+      }
+
+      btn.addEventListener("click",()=>checkAnswer(text,btn));
+      answers.appendChild(btn);
+    });
+
+    statusText.textContent = "Choose the best answer.";
+    updateProgress();
+    speak("Question " + (index + 1) + ". " + q.q);
+  }
+
+  function checkAnswer(choice,btn){
+    if (locked) return;
+    locked = true;
+
+    const q = questions[index];
+    const allButtons = Array.from(document.querySelectorAll(".answer"));
+
+    allButtons.forEach(b => {
+      const label = b.textContent.trim();
+      if (label.includes(q.correct)) b.classList.add("correct");
+    });
+
+    if (choice === q.correct) {
+      btn.classList.add("correct");
+      score++;
+      playChime();
+      statusText.textContent = "Correct! Great job.";
+      speak("Correct! Great job.", nextAfterDelay);
+    } else {
+      btn.classList.add("wrong");
+      statusText.textContent = "Good try. The correct answer is " + q.correct + ".";
+      speak("Good try. The correct answer is " + q.correct + ".", nextAfterDelay);
+    }
+
+    updateProgress();
+  }
+
+  function nextAfterDelay(){
+    setTimeout(() => {
+      if (index < questions.length - 1) {
+        index++;
+        render();
+      } else {
+        finishQuiz();
+      }
+    }, 900);
+  }
+
+  function updateProgress(){
+    const answered = locked ? index + 1 : index;
+    const percent = Math.round((answered / questions.length) * 100);
+
+    progressFill.style.width = percent + "%";
+    progressText.textContent = percent + "%";
+
+    const scorePercent = Math.round((score / questions.length) * 100);
+
+    if (scorePercent >= 80) stars.textContent = "★ ★ ★";
+    else if (scorePercent >= 50) stars.textContent = "★ ★ ☆";
+    else if (score > 0) stars.textContent = "★ ☆ ☆";
+    else stars.textContent = "☆ ☆ ☆";
+
+    saveProgress(scorePercent);
+  }
+
+  function finishQuiz(){
+    const scorePercent = Math.round((score / questions.length) * 100);
+
+    questionNumber.textContent = "Quiz Complete";
+    questionText.textContent = "You scored " + score + " out of " + questions.length + "!";
+    answers.innerHTML = "";
+
+    const finishMessage = document.createElement("div");
+    finishMessage.style.textAlign = "center";
+    finishMessage.style.fontSize = "1.35rem";
+    finishMessage.style.fontWeight = "1000";
+    finishMessage.style.color = "#2b6b34";
+    finishMessage.innerHTML = "You learned diagonal lines, clothes words, and subtracting lines from 20.";
+    answers.appendChild(finishMessage);
+
+    progressFill.style.width = "100%";
+    progressText.textContent = "100%";
+
+    playChime();
+    playApplause();
+    confetti();
+
+    statusText.textContent = "Excellent work!";
+    speak("Excellent work! You completed the Diagonal Lines quiz. You learned across and down, across and up, clothing words, and subtraction.");
+    saveProgress(scorePercent);
+  }
+
+  function readCurrent(){
+    if (index >= questions.length) return;
+    const q = questions[index];
+    speak("Question " + (index + 1) + ". " + q.q);
+  }
+
+  function restart(){
+    index = 0;
+    score = 0;
+    locked = false;
+    render();
+    speak("Let us start the quiz again.");
+  }
+
+  function saveProgress(scorePercent){
+    try{
+      const payload = {
+        pageId:"Bk2DiagonalLinesQuiz",
+        file:"Bk2DiagonalLinesQuiz.html",
+        level:"A",
+        activityType:"quiz",
+        score:Math.max(0,Math.min(100,Math.round(scorePercent))),
+        stars:scorePercent >= 80 ? 3 : scorePercent >= 50 ? 2 : scorePercent > 0 ? 1 : 0,
+        completed:scorePercent >= 70,
+        skills:{reading:1,writing:1,speaking:1,listening:1,math:1},
+        savedAt:new Date().toISOString()
+      };
+
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+      store.Bk2DiagonalLinesQuiz = {...(store.Bk2DiagonalLinesQuiz || {}),...payload};
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS",JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE","Bk2DiagonalLinesQuiz.html");
+    }catch(e){}
+  }
+
+  document.getElementById("readBtn").addEventListener("click",readCurrent);
+  document.getElementById("restartBtn").addEventListener("click",restart);
+  document.getElementById("prevBtn").addEventListener("click",()=>{window.location.href = PREVIOUS_PAGE;});
+  document.getElementById("nextBtn").addEventListener("click",()=>{window.location.href = NEXT_PAGE;});
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") window.location.href = PREVIOUS_PAGE;
+    if (e.key === "ArrowRight") window.location.href = NEXT_PAGE;
+    if (e.key.toLowerCase() === "h") window.location.href = HOME_PAGE;
+    if (e.key.toLowerCase() === "r") readCurrent();
+  });
+
+  window.addEventListener("load",() => {
+    render();
+    setTimeout(() => {
+      speak("Welcome to the Diagonal Lines quiz. Look at the poster friends and choose the correct answer.");
+    },700);
+  });
+</script>
+</body>
+</html>
+>

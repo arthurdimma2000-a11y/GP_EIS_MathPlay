@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Measuring Sticks - Week 3</title>
+
+<style>
+  :root{
+    --green:#35ad4a;
+    --deep-green:#1c8e39;
+    --soft-green:#effff4;
+    --red:#ff4353;
+    --cream:#fff8ef;
+    --ink:#262329;
+    --gold:#ffd94d;
+    --blue:#58c6ff;
+    --shadow:0 18px 38px rgba(0,0,0,.14);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    min-height:100%;
+    background:#fff9ef;
+    color:var(--ink);
+  }
+
+  body{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#f1e6d8 1px, transparent 1px),
+      linear-gradient(90deg, #f1e6d8 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(980px,100%);
+    border:8px solid var(--green);
+    border-radius:30px;
+    background:#fffdf8;
+    box-shadow:var(--shadow);
+    padding:12px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .lesson-title{
+    margin:0 0 10px;
+    text-align:center;
+    font-size:clamp(1.35rem,4.5vw,2.4rem);
+    color:var(--deep-green);
+    font-weight:1000;
+    line-height:1.05;
+    text-shadow:0 2px 0 #fff, 0 4px 0 rgba(53,173,74,.18);
+  }
+
+  .poster-wrap{
+    position:relative;
+    width:min(868px,100%);
+    margin:0 auto;
+    border-radius:22px;
+    overflow:hidden;
+    background:#fff;
+    box-shadow:0 10px 22px rgba(0,0,0,.12);
+  }
+
+  .poster-img{
+    width:100%;
+    display:block;
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+  }
+
+  .shape-zone{
+    position:absolute;
+    z-index:8;
+    border:5px solid transparent;
+    border-radius:38px;
+    background:rgba(255,255,255,.001);
+    cursor:pointer;
+    touch-action:manipulation;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+
+  .shape-zone:hover,
+  .shape-zone.focused{
+    border-color:rgba(255,217,77,.95);
+    background:rgba(255,255,255,.10);
+    box-shadow:0 0 0 8px rgba(255,217,77,.22),0 8px 18px rgba(0,0,0,.12);
+    transform:scale(1.015);
+  }
+
+  .shape-zone.correct-done{
+    border-color:rgba(35,169,91,.98);
+    background:rgba(35,169,91,.10);
+    box-shadow:
+      0 0 0 8px rgba(35,169,91,.20),
+      0 0 26px rgba(35,169,91,.55);
+    animation:goodPulse 1s ease-in-out infinite;
+  }
+
+  .shape-zone.wrong{
+    border-color:rgba(255,67,83,.98);
+    background:rgba(255,67,83,.10);
+    box-shadow:0 0 0 8px rgba(255,67,83,.18);
+    animation:wiggle .38s ease;
+  }
+
+  /* Six poster answer zones */
+  .zone-top-left{left:14%;top:15%;width:34%;height:26%;}
+  .zone-top-right{left:54%;top:15%;width:35%;height:26%;}
+  .zone-middle-left{left:13%;top:42%;width:35%;height:22%;}
+  .zone-middle-right{left:54%;top:41%;width:35%;height:25%;}
+  .zone-bottom-left{left:11%;top:67%;width:40%;height:25%;}
+  .zone-bottom-right{left:52%;top:67%;width:38%;height:25%;}
+
+  @keyframes goodPulse{
+    0%,100%{filter:brightness(1)}
+    50%{filter:brightness(1.16)}
+  }
+
+  @keyframes wiggle{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-8px)}
+    75%{transform:translateX(8px)}
+  }
+
+  .activity-panel{
+    margin:14px auto 0;
+    width:min(868px,100%);
+    background:#fff8fb;
+    border:3px solid #cdf2cd;
+    border-radius:22px;
+    padding:12px;
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
+  }
+
+  .prompt-card{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+    background:#fff;
+    border:3px dashed #9be69f;
+    border-radius:18px;
+    padding:12px 14px;
+  }
+
+  .prompt-text{
+    font-size:clamp(1.05rem,3.4vw,1.6rem);
+    line-height:1.25;
+    font-weight:1000;
+    color:#31533a;
+  }
+
+  .target-pill{
+    min-width:118px;
+    min-height:64px;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    border-radius:18px;
+    background:linear-gradient(180deg,#fff9d4,#ffe8a3);
+    color:#8b5a00;
+    font-size:clamp(1.05rem,3.5vw,1.45rem);
+    font-weight:1000;
+    box-shadow:0 6px 0 rgba(0,0,0,.13);
+    padding:8px;
+  }
+
+  .progress-wrap{margin-top:12px;}
+
+  .progress-label{
+    text-align:center;
+    font-weight:1000;
+    color:#31533a;
+    margin-bottom:6px;
+    font-size:clamp(1rem,3vw,1.2rem);
+  }
+
+  .bar{
+    height:18px;
+    background:#e8eef8;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.12);
+  }
+
+  .fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#58c6ff,#83e79f,#ffd94d);
+    transition:width .25s ease;
+  }
+
+  .mini-progress{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+    margin-top:10px;
+    text-align:center;
+    font-weight:900;
+    font-size:.95rem;
+  }
+
+  .mini-box{
+    background:#fff;
+    border:2px solid #e7edf8;
+    border-radius:12px;
+    padding:8px 6px;
+  }
+
+  .mini-box.done{
+    border-color:#95e7b6;
+    background:#effff4;
+    color:#126b37;
+  }
+
+  .controls{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:12px 18px;
+    font-size:1rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.18);
+    transition:transform .1s ease, filter .1s ease;
+  }
+
+  .btn:hover{filter:brightness(1.04);transform:translateY(-1px)}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.14)}
+  .btn.primary{background:var(--green);color:#fff}
+  .btn.yellow{background:#f7dc6f;color:#8b5a00}
+  .btn.pink{background:#ffd7e8;color:#9a1d59}
+  .btn.red{background:#ffe0e0;color:#9a1620}
+
+  .status{
+    margin-top:11px;
+    min-height:1.5em;
+    text-align:center;
+    font-size:clamp(1rem,3vw,1.35rem);
+    font-weight:1000;
+    color:#18833a;
+  }
+
+  .feedback-box{
+    margin:10px auto 0;
+    max-width:760px;
+    min-height:48px;
+    background:#fff;
+    border:3px solid #d9efd9;
+    border-radius:18px;
+    padding:10px 12px;
+    text-align:center;
+    font-size:clamp(1rem,3vw,1.25rem);
+    font-weight:900;
+    color:#31533a;
+    line-height:1.35;
+  }
+
+  .feedback-box.good{
+    border-color:#72d88e;
+    background:#effff4;
+    color:#126b37;
+  }
+
+  .feedback-box.try{
+    border-color:#ffb0b5;
+    background:#fff1f2;
+    color:#a51b2c;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.3em;
+    font-size:2.1rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);
+  }
+
+  .nav-row{
+    width:min(868px,100%);
+    margin:14px auto 0;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .nav-link{
+    text-decoration:none;
+    text-align:center;
+    flex:1 1 160px;
+    border-radius:18px;
+    padding:12px 14px;
+    font-size:1.05rem;
+    font-weight:1000;
+    color:#fff;
+    background:var(--deep-green);
+    box-shadow:0 5px 0 rgba(0,0,0,.18);
+  }
+
+  .nav-link:hover{filter:brightness(1.05)}
+
+  .confetti-piece{
+    position:fixed;
+    top:-24px;
+    width:10px;
+    height:16px;
+    border-radius:4px;
+    z-index:9999;
+    pointer-events:none;
+    animation:fall 1.8s linear forwards;
+  }
+
+  @keyframes fall{
+    to{transform:translateY(105vh) rotate(540deg);opacity:.05}
+  }
+
+  @media(max-width:700px){
+    body{padding:6px}
+    .app{border-width:5px;border-radius:20px;padding:7px}
+    .prompt-card{grid-template-columns:1fr;text-align:center}
+    .target-pill{margin:auto}
+    .mini-progress{grid-template-columns:1fr}
+    .nav-link{flex-basis:120px}
+    .btn{font-size:.92rem;padding:10px 14px}
+  }
+</style>
+</head>
+
+<body>
+<main class="app">
+  <h1 class="lesson-title">Measuring Sticks</h1>
+
+  <section class="poster-wrap" aria-label="Measuring Sticks poster">
+    <img
+      class="poster-img"
+      id="posterImg"
+      src="/assets/images/Bk2Shapes/MeasuringStick.png"
+      alt="Measuring Sticks poster"
+    >
+
+    <button class="shape-zone zone-top-left" type="button" data-shape="top-left" data-correct="false" aria-label="Top left shape"></button>
+    <button class="shape-zone zone-top-right" type="button" data-shape="top-right" data-correct="true" aria-label="Top right same length sticks shape"></button>
+    <button class="shape-zone zone-middle-left" type="button" data-shape="middle-left" data-correct="false" aria-label="Middle left shape"></button>
+    <button class="shape-zone zone-middle-right" type="button" data-shape="middle-right" data-correct="false" aria-label="Middle right shape"></button>
+    <button class="shape-zone zone-bottom-left" type="button" data-shape="bottom-left" data-correct="true" aria-label="Bottom left same length sticks shape"></button>
+    <button class="shape-zone zone-bottom-right" type="button" data-shape="bottom-right" data-correct="false" aria-label="Bottom right shape"></button>
+  </section>
+
+  <section class="activity-panel" aria-label="Measuring sticks activity">
+    <div class="prompt-card">
+      <div class="prompt-text" id="promptText">
+        Circle the shapes with the same length sticks.
+      </div>
+      <div class="target-pill" id="targetPill">Week 3</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label" id="progressLabel">Circle progress: 0%</div>
+      <div class="bar" aria-hidden="true">
+        <div class="fill" id="fill"></div>
+      </div>
+
+      <div class="mini-progress" id="miniProgress">
+        <div class="mini-box" id="answer1">Top-right hexagon</div>
+        <div class="mini-box" id="answer2">Bottom-left hexagon</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="startBtn" type="button">▶ Start Lesson</button>
+      <button class="btn yellow" id="readBtn" type="button">🔊 Read Poster</button>
+      <button class="btn pink" id="cheerBtn" type="button">🎉 Cheer</button>
+      <button class="btn red" id="resetBtn" type="button">↺ Reset</button>
+    </div>
+
+    <div class="status" id="status">Ready! Tap Start Lesson.</div>
+    <div class="feedback-box" id="feedbackBox">
+      Find and circle the shapes made with sticks that are all the same length.
+    </div>
+    <div class="stars" id="stars" aria-live="polite"></div>
+  </section>
+
+  <nav class="nav-row" aria-label="Lesson navigation">
+    <a class="nav-link" id="prevBtn" href="../Tuesday/Bk2LB14.html">⬅ Prev</a>
+    <a class="nav-link" id="homeBtn" href="../../../../../index.html">🏠 Home</a>
+    <a class="nav-link" id="nextBtn" href="./Bk2LB19.html">Next ➜</a>
+  </nav>
+
+  <audio id="chimeSound" preload="auto" src="/assets/audio/chimes/chime.mp3"></audio>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const PAGE_ID = "Bk2LB15_MeasuringSticks_Week3";
+  const LEVEL = "B";
+  const TOTAL_CORRECT = 2;
+
+  const POSTER_SOURCES = [
+    "/assets/images/Bk2Shapes/MeasuringStick.png",
+    "/assets/images/Bk2Shapes/MeasuringSticks.png",
+    "./MeasuringStick.png",
+    "MeasuringStick.png",
+    "MeasuringSticks.png"
+  ];
+
+  const CHIME_SOURCES = [
+    "/assets/audio/chimes/chime.mp3",
+    "/assets/audio/chime.mp3",
+    "./chime.mp3",
+    "chime.mp3"
+  ];
+
+  const posterImg = document.getElementById("posterImg");
+  const startBtn = document.getElementById("startBtn");
+  const readBtn = document.getElementById("readBtn");
+  const cheerBtn = document.getElementById("cheerBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  const status = document.getElementById("status");
+  const feedbackBox = document.getElementById("feedbackBox");
+  const promptText = document.getElementById("promptText");
+  const targetPill = document.getElementById("targetPill");
+  const fill = document.getElementById("fill");
+  const progressLabel = document.getElementById("progressLabel");
+  const stars = document.getElementById("stars");
+  const chimeSound = document.getElementById("chimeSound");
+
+  const shapeZones = Array.from(document.querySelectorAll(".shape-zone"));
+  const answer1 = document.getElementById("answer1");
+  const answer2 = document.getElementById("answer2");
+
+  let completedShapes = new Set();
+  let started = false;
+  let audioCtx = null;
+  let finished = false;
+
+  function setStatus(text){
+    status.textContent = text || "";
+  }
+
+  function setupFallbackImage(img, sources){
+    let i = 0;
+    img.addEventListener("error", () => {
+      i += 1;
+      if(i < sources.length){
+        img.src = sources[i];
+      }
+    });
+    img.src = sources[0];
+  }
+
+  function chooseVoice(){
+    const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+    const preferred = ["Samantha","Ava","Jenny","Aria","Zira","Microsoft Zira","Google US English"];
+
+    for(const name of preferred){
+      const found = voices.find(v =>
+        v.name &&
+        v.name.toLowerCase().includes(name.toLowerCase()) &&
+        /en[-_]US/i.test(v.lang || "")
+      );
+      if(found) return found;
+    }
+
+    return voices.find(v => /en[-_]US/i.test(v.lang || "") && /female|woman|zira|samantha|ava|jenny|aria/i.test(v.name || ""))
+      || voices.find(v => /en[-_]US/i.test(v.lang || ""))
+      || voices.find(v => /^en/i.test(v.lang || ""))
+      || null;
+  }
+
+  function speak(text, opts={}){
+    return new Promise(resolve => {
+      if(!window.speechSynthesis){
+        resolve();
+        return;
+      }
+
+      try{
+        window.speechSynthesis.cancel();
+      }catch(_){}
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.voice = chooseVoice();
+      u.rate = opts.rate || 0.86;
+      u.pitch = opts.pitch || 1.18;
+      u.volume = opts.volume || 1;
+      u.onend = resolve;
+      u.onerror = resolve;
+
+      window.speechSynthesis.speak(u);
+    });
+  }
+
+  function stopSpeaking(){
+    try{
+      if(window.speechSynthesis) window.speechSynthesis.cancel();
+    }catch(_){}
+  }
+
+  function getAudioCtx(){
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if(!AudioContext) return null;
+
+    if(!audioCtx){
+      audioCtx = new AudioContext();
+    }
+
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume().catch(()=>{});
+    }
+
+    return audioCtx;
+  }
+
+  function playTone(freq, start, dur, type="sine", gain=.08){
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+
+    g.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+    g.gain.linearRampToValueAtTime(gain, ctx.currentTime + start + .02);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + start + dur);
+
+    osc.connect(g);
+    g.connect(ctx.destination);
+
+    osc.start(ctx.currentTime + start);
+    osc.stop(ctx.currentTime + start + dur + .04);
+  }
+
+  function playSynthChime(){
+    playTone(659,0,.18,"triangle",.08);
+    playTone(880,.15,.22,"triangle",.08);
+    playTone(1047,.34,.26,"triangle",.075);
+  }
+
+  function playChime(){
+    getAudioCtx();
+
+    function trySource(index){
+      if(index >= CHIME_SOURCES.length){
+        playSynthChime();
+        return;
+      }
+
+      try{
+        const audio = index === 0 ? chimeSound : new Audio(CHIME_SOURCES[index]);
+        audio.currentTime = 0;
+        audio.volume = .95;
+
+        const p = audio.play();
+
+        if(p && typeof p.catch === "function"){
+          p.catch(() => trySource(index + 1));
+        }
+      }catch(_){
+        trySource(index + 1);
+      }
+    }
+
+    trySource(0);
+  }
+
+  function errorSound(){
+    playTone(250,0,.18,"sawtooth",.045);
+    playTone(190,.16,.22,"sawtooth",.035);
+  }
+
+  function applause(){
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+
+    for(let i=0;i<16;i++){
+      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * .055), ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for(let j=0;j<data.length;j++){
+        data[j] = (Math.random()*2-1) * Math.exp(-j/data.length*4);
+      }
+
+      const src = ctx.createBufferSource();
+      const g = ctx.createGain();
+
+      g.gain.value = .025;
+      src.buffer = buffer;
+
+      src.connect(g);
+      g.connect(ctx.destination);
+
+      src.start(ctx.currentTime + i*.045);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#35ad4a","#ffd94d","#f64d91","#38bdf8","#a855f7","#ff7a59"];
+
+    for(let i=0;i<56;i++){
+      const p = document.createElement("span");
+      p.className = "confetti-piece";
+      p.style.left = Math.random()*100 + "vw";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDelay = Math.random()*0.4 + "s";
+      p.style.transform = "rotate(" + (Math.random()*180) + "deg)";
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2300);
+    }
+  }
+
+  function updateProgress(){
+    const percent = Math.round((completedShapes.size / TOTAL_CORRECT) * 100);
+
+    fill.style.width = percent + "%";
+    progressLabel.textContent = "Circle progress: " + percent + "%";
+
+    answer1.classList.toggle("done", completedShapes.has("top-right"));
+    answer2.classList.toggle("done", completedShapes.has("bottom-left"));
+
+    stars.textContent = "⭐".repeat(completedShapes.size);
+
+    saveProgress(percent);
+
+    if(percent >= 100 && !finished){
+      finishLesson();
+    }
+  }
+
+  function saveProgress(score){
+    try{
+      const fileName = location.pathname.split("/").pop() || PAGE_ID + ".html";
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+
+      store[PAGE_ID] = {
+        pageId: PAGE_ID,
+        file: fileName,
+        level: LEVEL,
+        type: "lesson",
+        activityType: "circle-same-length-sticks",
+        score: Math.round(score || 0),
+        completed: score >= 100,
+        skills: {
+          observing: completedShapes.size,
+          listening: 1,
+          measuring: completedShapes.size,
+          tracing: score
+        },
+        savedAt: new Date().toISOString(),
+        ts: Date.now()
+      };
+
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE", fileName);
+    }catch(_){}
+  }
+
+  async function startLesson(){
+    getAudioCtx();
+    started = true;
+    finished = false;
+
+    shapeZones.forEach(zone => {
+      if(!zone.classList.contains("correct-done")){
+        zone.classList.add("focused");
+      }
+    });
+
+    promptText.textContent = "Circle the shapes with the same length sticks.";
+    targetPill.textContent = completedShapes.size + " / " + TOTAL_CORRECT;
+    feedbackBox.className = "feedback-box";
+    feedbackBox.textContent = "Tap the shapes that are made with sticks of the same length.";
+
+    setStatus("Look carefully. Find the shapes with same length sticks.");
+
+    await speak(
+      "Welcome to Measuring Sticks. Look carefully at the poster. Circle the shapes with the same length sticks. Tap the top right hexagon and the bottom left hexagon.",
+      {rate:.84,pitch:1.2}
+    );
+  }
+
+  async function readPoster(){
+    getAudioCtx();
+
+    started = true;
+
+    setStatus("Reading the poster.");
+    feedbackBox.className = "feedback-box";
+    feedbackBox.textContent = "Circle the shapes with the same length sticks.";
+
+    await speak("Measuring Sticks. Week three. Circle the shapes with the same length sticks.", {
+      rate:.84,
+      pitch:1.2
+    });
+
+    await speak("Some shapes are made with sticks of different lengths. Some shapes are made with sticks of the same length. Find the same length shapes and tap them.", {
+      rate:.84,
+      pitch:1.18
+    });
+
+    setStatus("Now tap the same length stick shapes.");
+  }
+
+  async function handleShapeTap(zone){
+    getAudioCtx();
+
+    if(!started){
+      await startLesson();
+      return;
+    }
+
+    const shape = zone.dataset.shape;
+    const correct = zone.dataset.correct === "true";
+
+    zone.classList.remove("focused");
+
+    if(correct){
+      if(completedShapes.has(shape)){
+        zone.classList.add("wrong");
+        setTimeout(() => zone.classList.remove("wrong"), 420);
+
+        feedbackBox.className = "feedback-box try";
+        feedbackBox.textContent = "You already circled this shape. Find the other same-length shape.";
+        setStatus("You already circled this shape.");
+
+        errorSound();
+
+        await speak("You already circled this one. Find the other same length shape.", {
+          rate:.88,
+          pitch:1.12
+        });
+
+        return;
+      }
+
+      completedShapes.add(shape);
+      zone.classList.add("correct-done");
+
+      playChime();
+
+      targetPill.textContent = completedShapes.size + " / " + TOTAL_CORRECT;
+
+      feedbackBox.className = "feedback-box good";
+
+      if(shape === "top-right"){
+        feedbackBox.textContent = "Correct! The top-right hexagon is made with same length sticks.";
+        setStatus("Correct! Top-right hexagon.");
+        await speak("Correct! The top right hexagon is made with same length sticks.", {
+          rate:.84,
+          pitch:1.22
+        });
+      }else{
+        feedbackBox.textContent = "Correct! The bottom-left hexagon is made with same length sticks.";
+        setStatus("Correct! Bottom-left hexagon.");
+        await speak("Correct! The bottom left hexagon is made with same length sticks.", {
+          rate:.84,
+          pitch:1.22
+        });
+      }
+
+      updateProgress();
+
+      if(completedShapes.size < TOTAL_CORRECT){
+        await speak("Good job. Find one more shape with same length sticks.", {
+          rate:.88,
+          pitch:1.16
+        });
+        setStatus("Find one more same-length shape.");
+      }
+
+      return;
+    }
+
+    zone.classList.add("wrong");
+    setTimeout(() => zone.classList.remove("wrong"), 450);
+
+    feedbackBox.className = "feedback-box try";
+    feedbackBox.textContent = "Oops! This shape does not use all same length sticks. Try another one.";
+    setStatus("Oops! Try another shape.");
+
+    errorSound();
+
+    await speak("Oops! This shape does not use all same length sticks. Try another one.", {
+      rate:.88,
+      pitch:1.1
+    });
+  }
+
+  async function finishLesson(){
+    finished = true;
+
+    shapeZones.forEach(zone => zone.classList.remove("focused"));
+
+    promptText.textContent = "Fantastic! You circled the same length stick shapes.";
+    targetPill.textContent = "Done!";
+    feedbackBox.className = "feedback-box good";
+    feedbackBox.textContent = "Great work! The top-right hexagon and bottom-left hexagon have same length sticks.";
+
+    setStatus("Fantastic! You found all the same length stick shapes.");
+
+    playChime();
+    applause();
+    confetti();
+
+    await speak("Fantastic! You found all the shapes with same length sticks. Great work!", {
+      rate:.84,
+      pitch:1.24
+    });
+  }
+
+  function resetLesson(){
+    stopSpeaking();
+
+    completedShapes = new Set();
+    started = false;
+    finished = false;
+
+    shapeZones.forEach(zone => {
+      zone.classList.remove("focused","correct-done","wrong");
+    });
+
+    promptText.textContent = "Circle the shapes with the same length sticks.";
+    targetPill.textContent = "Week 3";
+    feedbackBox.className = "feedback-box";
+    feedbackBox.textContent = "Find and circle the shapes made with sticks that are all the same length.";
+
+    setStatus("Ready! Tap Start Lesson.");
+    stars.textContent = "";
+
+    updateProgress();
+  }
+
+  cheerBtn.addEventListener("click", async () => {
+    getAudioCtx();
+    playChime();
+    applause();
+    confetti();
+
+    setStatus("You can do it! Measuring is fun!");
+    feedbackBox.className = "feedback-box good";
+    feedbackBox.textContent = "You can do it! Look carefully for same length sticks.";
+
+    await speak("You can do it! Measuring is fun. Look carefully for same length sticks.", {
+      rate:.84,
+      pitch:1.25
+    });
+  });
+
+  shapeZones.forEach(zone => {
+    zone.addEventListener("click", () => handleShapeTap(zone));
+  });
+
+  startBtn.addEventListener("click", startLesson);
+  readBtn.addEventListener("click", readPoster);
+  resetBtn.addEventListener("click", resetLesson);
+
+  document.getElementById("prevBtn").addEventListener("click", stopSpeaking);
+  document.getElementById("homeBtn").addEventListener("click", stopSpeaking);
+  document.getElementById("nextBtn").addEventListener("click", stopSpeaking);
+
+  if(window.speechSynthesis){
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  setupFallbackImage(posterImg, POSTER_SOURCES);
+
+  window.addEventListener("beforeunload", stopSpeaking);
+
+  window.addEventListener("load", () => {
+    updateProgress();
+
+    setTimeout(() => {
+      speak("Welcome! This page is Measuring Sticks. Tap Start Lesson. Circle the shapes with the same length sticks.", {
+        rate:.86,
+        pitch:1.18
+      });
+    }, 600);
+  }, {once:true});
+})();
+</script>
+</body>
+</html>

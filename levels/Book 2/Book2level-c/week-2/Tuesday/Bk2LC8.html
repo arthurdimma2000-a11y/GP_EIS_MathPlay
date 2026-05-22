@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Ordinal Numbers - Comparing Placements</title>
+
+<style>
+  :root{
+    --red:#f24b5e;
+    --dark:#25222a;
+    --card:#fffdf8;
+    --gold:#ffd24a;
+    --good:#19a85d;
+    --purple:#6c4bbf;
+    --blue:#dfeaff;
+    --orange:#ff8a5b;
+    --sky:#aee2f6;
+    --shapeBlue:#5f86cc;
+    --shadow:0 14px 32px rgba(0,0,0,.14);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    color:var(--dark);
+    background:#fff9ef;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#f3e8d8 1px,transparent 1px),
+      linear-gradient(90deg,#f3e8d8 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(980px,100%);
+    background:var(--card);
+    border:6px solid var(--shapeBlue);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    padding:12px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .home-btn{
+    position:absolute;
+    top:14px;
+    right:14px;
+    z-index:20;
+    width:78px;
+    transform-origin:top center;
+    animation:homeSwing 3.2s ease-in-out infinite;
+  }
+
+  .home-btn img{
+    display:block;
+    width:100%;
+  }
+
+  @keyframes homeSwing{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(7deg);}
+    75%{transform:rotate(-7deg);}
+  }
+
+  .top-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+
+  .title-pill{
+    background:#fff;
+    border:4px solid var(--shapeBlue);
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:clamp(1.05rem,3vw,1.55rem);
+    font-weight:1000;
+    color:var(--shapeBlue);
+    box-shadow:0 6px 0 rgba(95,134,204,.18);
+  }
+
+  .poster-wrap{
+    position:relative;
+    width:min(860px,100%);
+    margin:0 auto;
+    border-radius:18px;
+    overflow:hidden;
+    background:#aee2f6;
+  }
+
+  .poster-img{
+      width:100%;
+      height:auto;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+      pointer-events:none;
+    }
+
+    .trace-canvas{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      z-index:5;
+      cursor:crosshair;
+      touch-action:none;
+    }
+
+  .shape-hotspot{
+    position:absolute;
+    z-index:6;
+    border-radius:28px;
+    background:rgba(255,255,255,.001);
+    cursor:pointer;
+    touch-action:manipulation;
+  }
+
+  .shape-hotspot::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:28px;
+    border:4px solid transparent;
+    transition:.18s ease;
+  }
+
+  .shape-hotspot:hover::after{
+    border-color:rgba(255,210,74,.85);
+    box-shadow:0 0 20px rgba(255,210,74,.65);
+  }
+
+  .shape-hotspot.found::after{
+    border-color:rgba(25,168,93,.85);
+    box-shadow:0 0 22px rgba(25,168,93,.6);
+    animation:shapeGlow .9s ease-in-out infinite;
+  }
+
+  @keyframes shapeGlow{
+    0%,100%{filter:brightness(1);}
+    50%{filter:brightness(1.25);}
+  }
+
+  /* Hotspots sit on the racing shapes in the poster */
+  #hexagonSpot{left:6.5%;top:46.3%;width:26%;height:17%;}
+  #pentagonSpot{left:40.5%;top:44.4%;width:25%;height:18.5%;}
+  #squareSpot{left:76.5%;top:45.5%;width:17.5%;height:18%;}
+
+  .conversation-panel{
+    margin:12px auto 0;
+    width:min(860px,100%);
+    display:grid;
+    gap:10px;
+    background:linear-gradient(180deg,#fff,#fff9e9);
+    border:3px dashed rgba(108,75,191,.35);
+    border-radius:18px;
+    padding:12px;
+  }
+
+  .convo-line{
+    display:none;
+    align-items:flex-start;
+    justify-content:flex-start;
+  }
+
+  .convo-line.show{
+    display:flex;
+  }
+
+  .convo-line.right{
+    justify-content:flex-end;
+  }
+
+  .bubble-stack{
+    max-width:min(100%,560px);
+    display:grid;
+    gap:5px;
+  }
+
+  .convo-line.right .bubble-stack{
+    justify-items:end;
+  }
+
+  .bubble{
+    font-size:clamp(1.05rem,3vw,1.55rem);
+    line-height:1.25;
+    font-weight:1000;
+    padding:12px 16px;
+    border-radius:22px;
+    box-shadow:0 8px 16px rgba(0,0,0,.12);
+    background:#fff;
+    position:relative;
+  }
+
+  .bubble.pink{border:4px solid #f24b8a;}
+  .bubble.yellow{border:4px solid #ffca3a;}
+  .bubble.green{border:4px solid #78bd43;}
+  .bubble.blue{border:4px solid #5f86cc;}
+
+  .bubble.sparkle{
+    background:linear-gradient(120deg,#fff2a8,#ffd1f0,#c7f1ff);
+    box-shadow:
+      0 0 12px rgba(255,214,0,.75),
+      0 0 22px rgba(255,105,180,.45),
+      0 10px 20px rgba(0,0,0,.18);
+    animation:sparklePulse 1s ease-in-out infinite;
+  }
+
+  @keyframes sparklePulse{
+    0%,100%{filter:brightness(1);transform:scale(1);}
+    50%{filter:brightness(1.16);transform:scale(1.02);}
+  }
+
+  .repeat-result{
+    min-height:1.2em;
+    font-size:clamp(1rem,2.5vw,1.25rem);
+    font-weight:1000;
+    color:#169b55;
+  }
+
+  .try-message{
+    min-height:1.2em;
+    font-size:clamp(.95rem,2.4vw,1.1rem);
+    font-weight:1000;
+    color:#c62828;
+  }
+
+  .star-row{
+    min-height:1.2em;
+    font-size:clamp(1.25rem,3.2vw,1.8rem);
+    letter-spacing:3px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.25);
+  }
+
+  .progress-card{
+    margin:12px auto 0;
+    width:min(860px,100%);
+    background:#fff8fb;
+    border:3px solid #d6e4ff;
+    border-radius:18px;
+    padding:12px;
+    display:grid;
+    gap:8px;
+  }
+
+  .progress-label{
+    text-align:center;
+    font-weight:1000;
+    color:#4b3960;
+    font-size:clamp(1rem,2.6vw,1.2rem);
+  }
+
+  .bar-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .bar{
+    flex:1;
+    height:17px;
+    background:#e8eef8;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.12);
+  }
+
+  .fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#58c6ff,#83e79f,#ffd24a);
+    transition:width .25s ease;
+  }
+
+  .percent{
+    min-width:58px;
+    text-align:right;
+    font-size:1.05rem;
+    font-weight:1000;
+    color:#175ca8;
+  }
+
+  .controls{
+    width:min(860px,100%);
+    margin:12px auto 0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .btn,.mic-icon-btn{
+    border:none;
+    border-radius:999px;
+    min-height:46px;
+    padding:10px 16px;
+    font-size:.98rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.16);
+    transition:transform .1s ease,filter .1s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .btn:hover,.mic-icon-btn:hover{
+    filter:brightness(1.04);
+    transform:translateY(-1px);
+  }
+
+  .btn:active,.mic-icon-btn:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 rgba(0,0,0,.14);
+  }
+
+  .btn.prev,.btn.next{
+    background:#f7dc6f;
+    color:#8b5a00;
+  }
+
+  .btn.read{
+    background:var(--orange);
+    color:#fff;
+  }
+
+  .btn.clear{
+    background:var(--blue);
+    color:#1f3b6b;
+  }
+
+  .btn.cheer{
+    background:#c9f2d6;
+    color:#166c38;
+  }
+
+  .mic-icon-btn{
+    background:#fff;
+    padding:6px 12px;
+    gap:8px;
+    color:#4b3960;
+  }
+
+  .mic-icon-btn img{
+    width:42px;
+    height:42px;
+    display:block;
+  }
+
+  .mic-icon-btn.is-busy{
+    opacity:.7;
+    pointer-events:none;
+  }
+
+  .status{
+    width:min(860px,100%);
+    margin:10px auto 0;
+    text-align:center;
+    min-height:1.5em;
+    font-size:clamp(1rem,3vw,1.35rem);
+    font-weight:1000;
+    color:#5a3eb0;
+  }
+
+  .stars-overall{
+    text-align:center;
+    min-height:1.3em;
+    font-size:2rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.25);
+  }
+
+  .confetti-piece{
+    position:fixed;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    z-index:9999;
+    pointer-events:none;
+    animation:confettiFall 1.7s linear forwards;
+  }
+
+  @keyframes confettiFall{
+    to{transform:translateY(105vh) rotate(540deg);opacity:.1;}
+  }
+
+  @media(max-width:620px){
+    .app{
+      border-width:5px;
+      padding:9px;
+    }
+
+    .controls{
+      gap:8px;
+    }
+
+    .btn,.mic-icon-btn{
+      font-size:.88rem;
+      padding:9px 12px;
+    }
+
+    .home-btn{
+      position:static;
+      display:block;
+      margin:0 0 8px auto;
+    }
+  }
+</style>
+</head>
+
+<body>
+<main class="app">
+  <a class="home-btn" id="homeBtn" href="../../../../../index.html" aria-label="Home">
+    <img src="../../../Home1.png" alt="Home">
+  </a>
+
+  <div class="top-bar">
+    <div class="title-pill">Ordinal Numbers · Comparing Placements</div>
+  </div>
+
+  <div class="poster-wrap" id="posterWrap" aria-label="Ordinal numbers racing poster">
+      <img
+        class="poster-img"
+        id="posterImg"
+        src="/assets/images/Bk2Shapes/Bk2LC8.png"
+        alt="Ordinal Numbers poster. The hexagon is in first place. The shapes are racing."
+      >
+      <canvas class="trace-canvas" id="traceCanvas" aria-label="Trace the racing shapes on the poster"></canvas>
+
+      <button class="shape-hotspot" id="hexagonSpot" type="button" aria-label="Hexagon in first place"></button>
+      <button class="shape-hotspot" id="pentagonSpot" type="button" aria-label="Pentagon in second place"></button>
+      <button class="shape-hotspot" id="squareSpot" type="button" aria-label="Square in third place"></button>
+  </div>
+
+  <section class="conversation-panel" aria-label="Air bubble conversation">
+    <div class="convo-line show" id="line0">
+      <div class="bubble-stack">
+        <div class="bubble blue" data-say="The hexagon is in first place.">The hexagon is in first place.</div>
+        <div class="repeat-result" id="result0"></div>
+        <div class="try-message" id="try0"></div>
+        <div class="star-row" id="star0"></div>
+      </div>
+    </div>
+
+    <div class="convo-line right" id="line1">
+      <div class="bubble-stack">
+        <div class="bubble pink" data-say="I am in first place.">I am in first place.</div>
+        <div class="repeat-result" id="result1"></div>
+        <div class="try-message" id="try1"></div>
+        <div class="star-row" id="star1"></div>
+      </div>
+    </div>
+
+    <div class="convo-line" id="line2">
+      <div class="bubble-stack">
+        <div class="bubble yellow" data-say="I am in second place.">I am in second place.</div>
+        <div class="repeat-result" id="result2"></div>
+        <div class="try-message" id="try2"></div>
+        <div class="star-row" id="star2"></div>
+      </div>
+    </div>
+
+    <div class="convo-line right" id="line3">
+      <div class="bubble-stack">
+        <div class="bubble green" data-say="I am in third place.">I am in third place.</div>
+        <div class="repeat-result" id="result3"></div>
+        <div class="try-message" id="try3"></div>
+        <div class="star-row" id="star3"></div>
+      </div>
+    </div>
+
+    <div class="convo-line" id="line4">
+      <div class="bubble-stack">
+        <div class="bubble blue" data-say="The shapes are racing.">The shapes are racing.</div>
+        <div class="repeat-result" id="result4"></div>
+        <div class="try-message" id="try4"></div>
+        <div class="star-row" id="star4"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="progress-card" aria-label="Lesson progress">
+    <div class="progress-label">Conversation Progress</div>
+    <div class="bar-row">
+      <div class="bar">
+        <div class="fill" id="progressFill"></div>
+      </div>
+      <div class="percent" id="progressPercent">0%</div>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button class="btn prev" type="button" onclick="goPrev()">⬅ Prev</button>
+
+    <button class="mic-icon-btn" type="button" id="micBtn" aria-label="Mic conversation button">
+        <img src="/assets/images/Bk2Shapes/Microphone.png" alt="Mic">
+        <span>Mic</span>
+      </button>
+
+    <button class="btn read" type="button" id="readBtn">🔊 Auto Intro</button>
+    <button class="btn cheer" type="button" id="checkBtn">✅ Check</button>
+    <button class="btn clear" type="button" id="resetBtn">🔁 Reset</button>
+    <button class="btn next" type="button" onclick="goNext()">Next ➜</button>
+  </div>
+
+  <div class="status" id="status">
+    Tap the mic to hear each air bubble. Tap again to repeat after me.
+  </div>
+
+  <div class="stars-overall" id="overallStars"></div>
+
+  <audio id="chimeAudio" src="/assets/audio/chimes/chime.mp3" preload="auto"></audio>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  const PREVIOUS_PAGE = "LB7.html";
+  const NEXT_PAGE = "LB_Game1.html";
+
+  window.goPrev = function(){
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = PREVIOUS_PAGE;
+    }
+  };
+
+  window.goNext = function(){
+    window.location.href = NEXT_PAGE;
+  };
+
+  const lines = Array.from(document.querySelectorAll(".convo-line"));
+  const bubbles = Array.from(document.querySelectorAll(".bubble"));
+  const micBtn = document.getElementById("micBtn");
+  const readBtn = document.getElementById("readBtn");
+    const checkBtn = document.getElementById("checkBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusBox = document.getElementById("status");
+    const overallStars = document.getElementById("overallStars");
+    const progressFill = document.getElementById("progressFill");
+    const progressPercent = document.getElementById("progressPercent");
+    const chimeAudio = document.getElementById("chimeAudio");
+    const posterWrap = document.getElementById("posterWrap");
+    const posterImg = document.getElementById("posterImg");
+    const traceCanvas = document.getElementById("traceCanvas");
+
+    const hexagonSpot = document.getElementById("hexagonSpot");
+    const pentagonSpot = document.getElementById("pentagonSpot");
+    const squareSpot = document.getElementById("squareSpot");
+    const hotspotEntries = [
+      { key:"hexagon", element:hexagonSpot, message:"Yes! The hexagon is in first place." },
+      { key:"pentagon", element:pentagonSpot, message:"Good! The pentagon is in second place." },
+      { key:"square", element:squareSpot, message:"Nice! The square is in third place." }
+    ];
+    const traceCtx = traceCanvas.getContext("2d");
+
+    let audioCtx = null;
+    let currentLine = 0;
+    let stage = "hear";
+    let completed = new Set();
+    let foundShapes = new Set();
+    let introPlayed = false;
+    let isBusy = false;
+    let isTracing = false;
+    let lastPoint = null;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function setStatus(text){
+    statusBox.textContent = text;
+  }
+
+  function pickAmericanFemaleVoice(){
+    if (!("speechSynthesis" in window)) return null;
+
+    const voices = window.speechSynthesis.getVoices() || [];
+
+    return voices.find(v =>
+      /^en[-_]US/i.test(v.lang || "") &&
+      /jenny|aria|ava|allison|samantha|zira|karen|susan|female|woman|girl|olivia|emma|ivy|luna|nova/i.test(v.name || "")
+    )
+    || voices.find(v =>
+      /^en[-_]US/i.test(v.lang || "") &&
+      !/male|man|david|mark|alex|daniel|tom|guy|brian|james|paul|kevin/i.test(v.name || "")
+    )
+    || voices.find(v => /^en[-_]US/i.test(v.lang || ""))
+    || voices.find(v => /^en/i.test(v.lang || ""))
+    || voices[0]
+    || null;
+  }
+
+  function speak(text, options){
+    return new Promise(resolve => {
+      if (!("speechSynthesis" in window) || !text) {
+        resolve();
+        return;
+      }
+
+      try{ window.speechSynthesis.cancel(); }catch(e){}
+
+      const utter = new SpeechSynthesisUtterance(text);
+      const opts = options || {};
+
+      utter.lang = "en-US";
+      utter.rate = typeof opts.rate === "number" ? opts.rate : 0.86;
+      utter.pitch = typeof opts.pitch === "number" ? opts.pitch : 1.18;
+      utter.volume = 1;
+
+      const voice = pickAmericanFemaleVoice();
+      if (voice) utter.voice = voice;
+
+      utter.onend = resolve;
+      utter.onerror = resolve;
+
+      window.speechSynthesis.speak(utter);
+    });
+  }
+
+  function getAudioContext(){
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+
+    if (!audioCtx) audioCtx = new AudioContextClass();
+
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().catch(()=>{});
+    }
+
+    return audioCtx;
+  }
+
+  function playChime(){
+    try{
+      chimeAudio.currentTime = 0;
+      chimeAudio.volume = 1;
+      chimeAudio.play().catch(()=>{});
+    }catch(e){}
+  }
+
+  function playCheerSound(){
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    try{
+      for (let i = 0; i < 9; i++) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(520 + i * 70, ctx.currentTime + i * 0.045);
+
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.045);
+        gain.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + i * 0.045 + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.045 + 0.13);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + i * 0.045);
+        osc.stop(ctx.currentTime + i * 0.045 + 0.14);
+      }
+    }catch(e){}
+  }
+
+  function confetti(){
+    const colors = ["#ffd24a","#58c6ff","#83e79f","#f24b5e","#b38cff","#ff9f43"];
+
+    for (let i = 0; i < 44; i++) {
+      const piece = document.createElement("span");
+      piece.className = "confetti-piece";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * 0.3 + "s";
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 2100);
+    }
+  }
+
+  function normalizeWords(text){
+    return String(text || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g,"")
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  function matchScore(target, said){
+    const targetWords = normalizeWords(target);
+    const saidWords = normalizeWords(said);
+
+    if (!targetWords.length || !saidWords.length) return 0;
+
+    let matched = 0;
+    const used = new Set();
+
+    targetWords.forEach(t => {
+      for (let i = 0; i < saidWords.length; i++) {
+        if (used.has(i)) continue;
+        if (saidWords[i] === t) {
+          used.add(i);
+          matched++;
+          break;
+        }
+      }
+    });
+
+    return matched / targetWords.length;
+  }
+
+  function listenOnce(){
+    return new Promise(resolve => {
+      if (!SpeechRecognition) {
+        setTimeout(() => resolve(""), 1500);
+        return;
+      }
+
+      try{
+        const rec = new SpeechRecognition();
+        rec.lang = "en-US";
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+        rec.continuous = false;
+
+        let done = false;
+
+        rec.onresult = event => {
+          const transcript = event.results &&
+            event.results[0] &&
+            event.results[0][0] &&
+            event.results[0][0].transcript
+              ? event.results[0][0].transcript
+              : "";
+
+          done = true;
+          resolve(transcript);
+        };
+
+        rec.onerror = () => {
+          if (!done) resolve("");
+        };
+
+        rec.onend = () => {
+          if (!done) resolve("");
+        };
+
+        rec.start();
+      }catch(e){
+        resolve("");
+      }
+    });
+  }
+
+    function updateProgress(){
+      const shapePart = (foundShapes.size / Math.max(1, hotspotEntries.length)) * 50;
+      const convoPart = (completed.size / Math.max(1, bubbles.length)) * 50;
+      const score = Math.round(shapePart + convoPart);
+      progressFill.style.width = score + "%";
+      progressPercent.textContent = score + "%";
+
+    try{
+      localStorage.setItem("OrdinalPlacementsConversationScore", String(score));
+
+      const report = JSON.parse(localStorage.getItem("GP_EIS_PROGRESS_REPORT") || "{}");
+      report["OrdinalPlacementsConversation"] = {
+        title:"Ordinal Numbers Comparing Placements",
+        score:score,
+        completed:score >= 100,
+        updatedAt:new Date().toISOString()
+      };
+        localStorage.setItem("GP_EIS_PROGRESS_REPORT", JSON.stringify(report));
+      }catch(e){}
+    }
+
+    function resizeTraceCanvas(){
+      const rect = posterWrap.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      traceCanvas.width = Math.max(1, Math.round(rect.width * ratio));
+      traceCanvas.height = Math.max(1, Math.round(rect.height * ratio));
+      traceCtx.setTransform(1, 0, 0, 1, 0, 0);
+      traceCtx.scale(ratio, ratio);
+      traceCtx.lineCap = "round";
+      traceCtx.lineJoin = "round";
+      traceCtx.strokeStyle = "rgba(255, 99, 71, 0.78)";
+      traceCtx.lineWidth = Math.max(6, rect.width * 0.012);
+    }
+
+    function clearTraceDrawing(){
+      traceCtx.clearRect(0, 0, traceCanvas.width, traceCanvas.height);
+      isTracing = false;
+      lastPoint = null;
+    }
+
+    function getTracePoint(event){
+      const rect = traceCanvas.getBoundingClientRect();
+      return {
+        x:event.clientX - rect.left,
+        y:event.clientY - rect.top
+      };
+    }
+
+    async function markShapeFound(key){
+      if (foundShapes.has(key)) return;
+      const entry = hotspotEntries.find(item => item.key === key);
+      if (!entry) return;
+      foundShapes.add(key);
+      entry.element.classList.add("found");
+      playChime();
+      setStatus(entry.message);
+      updateProgress();
+      await speak(entry.message, {rate:.86, pitch:1.22});
+    }
+
+    function markHotspotsAtPoint(point){
+      const wrapRect = posterWrap.getBoundingClientRect();
+      hotspotEntries.forEach(entry => {
+        if (foundShapes.has(entry.key)) return;
+        const spotRect = entry.element.getBoundingClientRect();
+        const left = spotRect.left - wrapRect.left;
+        const right = spotRect.right - wrapRect.left;
+        const top = spotRect.top - wrapRect.top;
+        const bottom = spotRect.bottom - wrapRect.top;
+        if (point.x >= left && point.x <= right && point.y >= top && point.y <= bottom) {
+          markShapeFound(entry.key);
+        }
+      });
+    }
+
+    function startTrace(event){
+      try{ getAudioContext(); }catch(e){}
+      event.preventDefault();
+      isTracing = true;
+      lastPoint = getTracePoint(event);
+      markHotspotsAtPoint(lastPoint);
+    }
+
+    function moveTrace(event){
+      if (!isTracing) return;
+      event.preventDefault();
+      const point = getTracePoint(event);
+      traceCtx.beginPath();
+      traceCtx.moveTo(lastPoint.x, lastPoint.y);
+      traceCtx.lineTo(point.x, point.y);
+      traceCtx.stroke();
+      lastPoint = point;
+      markHotspotsAtPoint(point);
+    }
+
+    function endTrace(){
+      isTracing = false;
+      lastPoint = null;
+    }
+
+  function showLine(index){
+    lines.forEach((line, i) => {
+      if (i <= index) line.classList.add("show");
+    });
+
+    const bubble = bubbles[index];
+    if (bubble) {
+      bubble.scrollIntoView({behavior:"smooth",block:"center"});
+    }
+  }
+
+  function currentBubble(){
+    return bubbles[currentLine];
+  }
+
+  function setBusy(value){
+    isBusy = value;
+    micBtn.classList.toggle("is-busy", value);
+  }
+
+  async function handleMic(){
+    if (isBusy) return;
+
+    try{ getAudioContext(); }catch(e){}
+
+    const bubble = currentBubble();
+    if (!bubble) {
+      setStatus("Great job! You finished all the air bubbles.");
+      return;
+    }
+
+    const target = bubble.dataset.say || bubble.textContent.trim();
+
+    setBusy(true);
+
+    if (stage === "hear") {
+      showLine(currentLine);
+      bubble.classList.remove("sparkle");
+
+      setStatus("Listen carefully.");
+      await speak(target, {rate:.84, pitch:1.18});
+
+      stage = "repeat";
+      setStatus("Tap the mic again. Repeat after me.");
+      setBusy(false);
+      return;
+    }
+
+    if (stage === "repeat") {
+      bubble.classList.add("sparkle");
+
+      setStatus("Repeat after me.");
+      await speak("Repeat after me.", {rate:.86, pitch:1.22});
+
+      setStatus("I am listening. Say the sentence now.");
+      const heard = await listenOnce();
+      const score = matchScore(target, heard);
+
+      const result = document.getElementById("result" + currentLine);
+      const tryMsg = document.getElementById("try" + currentLine);
+      const star = document.getElementById("star" + currentLine);
+
+      if (score >= 0.5 || !SpeechRecognition) {
+        completed.add(currentLine);
+        result.textContent = heard ? "You said: “" + heard + "”" : "Nice repeat!";
+        tryMsg.textContent = "";
+        star.textContent = "⭐";
+
+        playChime();
+        playCheerSound();
+
+        await speak("Great job!", {rate:.9, pitch:1.25});
+
+        currentLine++;
+        stage = "hear";
+        updateProgress();
+
+        if (currentLine < bubbles.length) {
+          showLine(currentLine);
+          setStatus("Tap the mic to hear the next air bubble.");
+        } else {
+          setStatus("Excellent! The hexagon is first, the pentagon is second, and the square is third.");
+          overallStars.textContent = "⭐⭐⭐";
+          playChime();
+          playCheerSound();
+          confetti();
+
+          await speak("Excellent work! The hexagon is in first place. The pentagon is in second place. The square is in third place. The shapes are racing!", {
+            rate:.84,
+            pitch:1.25
+          });
+        }
+      } else {
+        result.textContent = "";
+        tryMsg.textContent = "Sorry, try again!";
+        star.textContent = "";
+
+        await speak("Sorry, try again!", {rate:.88, pitch:1.12});
+
+        stage = "repeat";
+        setStatus("Tap the mic and repeat the sentence again.");
+      }
+
+      setBusy(false);
+    }
+  }
+
+  async function playIntro(){
+    if (introPlayed) return;
+
+    introPlayed = true;
+    setStatus("Listen to the instructions.");
+
+    await speak(
+      "Hello superstar! Today we are learning ordinal numbers. Look at the racing shapes. The hexagon is in first place. The pentagon is in second place. The square is in third place. Tap the mic to hear each air bubble. Then tap the mic again and repeat after me.",
+      {
+        rate:.84,
+        pitch:1.18
+      }
+    );
+
+    setStatus("Tap the mic to begin the air bubble conversation.");
+  }
+
+    function resetLesson(){
+      currentLine = 0;
+      stage = "hear";
+      completed.clear();
+      foundShapes.clear();
+      introPlayed = false;
+
+    lines.forEach((line, i) => {
+      if (i === 0) line.classList.add("show");
+      else line.classList.remove("show");
+    });
+
+    bubbles.forEach(b => b.classList.remove("sparkle"));
+
+    for (let i = 0; i < bubbles.length; i++) {
+      document.getElementById("result" + i).textContent = "";
+      document.getElementById("try" + i).textContent = "";
+      document.getElementById("star" + i).textContent = "";
+      }
+
+      overallStars.textContent = "";
+      hexagonSpot.classList.remove("found");
+      pentagonSpot.classList.remove("found");
+      squareSpot.classList.remove("found");
+      clearTraceDrawing();
+
+      updateProgress();
+      setStatus("Tap the mic to hear each air bubble. Tap again to repeat after me.");
+    }
+
+  async function checkWork(){
+    if (completed.size === bubbles.length) {
+      setStatus("Perfect! You completed the conversation.");
+      overallStars.textContent = "⭐⭐⭐";
+      playChime();
+      playCheerSound();
+      confetti();
+
+      await speak("Perfect! The hexagon is first, the pentagon is second, and the square is third.", {
+        rate:.86,
+        pitch:1.25
+      });
+    } else {
+      setStatus("Keep going. Tap the mic to finish the air bubbles.");
+      await speak("Keep going. Tap the mic to finish the air bubbles.", {
+        rate:.88,
+        pitch:1.15
+      });
+    }
+  }
+
+    function setupShapeHotspots(){
+      hexagonSpot.addEventListener("click", () => { markShapeFound("hexagon"); });
+      pentagonSpot.addEventListener("click", () => { markShapeFound("pentagon"); });
+      squareSpot.addEventListener("click", () => { markShapeFound("square"); });
+    }
+
+  function setup(){
+    micBtn.addEventListener("click", handleMic);
+    readBtn.addEventListener("click", () => {
+      introPlayed = false;
+      playIntro();
+    });
+    checkBtn.addEventListener("click", checkWork);
+      resetBtn.addEventListener("click", resetLesson);
+      traceCanvas.addEventListener("pointerdown", startTrace);
+      traceCanvas.addEventListener("pointermove", moveTrace);
+      traceCanvas.addEventListener("pointerup", endTrace);
+      traceCanvas.addEventListener("pointerleave", endTrace);
+      traceCanvas.addEventListener("pointercancel", endTrace);
+
+      setupShapeHotspots();
+      resizeTraceCanvas();
+      updateProgress();
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = function(){};
+    }
+
+      setTimeout(playIntro, 700);
+    }
+
+    window.addEventListener("resize", resizeTraceCanvas);
+    posterImg.addEventListener("load", resizeTraceCanvas, {once:true});
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setup);
+  } else {
+    setup();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Ordinal Numbers & Less Than Game</title>
+
+<style>
+:root{
+  --blue:#5d83c7;
+  --deepBlue:#426db4;
+  --sky:#bfefff;
+  --red:#ef3f45;
+  --softRed:#ff9cac;
+  --green:#1fa85b;
+  --gold:#ffd24a;
+  --ink:#27242a;
+  --paper:#fffdf7;
+  --shadow:0 16px 36px rgba(0,0,0,.13);
+  font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:#fff9ef;
+  color:var(--ink);
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:10px;
+  background-image:
+    linear-gradient(#f1e6d8 1px,transparent 1px),
+    linear-gradient(90deg,#f1e6d8 1px,transparent 1px);
+  background-size:28px 28px;
+}
+
+.app{
+  width:min(1050px,100%);
+  background:#fff;
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  padding:12px;
+  overflow:hidden;
+}
+
+.header{
+  position:relative;
+  background:#bfefff;
+  border:8px solid var(--blue);
+  border-radius:26px;
+  padding:18px 14px 16px;
+  text-align:center;
+}
+
+.title{
+  margin:0;
+  color:#fff;
+  font-size:clamp(2.4rem,8vw,5.4rem);
+  line-height:.9;
+  font-weight:1000;
+  text-shadow:
+    5px 0 var(--blue),-5px 0 var(--blue),
+    0 5px var(--blue),0 -5px var(--blue),
+    4px 4px var(--blue),-4px 4px var(--blue),
+    4px -4px var(--blue),-4px -4px var(--blue);
+}
+
+.ribbon{
+  display:inline-block;
+  margin-top:10px;
+  background:var(--red);
+  color:#fff;
+  padding:8px 18px;
+  border-radius:999px;
+  font-weight:1000;
+  font-size:clamp(1rem,3vw,1.35rem);
+}
+
+.nav{
+  margin:12px auto 0;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.btn{
+  border:none;
+  border-radius:999px;
+  padding:11px 16px;
+  font-size:1rem;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 5px 0 rgba(0,0,0,.18);
+  transition:transform .1s ease,filter .1s ease;
+}
+
+.btn:hover{filter:brightness(1.04);transform:translateY(-1px);}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.14);}
+.btn.home{background:#eef5ff;color:#244f9c;border:2px solid #c7dcff;}
+.btn.navbtn{background:#f7dc6f;color:#8b5a00;}
+.btn.read{background:var(--red);color:#fff;}
+.btn.clear{background:#dfeaff;color:#1f3b6b;}
+.btn.green{background:#c9f2d6;color:#166c38;}
+
+.progress-card{
+  margin:12px auto;
+  background:linear-gradient(180deg,#fff8fb,#ffffff);
+  border:3px solid #d6e4ff;
+  border-radius:20px;
+  padding:12px;
+  box-shadow:0 8px 18px rgba(0,0,0,.08);
+}
+
+.progress-title{
+  text-align:center;
+  font-size:clamp(1rem,3vw,1.35rem);
+  font-weight:1000;
+  color:#355fa8;
+  margin-bottom:8px;
+}
+
+.bar-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.bar{
+  flex:1;
+  height:20px;
+  background:#e8eef8;
+  border-radius:999px;
+  overflow:hidden;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.12);
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#58c6ff,#83e79f,#ffd24a,#ff9cac);
+  transition:width .25s ease;
+}
+
+.percent{
+  min-width:58px;
+  text-align:right;
+  font-size:1.05rem;
+  font-weight:1000;
+  color:#175ca8;
+}
+
+.stage{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+.card{
+  background:#fff;
+  border:5px solid var(--blue);
+  border-radius:24px;
+  padding:14px;
+  box-shadow:0 10px 22px rgba(0,0,0,.08);
+}
+
+.card h2{
+  margin:0 0 10px;
+  text-align:center;
+  color:#315fa8;
+  font-size:clamp(1.6rem,5vw,2.6rem);
+}
+
+.teacher-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.teacher{
+  width:88px;
+  min-width:88px;
+  height:88px;
+  border-radius:50%;
+  background:#ffe0b8;
+  border:4px solid #222;
+  position:relative;
+  box-shadow:0 8px 14px rgba(0,0,0,.14);
+}
+
+.teacher::before{
+  content:"";
+  position:absolute;
+  width:72px;
+  height:32px;
+  background:#b77543;
+  border-radius:70% 70% 30% 30%;
+  left:5px;
+  top:-6px;
+  border:3px solid #222;
+}
+
+.eye{
+  position:absolute;
+  top:36px;
+  width:8px;
+  height:13px;
+  background:#222;
+  border-radius:50%;
+}
+
+.eye.left{left:28px;}
+.eye.right{right:28px;}
+
+.smile{
+  position:absolute;
+  left:31px;
+  top:55px;
+  width:26px;
+  height:13px;
+  border-bottom:4px solid #e85f5f;
+  border-radius:50%;
+}
+
+.speech{
+  flex:1;
+  background:#fff;
+  border:4px solid #ff9cac;
+  border-radius:28px;
+  padding:12px 16px;
+  font-size:clamp(1rem,3vw,1.35rem);
+  font-weight:1000;
+  box-shadow:0 8px 16px rgba(0,0,0,.08);
+}
+
+.race-track{
+  background:#b95c3d;
+  border-radius:18px;
+  padding:18px;
+  min-height:310px;
+  position:relative;
+  overflow:hidden;
+}
+
+.track-line{
+  height:7px;
+  background:#fff;
+  border-radius:999px;
+  transform:rotate(-14deg);
+  margin:48px -30px;
+  opacity:.9;
+}
+
+.racers{
+  position:absolute;
+  inset:0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  align-items:center;
+  padding:24px;
+  gap:12px;
+}
+
+.racer{
+  background:#fff;
+  border:4px solid #222;
+  border-radius:20px;
+  padding:10px;
+  min-height:150px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.racer:hover{
+  transform:translateY(-4px) scale(1.02);
+  box-shadow:0 12px 22px rgba(0,0,0,.18);
+}
+
+.racer.done{
+  outline:6px solid rgba(31,168,91,.3);
+  background:#effff4;
+}
+
+.shape-svg{
+  width:120px;
+  max-width:100%;
+}
+
+.place{
+  font-size:1.15rem;
+  font-weight:1000;
+  color:#315fa8;
+}
+
+.answer-row{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.answer{
+  background:#fff4c2;
+  border:3px solid #e5b800;
+  border-radius:18px;
+  padding:10px 18px;
+  font-size:1.25rem;
+  font-weight:1000;
+  cursor:pointer;
+}
+
+.answer.correct{
+  background:#dcfce7;
+  border-color:#22c55e;
+}
+
+.answer.wrong{
+  background:#ffe4e6;
+  border-color:#ef4444;
+}
+
+.compare-grid{
+  display:grid;
+  grid-template-columns:1fr 140px 1fr;
+  gap:12px;
+  align-items:center;
+}
+
+.group{
+  min-height:160px;
+  background:#fffdf7;
+  border:3px solid #dbe4f7;
+  border-radius:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:12px;
+}
+
+.stick{
+  width:82px;
+  height:14px;
+  background:linear-gradient(90deg,#c27a3d,#f2c27b,#a95b2d);
+  border:2px solid #693812;
+  border-radius:999px;
+  transform:rotate(var(--r));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35);
+}
+
+.trace-symbol{
+  height:160px;
+  background:#fff;
+  border:3px dashed #ff9cac;
+  border-radius:20px;
+  position:relative;
+  touch-action:none;
+  overflow:hidden;
+}
+
+.trace-symbol canvas{
+  width:100%;
+  height:100%;
+  display:block;
+  touch-action:none;
+}
+
+.trace-symbol.done{
+  border-color:#22c55e;
+  background:#effff4;
+}
+
+.status{
+  margin:12px auto 0;
+  min-height:1.6em;
+  text-align:center;
+  font-size:clamp(1rem,3vw,1.25rem);
+  font-weight:1000;
+  color:#5a3eb0;
+}
+
+.stars{
+  text-align:center;
+  min-height:1.3em;
+  font-size:2.1rem;
+  letter-spacing:4px;
+  color:var(--gold);
+  text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);
+}
+
+.confetti-piece{
+  position:fixed;
+  top:-20px;
+  width:10px;
+  height:16px;
+  border-radius:3px;
+  z-index:9999;
+  pointer-events:none;
+  animation:confettiFall 1.7s linear forwards;
+}
+
+@keyframes confettiFall{
+  to{transform:translateY(105vh) rotate(540deg);opacity:.1;}
+}
+
+@media(max-width:760px){
+  .compare-grid{grid-template-columns:1fr;}
+  .teacher-row{align-items:flex-start;}
+  .teacher{width:70px;height:70px;min-width:70px;}
+  .racers{grid-template-columns:1fr;position:relative;}
+  .race-track{min-height:auto;}
+  .track-line{display:none;}
+}
+</style>
+</head>
+
+<body>
+<audio id="chimeAudio" src="chime.mp3" preload="auto"></audio>
+
+<main class="app">
+  <section class="header">
+    <h1 class="title">Ordinal Numbers</h1>
+    <div class="ribbon">Racing Places • Stick Shapes • Less Than</div>
+  </section>
+
+  <nav class="nav">
+    <button class="btn home" onclick="goHome()">🏠 Home</button>
+    <button class="btn navbtn" onclick="goPrev()">⬅ Prev</button>
+    <button class="btn read" onclick="repeatInstruction()">🔊 Read</button>
+    <button class="btn clear" onclick="resetGame()">🔁 New Game</button>
+    <button class="btn navbtn" onclick="goNext()">Next ▶</button>
+  </nav>
+
+  <section class="progress-card">
+    <div class="progress-title">Game Progress</div>
+    <div class="bar-row">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="percent" id="percent">0%</div>
+    </div>
+    <div class="stars" id="stars">⭐</div>
+  </section>
+
+  <section class="stage">
+    <article class="card" id="raceCard">
+      <div class="teacher-row">
+        <div class="teacher"><span class="eye left"></span><span class="eye right"></span><span class="smile"></span></div>
+        <div class="speech" id="teacherSpeech">Welcome! Click the shape that is in first place.</div>
+      </div>
+
+      <h2>Part 1: Who is in each place?</h2>
+
+      <div class="race-track">
+        <div class="track-line"></div>
+        <div class="track-line"></div>
+        <div class="track-line"></div>
+
+        <div class="racers">
+          <div class="racer" data-place="1" onclick="chooseRacer(this)">
+            <svg class="shape-svg" viewBox="0 0 140 120">
+              <polygon points="35,25 105,25 130,60 105,95 35,95 10,60" fill="#ffe4b5" stroke="#222" stroke-width="5"/>
+            </svg>
+            <div class="place">Hexagon</div>
+          </div>
+
+          <div class="racer" data-place="2" onclick="chooseRacer(this)">
+            <svg class="shape-svg" viewBox="0 0 140 120">
+              <polygon points="70,10 125,48 105,105 35,105 15,48" fill="#fff0a8" stroke="#222" stroke-width="5"/>
+            </svg>
+            <div class="place">Pentagon</div>
+          </div>
+
+          <div class="racer" data-place="3" onclick="chooseRacer(this)">
+            <svg class="shape-svg" viewBox="0 0 140 120">
+              <rect x="25" y="20" width="90" height="80" rx="8" fill="#ffd2d2" stroke="#222" stroke-width="5"/>
+            </svg>
+            <div class="place">Square</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="answer-row">
+        <button class="answer" onclick="askPlace(1)">1st place</button>
+        <button class="answer" onclick="askPlace(2)">2nd place</button>
+        <button class="answer" onclick="askPlace(3)">3rd place</button>
+      </div>
+    </article>
+
+    <article class="card" id="lessCard">
+      <h2>Part 2: Trace the Less Than Sign</h2>
+      <div class="teacher-row">
+        <div class="teacher"><span class="eye left"></span><span class="eye right"></span><span class="smile"></span></div>
+        <div class="speech">Trace the dotted less-than sign from the top dot to the bottom dot.</div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="group" id="leftGroup"></div>
+
+        <div class="trace-symbol" id="traceLessBox">
+          <canvas id="traceLessCanvas"></canvas>
+        </div>
+
+        <div class="group" id="rightGroup"></div>
+      </div>
+
+      <div class="answer-row">
+        <button class="answer" onclick="loadCompare(3,5)">3 is less than 5</button>
+        <button class="answer" onclick="loadCompare(2,4)">2 is less than 4</button>
+        <button class="answer" onclick="loadCompare(6,8)">6 is less than 8</button>
+      </div>
+    </article>
+
+    <article class="card" id="countCard">
+      <h2>Part 3: Clean Number Tracing</h2>
+      <div class="teacher-row">
+        <div class="teacher"><span class="eye left"></span><span class="eye right"></span><span class="smile"></span></div>
+        <div class="speech">Trace each number neatly. Follow the dotted path.</div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="trace-symbol"><canvas class="numCanvas" data-number="3"></canvas></div>
+        <div class="trace-symbol"><canvas class="numCanvas" data-number="5"></canvas></div>
+        <div class="trace-symbol"><canvas class="numCanvas" data-number="8"></canvas></div>
+      </div>
+    </article>
+  </section>
+
+  <div class="status" id="status">Tap 🔊 Read to hear the instruction.</div>
+</main>
+
+<script>
+const HOME_PAGE = "../../../../../index.html";
+const NEXT_PAGE = "OrdinalLessThan_Quiz.html";
+
+function goHome(){ location.href = HOME_PAGE; }
+function goPrev(){ if(history.length > 1){ history.back(); } else { location.href = HOME_PAGE; } }
+function goNext(){ location.href = NEXT_PAGE; }
+
+const chimeAudio = document.getElementById("chimeAudio");
+const fill = document.getElementById("fill");
+const percent = document.getElementById("percent");
+const stars = document.getElementById("stars");
+const statusEl = document.getElementById("status");
+const teacherSpeech = document.getElementById("teacherSpeech");
+
+let targetPlace = 1;
+let score = 0;
+let maxScore = 8;
+let completed = new Set();
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = 0.9;
+  u.pitch = 1.15;
+  u.volume = 1;
+  const voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
+  const voice = voices.find(v => /en-US/i.test(v.lang) && /female|jenny|aria|samantha|zira/i.test(v.name)) ||
+                voices.find(v => /en-US/i.test(v.lang)) ||
+                voices.find(v => /^en/i.test(v.lang));
+  if(voice) u.voice = voice;
+  speechSynthesis.speak(u);
+}
+
+function playChime(){
+  try{
+    chimeAudio.currentTime = 0;
+    const p = chimeAudio.play();
+    if(p && p.catch) p.catch(()=>fallbackChime());
+  }catch(e){ fallbackChime(); }
+}
+
+function fallbackChime(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [660,880,1046];
+    notes.forEach((n,i)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.frequency.value = n;
+      o.type = "sine";
+      g.gain.value = .05;
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(ctx.currentTime + i*.11);
+      o.stop(ctx.currentTime + i*.11 + .12);
+    });
+  }catch(e){}
+}
+
+function cheer(text){
+  playChime();
+  confetti();
+  setStatus(text);
+  speak(text);
+}
+
+function setStatus(text){
+  statusEl.textContent = text;
+}
+
+function updateProgress(){
+  const pct = Math.round((score / maxScore) * 100);
+  fill.style.width = pct + "%";
+  percent.textContent = pct + "%";
+  stars.textContent = score >= 7 ? "⭐⭐⭐" : score >= 4 ? "⭐⭐" : score >= 1 ? "⭐" : "⭐";
+}
+
+function addScore(key){
+  if(completed.has(key)) return;
+  completed.add(key);
+  score++;
+  updateProgress();
+}
+
+function askPlace(place){
+  targetPlace = place;
+  const words = {1:"first",2:"second",3:"third"};
+  teacherSpeech.textContent = "Click the shape in " + words[place] + " place.";
+  speak("Click the shape in " + words[place] + " place.");
+}
+
+function chooseRacer(el){
+  const place = Number(el.dataset.place);
+  if(place === targetPlace){
+    el.classList.add("done");
+    addScore("place" + place);
+    const words = {1:"first",2:"second",3:"third"};
+    cheer("Great job! That shape is in " + words[place] + " place.");
+    if(targetPlace < 3){
+      askPlace(targetPlace + 1);
+    }else{
+      setTimeout(()=>speak("Wonderful. Now trace the less than sign."),600);
+    }
+  }else{
+    setStatus("Try again. Look carefully at the racing order.");
+    speak("Try again. Look carefully at the racing order.");
+  }
+}
+
+function makeSticks(container,count){
+  container.innerHTML = "";
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "stick";
+    s.style.setProperty("--r", ((i%5)-2)*10 + "deg");
+    container.appendChild(s);
+  }
+}
+
+function loadCompare(left,right){
+  makeSticks(document.getElementById("leftGroup"),left);
+  makeSticks(document.getElementById("rightGroup"),right);
+  clearLessTrace();
+  speak(left + " is less than " + right + ". Trace the less than sign from top to bottom.");
+}
+
+function confetti(){
+  const colors = ["#ef3f45","#5d83c7","#ffd24a","#1fa85b","#ff9cac"];
+  for(let i=0;i<28;i++){
+    const p = document.createElement("span");
+    p.className = "confetti-piece";
+    p.style.left = Math.random()*100 + "vw";
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay = Math.random()*220 + "ms";
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1900);
+  }
+}
+
+function repeatInstruction(){
+  speak("Welcome. First, click the racing shape in first, second, and third place. Then trace the less than sign. Then trace the numbers.");
+}
+
+function resetGame(){
+  score = 0;
+  completed = new Set();
+  targetPlace = 1;
+  document.querySelectorAll(".racer,.trace-symbol").forEach(el=>el.classList.remove("done"));
+  document.querySelectorAll(".answer").forEach(el=>el.classList.remove("correct","wrong"));
+  updateProgress();
+  askPlace(1);
+  loadCompare(3,5);
+  initLessTrace();
+  initNumberTracing();
+  setStatus("New game started.");
+}
+
+function dist(a,b){
+  return Math.hypot(a.x-b.x,a.y-b.y);
+}
+
+function pointFromEvent(canvas,e){
+  const r = canvas.getBoundingClientRect();
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+
+function drawCleanPath(ctx,points,done=false){
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  ctx.strokeStyle = "rgba(0,0,0,.10)";
+  ctx.lineWidth = Math.max(18,w*.08);
+  ctx.beginPath();
+  points.forEach((p,i)=>i?ctx.lineTo(p.x*w,p.y*h):ctx.moveTo(p.x*w,p.y*h));
+  ctx.stroke();
+
+  ctx.strokeStyle = done ? "#1fa85b" : "#666";
+  ctx.lineWidth = Math.max(8,w*.035);
+  ctx.setLineDash([14,12]);
+  ctx.beginPath();
+  points.forEach((p,i)=>i?ctx.lineTo(p.x*w,p.y*h):ctx.moveTo(p.x*w,p.y*h));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  points.forEach((p,i)=>{
+    ctx.fillStyle = i===0 ? "#1fa85b" : i===points.length-1 ? "#ef3f45" : "#ff9cac";
+    ctx.beginPath();
+    ctx.arc(p.x*w,p.y*h,Math.max(8,w*.035),0,Math.PI*2);
+    ctx.fill();
+  });
+
+  ctx.restore();
+}
+
+function drawUserLine(ctx,path){
+  if(path.length < 2) return;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#ff4f93";
+  ctx.lineWidth = Math.max(10,ctx.canvas.width*.045);
+  ctx.beginPath();
+  path.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.stroke();
+
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = Math.max(3,ctx.canvas.width*.015);
+  ctx.beginPath();
+  path.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.stroke();
+  ctx.restore();
+}
+
+function setupTrace(canvas,points,key,onDone){
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+  let path = [];
+  let touched = new Set();
+
+  function resize(){
+    const r = canvas.getBoundingClientRect();
+    const dpr = Math.max(1,window.devicePixelRatio||1);
+    canvas.width = Math.round(r.width*dpr);
+    canvas.height = Math.round(r.height*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    canvas.width = r.width;
+    canvas.height = r.height;
+    drawCleanPath(ctx,points,false);
+  }
+
+  function mark(p){
+    const w = canvas.width;
+    const h = canvas.height;
+    points.forEach((pt,i)=>{
+      const real = {x:pt.x*w,y:pt.y*h};
+      if(dist(p,real) < Math.max(28,w*.13)) touched.add(i);
+    });
+  }
+
+  canvas.addEventListener("pointerdown",e=>{
+    e.preventDefault();
+    drawing = true;
+    path = [];
+    touched = new Set();
+    const p = pointFromEvent(canvas,e);
+    path.push(p);
+    mark(p);
+    try{canvas.setPointerCapture(e.pointerId);}catch(err){}
+  });
+
+  canvas.addEventListener("pointermove",e=>{
+    if(!drawing) return;
+    e.preventDefault();
+    const p = pointFromEvent(canvas,e);
+    path.push(p);
+    mark(p);
+    drawCleanPath(ctx,points,false);
+    drawUserLine(ctx,path);
+  });
+
+  canvas.addEventListener("pointerup",e=>{
+    if(!drawing) return;
+    e.preventDefault();
+    drawing = false;
+    const needed = Math.ceil(points.length * .7);
+    if(touched.size >= needed){
+      drawCleanPath(ctx,points,true);
+      canvas.parentElement.classList.add("done");
+      addScore(key);
+      playChime();
+      if(onDone) onDone();
+    }else{
+      drawCleanPath(ctx,points,false);
+      speak("Try again. Follow the dotted path carefully.");
+    }
+  });
+
+  window.addEventListener("resize",resize);
+  setTimeout(resize,80);
+  return resize;
+}
+
+let lessResize = null;
+
+function initLessTrace(){
+  const canvas = document.getElementById("traceLessCanvas");
+  const points = [
+    {x:.78,y:.18},
+    {x:.60,y:.30},
+    {x:.42,y:.43},
+    {x:.28,y:.50},
+    {x:.42,y:.57},
+    {x:.60,y:.70},
+    {x:.78,y:.82}
+  ];
+  lessResize = setupTrace(canvas,points,"less",()=>{
+    cheer("Excellent tracing! You made the less than sign.");
+  });
+}
+
+function clearLessTrace(){
+  document.getElementById("traceLessBox").classList.remove("done");
+  if(lessResize) setTimeout(lessResize,50);
+}
+
+const numberPaths = {
+  3:[
+    {x:.28,y:.18},{x:.55,y:.18},{x:.72,y:.32},{x:.55,y:.48},
+    {x:.72,y:.62},{x:.55,y:.82},{x:.25,y:.80}
+  ],
+  5:[
+    {x:.72,y:.18},{x:.30,y:.18},{x:.25,y:.45},{x:.55,y:.43},
+    {x:.75,y:.58},{x:.62,y:.82},{x:.28,y:.80}
+  ],
+  8:[
+    {x:.52,y:.15},{x:.30,y:.25},{x:.32,y:.43},{x:.52,y:.50},
+    {x:.72,y:.43},{x:.74,y:.25},{x:.52,y:.15},
+    {x:.52,y:.50},{x:.28,y:.63},{x:.30,y:.82},
+    {x:.52,y:.90},{x:.74,y:.82},{x:.76,y:.63},{x:.52,y:.50}
+  ]
+};
+
+function initNumberTracing(){
+  document.querySelectorAll(".numCanvas").forEach(canvas=>{
+    const n = canvas.dataset.number;
+    setupTrace(canvas,numberPaths[n],"num"+n,()=>{
+      cheer("Great number tracing!");
+    });
+  });
+}
+
+window.addEventListener("load",()=>{
+  updateProgress();
+  askPlace(1);
+  loadCompare(3,5);
+  initLessTrace();
+  initNumberTracing();
+  setTimeout(()=>speak("Welcome. Let us learn ordinal numbers and less than. Click the shape in first place."),500);
+});
+
+if("speechSynthesis" in window){
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vertical Numbers Quiz Adventure</title>
+
+<style>
+:root{
+  --blue:#5f8fd3;
+  --blue2:#82b6ff;
+  --red:#f24b5e;
+  --yellow:#f8df8a;
+  --green:#18a85b;
+  --sky:#86d5eb;
+  --purple:#6c4bbf;
+  --gold:#ffd24a;
+  --ink:#25242a;
+  font-family:"Comic Sans MS","Segoe UI",Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  padding:0;
+  color:var(--ink);
+  background:#fff9ef;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:10px;
+  background-image:
+    linear-gradient(#efe4d6 1px,transparent 1px),
+    linear-gradient(90deg,#efe4d6 1px,transparent 1px);
+  background-size:28px 28px;
+}
+
+.app{
+  width:min(1080px,100%);
+  background:#fffdf7;
+  border:8px solid var(--blue);
+  border-radius:30px;
+  padding:14px;
+  box-shadow:0 18px 38px rgba(0,0,0,.16);
+  overflow:hidden;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.badge{
+  background:#fff;
+  border:3px solid #d7e8ff;
+  color:#315f9d;
+  border-radius:999px;
+  padding:9px 15px;
+  font-weight:1000;
+  box-shadow:0 7px 14px rgba(0,0,0,.08);
+}
+
+.nav,.controls{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.btn{
+  border:0;
+  border-radius:999px;
+  padding:11px 17px;
+  font-weight:1000;
+  cursor:pointer;
+  box-shadow:0 5px 0 rgba(0,0,0,.18);
+  font-size:15px;
+  transition:.12s;
+}
+
+.btn:hover{transform:translateY(-1px) scale(1.02)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.home{background:#25d17d;color:#fff}
+.back,.reset{background:#dfeaff;color:#173b69}
+.next{background:#f7dc6f;color:#7a5200}
+.read{background:var(--red);color:#fff}
+.cheer{background:#c9f2d6;color:#166c38}
+.hint{background:#fff0b3;color:#8a5a00}
+
+.title{
+  text-align:center;
+  font-size:clamp(2.7rem,8vw,5.8rem);
+  line-height:.92;
+  margin:6px 0 10px;
+  color:#fff;
+  font-weight:1000;
+  -webkit-text-stroke:7px var(--blue);
+  paint-order:stroke fill;
+  text-shadow:0 6px 0 rgba(95,143,211,.2);
+}
+
+.quiz-layout{
+  display:grid;
+  grid-template-columns:.95fr 1.05fr;
+  gap:14px;
+}
+
+.side-panel,.quiz-panel{
+  background:#fff;
+  border:4px solid #d7e8ff;
+  border-radius:24px;
+  padding:12px;
+  box-shadow:0 8px 18px rgba(0,0,0,.06);
+}
+
+.side-title{
+  text-align:center;
+  margin:0 0 10px;
+  color:#315f9d;
+  font-size:clamp(1.25rem,3vw,1.8rem);
+  font-weight:1000;
+}
+
+.preview-tabs{
+  display:grid;
+  gap:12px;
+}
+
+.poster-mini{
+  border:4px solid var(--blue);
+  border-radius:22px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.poster-head{
+  background:var(--blue);
+  color:#fff;
+  text-align:center;
+  font-size:1.4rem;
+  padding:8px;
+  font-weight:1000;
+}
+
+.number-preview{
+  padding:10px;
+  display:grid;
+  gap:8px;
+}
+
+.num-row{
+  display:grid;
+  grid-template-columns:70px 1fr 60px;
+  min-height:58px;
+  border:3px solid #d7e8ff;
+  border-radius:14px;
+  overflow:hidden;
+  align-items:center;
+}
+
+.ten{
+  font-weight:1000;
+  font-size:1.7rem;
+  text-align:center;
+}
+
+.sticks{
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:4px;
+  background:
+    linear-gradient(#b8ecff 1px,transparent 1px),
+    linear-gradient(90deg,#b8ecff 1px,transparent 1px),
+    #fff;
+  background-size:18px 18px;
+}
+
+.stick{
+  width:6px;
+  height:38px;
+  background:#3556b5;
+  border-radius:999px;
+}
+
+.total{
+  color:var(--red);
+  font-size:1.7rem;
+  font-weight:1000;
+  text-align:center;
+}
+
+.store{
+  min-height:270px;
+  background:#70c9df;
+  position:relative;
+  padding:14px;
+}
+
+.store-name{
+  text-align:center;
+  background:#fff;
+  border:3px solid #222;
+  width:max-content;
+  margin:5px auto;
+  padding:3px 10px;
+  font-weight:1000;
+}
+
+.building{
+  position:absolute;
+  left:9%;
+  right:9%;
+  bottom:55px;
+  height:160px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1.3fr 1fr 1fr;
+  gap:6px;
+  align-items:end;
+}
+
+.tower{
+  height:135px;
+  border:3px solid #222;
+  background:#eaf9ff;
+  border-radius:8px 8px 0 0;
+  position:relative;
+}
+.tower.center{
+  height:160px;
+  background:#f7f4d8;
+}
+.tower:after{
+  content:"";
+  position:absolute;
+  left:45%;
+  top:10px;
+  bottom:10px;
+  border-left:4px solid #222;
+}
+
+.vline{
+  position:absolute;
+  width:9px;
+  top:70px;
+  bottom:78px;
+  background:#111;
+  border-radius:999px;
+}
+.vline:before,.vline:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  width:13px;
+  height:13px;
+  border-radius:50%;
+  transform:translateX(-50%);
+}
+.vline:before{top:-6px;background:#e93555}
+.vline:after{bottom:-6px;background:#1788c7}
+.v1{left:8%}.v2{left:32%}.v3{left:50%}.v4{left:69%}.v5{left:91%}
+
+.store-text{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  text-align:center;
+  font-size:1.1rem;
+  font-weight:1000;
+}
+.store-text span{color:var(--red)}
+
+.score-strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.score-chip{
+  background:#fff8fb;
+  border:3px solid #ffd1df;
+  border-radius:15px;
+  padding:8px;
+  text-align:center;
+  font-weight:1000;
+}
+.score-chip span{color:var(--purple)}
+
+.question-card{
+  border:5px solid #ffd1df;
+  border-radius:24px;
+  overflow:hidden;
+  background:#fff8fb;
+}
+
+.question-top{
+  background:var(--red);
+  color:#fff;
+  font-weight:1000;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:10px 14px;
+  font-size:1.1rem;
+}
+
+.visual{
+  min-height:190px;
+  background:
+    linear-gradient(#b8ecff 1px,transparent 1px),
+    linear-gradient(90deg,#b8ecff 1px,transparent 1px),
+    #fff;
+  background-size:22px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+}
+
+.visual-equation{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  font-size:clamp(2rem,6vw,4rem);
+  font-weight:1000;
+}
+
+.visual-sticks{
+  display:flex;
+  gap:5px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  max-width:240px;
+}
+
+.visual-stick{
+  width:9px;
+  height:70px;
+  background:#3556b5;
+  border-radius:999px;
+  box-shadow:2px 0 0 rgba(0,0,0,.15);
+}
+
+.visual-lines{
+  width:80%;
+  max-width:420px;
+  height:140px;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  gap:18px;
+}
+
+.sample-line{
+  width:22px;
+  height:120px;
+  border:4px dashed #111;
+  border-radius:999px;
+  position:relative;
+}
+.sample-line:before,.sample-line:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  transform:translateX(-50%);
+}
+.sample-line:before{top:-10px;background:#e93555}
+.sample-line:after{bottom:-10px;background:#1788c7}
+
+.sample-horizontal{
+  width:140px;
+  height:22px;
+  border:4px dashed #111;
+  border-radius:999px;
+}
+
+.sample-zig{
+  width:150px;
+  height:80px;
+  position:relative;
+}
+.sample-zig svg{
+  width:100%;
+  height:100%;
+}
+.sample-zig polyline{
+  fill:none;
+  stroke:#111;
+  stroke-width:8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:8 8;
+}
+
+.question-text{
+  min-height:82px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:#fff;
+  border-top:4px solid #ffd1df;
+  border-bottom:4px solid #ffd1df;
+  padding:14px;
+  font-size:clamp(1.25rem,4vw,2rem);
+  font-weight:1000;
+}
+
+.answers{
+  padding:14px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.answer{
+  border:0;
+  border-radius:18px;
+  min-height:88px;
+  padding:12px;
+  font-size:clamp(1.1rem,3vw,1.75rem);
+  font-weight:1000;
+  cursor:pointer;
+  background:#eef6ff;
+  color:#17375e;
+  box-shadow:0 6px 0 rgba(0,0,0,.15);
+  transition:.12s;
+}
+
+.answer:hover{
+  transform:translateY(-2px) scale(1.02);
+}
+
+.answer.correct{
+  background:#c9f5d8;
+  color:#0a6c34;
+  animation:pop .45s ease;
+}
+
+.answer.wrong{
+  background:#ffd4dc;
+  color:#a31325;
+  animation:shake .35s ease;
+}
+
+@keyframes pop{
+  50%{transform:scale(1.08)}
+}
+
+@keyframes shake{
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+
+.progress{
+  margin-top:14px;
+  background:#fff8fb;
+  border:3px solid #ffd1df;
+  border-radius:18px;
+  padding:10px;
+}
+
+.progress-title{
+  text-align:center;
+  font-weight:1000;
+  margin-bottom:6px;
+}
+
+.bar{
+  height:17px;
+  background:#e7eef8;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#58c6ff,#83e79f);
+  transition:.25s;
+}
+
+.controls{
+  margin-top:12px;
+}
+
+.stars{
+  text-align:center;
+  min-height:40px;
+  font-size:2rem;
+  color:var(--gold);
+  text-shadow:0 2px 0 #b87900,0 5px 12px rgba(0,0,0,.25);
+}
+
+.status{
+  text-align:center;
+  min-height:36px;
+  font-size:1.15rem;
+  font-weight:1000;
+  color:#5a3eb0;
+}
+
+.confetti{
+  position:fixed;
+  top:-20px;
+  width:10px;
+  height:16px;
+  border-radius:3px;
+  animation:fall 1.6s linear forwards;
+  z-index:9999;
+}
+
+@keyframes fall{
+  to{transform:translateY(105vh) rotate(540deg);opacity:.1}
+}
+
+@media(max-width:850px){
+  .quiz-layout{grid-template-columns:1fr}
+  .score-strip{grid-template-columns:repeat(2,1fr)}
+  .answers{grid-template-columns:1fr}
+  .title{-webkit-text-stroke:5px var(--blue)}
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+  <div class="top">
+    <div class="badge">🧠 Vertical Numbers Quiz Adventure</div>
+    <div class="nav">
+      <button class="btn back" id="backBtn">⬅ Back</button>
+      <button class="btn next" id="nextPageBtn">Next ➜</button>
+      <button class="btn home" id="homeBtn">🏠 Home</button>
+    </div>
+  </div>
+
+  <h1 class="title">Vertical Quiz</h1>
+
+  <section class="quiz-layout">
+    <aside class="side-panel">
+      <h2 class="side-title">Poster Helpers</h2>
+
+      <div class="preview-tabs">
+        <div class="poster-mini">
+          <div class="poster-head">Numbers 16 to 20</div>
+          <div class="number-preview" id="numberPreview"></div>
+        </div>
+
+        <div class="poster-mini">
+          <div class="poster-head">Vertical Lines</div>
+          <div class="store">
+            <div class="store-name">DEPARTMENT STORE</div>
+            <div class="building">
+              <div class="tower"></div>
+              <div class="tower"></div>
+              <div class="tower center"></div>
+              <div class="tower"></div>
+              <div class="tower"></div>
+            </div>
+            <div class="vline v1"></div>
+            <div class="vline v2"></div>
+            <div class="vline v3"></div>
+            <div class="vline v4"></div>
+            <div class="vline v5"></div>
+            <div class="store-text">Lines go <span>up</span> and <span>down</span>.</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="quiz-panel">
+      <div class="score-strip">
+        <div class="score-chip">Question <span id="qNow">1</span>/<span id="qTotal">12</span></div>
+        <div class="score-chip">Score <span id="scoreText">0</span></div>
+        <div class="score-chip">Coins <span id="coinText">0</span> 🪙</div>
+        <div class="score-chip">Streak <span id="streakText">0</span> 🔥</div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-top">
+          <span id="roundTitle">Round 1</span>
+          <span id="questionType">Add the lines</span>
+        </div>
+
+        <div class="visual" id="visual"></div>
+        <div class="question-text" id="questionText">Loading...</div>
+        <div class="answers" id="answers"></div>
+      </div>
+
+      <section class="progress">
+        <div class="progress-title">Quiz Progress: <span id="progressText">0%</span></div>
+        <div class="bar"><div class="fill" id="fill"></div></div>
+      </section>
+
+      <div class="controls">
+        <button class="btn read" id="readBtn">🔊 Read Question</button>
+        <button class="btn hint" id="hintBtn">💡 Hint</button>
+        <button class="btn next" id="nextBtn">Next Question →</button>
+        <button class="btn cheer" id="cheerBtn">👏 Cheer</button>
+        <button class="btn reset" id="resetBtn">Reset Quiz</button>
+      </div>
+
+      <div class="stars" id="stars"></div>
+      <div class="status" id="status">Tap Read Question and choose the answer.</div>
+    </section>
+  </section>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  const HOME_PAGE = "../../../../../index.html";
+  const PREVIOUS_PAGE = "VerticalNumbers_Game.html";
+  const NEXT_PAGE = "Bk2LC14.html";
+  const PAGE_ID = "VerticalNumbers_Quiz";
+
+  const questions = [
+    {type:"addition",add:6,correct:"16",answers:["15","16","17"],q:"10 plus 6 vertical lines equals what number?",hint:"Count on from 10: 11, 12, 13, 14, 15, 16.",s:"Ten plus six vertical lines equals what number?"},
+    {type:"addition",add:7,correct:"17",answers:["16","17","18"],q:"10 plus 7 vertical lines equals what number?",hint:"Start at 10 and count 7 more.",s:"Ten plus seven vertical lines equals what number?"},
+    {type:"addition",add:8,correct:"18",answers:["17","18","19"],q:"10 plus 8 vertical lines equals what number?",hint:"Ten and eight more make eighteen.",s:"Ten plus eight vertical lines equals what number?"},
+    {type:"addition",add:9,correct:"19",answers:["18","19","20"],q:"10 plus 9 vertical lines equals what number?",hint:"Ten and nine more make nineteen.",s:"Ten plus nine vertical lines equals what number?"},
+    {type:"addition",add:10,correct:"20",answers:["18","19","20"],q:"10 plus 10 vertical lines equals what number?",hint:"Ten and ten make twenty.",s:"Ten plus ten vertical lines equals what number?"},
+    {type:"direction",correct:"Up and down",answers:["Up and down","Left and right","Round and round"],q:"Vertical lines go which way?",hint:"Look at the tall lines on the department store.",s:"Vertical lines go which way?"},
+    {type:"directionPick",correct:"Vertical line",answers:["Vertical line","Horizontal line","Zig-zag line"],q:"Which one is a vertical line?",hint:"A vertical line is tall. It goes up and down.",s:"Which one is a vertical line?"},
+    {type:"sequence",correct:"17",answers:["15","17","20"],q:"Which number comes after 16?",hint:"Count: 16, 17.",s:"Which number comes after sixteen?"},
+    {type:"sequence",correct:"19",answers:["19","18","17"],q:"Which number comes before 20?",hint:"Count backward: 20, 19.",s:"Which number comes before twenty?"},
+    {type:"poster",correct:"number",answers:["number","shoe","cake"],q:"The poster says: Add the lines to the ____.",hint:"Look at the Numbers poster.",s:"The poster says, add the lines to the what?"},
+    {type:"trace",correct:"Trace it",answers:["Trace it","Hide it","Eat it"],q:"What should we do with a vertical line in this lesson?",hint:"Use your finger or mouse and follow the dotted line.",s:"What should we do with a vertical line in this lesson?"},
+    {type:"biggest",correct:"20",answers:["16","20","12"],q:"Which number is biggest?",hint:"Twenty is bigger than sixteen and twelve.",s:"Which number is biggest? Sixteen, twenty, or twelve?"}
+  ];
+
+  const numberPreview = document.getElementById("numberPreview");
+  const qNow = document.getElementById("qNow");
+  const qTotal = document.getElementById("qTotal");
+  const scoreText = document.getElementById("scoreText");
+  const coinText = document.getElementById("coinText");
+  const streakText = document.getElementById("streakText");
+  const roundTitle = document.getElementById("roundTitle");
+  const questionType = document.getElementById("questionType");
+  const visual = document.getElementById("visual");
+  const questionText = document.getElementById("questionText");
+  const answers = document.getElementById("answers");
+  const progressText = document.getElementById("progressText");
+  const fill = document.getElementById("fill");
+  const stars = document.getElementById("stars");
+  const status = document.getElementById("status");
+
+  let index = 0;
+  let score = 0;
+  let coins = 0;
+  let streak = 0;
+  let answered = false;
+  let audioCtx = null;
+
+  qTotal.textContent = questions.length;
+
+  function setStatus(text){ status.textContent = text || ""; }
+
+  function makePreview(){
+    const rows=[
+      {n:6,t:16},
+      {n:7,t:17},
+      {n:8,t:18},
+      {n:9,t:19},
+      {n:10,t:20}
+    ];
+
+    numberPreview.innerHTML="";
+
+    rows.forEach(r=>{
+      const row=document.createElement("div");
+      row.className="num-row";
+
+      const ten=document.createElement("div");
+      ten.className="ten";
+      ten.textContent="10+";
+
+      const sticks=document.createElement("div");
+      sticks.className="sticks";
+      for(let i=0;i<r.n;i++){
+        const s=document.createElement("span");
+        s.className="stick";
+        sticks.appendChild(s);
+      }
+
+      const total=document.createElement("div");
+      total.className="total";
+      total.textContent=r.t;
+
+      row.append(ten,sticks,total);
+      numberPreview.appendChild(row);
+    });
+  }
+
+  function pickVoice(){
+    if(!("speechSynthesis" in window)) return null;
+    const voices=speechSynthesis.getVoices() || [];
+    return voices.find(v=>/^en[-_]us/i.test(v.lang||"") && /jenny|aria|ava|samantha|zira|female|girl|ivy|allison|olivia/i.test(v.name||""))
+      || voices.find(v=>/^en[-_]us/i.test(v.lang||""))
+      || voices.find(v=>/^en/i.test(v.lang||""))
+      || voices[0]
+      || null;
+  }
+
+  function speak(text){
+    if(!("speechSynthesis" in window) || !text) return;
+    try{ speechSynthesis.cancel(); }catch(e){}
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="en-US";
+    u.rate=.88;
+    u.pitch=1.16;
+    u.volume=1;
+    const v=pickVoice();
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }
+
+  function ctx(){
+    const A=window.AudioContext || window.webkitAudioContext;
+    if(!A) return null;
+    if(!audioCtx) audioCtx=new A();
+    if(audioCtx.state==="suspended") audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+
+  function chime(){
+    ctx();
+    try{
+      const a=new Audio("chime.mp3");
+      a.volume=.9;
+      a.play().catch(synthChime);
+    }catch(e){ synthChime(); }
+  }
+
+  function synthChime(){
+    const c=ctx();
+    if(!c) return;
+    [660,880,1046].forEach((f,i)=>{
+      const o=c.createOscillator();
+      const g=c.createGain();
+      const t=c.currentTime+i*.12;
+      o.frequency.value=f;
+      o.type="sine";
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.exponentialRampToValueAtTime(.22,t+.03);
+      g.gain.exponentialRampToValueAtTime(.0001,t+.3);
+      o.connect(g); g.connect(c.destination);
+      o.start(t); o.stop(t+.34);
+    });
+  }
+
+  function wrongSound(){
+    const c=ctx();
+    if(!c) return;
+    const o=c.createOscillator();
+    const g=c.createGain();
+    o.type="sawtooth";
+    o.frequency.setValueAtTime(180,c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(120,c.currentTime+.18);
+    g.gain.setValueAtTime(.0001,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.08,c.currentTime+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.22);
+    o.connect(g); g.connect(c.destination);
+    o.start(); o.stop(c.currentTime+.24);
+  }
+
+  function clap(){
+    const c=ctx();
+    if(!c) return;
+    for(let i=0;i<4;i++){
+      const size=Math.floor(c.sampleRate*.08);
+      const buffer=c.createBuffer(1,size,c.sampleRate);
+      const data=buffer.getChannelData(0);
+      for(let j=0;j<size;j++) data[j]=(Math.random()*2-1)*Math.pow(1-j/size,2);
+      const src=c.createBufferSource();
+      const g=c.createGain();
+      src.buffer=buffer;
+      g.gain.value=.22;
+      src.connect(g); g.connect(c.destination);
+      src.start(c.currentTime+i*.13);
+    }
+  }
+
+  function confetti(){
+    const colors=["#f24b5e","#ffd24a","#58c6ff","#83e79f","#f7a6c9","#9ed06a"];
+    for(let i=0;i<38;i++){
+      const p=document.createElement("div");
+      p.className="confetti";
+      p.style.left=Math.random()*100+"vw";
+      p.style.background=colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDelay=Math.random()*.35+"s";
+      document.body.appendChild(p);
+      p.addEventListener("animationend",()=>p.remove());
+    }
+  }
+
+  function renderVisual(q){
+    visual.innerHTML="";
+
+    if(q.type==="addition"){
+      const wrap=document.createElement("div");
+      wrap.className="visual-equation";
+
+      const ten=document.createElement("div");
+      ten.textContent="10";
+
+      const plus=document.createElement("div");
+      plus.textContent="+";
+
+      const sticks=document.createElement("div");
+      sticks.className="visual-sticks";
+      for(let i=0;i<q.add;i++){
+        const s=document.createElement("span");
+        s.className="visual-stick";
+        sticks.appendChild(s);
+      }
+
+      const equal=document.createElement("div");
+      equal.textContent="=";
+
+      const question=document.createElement("div");
+      question.textContent="?";
+
+      wrap.append(ten,plus,sticks,equal,question);
+      visual.appendChild(wrap);
+      questionType.textContent="Add the lines";
+      return;
+    }
+
+    if(q.type==="direction" || q.type==="trace"){
+      const wrap=document.createElement("div");
+      wrap.className="visual-lines";
+      for(let i=0;i<4;i++){
+        const l=document.createElement("div");
+        l.className="sample-line";
+        wrap.appendChild(l);
+      }
+      visual.appendChild(wrap);
+      questionType.textContent="Vertical direction";
+      return;
+    }
+
+    if(q.type==="directionPick"){
+      const wrap=document.createElement("div");
+      wrap.className="visual-lines";
+
+      const vertical=document.createElement("div");
+      vertical.className="sample-line";
+
+      const horizontal=document.createElement("div");
+      horizontal.className="sample-horizontal";
+
+      const zig=document.createElement("div");
+      zig.className="sample-zig";
+      zig.innerHTML='<svg viewBox="0 0 100 50"><polyline points="0,40 20,10 40,40 60,10 80,40 100,10"></polyline></svg>';
+
+      wrap.append(vertical,horizontal,zig);
+      visual.appendChild(wrap);
+      questionType.textContent="Choose the line";
+      return;
+    }
+
+    const wrap=document.createElement("div");
+    wrap.className="visual-equation";
+    wrap.textContent="16  17  18  19  20";
+    visual.appendChild(wrap);
+    questionType.textContent="Numbers";
+  }
+
+  function render(){
+    answered=false;
+
+    if(index>=questions.length){
+      finishQuiz();
+      return;
+    }
+
+    const q=questions[index];
+
+    qNow.textContent=index+1;
+    roundTitle.textContent="Round " + (index+1);
+    questionText.textContent=q.q;
+    answers.innerHTML="";
+
+    renderVisual(q);
+
+    q.answers.forEach(ans=>{
+      const b=document.createElement("button");
+      b.className="answer";
+      b.type="button";
+      b.textContent=ans;
+      b.addEventListener("click",()=>choose(b,ans));
+      answers.appendChild(b);
+    });
+
+    setStatus("Choose the correct answer.");
+    updateProgress();
+  }
+
+  function choose(button,ans){
+    if(answered) return;
+    answered=true;
+    ctx();
+
+    const q=questions[index];
+    const all=Array.from(document.querySelectorAll(".answer"));
+
+    all.forEach(b=>{
+      if(b.textContent===q.correct) b.classList.add("correct");
+      if(b===button && ans!==q.correct) b.classList.add("wrong");
+      b.disabled=true;
+    });
+
+    if(ans===q.correct){
+      score++;
+      coins += 10;
+      streak++;
+      chime();
+      clap();
+      confetti();
+      setStatus("Correct! Great job!");
+      speak("Correct! Great job!");
+    }else{
+      streak=0;
+      wrongSound();
+      setStatus("Sorry, try again next time. The correct answer is " + q.correct + ".");
+      speak("Sorry, try again next time. The correct answer is " + q.correct + ".");
+    }
+
+    index++;
+    updateProgress();
+
+    setTimeout(()=>{
+      if(index<questions.length){
+        setStatus("Tap Next Question.");
+      }
+    },900);
+  }
+
+  function finishQuiz(){
+    qNow.textContent=questions.length;
+    roundTitle.textContent="Quiz Complete";
+    questionType.textContent="Finished";
+    visual.innerHTML='<div class="visual-equation">🎉 ⭐ 🪙 ⭐ 🎉</div>';
+    questionText.textContent="Great job! You finished the quiz.";
+    answers.innerHTML="";
+    progressText.textContent="100%";
+    fill.style.width="100%";
+
+    let msg="Good job! Nice try.";
+    if(score>=10) msg="Wow! You are super smart!";
+    else if(score>=7) msg="Amazing job!";
+
+    setStatus(msg + " Score: " + score + " out of " + questions.length + ".");
+    chime();
+    clap();
+    confetti();
+    speak(msg + " Your score is " + score + " out of " + questions.length + ".");
+    saveProgress();
+  }
+
+  function updateProgress(){
+    const percent=Math.round((index/questions.length)*100);
+    const star=score>=10 ? 3 : score>=7 ? 2 : score>=4 ? 1 : 0;
+
+    scoreText.textContent=score;
+    coinText.textContent=coins;
+    streakText.textContent=streak;
+    progressText.textContent=percent + "%";
+    fill.style.width=percent + "%";
+    stars.textContent="⭐ ".repeat(star).trim();
+
+    saveProgress();
+  }
+
+  function saveProgress(){
+    try{
+      const percent=Math.round((index/questions.length)*100);
+      const star=score>=10 ? 3 : score>=7 ? 2 : score>=4 ? 1 : 0;
+      const store=JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS")||"{}");
+      store[PAGE_ID]={
+        pageId:PAGE_ID,
+        file:PAGE_ID+".html",
+        level:"A",
+        week:2,
+        type:"quiz",
+        activityType:"quiz",
+        score,
+        coins,
+        quizProgress:percent,
+        stars:star,
+        completed:index>=questions.length,
+        savedAt:new Date().toISOString(),
+        ts:Date.now()
+      };
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS",JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE",PAGE_ID+".html");
+    }catch(e){}
+  }
+
+  document.getElementById("readBtn").addEventListener("click",()=>{
+    ctx();
+    if(index>=questions.length){
+      speak("The quiz is complete. Your score is " + score + " out of " + questions.length + ".");
+    }else{
+      speak(questions[index].s);
+    }
+  });
+
+  document.getElementById("hintBtn").addEventListener("click",()=>{
+    ctx();
+    if(index>=questions.length){
+      speak("The quiz is complete.");
+      return;
+    }
+    setStatus("Hint: " + questions[index].hint);
+    speak("Hint. " + questions[index].hint);
+  });
+
+  document.getElementById("nextBtn").addEventListener("click",()=>{
+    ctx();
+    render();
+    if(index<questions.length) speak(questions[index].s);
+  });
+
+  document.getElementById("cheerBtn").addEventListener("click",()=>{
+    ctx();
+    chime();
+    clap();
+    confetti();
+    setStatus("You can do it! Keep going!");
+    speak("You can do it! Keep going!");
+  });
+
+  document.getElementById("resetBtn").addEventListener("click",()=>{
+    try{ speechSynthesis.cancel(); }catch(e){}
+    index=0;
+    score=0;
+    coins=0;
+    streak=0;
+    answered=false;
+    render();
+    setStatus("Quiz reset. Tap Read Question to begin.");
+    speak("Quiz reset. Let us start again.");
+  });
+
+  document.getElementById("homeBtn").addEventListener("click",()=>location.href=HOME_PAGE);
+  document.getElementById("backBtn").addEventListener("click",()=>location.href=PREVIOUS_PAGE);
+  document.getElementById("nextPageBtn").addEventListener("click",()=>location.href=NEXT_PAGE);
+
+  if("speechSynthesis" in window) speechSynthesis.onvoiceschanged=()=>{};
+
+  window.addEventListener("load",()=>{
+    makePreview();
+    render();
+    setTimeout(()=>{
+      speak("Welcome to the Vertical Numbers quiz adventure. Tap Read Question, use hints, and choose the correct answer.");
+    },600);
+  },{once:true});
+})();
+</script>
+</body>
+</html>

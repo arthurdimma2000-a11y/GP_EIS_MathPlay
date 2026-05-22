@@ -2730,6 +2730,248 @@
   });
 </script>
 
+
+  <style id="gpPublicLoginGateStyles">
+    /* GP EIS simple landing gate: only student login first, then reveal the full app after authentication. */
+    #gpPublicLoginGate{
+      min-height:100vh;
+      padding:22px 16px 34px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      background:
+        radial-gradient(720px 360px at 16% 8%, rgba(255,255,255,.95), rgba(255,255,255,0) 62%),
+        radial-gradient(620px 360px at 88% 10%, rgba(255,235,165,.65), rgba(255,235,165,0) 62%),
+        linear-gradient(135deg,#eaf6ff 0%,#fff4d7 46%,#ffeaf3 100%);
+      overflow:hidden;
+    }
+    #gpPublicLoginGate::before,
+    #gpPublicLoginGate::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      pointer-events:none;
+      filter:blur(.2px);
+    }
+    #gpPublicLoginGate::before{
+      width:290px;
+      height:290px;
+      left:-90px;
+      bottom:-95px;
+      background:radial-gradient(circle,rgba(51,227,146,.24),rgba(51,227,146,0) 68%);
+    }
+    #gpPublicLoginGate::after{
+      width:340px;
+      height:340px;
+      right:-120px;
+      top:-110px;
+      background:radial-gradient(circle,rgba(255,134,173,.25),rgba(255,134,173,0) 68%);
+    }
+    .gp-login-shell{
+      width:min(760px,100%);
+      position:relative;
+      z-index:2;
+      display:grid;
+      gap:18px;
+    }
+    .gp-login-card{
+      border-radius:34px;
+      padding:24px;
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.8);
+      box-shadow:0 24px 55px rgba(31,42,68,.16);
+      backdrop-filter:blur(12px);
+    }
+    .gp-login-brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      margin-bottom:16px;
+      text-align:left;
+    }
+    .gp-login-brand img{
+      width:74px;
+      height:74px;
+      object-fit:contain;
+      border-radius:22px;
+      background:linear-gradient(180deg,#fff,#f2f7ff);
+      padding:7px;
+      box-shadow:0 10px 22px rgba(0,0,0,.10);
+    }
+    .gp-login-title{
+      display:grid;
+      gap:3px;
+    }
+    .gp-login-title strong{
+      font-size:clamp(1.5rem,4vw,2.15rem);
+      line-height:.98;
+      color:#1f2a44;
+    }
+    .gp-login-title span{
+      color:#6b7280;
+      font-weight:900;
+      font-size:1rem;
+    }
+    .gp-login-form{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+    .gp-login-field{
+      display:grid;
+      gap:7px;
+    }
+    .gp-login-field label{
+      font-weight:1000;
+      color:#304361;
+      font-size:1rem;
+    }
+    .gp-login-field input,
+    .gp-login-field select{
+      width:100%;
+      border:2px solid rgba(123,161,255,.18);
+      background:#fff;
+      color:#1f2a44;
+      border-radius:20px;
+      padding:15px 16px;
+      min-height:58px;
+      outline:none;
+      box-shadow:inset 0 4px 12px rgba(0,0,0,.04);
+      font-weight:900;
+    }
+    .gp-login-field input:focus,
+    .gp-login-field select:focus{
+      border-color:#7ba1ff;
+      box-shadow:0 0 0 5px rgba(123,161,255,.16), inset 0 4px 12px rgba(0,0,0,.04);
+    }
+    .gp-login-field.full,
+    .gp-login-actions,
+    .gp-login-status{
+      grid-column:1 / -1;
+    }
+    .gp-login-pin-wrap{
+      display:flex;
+      gap:8px;
+      align-items:stretch;
+    }
+    .gp-login-pin-wrap input{
+      flex:1 1 auto;
+    }
+    .gp-login-pin-toggle{
+      border:0;
+      border-radius:18px;
+      padding:0 13px;
+      min-width:66px;
+      background:linear-gradient(180deg,#ffffff,#edf3ff);
+      color:#304361;
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
+      font-weight:1000;
+      cursor:pointer;
+    }
+    .gp-login-actions{
+      display:grid;
+      gap:10px;
+      margin-top:4px;
+    }
+    .gp-login-main-btn{
+      width:100%;
+      border:0;
+      border-radius:24px;
+      min-height:62px;
+      padding:15px 18px;
+      cursor:pointer;
+      color:#073521;
+      background:linear-gradient(180deg,#33e392,#10b36a);
+      box-shadow:0 16px 30px rgba(16,179,106,.24);
+      font-weight:1000;
+      font-size:1.25rem;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .gp-login-main-btn:hover{transform:translateY(-1px)}
+    .gp-login-main-btn:active{transform:translateY(1px)}
+    .gp-login-status{
+      min-height:26px;
+      border-radius:16px;
+      font-weight:900;
+      color:#304361;
+      text-align:center;
+    }
+    .gp-corner-admin,
+    .gp-floating-install{
+      position:fixed;
+      z-index:14000;
+      border:0;
+      cursor:pointer;
+      border-radius:999px;
+      font-weight:1000;
+      box-shadow:0 12px 25px rgba(0,0,0,.16);
+    }
+    .gp-corner-admin{
+      left:16px;
+      top:16px;
+      padding:10px 14px;
+      color:#50257a;
+      background:linear-gradient(180deg,#f4eaff,#d8bdff);
+    }
+    .gp-floating-install{
+      right:16px;
+      bottom:16px;
+      padding:12px 16px;
+      color:#694900;
+      background:linear-gradient(180deg,#fff1b8,#ffd765);
+    }
+    .gp-gate-note{
+      margin:0;
+      color:#68768b;
+      font-size:.96rem;
+      line-height:1.25;
+      font-weight:850;
+      text-align:center;
+    }
+    body.gp-authenticated #gpPublicLoginGate,
+    body.gp-admin-open #gpPublicLoginGate{
+      display:none !important;
+    }
+    body:not(.gp-authenticated):not(.gp-admin-open) .topbar,
+    body:not(.gp-authenticated):not(.gp-admin-open) .app-shell,
+    body:not(.gp-authenticated):not(.gp-admin-open) footer,
+    body:not(.gp-authenticated):not(.gp-admin-open) .audio-toggle-btn,
+    body:not(.gp-authenticated):not(.gp-admin-open) .gp-guide-layer{
+      display:none !important;
+    }
+    body:not(.gp-authenticated) #topStartLearningBtn,
+    body:not(.gp-authenticated) #topQuickLinksBtn,
+    body:not(.gp-authenticated) #topPortalsBtn,
+    body:not(.gp-authenticated) #logoutBtn,
+    body:not(.gp-authenticated) #goHomeTop{
+      display:none !important;
+    }
+    body.gp-authenticated #topStartLearningBtn,
+    body.gp-authenticated #topQuickLinksBtn,
+    body.gp-authenticated #topPortalsBtn,
+    body.gp-authenticated #logoutBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .highlight-trigger{
+      display:none !important;
+    }
+    .hero-mascots .mascot-card p{
+      min-height:42px;
+    }
+    @media (max-width:720px){
+      .gp-login-card{padding:20px;border-radius:28px}
+      .gp-login-form{grid-template-columns:1fr}
+      .gp-login-brand{align-items:center;justify-content:flex-start}
+      .gp-login-brand img{width:62px;height:62px}
+      .gp-corner-admin{top:10px;left:10px;padding:9px 12px;font-size:.9rem}
+      .gp-floating-install{right:10px;bottom:10px;padding:10px 13px;font-size:.92rem}
+    }
+  </style>
+
 </head>
 
 <body data-page-type="welcome">
@@ -2747,6 +2989,60 @@
   <div class="gp-guide-bubble hidden" id="gpGuideBubble"></div>
 </div>
 
+  <section id="gpPublicLoginGate" aria-label="Student login">
+    <button class="gp-corner-admin" id="gpCornerAdminBtn" type="button">Admin</button>
+    <button class="gp-floating-install" id="gpGateInstallBtn" type="button">📲 Install App</button>
+
+    <div class="gp-login-shell">
+      <div class="gp-login-card">
+        <div class="gp-login-brand">
+          <img src="assets/images/avatars/gplogo.png" alt="GP EIS Logo">
+          <div class="gp-login-title">
+            <strong>GP EIS Online</strong>
+            <span>English • Literacy • Math</span>
+          </div>
+        </div>
+
+        <form class="gp-login-form" id="gpGateStudentForm" autocomplete="on">
+          <div class="gp-login-field">
+            <label for="gpGateClassId">Class ID</label>
+            <input id="gpGateClassId" type="text" placeholder="Class ID" autocomplete="organization">
+          </div>
+
+          <div class="gp-login-field">
+            <label for="gpGateStudentId">Student ID</label>
+            <input id="gpGateStudentId" type="text" placeholder="Student ID" autocomplete="username">
+          </div>
+
+          <div class="gp-login-field">
+            <label for="gpGatePin">PIN</label>
+            <div class="gp-login-pin-wrap">
+              <input id="gpGatePin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password">
+              <button class="gp-login-pin-toggle" id="gpGatePinToggle" type="button">Show</button>
+            </div>
+          </div>
+
+          <div class="gp-login-field">
+            <label for="gpGateLevel">Level Selection</label>
+            <select id="gpGateLevel">
+              <option value="A">Level A</option>
+              <option value="B">Level B</option>
+              <option value="C">Level C</option>
+            </select>
+          </div>
+
+          <div class="gp-login-actions">
+            <button class="gp-login-main-btn" id="gpGateLoginBtn" type="submit">Log In</button>
+            <p class="gp-gate-note">Enter the Class ID, Student ID, PIN, and Level given by GP EIS Admin.</p>
+          </div>
+
+          <div class="gp-login-status" id="gpGateStatus" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
@@ -2759,10 +3055,10 @@
 
       <div class="top-actions">
         <button class="btn btn-soft hidden" id="goHomeTop">Home</button>
-        <button class="btn btn-primary" id="topStartLearningBtn">Start Learning</button>
-        <button class="btn btn-orange" id="topQuickLinksBtn">Quick Links</button>
-        <button class="btn btn-pink" id="signupTopBtn">Login / Signup</button>
-        <button class="btn btn-purple" id="topPortalsBtn">Learning Report</button>
+        <button class="btn btn-primary hidden" id="topStartLearningBtn">Start Learning</button>
+        <button class="btn btn-orange hidden" id="topQuickLinksBtn">Quick Links</button>
+        <button class="btn btn-pink hidden" id="signupTopBtn">Admin / Signup</button>
+        <button class="btn btn-purple hidden" id="topPortalsBtn">Learning Report</button>
         <button class="btn btn-soft hidden" id="logoutBtn">Logout</button>
         <button class="btn btn-gold" id="installBtn" onclick="installPWA()">Install App</button>
       </div>
@@ -3021,7 +3317,7 @@
 
           <div class="auth-mini-tabs">
             <button class="auth-mini-tab active" data-auth-panel="student-auth">Student Login</button>
-            <button class="auth-mini-tab" data-auth-panel="teacher-auth">Teacher Signup / Login</button>
+            <button class="auth-mini-tab" data-auth-panel="teacher-auth">Admin / Teacher Login</button>
             <button class="auth-mini-tab" data-auth-panel="parent-auth">Parent Signup / Login</button>
             <button class="auth-mini-tab" data-auth-panel="admin-auth">Admin</button>
           </div>
@@ -3113,8 +3409,8 @@
           <div class="auth-subpanel" id="teacher-auth">
             <div class="auth-grid">
               <div class="auth-box">
-                <h3>Teacher Signup</h3>
-                <p>Create a teacher account first before logging in.</p>
+                <h3>Admin Signup</h3>
+                <p>Create an admin account first before logging in.</p>
                 <div class="form-grid">
                   <div class="field">
                     <label for="teacherSignupName">Teacher Name</label>
@@ -3151,14 +3447,14 @@
                     <p class="field-note">Use at least 6 characters for a stronger teacher account.</p>
                   </div>
                   <div class="auth-actions">
-                    <button class="btn btn-orange" id="teacherSignupBtn">Signup Teacher</button>
+                    <button class="btn btn-orange" id="teacherSignupBtn">Signup Admin</button>
                   </div>
                   <div class="auth-status" id="teacherSignupStatus"></div>
                 </div>
               </div>
 
               <div class="auth-box auth-hero">
-                <h3>Teacher Login</h3>
+                <h3>Admin Login</h3>
                 <p>After login, you can generate Student IDs and PINs.</p>
                 <div class="form-grid">
                   <div class="field">
@@ -3173,7 +3469,7 @@
                     </div>
                   </div>
                   <div class="auth-actions">
-                    <button class="btn btn-primary" id="teacherLoginBtn">Login Teacher</button>
+                    <button class="btn btn-primary" id="teacherLoginBtn">Login Admin</button>
                     <button class="btn btn-soft" id="teacherForgotPasswordBtn" type="button">Forgot Password</button>
                     <button class="btn btn-soft" id="teacherResetPasswordBtn" type="button">Reset Password</button>
                   </div>
@@ -3184,8 +3480,8 @@
 
             <div class="manager-grid" id="teacherManagerWrap">
               <div class="manager-card">
-                <h4>Generate Student IDs and PINs</h4>
-                <p>Teacher can generate one or many Student IDs for a selected class and level.</p>
+                <h4>Admin: Generate Student IDs and PINs</h4>
+                <p>Admin can generate one or many Student IDs for a selected class and level.</p>
                 <div class="form-grid">
                   <div class="field">
                     <label for="teacherClassIdInput">Class ID</label>
@@ -3212,8 +3508,8 @@
               </div>
 
               <div class="manager-card">
-                <h4>Teacher Student List</h4>
-                <p>Students created by teachers appear here immediately. Status shows whether each student is cloud synced or still local only.</p>
+                <h4>Admin Student List</h4>
+                <p>Students created by Admin appear here immediately. Status shows whether each student is cloud synced or still local only.</p>
                 <div class="table-wrap">
                   <table>
                     <thead>
@@ -6920,12 +7216,12 @@
         : "";
       studentLoginStatus.innerHTML = `<span class="ok">Login successful for ${matchedStudent.studentId || studentId}.${classHint}</span>`;
       syncLevelUI();
-      setLearningStageView("weeks");
-      showPanel("panel-links");
+      setLearningStageView("months");
+      showPanel("panel-home");
       safePlay("success");
-      speakAnnouncement(`Welcome ${matchedStudent.name || matchedStudent.studentId}. Your lessons are ready.`);
+      speakAnnouncement(`Welcome ${matchedStudent.name || matchedStudent.studentId}. Press Start Learning to choose your month.`);
       setTimeout(() => safePlay("cheer"), 140);
-      FX.toast(`Welcome ${matchedStudent.displayName || matchedStudent.name || studentId}!`, "🎉", 3200);
+      FX.toast(`Welcome ${matchedStudent.displayName || matchedStudent.name || studentId}! Press Start Learning.`, "🎉", 3600);
       speakAnnouncement(buildLoginGreeting(matchedStudent.displayName || matchedStudent.name || studentId));
     }
 
@@ -7907,6 +8203,7 @@
     });
     if (signupTopButton) signupTopButton.addEventListener("click", () => {
       ensureLoginPanelReady();
+      document.body.classList.add("gp-admin-open");
       syncLevelUI();
       showPanel("panel-login");
       showAuthSubpanel("teacher-auth");
@@ -7915,7 +8212,10 @@
     if (topStartLearningBtn) {
       topStartLearningBtn.addEventListener("click", () => {
         syncLevelUI();
-        showPanel("panel-levels");
+        renderMonthRoadmap();
+        renderQuickLinks();
+        setLearningStageView("months");
+        showPanel("panel-links");
       });
       topStartLearningBtn.addEventListener("pointerdown", warmNavigationTargets, { passive:true });
     }
@@ -8109,6 +8409,294 @@
     });
     window.setTimeout(() => updateGuideHint(), 180);
   </script>
+
+  <script id="gpPublicLoginGateScript">
+    (function(){
+      const LOGIN_KEYS = {
+        studentSession: "GP_EIS_STUDENT_SESSION",
+        teacherSession: "GP_EIS_TEACHER_SESSION",
+        parentSession: "GP_EIS_PARENT_SESSION",
+        authGate: "GP_EIS_AUTH_GATE",
+        role: "GP_EIS_SELECTED_ROLE",
+        level: "gpeis_selected_level"
+      };
+
+      function readJson(key){
+        try{
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : null;
+        }catch(_){
+          return null;
+        }
+      }
+
+      function hasAnyRealLogin(){
+        try{
+          const student = (typeof getSession === "function" ? getSession() : readJson(LOGIN_KEYS.studentSession));
+          const teacher = (typeof getTeacherSession === "function" ? getTeacherSession() : readJson(LOGIN_KEYS.teacherSession));
+          const parent = (typeof getParentSession === "function" ? getParentSession() : readJson(LOGIN_KEYS.parentSession));
+          return !!(
+            (student && student.studentId) ||
+            (teacher && teacher.email) ||
+            (parent && parent.email)
+          );
+        }catch(_){
+          return false;
+        }
+      }
+
+      function syncHeroLevelInformation(){
+        const cards = Array.from(document.querySelectorAll(".hero-mascots .mascot-card"));
+        if (!cards.length) return;
+        let activeLevel = "A";
+        let month = 1;
+        try{
+          activeLevel = String((typeof selectedLevel !== "undefined" && selectedLevel) || localStorage.getItem(LOGIN_KEYS.level) || "A").toUpperCase();
+          month = Math.max(1, Math.min(12, Number(typeof selectedMonth !== "undefined" ? selectedMonth : 1) || 1));
+        }catch(_){}
+
+        const copy = {
+          A: {
+            title: "Level A",
+            text: `Level A • Month ${month}: shapes, early literacy, tracing, and starter math.`
+          },
+          B: {
+            title: "Level B",
+            text: `Level B • Month ${month}: polygons, reading practice, writing, and number play.`
+          },
+          C: {
+            title: "Level C",
+            text: `Level C • Month ${month}: tangram puzzles, advanced literacy, and challenge activities.`
+          }
+        };
+
+        ["A","B","C"].forEach((level, index) => {
+          const card = cards[index];
+          if (!card) return;
+          const h3 = card.querySelector("h3");
+          const p = card.querySelector("p");
+          if (h3) h3.textContent = copy[level].title + (activeLevel === level ? " • Selected" : "");
+          if (p) p.textContent = copy[level].text;
+          card.classList.toggle("selected", activeLevel === level);
+        });
+      }
+
+      function syncTopButtons(isLoggedIn){
+        const idsToShowAfterLogin = ["topStartLearningBtn","topQuickLinksBtn","topPortalsBtn","logoutBtn"];
+        idsToShowAfterLogin.forEach((id) => {
+          const btn = document.getElementById(id);
+          if (!btn) return;
+          btn.classList.toggle("hidden", !isLoggedIn);
+        });
+
+        const home = document.getElementById("goHomeTop");
+        if (home) home.classList.toggle("hidden", !isLoggedIn);
+
+        const signup = document.getElementById("signupTopBtn");
+        if (signup) {
+          signup.textContent = "Admin / Signup";
+          signup.classList.toggle("hidden", true);
+        }
+
+        const topPortals = document.getElementById("topPortalsBtn");
+        if (topPortals) topPortals.textContent = "Learning Report";
+
+        const topStart = document.getElementById("topStartLearningBtn");
+        if (topStart) topStart.textContent = "Start Learning";
+      }
+
+      function syncGate(){
+        const isLoggedIn = hasAnyRealLogin();
+        document.body.classList.toggle("gp-authenticated", isLoggedIn);
+        if (isLoggedIn) document.body.classList.remove("gp-admin-open");
+        syncTopButtons(isLoggedIn);
+        syncHeroLevelInformation();
+
+        const status = document.getElementById("gpGateStatus");
+        const nativeStatus = document.getElementById("studentLoginStatus");
+        if (status && nativeStatus && !isLoggedIn) {
+          const msg = String(nativeStatus.textContent || "").trim();
+          status.textContent = msg && !/No active student session/i.test(msg) ? msg : "";
+          status.className = "gp-login-status" + (nativeStatus.querySelector(".danger") ? " danger" : "");
+        }
+      }
+
+      window.gpSyncPublicGate = syncGate;
+
+      function copyGateFieldsToStudentLogin(){
+        const classValue = document.getElementById("gpGateClassId")?.value || "";
+        const idValue = document.getElementById("gpGateStudentId")?.value || "";
+        const pinValue = document.getElementById("gpGatePin")?.value || "";
+        const levelValue = (document.getElementById("gpGateLevel")?.value || "A").toUpperCase();
+
+        const classInput = document.getElementById("studentClassIdInput");
+        const idInput = document.getElementById("studentIdInput");
+        const pinInput = document.getElementById("studentPinInput");
+        const levelInput = document.getElementById("studentLevelInput");
+
+        if (classInput) classInput.value = classValue;
+        if (idInput) idInput.value = idValue;
+        if (pinInput) pinInput.value = pinValue;
+        if (levelInput) {
+          levelInput.value = levelValue;
+          levelInput.dataset.userSelected = "1";
+        }
+
+        try{
+          if (typeof selectedLevel !== "undefined") selectedLevel = levelValue;
+          localStorage.setItem(LOGIN_KEYS.level, levelValue);
+          localStorage.setItem(LOGIN_KEYS.role, "student");
+        }catch(_){}
+      }
+
+      function mirrorGateLoginStatus(){
+        const status = document.getElementById("gpGateStatus");
+        const nativeStatus = document.getElementById("studentLoginStatus");
+        if (!status || !nativeStatus) return;
+        const msg = String(nativeStatus.textContent || "").trim();
+        if (msg) status.textContent = msg.replace(/\s+/g, " ");
+      }
+
+      function beginGateLogin(){
+        const status = document.getElementById("gpGateStatus");
+        const idValue = String(document.getElementById("gpGateStudentId")?.value || "").trim();
+        const pinValue = String(document.getElementById("gpGatePin")?.value || "").trim();
+
+        if (!idValue || !pinValue) {
+          if (status) status.textContent = "Please enter Student ID and PIN.";
+          try { if (typeof safePlay === "function") safePlay("warning"); } catch(_){}
+          return;
+        }
+
+        copyGateFieldsToStudentLogin();
+        if (status) status.textContent = "Checking your login...";
+        try{
+          if (typeof ensureLoginPanelReady === "function") ensureLoginPanelReady();
+          const btn = document.getElementById("studentLoginBtn");
+          if (btn) btn.click();
+        }catch(error){
+          if (status) status.textContent = "Login could not start. Please refresh and try again.";
+        }
+
+        let ticks = 0;
+        const timer = window.setInterval(() => {
+          ticks += 1;
+          syncGate();
+          mirrorGateLoginStatus();
+          if (hasAnyRealLogin()) {
+            window.clearInterval(timer);
+            try{
+              syncGate();
+              if (typeof setLearningStageView === "function") setLearningStageView("months");
+              if (typeof showPanel === "function") showPanel("panel-home");
+            }catch(_){}
+          } else if (ticks > 90) {
+            window.clearInterval(timer);
+          }
+        }, 120);
+      }
+
+      function openAdminCorner(){
+        document.body.classList.add("gp-admin-open");
+        document.body.classList.remove("gp-authenticated");
+        try{
+          if (typeof ensureLoginPanelReady === "function") ensureLoginPanelReady();
+          if (typeof showPanel === "function") showPanel("panel-login");
+          if (typeof showAuthSubpanel === "function") showAuthSubpanel("teacher-auth");
+          const tab = document.querySelector(".auth-mini-tab[data-auth-panel='teacher-auth']");
+          if (tab) tab.textContent = "Admin Login / Student IDs";
+          const teacherHeading = document.querySelector("#teacher-auth .auth-box.auth-hero h3");
+          if (teacherHeading) teacherHeading.textContent = "Admin Login";
+          const teacherIntro = document.querySelector("#teacher-auth .auth-box.auth-hero p");
+          if (teacherIntro) teacherIntro.textContent = "Login here to generate and manage Student IDs and PINs.";
+          const signupHeading = document.querySelector("#teacher-auth .auth-box:not(.auth-hero) h3");
+          if (signupHeading) signupHeading.textContent = "Admin Signup";
+          const loginBtn = document.getElementById("teacherLoginBtn");
+          if (loginBtn) loginBtn.textContent = "Login Admin";
+          const signupBtn = document.getElementById("teacherSignupBtn");
+          if (signupBtn) signupBtn.textContent = "Signup Admin";
+          window.scrollTo({ top:0, behavior:"smooth" });
+        }catch(_){}
+        syncGate();
+      }
+
+      const gateForm = document.getElementById("gpGateStudentForm");
+      if (gateForm) {
+        gateForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          beginGateLogin();
+        });
+      }
+
+      const adminBtn = document.getElementById("gpCornerAdminBtn");
+      if (adminBtn) adminBtn.addEventListener("click", openAdminCorner);
+
+      const installBtn = document.getElementById("gpGateInstallBtn");
+      if (installBtn) {
+        installBtn.addEventListener("click", () => {
+          try{
+            if (typeof installPWA === "function") installPWA();
+            else if (typeof showInstallHelp === "function") showInstallHelp();
+          }catch(_){}
+        });
+      }
+
+      const pinToggle = document.getElementById("gpGatePinToggle");
+      if (pinToggle) {
+        pinToggle.addEventListener("click", () => {
+          const input = document.getElementById("gpGatePin");
+          if (!input) return;
+          input.type = input.type === "password" ? "text" : "password";
+          pinToggle.textContent = input.type === "password" ? "Show" : "Hide";
+          input.focus({ preventScroll:true });
+        });
+      }
+
+      const gateLevel = document.getElementById("gpGateLevel");
+      if (gateLevel) {
+        gateLevel.addEventListener("change", () => {
+          try{
+            if (typeof selectedLevel !== "undefined") selectedLevel = String(gateLevel.value || "A").toUpperCase();
+            localStorage.setItem(LOGIN_KEYS.level, String(gateLevel.value || "A").toUpperCase());
+          }catch(_){}
+          syncHeroLevelInformation();
+        });
+      }
+
+      if (typeof syncLevelUI === "function") {
+        const originalSyncLevelUI = syncLevelUI;
+        syncLevelUI = function(){
+          const result = originalSyncLevelUI.apply(this, arguments);
+          try { syncGate(); } catch(_){}
+          return result;
+        };
+      }
+
+      const startBtn = document.getElementById("topStartLearningBtn");
+      if (startBtn) {
+        startBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          try{
+            syncLevelUI();
+            if (typeof renderMonthRoadmap === "function") renderMonthRoadmap();
+            if (typeof renderQuickLinks === "function") renderQuickLinks();
+            if (typeof setLearningStageView === "function") setLearningStageView("months");
+            if (typeof showPanel === "function") showPanel("panel-links");
+            if (typeof speakAnnouncement === "function") speakAnnouncement("Choose a month to start learning.");
+          }catch(_){}
+        }, true);
+      }
+
+      window.addEventListener("storage", syncGate);
+      window.addEventListener("pageshow", syncGate);
+      window.addEventListener("focus", syncGate);
+      window.setTimeout(syncGate, 0);
+      window.setTimeout(syncGate, 450);
+      window.setTimeout(syncGate, 1400);
+    })();
+  </script>
+
   <script type="module" src="shared/js/auth-sync-shared.js"></script>
 
 <script>
