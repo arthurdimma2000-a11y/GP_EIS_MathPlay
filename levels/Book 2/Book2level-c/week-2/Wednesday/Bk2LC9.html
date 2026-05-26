@@ -322,6 +322,29 @@
     .home-btn{position:static;display:inline-block;margin:0 0 8px 0;}
     .btn{font-size:.86rem;padding:9px 12px;}
     .home-float{width:58px;top:10px;right:10px;}
+    /*
+      On phones/tablets the three answer boxes become too short, which clips
+      the dotted 10, 6, and 3. Give each box more height and shift the
+      rewritten "sticks" label slightly lower so the guide fits cleanly.
+    */
+    #anneBox,#joeBox,#benBox{
+      left:69.6%;
+      width:19.8%;
+      height:7.9%;
+    }
+    #anneBox{top:28.95%;}
+    #joeBox{top:51.95%;}
+    #benBox{top:75.15%;}
+    .sticks-cover{
+      left:69.6%;
+      width:19.8%;
+      height:6.9%;
+      font-size:clamp(1.1rem,5vw,2.35rem);
+      padding-bottom:3px;
+    }
+    #anneSticks{top:35.85%;}
+    #joeSticks{top:58.85%;}
+    #benSticks{top:82.05%;}
   }
 </style>
 </head>
