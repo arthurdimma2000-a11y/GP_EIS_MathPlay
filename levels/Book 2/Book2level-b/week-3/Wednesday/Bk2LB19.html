@@ -85,12 +85,12 @@
   }
 
   .trace-zone.is-active{
-    outline:3px solid rgba(52,157,255,.22);
+    outline:none;
     border-radius:18px;
   }
 
   .trace-zone.done{
-    outline:4px solid rgba(47,159,95,.24);
+    outline:none;
     border-radius:18px;
   }
 
@@ -230,6 +230,14 @@
     justify-content:center;
   }
 
+  .btn-icon{
+    width:22px;
+    height:22px;
+    object-fit:contain;
+    margin-right:8px;
+    flex:0 0 auto;
+  }
+
   .btn:hover{
     filter:brightness(1.04);
     transform:translateY(-1px);
@@ -283,7 +291,7 @@
 <body>
 <main class="app" aria-label="Numbers Week 3 subtraction lines lesson">
   <section class="poster-wrap" id="posterWrap" aria-label="Numbers poster. Subtract the lines from the number.">
-    <img class="poster-img" id="posterImg" src="NumbersSubtractLinesWeek3.png" alt="Numbers Week 3 poster. Subtract the lines from the number.">
+    <img class="poster-img" id="posterImg" src="/assets/images/Bk2Shapes/NumbersSubtractLinesWeek3.png" alt="Numbers Week 3 poster. Subtract the lines from the number.">
 
     <div class="trace-zone line-r1" data-id="r1-lines" data-kind="lines" data-row="1" data-count="6" data-direction="up"><canvas></canvas></div>
     <div class="trace-zone answer-r1" data-id="r1-answer" data-kind="answer" data-row="1" data-answer="14"><canvas></canvas></div>
@@ -324,7 +332,7 @@
 
     <div class="buttons">
       <button class="btn prev" type="button" id="prevBtn">⬅ Previous</button>
-      <button class="btn read" type="button" id="readBtn">🔊 Read Instructions</button>
+      <button class="btn read" type="button" id="readBtn"><img class="btn-icon" src="/assets/images/Bk2Shapes/Microphone.png" alt="Mic">Read Instructions</button>
       <button class="btn clear" type="button" id="clearBtn">Clear ✕</button>
       <button class="btn cheer" type="button" id="cheerBtn">👏 Cheer</button>
       <button class="btn next" type="button" id="nextBtn">Next ➜</button>
@@ -339,9 +347,9 @@
 
 <script>
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "Bk2LA18.html";
-  const NEXT_PAGE = "Bk2LA20.html";
-  const CHIME_SRC = "chime.mp3";
+  const PREVIOUS_PAGE = "Bk2LB15.html";
+  const NEXT_PAGE = "../Friday/BK2LBGame3.html";
+  const CHIME_SRC = "/assets/audio/chimes/chime.mp3";
 
   const progressFill = document.getElementById("progressFill");
   const progressPercent = document.getElementById("progressPercent");
@@ -690,62 +698,6 @@
 
     function redrawGuide(){
       ctx.clearRect(0,0,pad.width,pad.height);
-
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      if (kind === "lines") {
-        ctx.strokeStyle = "rgba(26,132,52,0.18)";
-        ctx.lineWidth = Math.max(6,Math.min(pad.width,pad.height) * 0.08);
-      } else {
-        ctx.strokeStyle = "rgba(40,118,217,0.14)";
-        ctx.lineWidth = Math.max(6,Math.min(pad.width,pad.height) * 0.055);
-      }
-
-      ctx.setLineDash([8,8]);
-
-      pad.paths.forEach(path => {
-        if (!path.length) return;
-
-        const first = scalePoint(path[0],pad.width,pad.height);
-
-        ctx.beginPath();
-        ctx.moveTo(first.x,first.y);
-
-        for (let i = 1; i < path.length; i++){
-          const p = scalePoint(path[i],pad.width,pad.height);
-          ctx.lineTo(p.x,p.y);
-        }
-
-        ctx.stroke();
-      });
-
-      ctx.setLineDash([]);
-
-      /*
-        Blue start dots and red end dots are small helpers.
-        They sit on the overlay only, not inside the poster image.
-      */
-      pad.paths.forEach(path => {
-        if (!path.length) return;
-
-        const start = scalePoint(path[0],pad.width,pad.height);
-        const end = scalePoint(path[path.length - 1],pad.width,pad.height);
-        const radius = Math.max(4,Math.min(pad.width,pad.height) * 0.035);
-
-        ctx.fillStyle = "rgba(40,118,217,0.72)";
-        ctx.beginPath();
-        ctx.arc(start.x,start.y,radius,0,Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "rgba(241,58,82,0.72)";
-        ctx.beginPath();
-        ctx.arc(end.x,end.y,radius,0,Math.PI * 2);
-        ctx.fill();
-      });
-
-      ctx.restore();
     }
 
     function getPoint(event){
@@ -966,9 +918,9 @@
   function saveProgress(score){
     try{
       const payload = {
-        pageId:"Bk2NumbersWeek3",
-        file:"Bk2NumbersWeek3.html",
-        level:"A",
+        pageId:"Bk2LB19",
+        file:"Bk2LB19.html",
+        level:"B",
         activityType:"lesson",
         score:Math.max(0,Math.min(100,Math.round(score))),
         tracing:Math.max(0,Math.min(100,Math.round(score))),
@@ -986,13 +938,13 @@
       };
 
       const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-      store.Bk2NumbersWeek3 = {
-        ...(store.Bk2NumbersWeek3 || {}),
+      store.Bk2LB19 = {
+        ...(store.Bk2LB19 || {}),
         ...payload
       };
 
       localStorage.setItem("GP_EIS_ACTIVITY_RESULTS",JSON.stringify(store));
-      localStorage.setItem("GP_EIS_LAST_FILE","Bk2NumbersWeek3.html");
+      localStorage.setItem("GP_EIS_LAST_FILE","Bk2LB19.html");
     }catch(e){}
   }
 

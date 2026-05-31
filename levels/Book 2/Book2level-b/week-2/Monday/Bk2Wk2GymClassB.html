@@ -56,7 +56,7 @@
     <div class="intro-panel">
       <div class="intro-title">BK2 Wk2 Gym Class B Intro</div>
       <video id="lbIntroVideo" playsinline autoplay preload="metadata">
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1779379030/Bk2wk2classb_2_pzycb2.mp4" type="video/mp4">
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1780210100/Bk2lbwk2gym2_olmmsi.mp4" type="video/mp4">
       </video>
       <div class="intro-actions">
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
@@ -80,8 +80,8 @@
           <button class="nav-btn" onclick="replayVideo()">🔁 Replay</button>
         </div>
 
-          <video id="lessonVideo" controls playsinline autoplay preload="none">
-            <source src="" type="video/mp4">
+        <video id="lessonVideo" controls playsinline autoplay preload="none">
+          <source src="" type="video/mp4">
         </video>
 
         <div class="bottom-bar">
@@ -97,21 +97,23 @@
 
   <script>
     const HOME_PAGE = "../../../../../index.html";
-      const PREVIOUS_PAGE = "../../week-1/Friday/Bk2LBQuiz1.html";
-      const NEXT_PAGE = "../Tuesday/Bk2LB8.html";
+    const PREVIOUS_PAGE = "../../week-1/Friday/Bk2LBQuiz1.html";
+    const NEXT_PAGE = "../Tuesday/Bk2LB8.html";
 
     const video = document.getElementById("lessonVideo");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
-      let introFinished = false;
-      let lessonStarted = false;
+    let introFinished = false;
+    let lessonStarted = false;
+    let lessonCompleted = false;
+    let manualReplayRequested = false;
 
-      video.muted = true;
-      video.volume = 0;
-      video.loop = false;
+    video.muted = true;
+    video.volume = 0;
+    video.loop = false;
 
-    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1779379030/Bk2wk2classb_2_pzycb2.mp4";
+    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1780210100/Bk2lbwk2gym2_olmmsi.mp4";
 
     function clearVideoSource(videoEl){
       if(!videoEl) return;
@@ -121,48 +123,77 @@
       videoEl.load();
     }
 
-      function ensureLessonVideoLoaded(){
-        if(!video) return;
-        const source = video.querySelector("source");
-        const activeSrc = source && source.src ? source.src : (video.currentSrc || "");
+    function ensureLessonVideoLoaded(){
+      if(!video) return;
+      const source = video.querySelector("source");
+      const activeSrc = source && source.src ? source.src : (video.currentSrc || "");
       if(!activeSrc || !activeSrc.includes(LESSON_VIDEO_URL)){
         if(source){
           source.src = LESSON_VIDEO_URL;
           video.load();
         } else {
           video.src = LESSON_VIDEO_URL;
-          }
         }
       }
+    }
 
-      function syncLessonPositionFromIntro(){
-        if(!introVideo || !video) return;
-        const introTime = Number(introVideo.currentTime || 0);
-        if(introTime > 0.1){
-          try{
-            video.currentTime = introTime;
-          }catch(_){}
-        }
+    function syncLessonPositionFromIntro(){
+      if(!introVideo || !video) return;
+      const introTime = Number(introVideo.currentTime || 0);
+      if(introTime > 0.1){
+        try{
+          video.currentTime = introTime;
+        }catch(_){}
       }
+    }
 
     clearVideoSource(video);
 
-      function pauseVideo(el){
-        if(el){
-          try{ el.pause(); }catch(e){}
+    function pauseVideo(el){
+      if(el){
+        try{ el.pause(); }catch(e){}
+      }
+    }
+
+    function forceLoudLessonAudio(){
+      try{
+        video.defaultMuted = false;
+        video.muted = false;
+        video.volume = 1;
+      }catch(_){}
+    }
+
+    function reinforceLessonAudio(){
+      forceLoudLessonAudio();
+      if(lessonStarted && !video.paused && (!lessonCompleted || manualReplayRequested)){
+        const retry = video.play();
+        if(retry && typeof retry.catch === "function"){
+          retry.catch(() => {});
         }
       }
+    }
 
-      function lockLessonAtEnd(){
-        lessonStarted = true;
-        video.loop = false;
-        pauseVideo(video);
-        try{
-          if(Number.isFinite(video.duration) && video.duration > 0){
-            video.currentTime = video.duration;
-          }
-        }catch(_){}
-      }
+    function bindAudioUnlock(){
+      const unlock = () => {
+        reinforceLessonAudio();
+      };
+      ["pointerdown","touchstart","keydown","click"].forEach(eventName => {
+        document.addEventListener(eventName,unlock,{passive:true});
+      });
+    }
+
+    function lockLessonAtEnd(){
+      lessonStarted = true;
+      lessonCompleted = true;
+      manualReplayRequested = false;
+      video.loop = false;
+      pauseVideo(video);
+      try{
+        if(Number.isFinite(video.duration) && video.duration > 0){
+          video.currentTime = video.duration;
+        }
+      }catch(_){}
+    }
 
     function revealPageContent(){
       if(introFinished) return;
@@ -172,37 +203,43 @@
       pauseVideo(introVideo);
     }
 
-      function startLessonPlayback(){
-        if(introVideo){
-          pauseVideo(introVideo);
-          introVideo.muted = true;
-          introVideo.volume = 0;
-        }
-        ensureLessonVideoLoaded();
-        if(!lessonStarted){
-          syncLessonPositionFromIntro();
-        }
-        video.muted = false;
-        video.volume = 1;
-        const playAttempt = video.play();
-        if(playAttempt && typeof playAttempt.catch === "function"){
-          playAttempt.catch(() => {
-            video.muted = true;
-            video.volume = 0;
-            video.play().then(() => {
-              setTimeout(() => {
-                video.muted = false;
-                video.volume = 1;
-              }, 300);
-            }).catch(() => {});
-          });
-        }
-        lessonStarted = true;
+    function startLessonPlayback(){
+      if(lessonCompleted && !manualReplayRequested){
+        lockLessonAtEnd();
+        return;
       }
+      if(introVideo){
+        pauseVideo(introVideo);
+        introVideo.muted = true;
+        introVideo.volume = 0;
+      }
+      ensureLessonVideoLoaded();
+      if(!lessonStarted){
+        syncLessonPositionFromIntro();
+      }
+      forceLoudLessonAudio();
+      const playAttempt = video.play();
+      if(playAttempt && typeof playAttempt.catch === "function"){
+        playAttempt.catch(() => {
+          video.muted = true;
+          video.volume = 0;
+          video.play().then(() => {
+            setTimeout(() => {
+              forceLoudLessonAudio();
+            }, 300);
+            setTimeout(() => {
+              reinforceLessonAudio();
+            }, 900);
+          }).catch(() => {});
+        });
+      }
+      lessonStarted = true;
+      manualReplayRequested = false;
+    }
 
-      function restoreLessonAudio(){
-        startLessonPlayback();
-      }
+    function restoreLessonAudio(){
+      startLessonPlayback();
+    }
 
     function goHome(){
       pauseVideo(video);
@@ -228,21 +265,23 @@
       window.location.href = NEXT_PAGE;
     }
 
-      function replayVideo(){
-        ensureLessonVideoLoaded();
-        video.currentTime = 0;
-        lessonStarted = true;
-        startLessonPlayback();
-      }
+    function replayVideo(){
+      ensureLessonVideoLoaded();
+      lessonCompleted = false;
+      manualReplayRequested = true;
+      video.currentTime = 0;
+      lessonStarted = true;
+      startLessonPlayback();
+    }
 
-      function togglePlayPause(){
-        ensureLessonVideoLoaded();
-        if(video.paused){
-          startLessonPlayback();
-        } else {
-          video.pause();
-        }
+    function togglePlayPause(){
+      ensureLessonVideoLoaded();
+      if(video.paused){
+        startLessonPlayback();
+      } else {
+        video.pause();
       }
+    }
 
     function toggleFullscreen(){
       const card = document.querySelector(".video-card");
@@ -268,14 +307,14 @@
         }catch(e){}
       }
 
-        startLessonPlayback();
-      };
+      startLessonPlayback();
+    };
 
     const originalRestoreLessonAudio = restoreLessonAudio;
 
     restoreLessonAudio = function(){
-        originalRestoreLessonAudio();
-      };
+      originalRestoreLessonAudio();
+    };
 
     introVideo.addEventListener("ended", () => {
       revealPageContent();
@@ -287,21 +326,45 @@
       restoreLessonAudio();
     });
 
-      video.addEventListener("ended", lockLessonAtEnd);
-
-      function startIntroPlayback(){
-        introVideo.muted = false;
-        introVideo.volume = 1;
-        const playAttempt = introVideo.play();
-        if(playAttempt && typeof playAttempt.catch === "function"){
-          playAttempt.catch(() => {
-            revealPageContent();
-            startLessonPlayback();
-          });
-        }
+    video.addEventListener("ended", lockLessonAtEnd);
+    video.addEventListener("play", () => {
+      if(lessonCompleted && !manualReplayRequested){
+        lockLessonAtEnd();
+        return;
       }
+      reinforceLessonAudio();
+    });
+    video.addEventListener("playing", () => {
+      if(!lessonCompleted || manualReplayRequested) reinforceLessonAudio();
+    });
+    video.addEventListener("canplay", () => {
+      if(lessonStarted && (!lessonCompleted || manualReplayRequested)) reinforceLessonAudio();
+    });
+    video.addEventListener("loadeddata", () => {
+      if(lessonStarted && (!lessonCompleted || manualReplayRequested)) reinforceLessonAudio();
+    });
+    video.addEventListener("loadedmetadata", () => {
+      if(lessonCompleted && !manualReplayRequested){
+        lockLessonAtEnd();
+      }
+    });
 
-      startIntroPlayback();
+    bindAudioUnlock();
+
+    function startIntroPlayback(){
+      introVideo.defaultMuted = false;
+      introVideo.muted = false;
+      introVideo.volume = 1;
+      const playAttempt = introVideo.play();
+      if(playAttempt && typeof playAttempt.catch === "function"){
+        playAttempt.catch(() => {
+          revealPageContent();
+          startLessonPlayback();
+        });
+      }
+    }
+
+    startIntroPlayback();
 
     skipIntroBtn.addEventListener("click", skipIntroAndGoNext);
 
@@ -318,11 +381,11 @@
     });
 
     setTimeout(() => {
-        if(!introFinished && (introVideo.readyState < 1 || introVideo.paused)) {
-          revealPageContent();
-          startLessonPlayback();
-        }
-      }, 4000);
+      if(!introFinished && (introVideo.readyState < 1 || introVideo.paused)) {
+        revealPageContent();
+        startLessonPlayback();
+      }
+    }, 4000);
   </script>
 </body>
 </html>

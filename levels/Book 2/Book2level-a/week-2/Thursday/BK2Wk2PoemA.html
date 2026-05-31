@@ -106,6 +106,8 @@
     const skipIntroBtn = document.getElementById("skipIntroBtn");
     let introFinished = false;
     let lessonStarted = false;
+    let lessonCompleted = false;
+    let manualReplayRequested = false;
 
     video.muted = true;
     video.volume = 0;
@@ -143,8 +145,37 @@
       }
     }
 
+    function forceLoudLessonAudio(){
+      try{
+        video.defaultMuted = false;
+        video.muted = false;
+        video.volume = 1;
+      }catch(_){}
+    }
+
+    function reinforceLessonAudio(){
+      forceLoudLessonAudio();
+      if(lessonStarted && !video.paused){
+        const retry = video.play();
+        if(retry && typeof retry.catch === "function"){
+          retry.catch(() => {});
+        }
+      }
+    }
+
+    function bindAudioUnlock(){
+      const unlock = () => {
+        reinforceLessonAudio();
+      };
+      ["pointerdown","touchstart","keydown","click"].forEach(eventName => {
+        document.addEventListener(eventName,unlock,{passive:true});
+      });
+    }
+
     function lockLessonAtEnd(){
       lessonStarted = true;
+      lessonCompleted = true;
+      manualReplayRequested = false;
       video.loop = false;
       pauseVideo(video);
       try{
@@ -173,6 +204,10 @@
     }
 
     function startLessonPlayback(){
+      if(lessonCompleted && !manualReplayRequested){
+        lockLessonAtEnd();
+        return;
+      }
       if(introVideo){
         pauseVideo(introVideo);
         introVideo.muted = true;
@@ -182,8 +217,7 @@
       if(!lessonStarted){
         syncLessonPositionFromIntro();
       }
-      video.muted = false;
-      video.volume = 1;
+      forceLoudLessonAudio();
       const playAttempt = video.play();
       if(playAttempt && typeof playAttempt.catch === "function"){
         playAttempt.catch(() => {
@@ -191,13 +225,16 @@
           video.volume = 0;
           video.play().then(() => {
             setTimeout(() => {
-              video.muted = false;
-              video.volume = 1;
+              forceLoudLessonAudio();
             }, 300);
+            setTimeout(() => {
+              reinforceLessonAudio();
+            }, 900);
           }).catch(() => {});
         });
       }
       lessonStarted = true;
+      manualReplayRequested = false;
     }
 
     function restoreLessonAudio(){
@@ -230,6 +267,8 @@
 
     function replayVideo(){
       ensureLessonVideoLoaded();
+      lessonCompleted = false;
+      manualReplayRequested = true;
       lessonStarted = true;
       video.currentTime = 0;
       startLessonPlayback();
@@ -289,7 +328,35 @@
     });
 
     video.addEventListener("ended", lockLessonAtEnd);
+    video.addEventListener("play", () => {
+      if(lessonCompleted && !manualReplayRequested){
+        lockLessonAtEnd();
+        return;
+      }
+      reinforceLessonAudio();
+    });
+    video.addEventListener("playing", () => {
+      if(lessonCompleted && !manualReplayRequested){
+        lockLessonAtEnd();
+        return;
+      }
+      reinforceLessonAudio();
+    });
+    video.addEventListener("canplay", () => {
+      if(lessonStarted && (!lessonCompleted || manualReplayRequested)) reinforceLessonAudio();
+    });
+    video.addEventListener("loadeddata", () => {
+      if(lessonStarted && (!lessonCompleted || manualReplayRequested)) reinforceLessonAudio();
+    });
+    video.addEventListener("loadedmetadata", () => {
+      if(lessonCompleted && !manualReplayRequested){
+        lockLessonAtEnd();
+      }
+    });
 
+    bindAudioUnlock();
+
+    introVideo.defaultMuted = false;
     introVideo.muted = false;
     introVideo.volume = 1;
     introVideo.play().catch(()=>{});
