@@ -110,8 +110,8 @@ if('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {
 window.addEventListener('beforeunload',()=>{try{speechSynthesis.cancel()}catch(e){}});
 
 (function(){
-const PAGE_ID='Bk2_Curved_Lines_Wedding_Cake_Game';
-const HOME_PAGE='../../../../../index.html'; const PREVIOUS_PAGE='CurvedLines_Week3_Trace.html'; const NEXT_PAGE='Bk2_Curved_Lines_Quiz.html';
+const PAGE_ID='Bk2LAGame3';
+const HOME_PAGE='../../../../../index.html'; const PREVIOUS_PAGE='../Wednesday/Bk2LA19.html'; const NEXT_PAGE='Bk2LAQuiz3.html';
 const speechBubble=document.getElementById('speechBubble'), traceScoreEl=document.getElementById('traceScore'), lineScoreEl=document.getElementById('lineScore'), numberScoreEl=document.getElementById('numberScore'), starCountEl=document.getElementById('starCount'), progressText=document.getElementById('progressText'), progressFill=document.getElementById('progressFill'), starsEl=document.getElementById('stars'), statusEl=document.getElementById('status');
 const pads=[]; let lineScore=0, numberScore=0, completed=false;
 function setStatus(t){statusEl.textContent=t||''}

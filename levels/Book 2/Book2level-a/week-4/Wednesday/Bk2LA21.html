@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Different Lines - Week 4 Tracing</title>
+
+<style>
+  :root{
+    --orange:#ff9918;
+    --orange-dark:#d97706;
+    --red:#f0444d;
+    --green:#18a85c;
+    --blue:#36a8df;
+    --purple:#7049c6;
+    --gold:#ffd24a;
+    --ink:#27252c;
+    --cream:#fffaf2;
+    --panel:#ffffff;
+    --shadow:0 16px 34px rgba(0,0,0,.14);
+    font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  }
+
+  *{
+    box-sizing:border-box;
+  }
+
+  html,body{
+    margin:0;
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+    background:var(--cream);
+    color:var(--ink);
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+    background-image:
+      linear-gradient(#efe5d7 1px,transparent 1px),
+      linear-gradient(90deg,#efe5d7 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .app{
+    width:min(990px,100%);
+    background:#fff;
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:10px 10px 14px;
+  }
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+
+  .badge{
+    background:#fff7eb;
+    border:3px solid #ffd39a;
+    border-radius:999px;
+    padding:8px 14px;
+    font-weight:1000;
+    color:var(--orange-dark);
+    box-shadow:0 8px 16px rgba(0,0,0,.08);
+  }
+
+  .navs,
+  .buttons{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    flex-wrap:wrap;
+  }
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:10px 15px;
+    font-size:.95rem;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 5px 0 rgba(0,0,0,.17);
+    transition:transform .1s ease,filter .1s ease;
+  }
+
+  .btn:hover{
+    filter:brightness(1.04);
+    transform:translateY(-1px);
+  }
+
+  .btn:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 rgba(0,0,0,.14);
+  }
+
+  .btn.home{
+    background:#25d17d;
+    color:#fff;
+  }
+
+  .btn.prev,
+  .btn.next{
+    background:#f7dc6f;
+    color:#8b5a00;
+  }
+
+  .btn.read{
+    background:#f04d5f;
+    color:#fff;
+  }
+
+  .btn.clear{
+    background:#dfeaff;
+    color:#1f3b6b;
+  }
+
+  .btn.cheer{
+    background:#c9f2d6;
+    color:#166c38;
+  }
+
+  .btn-icon{
+    width:22px;
+    height:22px;
+    object-fit:contain;
+    margin-right:8px;
+    flex:0 0 auto;
+  }
+
+  .poster-wrap{
+    position:relative;
+    width:min(904px,100%);
+    margin:0 auto;
+    border-radius:18px;
+    overflow:hidden;
+    background:#fff;
+    touch-action:none;
+  }
+
+  .poster-img{
+    display:block;
+    width:100%;
+    height:auto;
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+  }
+
+  .trace-layer{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:5;
+    background:transparent;
+    touch-action:none;
+    cursor:crosshair;
+  }
+
+  .panel{
+    width:min(904px,100%);
+    margin:12px auto 0;
+    background:linear-gradient(180deg,#fff,#fff9fb);
+    border:3px solid rgba(255,153,24,.34);
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
+  }
+
+  .progress-title{
+    text-align:center;
+    font-size:clamp(1rem,2.7vw,1.3rem);
+    font-weight:1000;
+    color:#d97706;
+    margin-bottom:8px;
+  }
+
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+
+  .bar{
+    flex:1;
+    height:18px;
+    border-radius:999px;
+    background:#e8eef8;
+    overflow:hidden;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.16);
+  }
+
+  .fill{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#31b7ff,#83e79f);
+    transition:width .12s ease-out;
+  }
+
+  .percent{
+    min-width:60px;
+    text-align:right;
+    color:#175ca8;
+    font-size:1.05rem;
+    font-weight:1000;
+  }
+
+  .mini-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:10px;
+  }
+
+  .mini{
+    background:#fff;
+    border:2px solid #e7edf8;
+    border-radius:14px;
+    text-align:center;
+    padding:9px 6px;
+    font-weight:1000;
+    font-size:.94rem;
+    color:#444;
+  }
+
+  .mini span{
+    display:block;
+    margin-top:4px;
+    color:#ef3f49;
+    font-size:1rem;
+  }
+
+  .mini.done{
+    border-color:#62d98c;
+    background:#effff4;
+    color:#126c36;
+  }
+
+  .mini.done span{
+    color:#126c36;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.25em;
+    margin-top:7px;
+    font-size:2rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:
+      0 2px 0 #b87900,
+      0 4px 0 #8a5a00,
+      0 8px 14px rgba(0,0,0,.28);
+  }
+
+  .status{
+    min-height:1.55em;
+    text-align:center;
+    margin-top:7px;
+    font-size:clamp(.98rem,2.5vw,1.25rem);
+    font-weight:1000;
+    color:var(--purple);
+  }
+
+  .note{
+    text-align:center;
+    font-weight:900;
+    color:#666;
+    font-size:.9rem;
+    margin-top:8px;
+    line-height:1.5;
+  }
+
+  .confetti-piece{
+    position:fixed;
+    top:-20px;
+    width:10px;
+    height:16px;
+    border-radius:3px;
+    z-index:9999;
+    pointer-events:none;
+    animation:fall 1.8s linear forwards;
+  }
+
+  @keyframes fall{
+    to{
+      transform:translateY(105vh) rotate(540deg);
+      opacity:.1;
+    }
+  }
+
+  @media(max-width:760px){
+    body{
+      padding:6px;
+    }
+
+    .app{
+      padding:6px;
+      border-radius:16px;
+    }
+
+    .panel{
+      padding:10px;
+      border-radius:14px;
+    }
+
+    .mini-grid{
+      grid-template-columns:1fr;
+    }
+
+    .btn{
+      font-size:.85rem;
+      padding:9px 12px;
+    }
+  }
+</style>
+</head>
+
+<body>
+<main class="app" aria-label="Different Lines Week 4 tracing lesson">
+  <div class="topbar">
+    <div class="badge">📘 Different Lines · Week 4 · Trace and count</div>
+
+    <div class="navs">
+      <button class="btn home" id="homeBtn" type="button">🏠 Home</button>
+      <button class="btn prev" id="prevBtn" type="button">← Previous</button>
+      <button class="btn next" id="nextBtn" type="button">Next →</button>
+    </div>
+  </div>
+
+  <section class="poster-wrap" id="posterWrap" aria-label="Different Lines poster. Trace the straight, zig-zag and curved lines.">
+    <img
+      class="poster-img"
+      id="posterImg"
+      src="/assets/images/Bk2Shapes/NumbersSubtractLinesWeek4.png"
+      alt="Different Lines Week 4 poster. The makeup has 7 straight lines. This dress has 3 zig-zag lines. The veil has 5 curved lines."
+    >
+    <canvas
+      class="trace-layer"
+      id="traceLayer"
+      aria-label="Trace all visible lines on the poster"
+    ></canvas>
+  </section>
+
+  <section class="panel" aria-live="polite">
+    <div class="progress-title">
+      Tracing progress: <span id="overallText">0%</span>
+    </div>
+
+    <div class="progress-row">
+      <div class="bar">
+        <div class="fill" id="overallFill"></div>
+      </div>
+      <div class="percent" id="overallPercent">0%</div>
+    </div>
+
+    <div class="mini-grid">
+      <div class="mini" id="makeupBox">
+        Makeup: 7 straight lines
+        <span id="makeupText">0%</span>
+      </div>
+
+      <div class="mini" id="dressBox">
+        Dress: 3 zig-zag lines
+        <span id="dressText">0%</span>
+      </div>
+
+      <div class="mini" id="veilBox">
+        Veil: 5 curved lines
+        <span id="veilText">0%</span>
+      </div>
+    </div>
+
+    <div class="stars" id="stars">☆ ☆ ☆</div>
+
+    <div class="status" id="status">
+      Listen, then trace the lines on the poster.
+    </div>
+
+    <div class="buttons">
+      <button class="btn read" id="readBtn" type="button"><img class="btn-icon" src="/assets/images/Bk2Shapes/Microphone.png" alt="Mic">Read Instructions</button>
+      <button class="btn clear" id="clearBtn" type="button">Clear Trace</button>
+      <button class="btn cheer" id="cheerBtn" type="button">👏 Cheer</button>
+    </div>
+
+    <div class="note">
+      Trace the makeup’s straight lines, the dress’s zig-zag lines, and the veil’s curved lines.
+    </div>
+  </section>
+
+  <audio id="chimeAudio" src="/assets/audio/chimes/chime.mp3" preload="auto"></audio>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  /*
+    PAGE AND NAVIGATION SETTINGS
+    Change only these page links if your folder navigation uses different names.
+  */
+  const PAGE_ID = "Bk2LA21_DifferentLines_Week4";
+  const FILE_NAME = "Bk2LA21.html";
+  const LEVEL = "A";
+  const WEEK = 4;
+
+  const HOME_PAGE = "../../../../../index.html";
+  const PREVIOUS_PAGE = "Bk2LA20.html";
+  const NEXT_PAGE = "Bk2LA25.html";
+
+  /*
+    Poster natural size from the uploaded Week 4 image.
+  */
+  const NATURAL_W = 949;
+  const NATURAL_H = 1315;
+
+  /*
+    Child-friendly tracing settings.
+    The wide hit radius allows young children to trace successfully.
+  */
+  const HIT_RADIUS = 34;
+  const START_RADIUS = 62;
+  const COMPLETE_RATIO = 0.70;
+
+  const posterWrap = document.getElementById("posterWrap");
+  const posterImg = document.getElementById("posterImg");
+  const traceLayer = document.getElementById("traceLayer");
+  const ctx = traceLayer.getContext("2d");
+
+  const overallText = document.getElementById("overallText");
+  const overallPercent = document.getElementById("overallPercent");
+  const overallFill = document.getElementById("overallFill");
+  const starsEl = document.getElementById("stars");
+  const statusEl = document.getElementById("status");
+
+  const makeupBox = document.getElementById("makeupBox");
+  const dressBox = document.getElementById("dressBox");
+  const veilBox = document.getElementById("veilBox");
+
+  const makeupText = document.getElementById("makeupText");
+  const dressText = document.getElementById("dressText");
+  const veilText = document.getElementById("veilText");
+
+  const chimeAudio = document.getElementById("chimeAudio");
+
+  const homeBtn = document.getElementById("homeBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const readBtn = document.getElementById("readBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const cheerBtn = document.getElementById("cheerBtn");
+
+  let dpr = 1;
+  let sx = 1;
+  let sy = 1;
+  let drawing = false;
+  let activeTarget = null;
+  let currentStroke = null;
+  let finalCelebrated = false;
+  let lastTickTime = 0;
+  let audioContext = null;
+
+  /*
+    Create evenly spaced points for straight, zig-zag and curved paths.
+  */
+  function linePoints(x1, y1, x2, y2, steps = 70){
+    const points = [];
+
+    for(let i = 0; i <= steps; i++){
+      const t = i / steps;
+      points.push({
+        x:x1 + (x2 - x1) * t,
+        y:y1 + (y2 - y1) * t
+      });
+    }
+
+    return points;
+  }
+
+  function polylinePoints(points, stepsPerSegment = 40){
+    const result = [];
+
+    for(let i = 0; i < points.length - 1; i++){
+      const part = linePoints(
+        points[i].x,
+        points[i].y,
+        points[i + 1].x,
+        points[i + 1].y,
+        stepsPerSegment
+      );
+
+      if(i > 0) part.shift();
+      result.push(...part);
+    }
+
+    return result;
+  }
+
+  function cubicPoints(p0, p1, p2, p3, steps = 100){
+    const points = [];
+
+    for(let i = 0; i <= steps; i++){
+      const t = i / steps;
+      const mt = 1 - t;
+
+      points.push({
+        x:
+          mt * mt * mt * p0.x +
+          3 * mt * mt * t * p1.x +
+          3 * mt * t * t * p2.x +
+          t * t * t * p3.x,
+
+        y:
+          mt * mt * mt * p0.y +
+          3 * mt * mt * t * p1.y +
+          3 * mt * t * t * p2.y +
+          t * t * t * p3.y
+      });
+    }
+
+    return points;
+  }
+
+  /*
+    Exact tracing targets positioned over the visible lines on the poster.
+    No part of the poster artwork is redrawn or replaced.
+  */
+  const targets = [
+    /*
+      MAKEUP: 7 STRAIGHT LINES
+    */
+    {
+      id:"makeup-top",
+      group:"makeup",
+      label:"Makeup straight line 1",
+      color:"#f0444d",
+      samples:linePoints(137,296,337,296)
+    },
+    {
+      id:"makeup-left",
+      group:"makeup",
+      label:"Makeup straight line 2",
+      color:"#f0444d",
+      samples:linePoints(137,297,137,430)
+    },
+    {
+      id:"makeup-right",
+      group:"makeup",
+      label:"Makeup straight line 3",
+      color:"#f0444d",
+      samples:linePoints(337,297,337,430)
+    },
+    {
+      id:"makeup-middle",
+      group:"makeup",
+      label:"Makeup straight line 4",
+      color:"#f0444d",
+      samples:linePoints(137,430,337,430)
+    },
+    {
+      id:"makeup-lower-left",
+      group:"makeup",
+      label:"Makeup straight line 5",
+      color:"#f0444d",
+      samples:linePoints(137,436,86,558)
+    },
+    {
+      id:"makeup-lower-right",
+      group:"makeup",
+      label:"Makeup straight line 6",
+      color:"#f0444d",
+      samples:linePoints(343,436,294,558)
+    },
+    {
+      id:"makeup-bottom",
+      group:"makeup",
+      label:"Makeup straight line 7",
+      color:"#f0444d",
+      samples:linePoints(86,558,294,558)
+    },
+
+    /*
+      DRESS: 3 ZIG-ZAG LINES
+    */
+    {
+      id:"dress-top",
+      group:"dress",
+      label:"Dress zig-zag line 1",
+      color:"#e84a8a",
+      samples:polylinePoints([
+        {x:177,y:675},
+        {x:211,y:706},
+        {x:245,y:675}
+      ],46)
+    },
+    {
+      id:"dress-middle",
+      group:"dress",
+      label:"Dress zig-zag line 2",
+      color:"#e84a8a",
+      samples:polylinePoints([
+        {x:141,y:783},
+        {x:212,y:849},
+        {x:280,y:783}
+      ],55)
+    },
+    {
+      id:"dress-bottom",
+      group:"dress",
+      label:"Dress zig-zag line 3",
+      color:"#e84a8a",
+      samples:polylinePoints([
+        {x:118,y:861},
+        {x:211,y:946},
+        {x:304,y:861}
+      ],62)
+    },
+
+    /*
+      VEIL: 5 CURVED LINES
+      Paths begin at the lower green dots and finish at the upper red dots.
+    */
+    {
+      id:"veil-1",
+      group:"veil",
+      label:"Veil curved line 1",
+      color:"#36a8df",
+      samples:cubicPoints(
+        {x:108,y:1197},
+        {x:145,y:1140},
+        {x:151,y:1030},
+        {x:189,y:980}
+      )
+    },
+    {
+      id:"veil-2",
+      group:"veil",
+      label:"Veil curved line 2",
+      color:"#36a8df",
+      samples:cubicPoints(
+        {x:163,y:1204},
+        {x:180,y:1135},
+        {x:177,y:1034},
+        {x:201,y:978}
+      )
+    },
+    {
+      id:"veil-3",
+      group:"veil",
+      label:"Veil curved line 3",
+      color:"#36a8df",
+      samples:cubicPoints(
+        {x:224,y:1209},
+        {x:224,y:1142},
+        {x:216,y:1038},
+        {x:213,y:978}
+      )
+    },
+    {
+      id:"veil-4",
+      group:"veil",
+      label:"Veil curved line 4",
+      color:"#36a8df",
+      samples:cubicPoints(
+        {x:280,y:1204},
+        {x:262,y:1135},
+        {x:257,y:1036},
+        {x:224,y:979}
+      )
+    },
+    {
+      id:"veil-5",
+      group:"veil",
+      label:"Veil curved line 5",
+      color:"#36a8df",
+      samples:cubicPoints(
+        {x:314,y:1195},
+        {x:287,y:1128},
+        {x:281,y:1034},
+        {x:236,y:982}
+      )
+    }
+  ];
+
+  targets.forEach(target => {
+    target.samples = target.samples.map(point => ({
+      x:point.x,
+      y:point.y,
+      hit:false
+    }));
+
+    target.percent = 0;
+    target.complete = false;
+    target.strokes = [];
+  });
+
+  function getAudioContext(){
+    if(!audioContext){
+      try{
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }catch(_){
+        return null;
+      }
+    }
+
+    if(audioContext.state === "suspended"){
+      audioContext.resume().catch(() => {});
+    }
+
+    return audioContext;
+  }
+
+  function playTick(){
+    const now = performance.now();
+    if(now - lastTickTime < 75) return;
+    lastTickTime = now;
+
+    const ac = getAudioContext();
+    if(!ac) return;
+
+    const oscillator = ac.createOscillator();
+    const gain = ac.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = 620;
+
+    gain.gain.setValueAtTime(0.045, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.045);
+
+    oscillator.connect(gain);
+    gain.connect(ac.destination);
+
+    oscillator.start();
+    oscillator.stop(ac.currentTime + 0.045);
+  }
+
+  function playChime(){
+    try{
+      const audio = chimeAudio.cloneNode(true);
+      audio.volume = 1;
+      audio.play().catch(() => {});
+    }catch(_){}
+  }
+
+  function playApplause(){
+    const ac = getAudioContext();
+    if(!ac) return;
+
+    for(let i = 0; i < 12; i++){
+      const start = ac.currentTime + i * 0.055;
+      const buffer = ac.createBuffer(1, ac.sampleRate * 0.07, ac.sampleRate);
+      const channel = buffer.getChannelData(0);
+
+      for(let j = 0; j < channel.length; j++){
+        channel[j] = (Math.random() * 2 - 1) * (1 - j / channel.length);
+      }
+
+      const source = ac.createBufferSource();
+      const filter = ac.createBandpassFilter();
+      const gain = ac.createGain();
+
+      source.buffer = buffer;
+      filter.frequency.value = 1100 + Math.random() * 900;
+      filter.Q.value = 0.7;
+
+      gain.gain.setValueAtTime(0.035, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.07);
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(ac.destination);
+
+      source.start(start);
+      source.stop(start + 0.07);
+    }
+  }
+
+  function confetti(){
+    const colors = ["#ff9918","#f0444d","#36a8df","#18a85c","#ffd24a","#7049c6"];
+
+    for(let i = 0; i < 42; i++){
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * 0.35 + "s";
+      document.body.appendChild(piece);
+
+      window.setTimeout(() => piece.remove(), 2300);
+    }
+  }
+
+  function pickFemaleVoice(){
+    if(!("speechSynthesis" in window)) return null;
+
+    const voices = window.speechSynthesis.getVoices() || [];
+    if(!voices.length) return null;
+
+    const english = voices.filter(voice => /^en/i.test(voice.lang || ""));
+
+    const preferredNames = [
+      "Jenny",
+      "Aria",
+      "Samantha",
+      "Victoria",
+      "Zira",
+      "Susan",
+      "Karen",
+      "Moira",
+      "Tessa",
+      "Serena",
+      "Google US English",
+      "Microsoft Zira"
+    ];
+
+    for(const name of preferredNames){
+      const match = english.find(voice =>
+        (voice.name || "").toLowerCase().includes(name.toLowerCase())
+      );
+
+      if(match) return match;
+    }
+
+    return english.find(voice =>
+      /us|united states/i.test((voice.lang || "") + " " + (voice.name || ""))
+    ) || english[0] || voices[0] || null;
+  }
+
+  function speak(text, onDone){
+    if(!("speechSynthesis" in window)){
+      if(typeof onDone === "function") onDone();
+      return;
+    }
+
+    try{
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(String(text));
+      utterance.lang = "en-US";
+      utterance.rate = 0.88;
+      utterance.pitch = 1.16;
+      utterance.volume = 1;
+
+      const voice = pickFemaleVoice();
+      if(voice) utterance.voice = voice;
+
+      if(typeof onDone === "function"){
+        utterance.onend = onDone;
+        utterance.onerror = onDone;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }catch(_){
+      if(typeof onDone === "function") onDone();
+    }
+  }
+
+  function setStatus(text){
+    statusEl.textContent = text || "";
+  }
+
+  function readInstructions(){
+    getAudioContext();
+
+    setStatus("Trace the makeup, dress, and veil lines.");
+
+    speak(
+      "Welcome to Different Lines, Week Four. Count and say the number of lines in each cake. " +
+      "The makeup has seven straight lines. This dress has three zig-zag lines. " +
+      "The veil has five curved lines. Use your finger or mouse to trace each visible line carefully."
+    );
+  }
+
+  function resizeCanvas(){
+    const rect = posterWrap.getBoundingClientRect();
+
+    dpr = window.devicePixelRatio || 1;
+    sx = rect.width / NATURAL_W;
+    sy = rect.height / NATURAL_H;
+
+    traceLayer.width = Math.max(1, Math.round(rect.width * dpr));
+    traceLayer.height = Math.max(1, Math.round(rect.height * dpr));
+
+    traceLayer.style.width = rect.width + "px";
+    traceLayer.style.height = rect.height + "px";
+
+    ctx.setTransform(dpr * sx, 0, 0, dpr * sy, 0, 0);
+
+    redrawAll();
+  }
+
+  function redrawAll(){
+    ctx.save();
+    ctx.setTransform(dpr * sx, 0, 0, dpr * sy, 0, 0);
+    ctx.clearRect(0, 0, NATURAL_W, NATURAL_H);
+
+    targets.forEach(target => {
+      target.strokes.forEach(stroke => {
+        if(stroke.length < 1) return;
+
+        ctx.beginPath();
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = target.color;
+        ctx.globalAlpha = 0.92;
+        ctx.lineWidth = target.group === "veil" ? 10 : 11;
+
+        ctx.moveTo(stroke[0].x, stroke[0].y);
+
+        for(let i = 1; i < stroke.length; i++){
+          ctx.lineTo(stroke[i].x, stroke[i].y);
+        }
+
+        if(stroke.length === 1){
+          ctx.lineTo(stroke[0].x + 0.1, stroke[0].y + 0.1);
+        }
+
+        ctx.stroke();
+      });
+    });
+
+    ctx.restore();
+  }
+
+  function pointerToPosterPoint(event){
+    const rect = traceLayer.getBoundingClientRect();
+
+    return {
+      x:(event.clientX - rect.left) * NATURAL_W / rect.width,
+      y:(event.clientY - rect.top) * NATURAL_H / rect.height
+    };
+  }
+
+  function distance(a,b){
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function nearestDistanceToTarget(point,target){
+    let nearest = Infinity;
+
+    for(const sample of target.samples){
+      const d = distance(point,sample);
+      if(d < nearest) nearest = d;
+    }
+
+    return nearest;
+  }
+
+  function findTargetNear(point){
+    let bestTarget = null;
+    let bestDistance = Infinity;
+
+    targets.forEach(target => {
+      if(target.complete) return;
+
+      const d = nearestDistanceToTarget(point,target);
+
+      if(d < bestDistance){
+        bestDistance = d;
+        bestTarget = target;
+      }
+    });
+
+    return bestDistance <= START_RADIUS ? bestTarget : null;
+  }
+
+  function markTargetAtPoint(target, point){
+    target.samples.forEach(sample => {
+      if(sample.hit) return;
+
+      if(distance(point,sample) <= HIT_RADIUS){
+        sample.hit = true;
+      }
+    });
+
+    const hitCount = target.samples.filter(sample => sample.hit).length;
+    let percentage = Math.round((hitCount / Math.max(1,target.samples.length)) * 100);
+
+    if(percentage >= COMPLETE_RATIO * 100){
+      percentage = 100;
+      target.samples.forEach(sample => {
+        sample.hit = true;
+      });
+    }
+
+    target.percent = Math.max(target.percent, percentage);
+
+    if(target.percent >= 100 && !target.complete){
+      completeTarget(target);
+    }
+
+    updateProgress();
+  }
+
+  function markBetween(target, from, to){
+    const length = distance(from,to);
+    const steps = Math.max(1, Math.ceil(length / 3));
+
+    for(let i = 0; i <= steps; i++){
+      const t = i / steps;
+
+      markTargetAtPoint(target, {
+        x:from.x + (to.x - from.x) * t,
+        y:from.y + (to.y - from.y) * t
+      });
+    }
+  }
+
+  function completedCount(groupName){
+    return targets.filter(target => target.group === groupName && target.complete).length;
+  }
+
+  function groupTotal(groupName){
+    return targets.filter(target => target.group === groupName).length;
+  }
+
+  function groupComplete(groupName){
+    return completedCount(groupName) === groupTotal(groupName);
+  }
+
+  function completeTarget(target){
+    target.complete = true;
+    playChime();
+
+    const groupDone = completedCount(target.group);
+    const groupSize = groupTotal(target.group);
+
+    if(target.group === "makeup"){
+      setStatus("Makeup straight lines: " + groupDone + " of " + groupSize + " traced.");
+
+      if(groupComplete("makeup")){
+        playApplause();
+        speak("Wonderful! The makeup has seven straight lines.");
+      }
+    }
+
+    if(target.group === "dress"){
+      setStatus("Dress zig-zag lines: " + groupDone + " of " + groupSize + " traced.");
+
+      if(groupComplete("dress")){
+        playApplause();
+        speak("Great job! This dress has three zig-zag lines.");
+      }
+    }
+
+    if(target.group === "veil"){
+      setStatus("Veil curved lines: " + groupDone + " of " + groupSize + " traced.");
+
+      if(groupComplete("veil")){
+        playApplause();
+        speak("Excellent! The veil has five curved lines.");
+      }
+    }
+  }
+
+  function percentageForGroup(groupName){
+    const groupTargets = targets.filter(target => target.group === groupName);
+
+    return Math.round(
+      groupTargets.reduce((total,target) => total + target.percent,0) /
+      Math.max(1,groupTargets.length)
+    );
+  }
+
+  function updateProgress(){
+    const total = Math.round(
+      targets.reduce((sum,target) => sum + target.percent,0) /
+      Math.max(1,targets.length)
+    );
+
+    const makeupScore = percentageForGroup("makeup");
+    const dressScore = percentageForGroup("dress");
+    const veilScore = percentageForGroup("veil");
+
+    overallText.textContent = total + "%";
+    overallPercent.textContent = total + "%";
+    overallFill.style.width = total + "%";
+
+    makeupText.textContent = makeupScore + "%";
+    dressText.textContent = dressScore + "%";
+    veilText.textContent = veilScore + "%";
+
+    makeupBox.classList.toggle("done", makeupScore >= 100);
+    dressBox.classList.toggle("done", dressScore >= 100);
+    veilBox.classList.toggle("done", veilScore >= 100);
+
+    if(total >= 95){
+      starsEl.textContent = "★ ★ ★";
+    }else if(total >= 70){
+      starsEl.textContent = "★ ★ ☆";
+    }else if(total >= 35){
+      starsEl.textContent = "★ ☆ ☆";
+    }else{
+      starsEl.textContent = "☆ ☆ ☆";
+    }
+
+    const complete = total >= 100;
+    saveProgress(total,complete);
+
+    if(complete && !finalCelebrated){
+      finalCelebrated = true;
+      playChime();
+      playApplause();
+      confetti();
+
+      setStatus("Excellent! You traced all the different lines.");
+
+      speak(
+        "Excellent work! You traced seven straight lines, three zig-zag lines, and five curved lines."
+      );
+    }
+  }
+
+  function pointerDown(event){
+    event.preventDefault();
+    getAudioContext();
+
+    const point = pointerToPosterPoint(event);
+    const target = findTargetNear(point);
+
+    if(!target){
+      setStatus("Touch one of the visible lines to begin tracing.");
+      return;
+    }
+
+    activeTarget = target;
+    drawing = true;
+    currentStroke = [point];
+    activeTarget.strokes.push(currentStroke);
+
+    try{
+      traceLayer.setPointerCapture(event.pointerId);
+    }catch(_){}
+
+    markTargetAtPoint(activeTarget,point);
+    playTick();
+    redrawAll();
+  }
+
+  function pointerMove(event){
+    if(!drawing || !activeTarget || !currentStroke) return;
+
+    event.preventDefault();
+
+    const point = pointerToPosterPoint(event);
+    const previous = currentStroke[currentStroke.length - 1];
+
+    currentStroke.push(point);
+    markBetween(activeTarget,previous,point);
+    playTick();
+    redrawAll();
+
+    if(activeTarget.complete){
+      drawing = false;
+      activeTarget = null;
+      currentStroke = null;
+    }
+  }
+
+  function pointerUp(event){
+    if(event && event.pointerId !== undefined){
+      try{
+        traceLayer.releasePointerCapture(event.pointerId);
+      }catch(_){}
+    }
+
+    drawing = false;
+    activeTarget = null;
+    currentStroke = null;
+  }
+
+  function clearAll(sayIt = false){
+    finalCelebrated = false;
+    drawing = false;
+    activeTarget = null;
+    currentStroke = null;
+
+    targets.forEach(target => {
+      target.samples.forEach(sample => {
+        sample.hit = false;
+      });
+
+      target.percent = 0;
+      target.complete = false;
+      target.strokes = [];
+    });
+
+    redrawAll();
+    updateProgress();
+
+    setStatus("Trace the straight, zig-zag, and curved lines.");
+
+    if(sayIt){
+      speak("Cleared. Start tracing again.");
+    }
+  }
+
+  function saveProgress(score,completed){
+    const payload = {
+      pageId:PAGE_ID,
+      file:FILE_NAME,
+      level:LEVEL,
+      week:WEEK,
+      type:"tracing",
+      activityType:"lesson",
+      score:Math.round(score),
+      tracing:Math.round(score),
+      completed:!!completed,
+      stars:score >= 95 ? 3 : score >= 70 ? 2 : score >= 35 ? 1 : 0,
+      skills:{
+        reading:1,
+        writing:score >= 95 ? 3 : score > 0 ? 1 : 0,
+        listening:1,
+        speaking:0,
+        tracing:1
+      },
+      savedAt:new Date().toISOString(),
+      ts:Date.now()
+    };
+
+    try{
+      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
+
+      store[payload.pageId] = payload;
+
+      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+      localStorage.setItem("GP_EIS_LAST_FILE", payload.file);
+      localStorage.setItem("gpLatestProgress", JSON.stringify(payload));
+
+      window.dispatchEvent(
+        new CustomEvent("gp-progress-update", {detail:payload})
+      );
+    }catch(_){}
+
+    try{
+      if(window.GPTrack && typeof window.GPTrack.finish === "function"){
+        window.GPTrack.finish(payload).catch(() => {});
+      }
+
+      if(typeof window.finishAndSave === "function"){
+        window.finishAndSave(payload).catch(() => {});
+      }
+    }catch(_){}
+  }
+
+  traceLayer.addEventListener("pointerdown",pointerDown);
+  traceLayer.addEventListener("pointermove",pointerMove);
+  traceLayer.addEventListener("pointerup",pointerUp);
+  traceLayer.addEventListener("pointercancel",pointerUp);
+  traceLayer.addEventListener("pointerleave",pointerUp);
+
+  readBtn.addEventListener("click",readInstructions);
+
+  clearBtn.addEventListener("click",() => {
+    clearAll(true);
+  });
+
+  cheerBtn.addEventListener("click",() => {
+    getAudioContext();
+    playChime();
+    playApplause();
+    confetti();
+    setStatus("You are doing great! Keep tracing.");
+    speak("You can do it! Great job! Keep tracing the different lines.");
+  });
+
+  homeBtn.addEventListener("click",() => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+
+    window.location.href = HOME_PAGE;
+  });
+
+  prevBtn.addEventListener("click",() => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+
+    window.location.href = PREVIOUS_PAGE;
+  });
+
+  nextBtn.addEventListener("click",() => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+
+    window.location.href = NEXT_PAGE;
+  });
+
+  posterImg.addEventListener("load",() => {
+    resizeCanvas();
+    clearAll(false);
+  },{once:true});
+
+  posterImg.addEventListener("error",() => {
+    setStatus("Poster image missing. Check /assets/images/Bk2Shapes/NumbersSubtractLinesWeek4.png.");
+  });
+
+  window.addEventListener("resize",resizeCanvas);
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize",resizeCanvas);
+  }
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = () => {
+      pickFemaleVoice();
+    };
+  }
+
+  window.addEventListener("beforeunload",() => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+  });
+
+  let firstTapDone = false;
+
+  document.addEventListener("pointerdown",() => {
+    if(firstTapDone) return;
+
+    firstTapDone = true;
+    getAudioContext();
+
+    try{
+      chimeAudio.load();
+    }catch(_){}
+  },{once:true});
+
+  window.addEventListener("load",() => {
+    resizeCanvas();
+    clearAll(false);
+
+    window.setTimeout(() => {
+      readInstructions();
+    },700);
+  },{once:true});
+})();
+</script>
+</body>
+</html>

@@ -3,18 +3,20 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Numbers Week 3 - Subtract the Lines</title>
+<title>Bk2LA25 - Numbers Week 4 | Count and Circle</title>
 
 <style>
   :root{
-    --ink:#2d2d2d;
-    --paper:#fffaf2;
-    --blue:#5d86c9;
+    --orange:#ff9918;
+    --orange-dark:#d97706;
     --pink:#f04d5f;
-    --green:#19a85b;
-    --purple:#6c4bbf;
+    --green:#29b86a;
+    --blue:#3aa8e5;
+    --purple:#7049c6;
     --gold:#ffd24a;
-    --shadow:0 14px 32px rgba(0,0,0,.12);
+    --ink:#2b2930;
+    --cream:#fffaf2;
+    --shadow:0 16px 34px rgba(0,0,0,.14);
     font-family:"Comic Sans MS","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
   }
 
@@ -25,7 +27,7 @@
     width:100%;
     max-width:100%;
     overflow-x:hidden;
-    background:var(--paper);
+    background:var(--cream);
     color:var(--ink);
   }
 
@@ -36,176 +38,45 @@
     align-items:flex-start;
     padding:10px;
     background-image:
-      linear-gradient(#ece2d3 1px,transparent 1px),
-      linear-gradient(90deg,#ece2d3 1px,transparent 1px);
+      linear-gradient(#efe5d7 1px,transparent 1px),
+      linear-gradient(90deg,#efe5d7 1px,transparent 1px);
     background-size:28px 28px;
   }
 
   .app{
     width:min(990px,100%);
     background:#fff;
-    border-radius:22px;
+    border-radius:24px;
     box-shadow:var(--shadow);
     padding:10px 10px 14px;
   }
 
-  .poster-wrap{
-    position:relative;
-    width:min(920px,100%);
-    margin:0 auto;
-    border-radius:18px;
-    overflow:hidden;
-    background:#fff;
-    touch-action:none;
-  }
-
-  .poster-img{
-    display:block;
-    width:100%;
-    height:auto;
-    user-select:none;
-    -webkit-user-drag:none;
-    pointer-events:none;
-  }
-
-  .trace-zone{
-    position:absolute;
-    z-index:8;
-    touch-action:none;
-    cursor:crosshair;
-    background:rgba(255,255,255,0.001);
-  }
-
-  .trace-zone canvas{
-    width:100%;
-    height:100%;
-    display:block;
-    touch-action:none;
-  }
-
-  .trace-zone.is-active{
-    outline:3px solid rgba(52,157,255,.24);
-    border-radius:18px;
-  }
-
-  .trace-zone.done{
-    outline:4px solid rgba(47,159,95,.25);
-    border-radius:18px;
-  }
-
-  /* Green diagonal line zones */
-  .line-r1{left:38.3%;top:26.0%;width:17.8%;height:12.7%;}
-  .line-r2{left:38.3%;top:39.8%;width:17.8%;height:12.7%;}
-  .line-r3{left:38.3%;top:53.6%;width:17.8%;height:12.7%;}
-  .line-r4{left:38.3%;top:67.4%;width:17.8%;height:12.7%;}
-  .line-r5{left:38.3%;top:81.1%;width:17.8%;height:12.7%;}
-
-  /* Dotted answer number zones */
-  .answer-r1{left:55.8%;top:26.0%;width:32.2%;height:12.8%;}
-  .answer-r2{left:55.8%;top:39.7%;width:32.2%;height:12.9%;}
-  .answer-r3{left:55.8%;top:53.5%;width:32.2%;height:12.9%;}
-  .answer-r4{left:55.8%;top:67.3%;width:32.2%;height:12.9%;}
-  .answer-r5{left:55.8%;top:81.0%;width:32.2%;height:12.9%;}
-
-  .panel{
-    width:min(920px,100%);
-    margin:12px auto 0;
-    background:linear-gradient(180deg,#fff,#fff7fb);
-    border:3px solid rgba(93,134,201,.25);
-    border-radius:18px;
-    padding:12px;
-    box-shadow:0 8px 18px rgba(0,0,0,.06);
-  }
-
-  .progress-title{
-    text-align:center;
-    font-size:clamp(1rem,2.6vw,1.28rem);
-    font-weight:1000;
-    color:#3f5fa8;
-    margin-bottom:8px;
-  }
-
-  .progress-row{
+  .topbar{
     display:flex;
-    align-items:center;
-    gap:10px;
-  }
-
-  .progress-bar{
-    flex:1;
-    height:18px;
-    border-radius:999px;
-    background:#e8eef8;
-    overflow:hidden;
-    box-shadow:inset 0 2px 5px rgba(0,0,0,.16);
-  }
-
-  .progress-fill{
-    height:100%;
-    width:0%;
-    border-radius:999px;
-    background:linear-gradient(90deg,#31b7ff,#83e79f);
-    transition:width .12s ease-out;
-  }
-
-  .progress-percent{
-    min-width:62px;
-    text-align:right;
-    font-weight:1000;
-    color:#175ca8;
-    font-size:1.05rem;
-  }
-
-  .mini-grid{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:7px;
-    margin-top:9px;
-  }
-
-  .mini{
-    background:#fff;
-    border:2px solid #e7edf8;
-    border-radius:12px;
-    text-align:center;
-    padding:7px 4px;
-    font-weight:1000;
-    font-size:.86rem;
-    color:#444;
-  }
-
-  .mini.done{
-    border-color:#62d98c;
-    background:#effff4;
-    color:#126c36;
-  }
-
-  .stars{
-    text-align:center;
-    min-height:1.25em;
-    margin-top:6px;
-    font-size:2rem;
-    letter-spacing:4px;
-    color:var(--gold);
-    text-shadow:0 2px 0 #b87900,0 4px 0 #8a5a00,0 8px 14px rgba(0,0,0,.28);
-  }
-
-  .status{
-    min-height:1.45em;
-    text-align:center;
-    margin-top:7px;
-    font-size:clamp(.98rem,2.5vw,1.25rem);
-    font-weight:1000;
-    color:var(--purple);
-  }
-
-  .buttons{
-    display:flex;
-    justify-content:center;
+    justify-content:space-between;
     align-items:center;
     gap:10px;
     flex-wrap:wrap;
-    margin-top:10px;
+    margin-bottom:10px;
+  }
+
+  .badge{
+    background:#fff7eb;
+    border:3px solid #ffd39a;
+    border-radius:999px;
+    padding:8px 14px;
+    font-weight:1000;
+    color:var(--orange-dark);
+    box-shadow:0 8px 16px rgba(0,0,0,.08);
+  }
+
+  .navs,
+  .buttons{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    flex-wrap:wrap;
   }
 
   .btn{
@@ -233,18 +104,175 @@
     box-shadow:0 2px 0 rgba(0,0,0,.14);
   }
 
-    .btn.home{background:#25d17d;color:#fff;}
-    .btn.prev,.btn.next{background:#f7dc6f;color:#8b5a00;}
-    .btn.read{background:#f04d5f;color:#fff;}
-    .btn.clear{background:#dfeaff;color:#1f3b6b;}
-    .btn.cheer{background:#c9f2d6;color:#166c38;}
-    .btn-icon{
-      width:24px;
-      height:24px;
-      object-fit:contain;
-      vertical-align:middle;
-      margin-right:6px;
-    }
+  .btn.home{
+    background:#25d17d;
+    color:#fff;
+  }
+
+  .btn.prev,
+  .btn.next{
+    background:#f7dc6f;
+    color:#8b5a00;
+  }
+
+  .btn.read{
+    background:#f04d5f;
+    color:#fff;
+  }
+
+  .btn.clear{
+    background:#dfeaff;
+    color:#1f3b6b;
+  }
+
+  .btn.cheer{
+    background:#c9f2d6;
+    color:#166c38;
+  }
+
+  .btn-icon{
+    width:22px;
+    height:22px;
+    object-fit:contain;
+    margin-right:8px;
+    flex:0 0 auto;
+  }
+
+  .poster-wrap{
+    position:relative;
+    width:min(904px,100%);
+    margin:0 auto;
+    border-radius:18px;
+    overflow:hidden;
+    background:#fff;
+    touch-action:none;
+  }
+
+  .poster-img{
+    display:block;
+    width:100%;
+    height:auto;
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+  }
+
+  .trace-layer{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:5;
+    background:transparent;
+    touch-action:none;
+    cursor:crosshair;
+  }
+
+  .panel{
+    width:min(904px,100%);
+    margin:12px auto 0;
+    background:linear-gradient(180deg,#fff,#fff9fb);
+    border:3px solid rgba(255,153,24,.34);
+    border-radius:18px;
+    padding:12px;
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
+  }
+
+  .progress-title{
+    text-align:center;
+    font-size:clamp(1rem,2.7vw,1.3rem);
+    font-weight:1000;
+    color:#d97706;
+    margin-bottom:8px;
+  }
+
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+
+  .bar{
+    flex:1;
+    height:18px;
+    border-radius:999px;
+    background:#e8eef8;
+    overflow:hidden;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.16);
+  }
+
+  .fill{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    background:linear-gradient(90deg,#31b7ff,#83e79f);
+    transition:width .12s ease-out;
+  }
+
+  .percent{
+    min-width:60px;
+    text-align:right;
+    color:#175ca8;
+    font-size:1.05rem;
+    font-weight:1000;
+  }
+
+  .task-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:9px;
+    margin-top:10px;
+  }
+
+  .task{
+    background:#fff;
+    border:2px solid #e7edf8;
+    border-radius:14px;
+    text-align:center;
+    padding:10px 7px;
+    font-weight:1000;
+    font-size:.95rem;
+    color:#444;
+  }
+
+  .task span{
+    display:block;
+    margin-top:4px;
+    color:#ef3f49;
+    font-size:1rem;
+  }
+
+  .task.done{
+    border-color:#62d98c;
+    background:#effff4;
+    color:#126c36;
+  }
+
+  .task.done span{
+    color:#126c36;
+  }
+
+  .stars{
+    text-align:center;
+    min-height:1.25em;
+    margin-top:7px;
+    font-size:2rem;
+    letter-spacing:4px;
+    color:var(--gold);
+    text-shadow:
+      0 2px 0 #b87900,
+      0 4px 0 #8a5a00,
+      0 8px 14px rgba(0,0,0,.28);
+  }
+
+  .status{
+    min-height:1.55em;
+    text-align:center;
+    margin-top:7px;
+    font-size:clamp(.98rem,2.5vw,1.25rem);
+    font-weight:1000;
+    color:var(--purple);
+  }
 
   .note{
     text-align:center;
@@ -252,6 +280,7 @@
     color:#666;
     font-size:.9rem;
     margin-top:8px;
+    line-height:1.5;
   }
 
   .confetti-piece{
@@ -266,113 +295,366 @@
   }
 
   @keyframes fall{
-    to{transform:translateY(105vh) rotate(540deg);opacity:.1;}
+    to{
+      transform:translateY(105vh) rotate(540deg);
+      opacity:.1;
+    }
   }
 
   @media(max-width:760px){
-    body{padding:6px;}
-    .app{padding:6px;border-radius:16px;}
-    .panel{padding:10px;border-radius:14px;}
-    .mini-grid{grid-template-columns:repeat(2,1fr);}
-    .btn{font-size:.85rem;padding:9px 12px;}
-    .progress-row{gap:7px;}
+    body{
+      padding:6px;
+    }
+
+    .app{
+      padding:6px;
+      border-radius:16px;
+    }
+
+    .panel{
+      padding:10px;
+      border-radius:14px;
+    }
+
+    .task-grid{
+      grid-template-columns:1fr;
+    }
+
+    .btn{
+      font-size:.85rem;
+      padding:9px 12px;
+    }
   }
 </style>
 </head>
 
 <body>
-<main class="app" aria-label="Numbers Week 3 subtraction lines lesson">
-  <section class="poster-wrap" id="posterWrap" aria-label="Numbers poster. Subtract the lines from the number.">
-    <img class="poster-img" id="posterImg" src="/assets/images/Bk2Shapes/NumbersSubtractLinesWeek3.png" alt="Numbers Week 3 poster. Subtract the lines from the number.">
+<main class="app" aria-label="Numbers Week 4 count and circle lesson">
+  <div class="topbar">
+    <div class="badge">📘 Numbers · Week 4 · Count and circle</div>
 
-    <div class="trace-zone line-r1" data-id="r1-lines" data-kind="lines" data-row="1" data-count="6" data-direction="up"><canvas></canvas></div>
-    <div class="trace-zone answer-r1" data-id="r1-answer" data-kind="answer" data-row="1" data-answer="14"><canvas></canvas></div>
+    <div class="navs">
+      <button class="btn home" id="homeBtn" type="button">🏠 Home</button>
+      <button class="btn prev" id="prevBtn" type="button">← Previous</button>
+      <button class="btn next" id="nextBtn" type="button">Next →</button>
+    </div>
+  </div>
 
-    <div class="trace-zone line-r2" data-id="r2-lines" data-kind="lines" data-row="2" data-count="7" data-direction="down"><canvas></canvas></div>
-    <div class="trace-zone answer-r2" data-id="r2-answer" data-kind="answer" data-row="2" data-answer="13"><canvas></canvas></div>
+  <section
+    class="poster-wrap"
+    id="posterWrap"
+    aria-label="Numbers Week 4 poster. Count the decorative lines on each cake and circle the correct number."
+  >
+    <img
+      class="poster-img"
+      id="posterImg"
+      src="/assets/images/Bk2Shapes/NumbersWeek4CircleLines.png"
+      alt="Numbers Week 4 poster with a bride, two cakes, and the number choices nine and ten."
+    >
 
-    <div class="trace-zone line-r3" data-id="r3-lines" data-kind="lines" data-row="3" data-count="8" data-direction="down"><canvas></canvas></div>
-    <div class="trace-zone answer-r3" data-id="r3-answer" data-kind="answer" data-row="3" data-answer="12"><canvas></canvas></div>
-
-    <div class="trace-zone line-r4" data-id="r4-lines" data-kind="lines" data-row="4" data-count="9" data-direction="down"><canvas></canvas></div>
-    <div class="trace-zone answer-r4" data-id="r4-answer" data-kind="answer" data-row="4" data-answer="11"><canvas></canvas></div>
-
-    <div class="trace-zone line-r5" data-id="r5-lines" data-kind="lines" data-row="5" data-count="10" data-direction="down"><canvas></canvas></div>
-    <div class="trace-zone answer-r5" data-id="r5-answer" data-kind="answer" data-row="5" data-answer="10"><canvas></canvas></div>
+    <canvas
+      class="trace-layer"
+      id="traceLayer"
+      aria-label="Circle the correct number of lines for each cake"
+    ></canvas>
   </section>
 
-  <section class="panel">
-    <div class="progress-title">Trace the diagonal lines and trace the answer numbers.</div>
-
-    <div class="progress-row">
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <div class="progress-percent" id="progressPercent">0%</div>
+  <section class="panel" aria-live="polite">
+    <div class="progress-title">
+      Circle progress: <span id="overallText">0%</span>
     </div>
 
-    <div class="mini-grid">
-      <div class="mini" id="row1Mini">20 - 6 = 14<br><span id="row1Text">0%</span></div>
-      <div class="mini" id="row2Mini">20 - 7 = 13<br><span id="row2Text">0%</span></div>
-      <div class="mini" id="row3Mini">20 - 8 = 12<br><span id="row3Text">0%</span></div>
-      <div class="mini" id="row4Mini">20 - 9 = 11<br><span id="row4Text">0%</span></div>
-      <div class="mini" id="row5Mini">20 - 10 = 10<br><span id="row5Text">0%</span></div>
+    <div class="progress-row">
+      <div class="bar">
+        <div class="fill" id="overallFill"></div>
+      </div>
+      <div class="percent" id="overallPercent">0%</div>
+    </div>
+
+    <div class="task-grid">
+      <div class="task" id="cakeOneBox">
+        Cake 1: Count and circle
+        <span id="cakeOneText">Not completed</span>
+      </div>
+
+      <div class="task" id="cakeTwoBox">
+        Cake 2: Count and circle
+        <span id="cakeTwoText">Not completed</span>
+      </div>
     </div>
 
     <div class="stars" id="stars">☆ ☆ ☆</div>
-    <div class="status" id="statusText">Listen, then trace the lines and answers.</div>
+
+    <div class="status" id="status">
+      Listen, count the lines, then circle the correct number.
+    </div>
 
     <div class="buttons">
-      <button class="btn prev" type="button" id="prevBtn">⬅ Previous</button>
-      <button class="btn read" type="button" id="readBtn"><img class="btn-icon" src="/assets/images/Bk2Shapes/Microphone.png" alt="Mic">Read Instructions</button>
-      <button class="btn clear" type="button" id="clearBtn">Clear ✕</button>
-      <button class="btn cheer" type="button" id="cheerBtn">👏 Cheer</button>
-      <button class="btn next" type="button" id="nextBtn">Next ➜</button>
-      <a class="btn home" href="../../../../../index.html">🏠 Home</a>
+      <button class="btn read" id="readBtn" type="button"><img class="btn-icon" src="/assets/images/Bk2Shapes/Microphone.png" alt="Mic">Read Instructions</button>
+      <button class="btn clear" id="clearBtn" type="button">Clear Circle</button>
+      <button class="btn cheer" id="cheerBtn" type="button">👏 Cheer</button>
     </div>
 
     <div class="note">
-      Trace the green diagonal lines. Then trace the dotted answers: 14, 13, 12, 11, and 10.
+      Count each cake’s decorative lines. Circle <b>9</b> or <b>10</b> in the correct row.
     </div>
   </section>
+
+  <audio id="chimeAudio" src="/assets/audio/chimes/chime.mp3" preload="auto"></audio>
 </main>
 
 <script>
+(() => {
+  "use strict";
+
+  const PAGE_ID = "Bk2LA25_NumbersWeek4_CountAndCircle";
+  const FILE_NAME = "Bk2LA25.html";
+  const LEVEL = "A";
+  const WEEK = 4;
+
+  /*
+    Change only these links if your real neighbouring page names are different.
+  */
   const HOME_PAGE = "../../../../../index.html";
   const PREVIOUS_PAGE = "Bk2LA21.html";
   const NEXT_PAGE = "../Friday/Bk2LAGame4.html";
-  const CHIME_SRC = "/assets/audio/chimes/chime.mp3";
 
-  const progressFill = document.getElementById("progressFill");
-  const progressPercent = document.getElementById("progressPercent");
-  const statusText = document.getElementById("statusText");
-  const stars = document.getElementById("stars");
-  const readBtn = document.getElementById("readBtn");
-  const clearBtn = document.getElementById("clearBtn");
-  const cheerBtn = document.getElementById("cheerBtn");
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
+  /*
+    Exact natural size of the supplied poster image.
+  */
+  const NATURAL_W = 961;
+  const NATURAL_H = 1309;
 
-  let pads = [];
-  let celebrated = false;
+  /*
+    Child-friendly tracing settings.
+  */
+  const HIT_RADIUS = 42;
+  const START_RADIUS = 88;
+  const COMPLETE_AT = 58;
+
+  const posterWrap = document.getElementById("posterWrap");
+  const posterImg = document.getElementById("posterImg");
+  const traceLayer = document.getElementById("traceLayer");
+  const ctx = traceLayer.getContext("2d");
+  const chimeAudio = document.getElementById("chimeAudio");
+
+  const overallText = document.getElementById("overallText");
+  const overallFill = document.getElementById("overallFill");
+  const overallPercent = document.getElementById("overallPercent");
+
+  const cakeOneBox = document.getElementById("cakeOneBox");
+  const cakeTwoBox = document.getElementById("cakeTwoBox");
+  const cakeOneText = document.getElementById("cakeOneText");
+  const cakeTwoText = document.getElementById("cakeTwoText");
+
+  const starsEl = document.getElementById("stars");
+  const statusEl = document.getElementById("status");
+
+  let dpr = 1;
+  let sx = 1;
+  let sy = 1;
+  let drawing = false;
+  let activeTarget = null;
+  let currentStroke = null;
+  let completedCelebration = false;
   let lastTickTime = 0;
+  let audioContext = null;
 
-  const chimeAudio = new Audio(CHIME_SRC);
-  chimeAudio.preload = "auto";
+  function ellipsePoints(cx, cy, rx, ry, steps = 160){
+    const points = [];
 
-  function setStatus(text){
-    statusText.textContent = text || "";
+    for(let i = 0; i <= steps; i++){
+      const angle = (-Math.PI / 2) + ((Math.PI * 2 * i) / steps);
+
+      points.push({
+        x:cx + Math.cos(angle) * rx,
+        y:cy + Math.sin(angle) * ry
+      });
+    }
+
+    return points;
   }
 
-  function chooseFemaleVoice(){
-    if (!("speechSynthesis" in window)) return null;
+  /*
+    The first cake has 9 decorative lines.
+    The second cake has 10 decorative lines.
+    These circle targets sit directly over the existing printed choices.
+  */
+  const targets = [
+    {
+      id:"cake-one-nine",
+      group:"cakeOne",
+      answer:"9",
+      correctMessage:"Correct! The first cake has nine lines.",
+      color:"#f04d5f",
+      samples:ellipsePoints(455, 605, 77, 110)
+    },
+    {
+      id:"cake-two-ten",
+      group:"cakeTwo",
+      answer:"10",
+      correctMessage:"Correct! The second cake has ten lines.",
+      color:"#f04d5f",
+      samples:ellipsePoints(704, 898, 139, 110)
+    }
+  ];
+
+  const wrongChoices = [
+    {
+      group:"cakeOne",
+      answer:"10",
+      cx:704,
+      cy:605,
+      rx:139,
+      ry:110
+    },
+    {
+      group:"cakeTwo",
+      answer:"9",
+      cx:455,
+      cy:898,
+      rx:77,
+      ry:110
+    }
+  ];
+
+  targets.forEach(target => {
+    target.samples = target.samples.map(point => ({
+      x:point.x,
+      y:point.y,
+      hit:false
+    }));
+
+    target.percent = 0;
+    target.complete = false;
+    target.strokes = [];
+  });
+
+  function setStatus(text){
+    statusEl.textContent = text || "";
+  }
+
+  function getAudioContext(){
+    if(!audioContext){
+      try{
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }catch(_){
+        return null;
+      }
+    }
+
+    if(audioContext.state === "suspended"){
+      audioContext.resume().catch(() => {});
+    }
+
+    return audioContext;
+  }
+
+  function playTick(){
+    const now = performance.now();
+
+    if(now - lastTickTime < 72) return;
+
+    lastTickTime = now;
+
+    const audio = getAudioContext();
+
+    if(!audio) return;
+
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = 650;
+
+    gain.gain.setValueAtTime(0.045, audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.045);
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+
+    oscillator.start();
+    oscillator.stop(audio.currentTime + 0.045);
+  }
+
+  function playChime(){
+    try{
+      const audio = chimeAudio.cloneNode(true);
+      audio.volume = 1;
+      audio.play().catch(() => {});
+    }catch(_){}
+  }
+
+  function playApplause(){
+    const audio = getAudioContext();
+
+    if(!audio) return;
+
+    for(let i = 0; i < 13; i++){
+      const start = audio.currentTime + i * 0.052;
+      const buffer = audio.createBuffer(1, audio.sampleRate * 0.065, audio.sampleRate);
+      const channel = buffer.getChannelData(0);
+
+      for(let j = 0; j < channel.length; j++){
+        channel[j] = (Math.random() * 2 - 1) * (1 - j / channel.length);
+      }
+
+      const source = audio.createBufferSource();
+      const filter = audio.createBandpassFilter();
+      const gain = audio.createGain();
+
+      source.buffer = buffer;
+      filter.frequency.value = 1000 + Math.random() * 1000;
+      filter.Q.value = 0.8;
+
+      gain.gain.setValueAtTime(0.038, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.065);
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(audio.destination);
+
+      source.start(start);
+      source.stop(start + 0.065);
+    }
+  }
+
+  function confetti(){
+    const colors = [
+      "#ff9918",
+      "#f04d5f",
+      "#36a8df",
+      "#18a85c",
+      "#ffd24a",
+      "#7049c6"
+    ];
+
+    for(let i = 0; i < 42; i++){
+      const piece = document.createElement("div");
+
+      piece.className = "confetti-piece";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * 0.35 + "s";
+
+      document.body.appendChild(piece);
+
+      window.setTimeout(() => {
+        piece.remove();
+      }, 2300);
+    }
+  }
+
+  function pickFemaleVoice(){
+    if(!("speechSynthesis" in window)) return null;
 
     const voices = window.speechSynthesis.getVoices() || [];
-    if (!voices.length) return null;
 
-    const english = voices.filter(v => /^en/i.test(v.lang || ""));
+    if(!voices.length) return null;
 
-    const preferred = [
+    const englishVoices = voices.filter(voice => /^en/i.test(voice.lang || ""));
+
+    const preferredNames = [
       "Jenny",
       "Aria",
       "Samantha",
@@ -387,662 +669,536 @@
       "Microsoft Zira"
     ];
 
-    for (const name of preferred){
-      const found = english.find(v => (v.name || "").toLowerCase().includes(name.toLowerCase()));
-      if (found) return found;
+    for(const name of preferredNames){
+      const matchingVoice = englishVoices.find(voice => {
+        return (voice.name || "").toLowerCase().includes(name.toLowerCase());
+      });
+
+      if(matchingVoice) return matchingVoice;
     }
 
-    return english.find(v => /us|united states/i.test(v.lang || v.name || ""))
-      || english[0]
-      || voices[0]
-      || null;
+    return englishVoices.find(voice => {
+      return /us|united states/i.test(
+        (voice.lang || "") + " " + (voice.name || "")
+      );
+    }) || englishVoices[0] || voices[0] || null;
   }
 
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.onvoiceschanged = chooseFemaleVoice;
-  }
-
-  function speak(text,onDone){
-    if (!("speechSynthesis" in window)) {
-      if (typeof onDone === "function") onDone();
+  function speak(text, onDone){
+    if(!("speechSynthesis" in window)){
+      if(typeof onDone === "function") onDone();
       return;
     }
 
     try{
       window.speechSynthesis.cancel();
 
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US";
-      u.rate = 0.9;
-      u.pitch = 1.16;
-      u.volume = 1;
+      const utterance = new SpeechSynthesisUtterance(String(text));
 
-      const voice = chooseFemaleVoice();
-      if (voice) u.voice = voice;
+      utterance.lang = "en-US";
+      utterance.rate = 0.88;
+      utterance.pitch = 1.15;
+      utterance.volume = 1;
 
-      if (typeof onDone === "function") {
-        u.onend = onDone;
-        u.onerror = onDone;
+      const voice = pickFemaleVoice();
+
+      if(voice){
+        utterance.voice = voice;
       }
 
-      window.speechSynthesis.speak(u);
-    }catch(e){
-      if (typeof onDone === "function") onDone();
+      if(typeof onDone === "function"){
+        utterance.onend = onDone;
+        utterance.onerror = onDone;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }catch(_){
+      if(typeof onDone === "function") onDone();
     }
   }
 
-  function speakInstructions(){
-    setStatus("Trace the green lines. Then trace the dotted answer numbers.");
+  function readInstructions(){
+    getAudioContext();
+
+    setStatus("Count the lines, then circle the correct number in each row.");
+
     speak(
-      "Hello! This is Numbers, Week Three. Look at the lines. Subtract the lines from the number. Start with twenty. Trace the green diagonal lines first. Then trace the dotted answer numbers. Twenty minus six equals fourteen. Twenty minus seven equals thirteen. Twenty minus eight equals twelve. Twenty minus nine equals eleven. Twenty minus ten equals ten."
+      "Welcome to Numbers, Week Four. Count and circle the correct number of lines. " +
+      "Look at the first cake. Count its decorative lines, then circle nine or ten. " +
+      "Next, look at the second cake. Count its decorative lines, then circle nine or ten. " +
+      "Use your finger or mouse to draw a circle around the correct number."
     );
   }
 
-  function playChime(){
-    try{
-      const s = chimeAudio.cloneNode(true);
-      s.volume = 1;
-      s.play().catch(() => playBeep(880,0.08));
-    }catch(e){
-      playBeep(880,0.08);
-    }
+  function resizeCanvas(){
+    const rect = posterWrap.getBoundingClientRect();
+
+    dpr = window.devicePixelRatio || 1;
+    sx = rect.width / NATURAL_W;
+    sy = rect.height / NATURAL_H;
+
+    traceLayer.width = Math.max(1, Math.round(rect.width * dpr));
+    traceLayer.height = Math.max(1, Math.round(rect.height * dpr));
+
+    traceLayer.style.width = rect.width + "px";
+    traceLayer.style.height = rect.height + "px";
+
+    ctx.setTransform(dpr * sx, 0, 0, dpr * sy, 0, 0);
+
+    redrawAll();
   }
 
-  function playBeep(freq,duration){
-    try{
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+  function redrawAll(){
+    ctx.save();
 
-      osc.type = "sine";
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    ctx.setTransform(dpr * sx, 0, 0, dpr * sy, 0, 0);
+    ctx.clearRect(0, 0, NATURAL_W, NATURAL_H);
 
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    }catch(e){}
-  }
-
-  function playTraceTick(){
-    const now = performance.now();
-    if (now - lastTickTime < 75) return;
-    lastTickTime = now;
-    playBeep(620,0.045);
-  }
-
-  function playApplause(){
-    try{
-      for (let i = 0; i < 14; i++){
-        setTimeout(() => {
-          playBeep(420 + Math.random() * 560,0.06);
-        }, i * 55);
-      }
-    }catch(e){}
-  }
-
-  function confetti(){
-    const colors = ["#f13a52","#2876d9","#19a85b","#ffd24a","#ff8a5b","#8d5df7"];
-
-    for (let i = 0; i < 42; i++){
-      const piece = document.createElement("div");
-      piece.className = "confetti-piece";
-      piece.style.left = Math.random() * 100 + "vw";
-      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-      piece.style.animationDelay = Math.random() * 0.35 + "s";
-      document.body.appendChild(piece);
-      setTimeout(() => piece.remove(),2300);
-    }
-  }
-
-  function scalePoint(point,width,height){
-    return {
-      x:point[0] * width,
-      y:point[1] * height
-    };
-  }
-
-  function buildSamplesFromPaths(paths,width,height){
-    const samples = [];
-
-    paths.forEach(path => {
-      for (let i = 0; i < path.length - 1; i++){
-        const a = scalePoint(path[i],width,height);
-        const b = scalePoint(path[i + 1],width,height);
-        const dist = Math.hypot(b.x - a.x,b.y - a.y);
-        const steps = Math.max(14,Math.ceil(dist / 2.6));
-
-        for (let s = 0; s <= steps; s++){
-          const t = s / steps;
-          samples.push({
-            x:a.x + (b.x - a.x) * t,
-            y:a.y + (b.y - a.y) * t,
-            hit:false
-          });
-        }
-      }
-    });
-
-    return samples;
-  }
-
-  function makeLinePaths(count,direction){
-    const paths = [];
-    const startX = 0.18;
-    const endX = 0.82;
-    const spacing = count <= 1 ? 0 : (endX - startX) / (count - 1);
-
-    for (let i = 0; i < count; i++){
-      const c = startX + spacing * i;
-
-      if (direction === "up") {
-        paths.push([
-          [c - 0.14,0.82],
-          [c + 0.14,0.18]
-        ]);
-      } else {
-        paths.push([
-          [c - 0.14,0.18],
-          [c + 0.14,0.82]
-        ]);
-      }
-    }
-
-    return paths;
-  }
-
-  function ovalPoints(cx,cy,rx,ry,steps){
-    const pts = [];
-
-    for (let i = 0; i <= steps; i++){
-      const a = (Math.PI * 2 * i) / steps;
-      pts.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
-    }
-
-    return pts;
-  }
-
-  function digitLocalPaths(digit){
-    if (digit === "1") {
-      return [
-        [[0.50,0.12],[0.50,0.90]],
-        [[0.34,0.28],[0.50,0.12],[0.66,0.28]]
-      ];
-    }
-
-    if (digit === "2") {
-      return [
-        [[0.22,0.24],[0.40,0.12],[0.68,0.16],[0.78,0.34],[0.66,0.52],[0.28,0.86],[0.78,0.86]]
-      ];
-    }
-
-    if (digit === "3") {
-      return [
-        [[0.24,0.18],[0.68,0.18],[0.54,0.48],[0.70,0.48],[0.78,0.70],[0.62,0.86],[0.28,0.82]]
-      ];
-    }
-
-    if (digit === "4") {
-      return [
-        [[0.72,0.12],[0.26,0.60],[0.84,0.60]],
-        [[0.72,0.12],[0.72,0.90]]
-      ];
-    }
-
-    if (digit === "0") {
-      return [
-        ovalPoints(0.50,0.50,0.28,0.38,60)
-      ];
-    }
-
-    return [];
-  }
-
-  function transformDigitPaths(paths,left,top,width,height){
-    return paths.map(path => {
-      return path.map(p => {
-        return [
-          left + p[0] * width,
-          top + p[1] * height
-        ];
-      });
-    });
-  }
-
-  function makeAnswerPaths(answer){
-    const chars = String(answer).split("");
-    const paths = [];
-    const digitW = 0.30;
-    const digitH = 0.78;
-    const top = 0.12;
-    const positions = chars.length === 2 ? [0.22,0.53] : [0.36];
-
-    chars.forEach((digit,index) => {
-      const local = digitLocalPaths(digit);
-      const transformed = transformDigitPaths(local,positions[index],top,digitW,digitH);
-      transformed.forEach(path => paths.push(path));
-    });
-
-    return paths;
-  }
-
-  function createTracePad(zone){
-    const canvas = zone.querySelector("canvas");
-    const ctx = canvas.getContext("2d");
-
-    const kind = zone.dataset.kind;
-    const row = Number(zone.dataset.row || "1");
-    const id = zone.dataset.id;
-    const answer = zone.dataset.answer || "";
-    const count = Number(zone.dataset.count || "0");
-    const direction = zone.dataset.direction || "down";
-
-    const pad = {
-      id,
-      zone,
-      canvas,
-      ctx,
-      kind,
-      row,
-      answer,
-      count,
-      direction,
-      width:0,
-      height:0,
-      paths:[],
-      samples:[],
-      drawing:false,
-      last:null,
-      percent:0,
-      done:false
-    };
-
-    function resize(){
-      const rect = zone.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-
-      pad.width = Math.max(1,rect.width);
-      pad.height = Math.max(1,rect.height);
-
-      canvas.width = Math.round(pad.width * dpr);
-      canvas.height = Math.round(pad.height * dpr);
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-
-      if (kind === "lines") {
-        pad.paths = makeLinePaths(count,direction);
-      } else {
-        pad.paths = makeAnswerPaths(answer);
-      }
-
-      pad.samples = buildSamplesFromPaths(pad.paths,pad.width,pad.height);
-      redrawGuide();
-    }
-
-    function redrawGuide(){
-      ctx.clearRect(0,0,pad.width,pad.height);
-
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      if (kind === "lines") {
-        ctx.strokeStyle = "rgba(26,132,52,0.10)";
-        ctx.lineWidth = Math.max(7,Math.min(pad.width,pad.height) * 0.08);
-      } else {
-        ctx.strokeStyle = "rgba(40,118,217,0.12)";
-        ctx.lineWidth = Math.max(6,Math.min(pad.width,pad.height) * 0.055);
-      }
-
-      ctx.setLineDash([8,8]);
-
-      pad.paths.forEach(path => {
-        if (!path.length) return;
-
-        const first = scalePoint(path[0],pad.width,pad.height);
+    targets.forEach(target => {
+      target.strokes.forEach(stroke => {
+        if(stroke.length < 1) return;
 
         ctx.beginPath();
-        ctx.moveTo(first.x,first.y);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = target.color;
+        ctx.globalAlpha = 0.92;
+        ctx.lineWidth = 11;
 
-        for (let i = 1; i < path.length; i++){
-          const p = scalePoint(path[i],pad.width,pad.height);
-          ctx.lineTo(p.x,p.y);
+        ctx.moveTo(stroke[0].x, stroke[0].y);
+
+        for(let i = 1; i < stroke.length; i++){
+          ctx.lineTo(stroke[i].x, stroke[i].y);
+        }
+
+        if(stroke.length === 1){
+          ctx.lineTo(stroke[0].x + 0.1, stroke[0].y + 0.1);
         }
 
         ctx.stroke();
       });
+    });
 
-      ctx.setLineDash([]);
-
-      pad.paths.forEach(path => {
-        if (!path.length) return;
-
-        const start = scalePoint(path[0],pad.width,pad.height);
-        const end = scalePoint(path[path.length - 1],pad.width,pad.height);
-        const radius = Math.max(4,Math.min(pad.width,pad.height) * 0.035);
-
-        ctx.fillStyle = "rgba(40,118,217,0.55)";
-        ctx.beginPath();
-        ctx.arc(start.x,start.y,radius,0,Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "rgba(241,58,82,0.55)";
-        ctx.beginPath();
-        ctx.arc(end.x,end.y,radius,0,Math.PI * 2);
-        ctx.fill();
-      });
-
-      ctx.restore();
-    }
-
-    function getPoint(event){
-      const rect = canvas.getBoundingClientRect();
-
-      return {
-        x:event.clientX - rect.left,
-        y:event.clientY - rect.top
-      };
-    }
-
-    function drawStudentLine(from,to){
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = kind === "lines"
-        ? "rgba(241,58,82,0.92)"
-        : "rgba(40,118,217,0.92)";
-
-      ctx.lineWidth = kind === "lines"
-        ? Math.max(10,Math.min(pad.width,pad.height) * 0.13)
-        : Math.max(9,Math.min(pad.width,pad.height) * 0.09);
-
-      ctx.beginPath();
-      ctx.moveTo(from.x,from.y);
-      ctx.lineTo(to.x,to.y);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function markPoint(point){
-      const minSide = Math.min(pad.width,pad.height);
-
-      const threshold = kind === "lines"
-        ? Math.max(22,minSide * 0.30)
-        : Math.max(20,minSide * 0.24);
-
-      for (const sample of pad.samples){
-        if (sample.hit) continue;
-
-        const d = Math.hypot(sample.x - point.x,sample.y - point.y);
-
-        if (d <= threshold) {
-          sample.hit = true;
-        }
-      }
-
-      refreshProgress();
-    }
-
-    function markBetween(from,to){
-      const distance = Math.hypot(to.x - from.x,to.y - from.y);
-      const steps = Math.max(1,Math.ceil(distance / 2.6));
-
-      for (let i = 0; i <= steps; i++){
-        const t = i / steps;
-
-        markPoint({
-          x:from.x + (to.x - from.x) * t,
-          y:from.y + (to.y - from.y) * t
-        });
-      }
-
-      refreshProgress();
-    }
-
-    function refreshProgress(){
-      const hits = pad.samples.filter(s => s.hit).length;
-      let pct = Math.round((hits / Math.max(1,pad.samples.length)) * 100);
-
-      if (pct >= 82) {
-        pct = 100;
-        pad.samples.forEach(s => s.hit = true);
-      }
-
-      pad.percent = Math.max(pad.percent,pct);
-
-      if (pad.percent >= 100 && !pad.done) {
-        pad.done = true;
-        zone.classList.remove("is-active");
-        zone.classList.add("done");
-        playChime();
-
-        if (kind === "lines") {
-          speak("Good job tracing the diagonal lines.");
-        } else {
-          speak("Great job tracing the answer " + answer + ".");
-        }
-      }
-
-      updateOverallProgress();
-    }
-
-    function pointerDown(event){
-      event.preventDefault();
-
-      try{
-        canvas.setPointerCapture(event.pointerId);
-      }catch(e){}
-
-      zone.classList.add("is-active");
-      pad.drawing = true;
-      pad.last = getPoint(event);
-
-      markPoint(pad.last);
-      playTraceTick();
-    }
-
-    function pointerMove(event){
-      if (!pad.drawing || !pad.last) return;
-
-      event.preventDefault();
-
-      const point = getPoint(event);
-
-      drawStudentLine(pad.last,point);
-      markBetween(pad.last,point);
-      playTraceTick();
-
-      pad.last = point;
-    }
-
-    function stopDrawing(event){
-      if (event && event.pointerId != null) {
-        try{
-          canvas.releasePointerCapture(event.pointerId);
-        }catch(e){}
-      }
-
-      pad.drawing = false;
-      pad.last = null;
-
-      if (!pad.done) {
-        zone.classList.remove("is-active");
-      }
-    }
-
-    function reset(){
-      pad.samples.forEach(s => s.hit = false);
-      pad.percent = 0;
-      pad.done = false;
-      zone.classList.remove("done","is-active");
-      redrawGuide();
-      updateOverallProgress();
-    }
-
-    canvas.addEventListener("pointerdown",pointerDown);
-    canvas.addEventListener("pointermove",pointerMove);
-    canvas.addEventListener("pointerup",stopDrawing);
-    canvas.addEventListener("pointercancel",stopDrawing);
-    canvas.addEventListener("lostpointercapture",stopDrawing);
-
-    pad.resize = resize;
-    pad.reset = reset;
-
-    resize();
-    return pad;
+    ctx.restore();
   }
 
-  function updateOverallProgress(){
-    const total = pads.length
-      ? Math.round(pads.reduce((sum,pad) => sum + pad.percent,0) / pads.length)
-      : 0;
+  function pointerToPosterPoint(event){
+    const rect = traceLayer.getBoundingClientRect();
 
-    progressFill.style.width = total + "%";
-    progressPercent.textContent = total + "%";
+    return {
+      x:(event.clientX - rect.left) * NATURAL_W / rect.width,
+      y:(event.clientY - rect.top) * NATURAL_H / rect.height
+    };
+  }
 
-    for (let row = 1; row <= 5; row++){
-      const rowPads = pads.filter(p => p.row === row);
-      const rowScore = rowPads.length
-        ? Math.round(rowPads.reduce((sum,p) => sum + p.percent,0) / rowPads.length)
-        : 0;
+  function distance(a, b){
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
 
-      const text = document.getElementById("row" + row + "Text");
-      const mini = document.getElementById("row" + row + "Mini");
+  function nearestTargetDistance(point, target){
+    let nearest = Infinity;
 
-      if (text) text.textContent = rowScore + "%";
+    for(const sample of target.samples){
+      const sampleDistance = distance(point, sample);
 
-      if (mini) {
-        if (rowScore >= 100) mini.classList.add("done");
-        else mini.classList.remove("done");
+      if(sampleDistance < nearest){
+        nearest = sampleDistance;
       }
     }
 
-    if (total >= 90) stars.textContent = "★ ★ ★";
-    else if (total >= 65) stars.textContent = "★ ★ ☆";
-    else if (total >= 35) stars.textContent = "★ ☆ ☆";
-    else stars.textContent = "☆ ☆ ☆";
+    return nearest;
+  }
 
-    saveProgress(total);
+  function isNearEllipse(point, item, padding = 30){
+    const rx = item.rx + padding;
+    const ry = item.ry + padding;
+    const dx = (point.x - item.cx) / rx;
+    const dy = (point.y - item.cy) / ry;
 
-    if (total >= 100 && !celebrated) {
-      celebrated = true;
+    return (dx * dx + dy * dy) <= 1;
+  }
+
+  function wrongChoiceAt(point){
+    return wrongChoices.find(choice => {
+      return isNearEllipse(point, choice, 22);
+    }) || null;
+  }
+
+  function findCorrectTarget(point){
+    let bestTarget = null;
+    let bestDistance = Infinity;
+
+    targets.forEach(target => {
+      if(target.complete) return;
+
+      const currentDistance = nearestTargetDistance(point, target);
+
+      if(currentDistance < bestDistance){
+        bestDistance = currentDistance;
+        bestTarget = target;
+      }
+    });
+
+    return bestDistance <= START_RADIUS ? bestTarget : null;
+  }
+
+  function markAt(target, point){
+    target.samples.forEach(sample => {
+      if(!sample.hit && distance(point, sample) <= HIT_RADIUS){
+        sample.hit = true;
+      }
+    });
+
+    const hitCount = target.samples.filter(sample => sample.hit).length;
+
+    let percentage = Math.round(
+      (hitCount / Math.max(1, target.samples.length)) * 100
+    );
+
+    /*
+      Child-friendly completion:
+      after most of a circle is correctly traced, complete it automatically.
+    */
+    if(percentage >= COMPLETE_AT){
+      percentage = 100;
+
+      target.samples.forEach(sample => {
+        sample.hit = true;
+      });
+    }
+
+    target.percent = Math.max(target.percent, percentage);
+
+    if(target.percent >= 100 && !target.complete){
+      completeTarget(target);
+    }
+
+    updateProgress();
+  }
+
+  function markBetween(target, from, to){
+    const length = distance(from, to);
+    const steps = Math.max(1, Math.ceil(length / 3));
+
+    for(let i = 0; i <= steps; i++){
+      const t = i / steps;
+
+      markAt(target, {
+        x:from.x + (to.x - from.x) * t,
+        y:from.y + (to.y - from.y) * t
+      });
+    }
+  }
+
+  function completeTarget(target){
+    target.complete = true;
+
+    playChime();
+    playApplause();
+
+    setStatus(target.correctMessage);
+    speak(target.correctMessage);
+  }
+
+  function updateProgress(){
+    const total = Math.round(
+      targets.reduce((sum, target) => sum + target.percent, 0) /
+      targets.length
+    );
+
+    overallText.textContent = total + "%";
+    overallPercent.textContent = total + "%";
+    overallFill.style.width = total + "%";
+
+    cakeOneBox.classList.toggle("done", targets[0].complete);
+    cakeTwoBox.classList.toggle("done", targets[1].complete);
+
+    cakeOneText.textContent = targets[0].complete
+      ? "Correct: 9 lines ✓"
+      : Math.round(targets[0].percent) + "%";
+
+    cakeTwoText.textContent = targets[1].complete
+      ? "Correct: 10 lines ✓"
+      : Math.round(targets[1].percent) + "%";
+
+    if(total >= 100){
+      starsEl.textContent = "★ ★ ★";
+    }else if(total >= 50){
+      starsEl.textContent = "★ ★ ☆";
+    }else if(total > 0){
+      starsEl.textContent = "★ ☆ ☆";
+    }else{
+      starsEl.textContent = "☆ ☆ ☆";
+    }
+
+    saveProgress(total, total >= 100);
+
+    if(total >= 100 && !completedCelebration){
+      completedCelebration = true;
+
       playChime();
       playApplause();
       confetti();
-      setStatus("Excellent! You traced all the lines and answers.");
-      speak("Excellent work! You traced all the diagonal lines and all the answer numbers.");
+
+      setStatus("Excellent! You counted and circled both correct numbers.");
+
+      speak(
+        "Excellent work! The first cake has nine lines. " +
+        "The second cake has ten lines. " +
+        "You circled both correct numbers."
+      );
     }
   }
 
-  function resetAll(){
-    celebrated = false;
+  function pointerDown(event){
+    event.preventDefault();
 
-    pads.forEach(pad => {
-      if (pad && typeof pad.reset === "function") pad.reset();
+    getAudioContext();
+
+    const point = pointerToPosterPoint(event);
+    const wrongChoice = wrongChoiceAt(point);
+
+    if(wrongChoice){
+      setStatus("Let’s count again. Try the other number in this row.");
+      speak("Let us count again. Try the other number in this row.");
+      return;
+    }
+
+    const target = findCorrectTarget(point);
+
+    if(!target){
+      setStatus("Draw a circle around the correct number, nine or ten.");
+      return;
+    }
+
+    activeTarget = target;
+    drawing = true;
+    currentStroke = [point];
+
+    activeTarget.strokes.push(currentStroke);
+
+    try{
+      traceLayer.setPointerCapture(event.pointerId);
+    }catch(_){}
+
+    markAt(activeTarget, point);
+    playTick();
+    redrawAll();
+  }
+
+  function pointerMove(event){
+    if(!drawing || !activeTarget || !currentStroke) return;
+
+    event.preventDefault();
+
+    const point = pointerToPosterPoint(event);
+    const previous = currentStroke[currentStroke.length - 1];
+
+    currentStroke.push(point);
+
+    markBetween(activeTarget, previous, point);
+    playTick();
+    redrawAll();
+
+    if(activeTarget.complete){
+      drawing = false;
+      activeTarget = null;
+      currentStroke = null;
+    }
+  }
+
+  function pointerUp(event){
+    if(event && event.pointerId !== undefined){
+      try{
+        traceLayer.releasePointerCapture(event.pointerId);
+      }catch(_){}
+    }
+
+    drawing = false;
+    activeTarget = null;
+    currentStroke = null;
+  }
+
+  function clearAll(sayIt = false){
+    completedCelebration = false;
+    drawing = false;
+    activeTarget = null;
+    currentStroke = null;
+
+    targets.forEach(target => {
+      target.samples.forEach(sample => {
+        sample.hit = false;
+      });
+
+      target.percent = 0;
+      target.complete = false;
+      target.strokes = [];
     });
 
-    setStatus("Try again. Trace the green lines and the dotted answers.");
-    speak("Try again. Trace the green diagonal lines. Then trace the dotted answer numbers.");
+    redrawAll();
+    updateProgress();
+
+    setStatus("Count the cake lines, then circle the correct number.");
+
+    if(sayIt){
+      speak("Cleared. Count again and circle the correct number.");
+    }
   }
 
-  function saveProgress(score){
+  function saveProgress(score, completed){
+    const payload = {
+      pageId:PAGE_ID,
+      file:FILE_NAME,
+      level:LEVEL,
+      week:WEEK,
+      type:"circle-choice",
+      activityType:"lesson",
+      score:Math.round(score),
+      tracing:Math.round(score),
+      completed:!!completed,
+      stars:score >= 100 ? 3 : score >= 50 ? 2 : score > 0 ? 1 : 0,
+      skills:{
+        reading:1,
+        writing:1,
+        listening:1,
+        speaking:0,
+        tracing:1,
+        math:1
+      },
+      savedAt:new Date().toISOString(),
+      ts:Date.now()
+    };
+
     try{
-      const payload = {
-        pageId:"Bk2LA25_NumbersSubtractLines",
-        file:"Bk2LA25.html",
-        level:"A",
-        activityType:"lesson",
-        score:Math.max(0,Math.min(100,Math.round(score))),
-        tracing:Math.max(0,Math.min(100,Math.round(score))),
-        stars:score >= 90 ? 3 : score >= 65 ? 2 : score >= 35 ? 1 : 0,
-        completed:score >= 90,
-        skills:{
-          reading:1,
-          writing:1,
-          speaking:1,
-          listening:1,
-          tracing:1,
-          math:1
-        },
-        savedAt:new Date().toISOString()
-      };
+      const store = JSON.parse(
+        localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}"
+      );
 
-      const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
-      store.Bk2NumbersWeek3 = {
-        ...(store.Bk2NumbersWeek3 || {}),
-        ...payload
-      };
+      store[payload.pageId] = payload;
 
-      localStorage.setItem("GP_EIS_ACTIVITY_RESULTS",JSON.stringify(store));
-      localStorage.setItem("GP_EIS_LAST_FILE","Bk2NumbersWeek3.html");
-    }catch(e){}
+      localStorage.setItem(
+        "GP_EIS_ACTIVITY_RESULTS",
+        JSON.stringify(store)
+      );
+
+      localStorage.setItem("GP_EIS_LAST_FILE", payload.file);
+      localStorage.setItem("gpLatestProgress", JSON.stringify(payload));
+
+      window.dispatchEvent(
+        new CustomEvent("gp-progress-update", {detail:payload})
+      );
+    }catch(_){}
+
+    try{
+      if(window.GPTrack && typeof window.GPTrack.finish === "function"){
+        window.GPTrack.finish(payload).catch(() => {});
+      }
+
+      if(typeof window.finishAndSave === "function"){
+        window.finishAndSave(payload).catch(() => {});
+      }
+    }catch(_){}
   }
 
-  function init(){
-    const zones = Array.from(document.querySelectorAll(".trace-zone"));
-    pads = zones.map(createTracePad);
-    updateOverallProgress();
+  traceLayer.addEventListener("pointerdown", pointerDown);
+  traceLayer.addEventListener("pointermove", pointerMove);
+  traceLayer.addEventListener("pointerup", pointerUp);
+  traceLayer.addEventListener("pointercancel", pointerUp);
+  traceLayer.addEventListener("pointerleave", pointerUp);
 
-    setTimeout(() => {
-      speakInstructions();
-    },700);
-  }
+  document.getElementById("readBtn").addEventListener("click", readInstructions);
 
-  readBtn.addEventListener("click",speakInstructions);
-  clearBtn.addEventListener("click",resetAll);
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    clearAll(true);
+  });
 
-  cheerBtn.addEventListener("click",() => {
+  document.getElementById("cheerBtn").addEventListener("click", () => {
+    getAudioContext();
     playChime();
     playApplause();
     confetti();
-    speak("You are doing great. Keep tracing the lines and numbers.");
+
+    setStatus("You are doing great! Keep counting and circling.");
+
+    speak("You are doing great! Keep counting and circle the correct number.");
   });
 
-  prevBtn.addEventListener("click",() => {
+  document.getElementById("homeBtn").addEventListener("click", () => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+
+    window.location.href = HOME_PAGE;
+  });
+
+  document.getElementById("prevBtn").addEventListener("click", () => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+
     window.location.href = PREVIOUS_PAGE;
   });
 
-  nextBtn.addEventListener("click",() => {
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
+
     window.location.href = NEXT_PAGE;
   });
 
-  window.addEventListener("resize",() => {
-    clearTimeout(window.__numbersResizeTimer);
+  posterImg.addEventListener("load", () => {
+    resizeCanvas();
+    clearAll(false);
+  }, {once:true});
 
-    window.__numbersResizeTimer = setTimeout(() => {
-      pads.forEach(pad => {
-        if (pad && typeof pad.resize === "function") pad.resize();
-      });
-
-      updateOverallProgress();
-    },180);
+  posterImg.addEventListener("error", () => {
+    setStatus(
+      "Poster image missing. Check /assets/images/Bk2Shapes/NumbersWeek4CircleLines.png."
+    );
   });
 
-  document.addEventListener("keydown",(event) => {
-    if (event.key === "ArrowLeft") window.location.href = PREVIOUS_PAGE;
-    if (event.key === "ArrowRight") window.location.href = NEXT_PAGE;
-    if (event.key.toLowerCase() === "h") window.location.href = HOME_PAGE;
-    if (event.key.toLowerCase() === "r") speakInstructions();
-    if (event.key.toLowerCase() === "c") resetAll();
+  window.addEventListener("resize", resizeCanvas);
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", resizeCanvas);
+  }
+
+  if("speechSynthesis" in window){
+    window.speechSynthesis.onvoiceschanged = () => {
+      pickFemaleVoice();
+    };
+  }
+
+  window.addEventListener("beforeunload", () => {
+    try{
+      window.speechSynthesis.cancel();
+    }catch(_){}
   });
 
   let firstTapDone = false;
 
-  document.addEventListener("pointerdown",() => {
-    if (firstTapDone) return;
+  document.addEventListener("pointerdown", () => {
+    if(firstTapDone) return;
+
     firstTapDone = true;
+
+    getAudioContext();
 
     try{
       chimeAudio.load();
-    }catch(e){}
+    }catch(_){}
+  }, {once:true});
 
-    if (!window.speechSynthesis?.speaking) {
-      speak("Trace the green diagonal lines and the answer numbers.");
-    }
-  },{once:true});
+  window.addEventListener("load", () => {
+    resizeCanvas();
+    clearAll(false);
 
-  window.addEventListener("load",init);
+    window.setTimeout(() => {
+      readInstructions();
+    }, 700);
+  }, {once:true});
+})();
 </script>
 </body>
 </html>
