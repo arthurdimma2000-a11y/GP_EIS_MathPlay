@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BK2Wk3ScienceClassA</title>
+  <title>BK2Wk3POEMC</title>
   <style>
     :root{
       --bg1:#fff6da; --bg2:#ffe18a; --bg3:#ffc84d;
@@ -48,14 +48,14 @@
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
-      <div class="intro-title">BK2 Wk3 Science Class A Intro</div>
+      <div class="intro-title">BK2 Wk3 POEM C Intro</div>
       <video id="lbIntroVideo" playsinline autoplay preload="metadata">
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1780807271/Lawk3m_lswfzh.mp4" type="video/mp4">
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1780935487/Poemwk3c_txvds4.mp4" type="video/mp4">
       </video>
       <div class="intro-actions">
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
-      <div class="intro-help">Skip Intro will go straight to next page.</div>
+      <div class="intro-help">Skip Intro will go straight to the Friday game page.</div>
     </div>
   </div>
 
@@ -63,8 +63,8 @@
     <div class="page">
       <div class="floating-shape shape1"></div><div class="floating-shape shape2"></div><div class="floating-shape shape3"></div>
       <div class="header">
-        <h1>🔬 BK2 Wk3 Science Class A</h1>
-        <p>Bk2LAQuiz2.html → BK2Wk3ScienceClassA.html → Bk2LA14.html</p>
+        <h1>🎵 BK2 Wk3 POEM C</h1>
+        <p>Bk2LC19.html → BK2Wk3POEMC.html → Bk2LCGame3.html</p>
       </div>
 
       <div class="video-card">
@@ -75,7 +75,7 @@
         </div>
 
         <video id="lessonVideo" controls playsinline autoplay preload="metadata">
-          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1780807271/Lawk3m_lswfzh.mp4" type="video/mp4">
+          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1780935487/Poemwk3c_txvds4.mp4" type="video/mp4">
         </video>
 
         <div class="bottom-bar">
@@ -85,27 +85,25 @@
         </div>
       </div>
 
-      <div class="lesson-note">Back goes to Bk2LAQuiz2.html. Next goes to Bk2LA14.html. Skip Intro jumps immediately to Bk2LA14.html.</div>
+      <div class="lesson-note">Back goes to Bk2LC19.html. Next goes to Bk2LCGame3.html. Skip Intro jumps immediately to Bk2LCGame3.html.</div>
     </div>
   </div>
 
   <script>
     const HOME_PAGE = "../../../../../index.html";
-    const PREVIOUS_PAGE = "../../week-2/Friday/Bk2LAQuiz2.html";
-    const NEXT_PAGE = "../Tuesday/Bk2LA14.html";
+    const PREVIOUS_PAGE = "../Wednesday/Bk2LC19.html";
+    const NEXT_PAGE = "../Friday/Bk2LCGame3.html";
 
     const video = document.getElementById("lessonVideo");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
     let introFinished = false;
-    let lessonCompleted = false;
-    let manualReplayRequested = false;
 
     video.muted = true;
     video.volume = 0;
 
-    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1780807271/Lawk3m_lswfzh.mp4";
+    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1780935487/Poemwk3c_txvds4.mp4";
 
     function clearVideoSource(videoEl){
       if(!videoEl) return;
@@ -126,17 +124,6 @@
         } else {
           video.src = LESSON_VIDEO_URL;
         }
-      }
-      video.loop = false;
-    }
-
-    function lockLessonAtEnd(){
-      lessonCompleted = true;
-      manualReplayRequested = false;
-      video.loop = false;
-      pauseVideo(video);
-      if(Number.isFinite(video.duration) && video.duration > 0){
-        try { video.currentTime = video.duration; } catch(_){}
       }
     }
 
@@ -187,16 +174,11 @@
 
     function replayVideo(){
       ensureLessonVideoLoaded();
-      lessonCompleted = false;
-      manualReplayRequested = true;
-      video.loop = false;
       video.currentTime = 0;
-      restoreLessonAudio();
       video.play().catch(()=>{});
     }
 
     function togglePlayPause(){
-      if(lessonCompleted) return;
       ensureLessonVideoLoaded();
       if(video.paused){
         video.play().catch(()=>{});
@@ -232,9 +214,7 @@
       ensureLessonVideoLoaded();
       video.muted = false;
       video.volume = 1;
-      if(!lessonCompleted || manualReplayRequested){
-        video.play().catch(()=>{});
-      }
+      video.play().catch(()=>{});
     };
 
     const originalRestoreLessonAudio = restoreLessonAudio;
@@ -253,15 +233,6 @@
       revealPageContent();
       restoreLessonAudio();
     });
-    video.addEventListener("play", () => {
-      if(lessonCompleted && !manualReplayRequested){
-        lockLessonAtEnd();
-        return;
-      }
-      manualReplayRequested = false;
-      restoreLessonAudio();
-    });
-    video.addEventListener("ended", lockLessonAtEnd);
 
     introVideo.muted = false;
     introVideo.volume = 1;
