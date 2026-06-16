@@ -404,8 +404,8 @@ body{min-height:100vh;display:flex;justify-content:center;align-items:flex-start
 
   function mark(point){
     const rect = canvas.getBoundingClientRect();
-    const hitRadius = Math.max(28,Math.min(rect.width,rect.height)*.22);
-    const endpointRadius = Math.max(34, Math.min(rect.width, rect.height) * .16);
+    const hitRadius = Math.max(36,Math.min(rect.width,rect.height)*.28);
+    const endpointRadius = Math.max(44, Math.min(rect.width, rect.height) * .22);
     let changed = false;
     if(samples.length){
       const first = samples[0];
@@ -418,7 +418,7 @@ body{min-height:100vh;display:flex;justify-content:center;align-items:flex-start
     });
     if(changed) tick();
     traceScore = Math.round(samples.filter(s=>s.hit).length / Math.max(1,samples.length) * 100);
-    if(traceScore >= 92 && traceStartedAtBlue && traceEndedAtRed){
+    if(traceScore >= 72 && traceStartedAtBlue && traceEndedAtRed){
       traceScore = 100;
       traceDone = true;
       samples.forEach(s=>s.hit=true);

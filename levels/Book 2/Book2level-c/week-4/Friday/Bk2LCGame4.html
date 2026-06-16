@@ -388,10 +388,10 @@ function redrawTrace(){
 function canvasPoint(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
 function distSegment(p,a,b){const vx=b.x-a.x,vy=b.y-a.y,l=vx*vx+vy*vy;if(!l)return Math.hypot(p.x-a.x,p.y-a.y);const t=Math.max(0,Math.min(1,((p.x-a.x)*vx+(p.y-a.y)*vy)/l));return Math.hypot(p.x-(a.x+vx*t),p.y-(a.y+vy*t));}
 function mark(a,b){
- let changed=false;const threshold=Math.max(23,canvas.getBoundingClientRect().height*.17);
+ let changed=false;const threshold=Math.max(30,canvas.getBoundingClientRect().height*.24);
  traceSamples.forEach(s=>{if(!s.hit&&distSegment(s,a,b)<=threshold){s.hit=true;changed=true;}});
  if(changed)tick();tracePercent=Math.round(traceSamples.filter(s=>s.hit).length/traceSamples.length*100);
- if(tracePercent>=74){tracePercent=100;traceComplete=true;}
+ if(tracePercent>=58){tracePercent=100;traceComplete=true;}
  traceScoreEl.textContent=tracePercent+"%";traceHud.textContent=tracePercent+"%";
  if(traceComplete&&!locked)completeMission(missions[index].fact);
 }

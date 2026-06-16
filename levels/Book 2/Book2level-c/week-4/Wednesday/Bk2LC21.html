@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Bk2LB21 - Comparing Lengths | Jump Ropes</title>
+<title>Bk2LC21 - Comparing Lengths | Jump Ropes</title>
 
 <style>
   :root{
@@ -556,8 +556,8 @@
 (() => {
   "use strict";
 
-  const PAGE_ID = "Bk2LB21_ComparingLengths_JumpRopes";
-  const FILE_NAME = "Bk2LB21_ComparingLengths_JumpRopes.html";
+  const PAGE_ID = "Bk2LC21_ComparingLengths_JumpRopes";
+  const FILE_NAME = "Bk2LC21.html";
   const NATURAL_W = 966;
   const NATURAL_H = 1314;
 
@@ -569,10 +569,16 @@
   ];
 
   const ropes = [
-    {colour:"blue", label:"long", y:648, x1:143, x2:804, sentence:"The blue jump rope is long."},
-    {colour:"purple", label:"longer", y:929, x1:114, x2:833, sentence:"The purple jump rope is longer."},
-    {colour:"red", label:"longest", y:1209, x1:72, x2:872, sentence:"The red jump rope is the longest."}
+    {colour:"blue", label:"long", y:648, x1:143, x2:804, sentence:"The blue jump rope is long.", traceColour:"rgba(36,154,217,.96)", guideColour:"rgba(36,154,217,.92)"},
+    {colour:"purple", label:"longer", y:929, x1:114, x2:833, sentence:"The purple jump rope is longer.", traceColour:"rgba(197,65,140,.96)", guideColour:"rgba(197,65,140,.92)"},
+    {colour:"red", label:"longest", y:1209, x1:72, x2:872, sentence:"The red jump rope is the longest.", traceColour:"rgba(238,62,73,.96)", guideColour:"rgba(238,62,73,.92)"}
   ];
+
+  const TRACE_POINT_GAP = 4;
+  const TRACE_X_RADIUS = 22;
+  const TRACE_Y_RADIUS = 34;
+  const TRACE_START_END_RADIUS = 24;
+  const TRACE_COMPLETE_PERCENT = 97;
 
   const canvas = document.getElementById("traceLayer");
   const ctx = canvas.getContext("2d");
@@ -614,10 +620,17 @@
     rope.strokes = [];
     rope.percent = 0;
     rope.done = false;
-    const sampleCount = Math.round((rope.x2 - rope.x1) / 5);
+    rope.startTouched = false;
+    rope.endTouched = false;
+    const usableLength = Math.max(1, rope.x2 - rope.x1);
+    const sampleCount = Math.max(1, Math.round(usableLength / TRACE_POINT_GAP));
     for(let i=0;i<=sampleCount;i++){
       const t = i / sampleCount;
-      rope.samples.push({x:rope.x1 + (rope.x2 - rope.x1) * t,y:rope.y,hit:false});
+      rope.samples.push({
+        x:rope.x1 + usableLength * t,
+        y:rope.y,
+        hit:false
+      });
     }
   });
 
@@ -772,7 +785,7 @@
 
     if(tracingActive && activeRope < ropes.length && !ropes[activeRope].done){
       const rope = ropes[activeRope];
-      ctx.strokeStyle = "rgba(255,212,68,.95)";
+      ctx.strokeStyle = rope.guideColour || "rgba(255,212,68,.95)";
       ctx.lineWidth = 13;
       ctx.setLineDash([14,10]);
       ctx.beginPath();
@@ -786,9 +799,9 @@
       ctx.beginPath();ctx.arc(rope.x2,rope.y,9,0,Math.PI*2);ctx.fill();
     }
 
-    ctx.lineWidth = 11;
-    ctx.strokeStyle = "rgba(24,126,230,.91)";
+    ctx.lineWidth = 12;
     ropes.forEach(rope => {
+      ctx.strokeStyle = rope.traceColour || "rgba(24,126,230,.91)";
       rope.strokes.forEach(stroke => {
         if(!stroke.length) return;
         ctx.beginPath();
@@ -810,28 +823,43 @@
 
   function distance(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
 
-  function markAt(rope,point){
-    let changed = false;
-    const threshold = 35;
-    rope.samples.forEach(sample => {
-      if(!sample.hit && distance(sample,point) <= threshold){
-        sample.hit = true;
-        changed = true;
-      }
-    });
-    if(changed) tick();
-    rope.percent = Math.round(rope.samples.filter(sample => sample.hit).length / rope.samples.length * 100);
-    if(rope.percent >= 72){
+  function completeIfReady(rope){
+    if(rope.done) return;
+    if(rope.percent >= TRACE_COMPLETE_PERCENT && rope.startTouched && rope.endTouched){
       rope.percent = 100;
       rope.done = true;
       rope.samples.forEach(sample => sample.hit = true);
       completeRope();
     }
+  }
+
+  function markAt(rope,point){
+    let changed = false;
+
+    if(Math.abs(point.y - rope.y) <= TRACE_Y_RADIUS){
+      if(point.x <= rope.x1 + TRACE_START_END_RADIUS) rope.startTouched = true;
+      if(point.x >= rope.x2 - TRACE_START_END_RADIUS) rope.endTouched = true;
+
+      rope.samples.forEach(sample => {
+        if(!sample.hit &&
+           Math.abs(sample.x - point.x) <= TRACE_X_RADIUS &&
+           Math.abs(sample.y - point.y) <= TRACE_Y_RADIUS){
+          sample.hit = true;
+          changed = true;
+        }
+      });
+    }
+
+    if(changed) tick();
+
+    const hitCount = rope.samples.filter(sample => sample.hit).length;
+    rope.percent = Math.round(hitCount / rope.samples.length * 100);
+    completeIfReady(rope);
     updateProgress();
   }
 
   function markBetween(rope,a,b){
-    const steps = Math.max(1,Math.ceil(distance(a,b)/3));
+    const steps = Math.max(1,Math.ceil(distance(a,b)/2));
     for(let i=0;i<=steps;i++){
       const t = i/steps;
       markAt(rope,{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
@@ -844,7 +872,7 @@
     getAudioContext();
     const rope = ropes[activeRope];
     const point = pointerPoint(event);
-    if(Math.abs(point.y - rope.y) > 55 || point.x < rope.x1-35 || point.x > rope.x2+35){
+    if(Math.abs(point.y - rope.y) > 92 || point.x < rope.x1-54 || point.x > rope.x2+54){
       setStatus("Start on the highlighted " + rope.colour + " jump rope.");
       return;
     }
@@ -1109,6 +1137,8 @@
     ropes.forEach(rope => {
       rope.percent = 0;
       rope.done = false;
+      rope.startTouched = false;
+      rope.endTouched = false;
       rope.strokes = [];
       rope.samples.forEach(sample => sample.hit = false);
     });
@@ -1128,7 +1158,7 @@
     const payload = {
       pageId:PAGE_ID,
       file:FILE_NAME,
-      level:"B",
+      level:"C",
       week:4,
       type:"lesson",
       activityType:"comparing-lengths-tracing",

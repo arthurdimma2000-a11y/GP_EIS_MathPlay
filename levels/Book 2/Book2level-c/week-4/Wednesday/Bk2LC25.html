@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Bk2LB25 - Numbers Week 4 | Comparing Lengths</title>
+<title>Bk2LC25 - Numbers Week 4 | Comparing Signs</title>
 
 <style>
   :root{
@@ -474,9 +474,9 @@
 </head>
 
 <body>
-<main class="app" aria-label="Numbers Week 4 comparing lengths lesson">
+<main class="app" aria-label="Numbers Week 4 comparing signs lesson">
   <div class="topbar">
-    <div class="badge"><span>Numbers</span> · Compare lengths · Week 4</div>
+    <div class="badge"><span>Numbers</span> · Compare signs · Week 4</div>
     <div class="navs">
       <button class="nav-btn home" id="homeBtn" type="button">🏠 Home</button>
       <button class="nav-btn prev" id="prevBtn" type="button">← Previous</button>
@@ -484,7 +484,7 @@
     </div>
   </div>
 
-  <h1 class="lesson-title">Numbers · Comparing Lengths</h1>
+  <h1 class="lesson-title">Numbers · Comparing Signs</h1>
 
   <section class="poster-wrap" id="posterWrap" aria-label="Numbers Week 4 poster for comparing object lengths">
     <img
@@ -499,7 +499,7 @@
     <div class="trace-pad" id="pad2" data-index="2"><canvas aria-label="Trace the equal sign"></canvas></div>
   </section>
 
-  <section class="panel" aria-label="Comparing lengths activity controls">
+  <section class="panel" aria-label="Comparing signs activity controls">
     <div class="prompt-card">
       <div class="prompt-text" id="promptText">
         Tap Start Lesson. Compare each pair of lengths, then trace the correct sign inside each empty box.
@@ -567,8 +567,8 @@
 (() => {
   "use strict";
 
-  const PAGE_ID = "Bk2LB25_Numbers_ComparingLengths";
-  const FILE_NAME = "Bk2LB25_Numbers_ComparingLengths.html";
+  const PAGE_ID = "Bk2LC25_Numbers_ComparingSigns";
+  const FILE_NAME = "Bk2LC25.html";
   const HOME_PAGE = "../../../../../index.html";
   const PREVIOUS_PAGE = "Bk2LC21.html";
   const NEXT_PAGE = "../Thursday/BK2Wk4POEMC.html";
@@ -764,18 +764,31 @@
 
   function interpolateSamples(strokes,w,h){
     const samples = [];
-    strokes.forEach(stroke => {
+    strokes.forEach((stroke,strokeIndex) => {
       for(let i=0;i<stroke.length-1;i++){
         const a = stroke[i], b = stroke[i+1];
-        const x1 = a[0]*w, y1=a[1]*h, x2=b[0]*w, y2=b[1]*h;
-        const steps = Math.max(10,Math.ceil(Math.hypot(x2-x1,y2-y1)/3));
+        const x1 = a[0]*w, y1 = a[1]*h, x2 = b[0]*w, y2 = b[1]*h;
+        const steps = Math.max(14,Math.ceil(Math.hypot(x2-x1,y2-y1)/4));
         for(let n=0;n<=steps;n++){
           const t = n/steps;
-          samples.push({x:x1+(x2-x1)*t,y:y1+(y2-y1)*t,hit:false});
+          samples.push({
+            x:x1+(x2-x1)*t,
+            y:y1+(y2-y1)*t,
+            hit:false,
+            strokeIndex
+          });
         }
       }
     });
     return samples;
+  }
+
+  function getStrokePercents(pad){
+    return pad.data.strokes.map((_,strokeIndex) => {
+      const strokeSamples = pad.samples.filter(sample => sample.strokeIndex === strokeIndex);
+      const hitCount = strokeSamples.filter(sample => sample.hit).length;
+      return Math.round(hitCount / Math.max(1,strokeSamples.length) * 100);
+    });
   }
 
   function distancePointToSegment(p,a,b){
@@ -790,7 +803,7 @@
     const canvas = element.querySelector("canvas");
     const ctx = canvas.getContext("2d");
     const data = padData[index];
-    const pad = {element,canvas,ctx,index,data,samples:[],drawings:[],current:null,drawing:false,percent:0,done:false,w:0,h:0};
+    const pad = {element,canvas,ctx,index,data,samples:[],drawings:[],current:null,drawing:false,percent:0,done:false,w:0,h:0,strokePercents:[]};
 
     function resize(){
       const rect = element.getBoundingClientRect();
@@ -802,6 +815,7 @@
       ctx.setTransform(dpr,0,0,dpr,0,0);
       pad.samples = interpolateSamples(data.strokes,pad.w,pad.h);
       pad.samples.forEach((sample,i) => { sample.hit = pad.done || (pad.previousHits && pad.previousHits[i]); });
+      pad.strokePercents = getStrokePercents(pad);
       drawPad();
     }
 
@@ -842,21 +856,28 @@
     }
 
     function mark(from,to){
-      const threshold = Math.max(12,Math.min(pad.w,pad.h)*.26);
+      const threshold = Math.max(5,Math.min(pad.w,pad.h)*.16);
       let changed = false;
+
       pad.samples.forEach(sample => {
         if(!sample.hit && distancePointToSegment(sample,from,to) <= threshold){
           sample.hit = true;
           changed = true;
         }
       });
+
       if(changed) playTraceTick();
 
-      let percentage = Math.round(pad.samples.filter(sample => sample.hit).length / Math.max(1,pad.samples.length) * 100);
-      if(percentage >= 72){
+      let strokePercents = getStrokePercents(pad);
+      let percentage = Math.round(strokePercents.reduce((sum,value) => sum + value,0) / Math.max(1,strokePercents.length));
+
+      if(strokePercents.every(value => value >= 92)){
+        pad.samples.forEach(sample => { sample.hit = true; });
+        strokePercents = pad.data.strokes.map(() => 100);
         percentage = 100;
-        pad.samples.forEach(sample => sample.hit = true);
       }
+
+      pad.strokePercents = strokePercents;
       pad.percent = Math.max(pad.percent,percentage);
 
       if(pad.percent >= 100 && !pad.done){
@@ -865,6 +886,7 @@
         element.classList.add("done");
         completePad(index);
       }
+
       updateProgress();
     }
 
@@ -904,6 +926,7 @@
       pad.percent = 0;
       pad.done = false;
       pad.samples.forEach(sample => sample.hit=false);
+      pad.strokePercents = pad.data.strokes.map(() => 0);
       element.classList.remove("ready","active","done");
       drawPad();
     }
@@ -943,7 +966,7 @@
       activeIndex = pads.findIndex(pad => !pad.done);
       if(activeIndex >= 0){
         activatePad(activeIndex);
-        setStatus("Now trace the " + padData[activeIndex].word + " sign.");
+        setStatus("Now trace the " + padData[activeIndex].word + " sign completely.");
       }else{
         finishLesson();
       }
@@ -970,13 +993,13 @@
     started = true;
     activeIndex = pads.findIndex(pad => !pad.done);
     if(activeIndex < 0) activeIndex = 0;
-    promptText.textContent = "Trace the correct signs in the empty boxes: greater than, less than, and equal to.";
-    setStatus("Trace the highlighted answer box first.");
+    promptText.textContent = "Trace the correct signs in the empty boxes: greater than, less than, and equal to. Trace each sign fully to complete the task.";
+    setStatus("Trace the highlighted answer box fully first.");
     setFeedback("15 cm is greater than 10 cm. Begin by tracing the greater-than sign.","");
     activatePad(activeIndex);
     speak(
       "Let us compare lengths. Fifteen centimeters is greater than ten centimeters. " +
-      "Trace the greater than sign in the first box. Then trace less than and equal to."
+      "Trace the greater than sign in the first box completely. Then trace less than and equal to completely."
     );
   }
 
@@ -1023,7 +1046,7 @@
     promptText.textContent = "Tap Start Lesson. Compare each pair of lengths, then trace the correct sign inside each empty box.";
     targetPill.textContent = "Week 4";
     setStatus("Cleared. Tap Start Lesson to begin again.");
-    setFeedback("Compare the measured lengths. Trace >, <, and = in the empty answer boxes.","");
+    setFeedback("Compare the measured lengths. Trace >, <, and = completely in the empty answer boxes.","");
     updateProgress();
     speak("Cleared. Tap Start Lesson to begin again.");
   }
@@ -1142,7 +1165,7 @@
     const payload = {
       pageId:PAGE_ID,
       file:FILE_NAME,
-      level:"B",
+      level:"C",
       week:4,
       type:"lesson",
       activityType:"comparing-lengths-sign-tracing",
@@ -1188,10 +1211,10 @@
   window.addEventListener("load",() => {
     pads.forEach(pad => pad.resize());
     updateProgress();
+    startLesson();
     setTimeout(() => {
       speak(
-        "Welcome to Numbers, Week Four. Compare the lengths using the rulers. " +
-        "Tap Start Lesson, then trace the correct signs in the empty boxes."
+        "Welcome to Numbers, Week Four. Compare the lengths using the rulers and trace the correct signs in the empty boxes."
       );
     },650);
   },{once:true});
