@@ -107,9 +107,9 @@ body{
   <p class="subtitle">Look, listen, choose, and celebrate!</p>
 
   <nav class="nav-row" aria-label="Quiz navigation">
-    <a class="nav-link prev" id="prevBtn" href="Bk2_BuildingBlocks_5YO_Game.html">⬅ Game</a>
+<a class="nav-link prev" id="prevBtn" href="Bk3LCGame1.html">⬅ Game</a>
     <a class="nav-link home" id="homeBtn" href="../../../../../index.html">🏠 Home</a>
-    <a class="nav-link next" id="nextBtn" href="../Friday/Bk2LA8.html">Next ➜</a>
+<a class="nav-link next" id="nextBtn" href="../../../../../index.html">Next ➜</a>
   </nav>
 
   <section class="quiz-wrap">
@@ -359,6 +359,23 @@ document.addEventListener("pointerdown",()=>audio(),{once:true});
 if("speechSynthesis" in window) speechSynthesis.onvoiceschanged=chooseVoice;
 window.addEventListener("load",()=>{ updateProgress(); setTimeout(()=>speak("Welcome to Building Blocks quiz. Tap Start Quiz."),650); });
 window.addEventListener("beforeunload",()=>{try{speechSynthesis.cancel()}catch(e){} if(recognition){try{recognition.stop()}catch(e){}}});
+
+let navBusy = false;
+function fastNavigate(url){
+  if(navBusy || !url) return;
+  navBusy = true;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(recognition){ try{ recognition.stop(); }catch(e){} }
+  window.location.href = url;
+}
+["prevBtn","nextBtn","homeBtn"].forEach(id => {
+  const link = document.getElementById(id);
+  if(!link) return;
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    fastNavigate(link.getAttribute("href"));
+  });
+});
 })();
 </script>
 </body>

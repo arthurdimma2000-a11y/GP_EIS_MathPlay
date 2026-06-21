@@ -261,8 +261,8 @@
   const START_RADIUS = 70;
   const COMPLETE_RATIO = 0.72;
 
-  const prevHref = "Bk2LA2.html";
-  const nextHref = "Bk2LA4.html";
+const prevHref = "../Tuesday/Bk3LA2.html";
+const nextHref = "./Bk3LA7.html";
 
   const posterWrap = document.getElementById("posterWrap");
   const posterImg = document.getElementById("posterImg");
@@ -748,6 +748,14 @@
     }catch(_){}
   }
 
+  let navBusy = false;
+  function fastNavigate(url){
+    if(navBusy || !url) return;
+    navBusy = true;
+    try{ window.speechSynthesis.cancel(); }catch(_){}
+    window.location.href = url;
+  }
+
   buildTargets();
 
   traceLayer.addEventListener("pointerdown", pointerDown, {passive:false});
@@ -766,8 +774,14 @@
     setStatus("You can do it! Spheres are round 3D shapes!");
     speak("You can do it! Spheres are round 3D shapes!");
   });
-  prevBtn.addEventListener("click", () => { window.location.href = prevHref; });
-  nextBtn.addEventListener("click", () => { window.location.href = nextHref; });
+  prevBtn.addEventListener("click", event => {
+    event.preventDefault();
+    fastNavigate(prevHref);
+  });
+  nextBtn.addEventListener("click", event => {
+    event.preventDefault();
+    fastNavigate(nextHref);
+  });
 
   window.addEventListener("resize", resizeCanvases);
   if(window.visualViewport) window.visualViewport.addEventListener("resize", resizeCanvases);

@@ -84,8 +84,8 @@ body{
 .completion.show{display:block}
 .confetti{position:fixed;top:-20px;width:10px;height:15px;border-radius:3px;z-index:9999;pointer-events:none;animation:fall 1.8s linear forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.07}}
-.dots-layer{position:absolute;inset:0;z-index:4;pointer-events:none}
-.dot{position:absolute;width:23px;height:23px;border-radius:50%;background:#1f1f22;border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.dots-layer{position:absolute;inset:0;z-index:4;pointer-events:auto}
+.dot{position:absolute;width:34px;height:34px;border-radius:50%;background:#1f1f22;border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.35)}
 .dot.ready{background:#ffd24a;animation:pulse 1s infinite}.dot.done{background:#29ab59}.dot.selected{background:#1687e8}
 @keyframes pulse{0%,100%{filter:brightness(1);transform:translate(-50%,-50%) scale(1)}50%{filter:brightness(1.18);transform:translate(-50%,-50%) scale(1.18)}}
 @media(max-width:940px){.layout{grid-template-columns:1fr}.poster-view{height:min(62vh,590px)}}
@@ -99,9 +99,9 @@ body{
   <p class="subtitle">Fun Game · Count blocks, build 10, and speak the air bubbles.</p>
 
   <nav class="nav-row" aria-label="Game navigation">
-    <a class="nav-link prev" id="prevBtn" href="../../week-1/Wednesday/Bk2LA4.html">⬅ Previous</a>
+<a class="nav-link prev" id="prevBtn" href="../Thursday/Bk3Wk1NonfictionC.html">⬅ Previous</a>
     <a class="nav-link home" id="homeBtn" href="../../../../../index.html">🏠 Home</a>
-    <a class="nav-link next" id="nextBtn" href="Bk2_BuildingBlocks_5YO_Quiz.html">Quiz ➜</a>
+<a class="nav-link next" id="nextBtn" href="Bk3LCQuiz1.html">Quiz ➜</a>
   </nav>
 
   <section class="layout">
@@ -595,6 +595,23 @@ document.addEventListener("pointerdown",()=>audio(),{once:true});
 if("speechSynthesis" in window) speechSynthesis.onvoiceschanged=chooseVoice;
 window.addEventListener("load",()=>{ updateProgress(); setTimeout(()=>speak("Welcome to Building Blocks. Tap Start to play."),650); });
 window.addEventListener("beforeunload",()=>{try{speechSynthesis.cancel()}catch(e){} if(recognition){try{recognition.stop()}catch(e){}}});
+
+let navBusy = false;
+function fastNavigate(url){
+  if(navBusy || !url) return;
+  navBusy = true;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(recognition){ try{ recognition.stop(); }catch(e){} }
+  window.location.href = url;
+}
+["prevBtn","nextBtn","homeBtn"].forEach(id => {
+  const link = document.getElementById(id);
+  if(!link) return;
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    fastNavigate(link.getAttribute("href"));
+  });
+});
 })();
 </script>
 </body>

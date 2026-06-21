@@ -550,8 +550,8 @@ window.__PAGE_CONFIG__ = {
   pageId: "SolidShapes_PentagonalPrisms",
   level: "A",
   homeHref: "../../../../../index.html",
-  prevHref: "../Monday/Bk2ArtClassA.html",
-  nextHref: "../Wednesday/Bk2LA3.html",
+prevHref: "../Monday/Bk3Wk1ArtClassB.html",
+nextHref: "../Wednesday/BK3LB3.html",
   micLines: [
     "What do you design?",
     "I design hat boxes.",
@@ -1086,7 +1086,10 @@ window.__PAGE_CONFIG__ = {
     }catch(_){}
   }
 
+  let navBusy = false;
   function go(href){
+    if (navBusy || !href) return;
+    navBusy = true;
     stopSpeaking();
     if (href) window.location.href = href;
   }

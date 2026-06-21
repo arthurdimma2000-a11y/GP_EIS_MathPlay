@@ -191,8 +191,8 @@ window.__PAGE_CONFIG__ = {
   pageId: "Bk2_Spheres_Lesson",
   level: "A",
   homeHref: "../../../../../index.html",
-  prevHref: "../Monday/Bk2ArtClassA.html",
-  nextHref: "../Wednesday/Bk2LA3.html",
+prevHref: "../Monday/Bk3Wk1ArtClassA.html",
+nextHref: "../Wednesday/Bk3LA3.html",
   micLines: ["Eat a choco ball.", "Yum! I like chocolate.", "It’s a sphere."],
   introSpeech: "Hello superstar! Today we will learn about spheres. A sphere is round like a ball. Look at the choco ball on the poster. Tap the microphone, listen carefully, then repeat after me.",
   posterSpeech: "Spheres. Three D shapes. Are you hungry? Eat a choco ball. Yum! I like chocolate. It is a sphere.",
@@ -625,9 +625,28 @@ window.__PAGE_CONFIG__ = {
     }catch(_){}
   }
 
+  let navBusy = false;
+  function fastNavigate(url){
+    if(navBusy || !url) return;
+    navBusy = true;
+    stopSpeaking();
+    try{ recognition && recognition.stop(); }catch(_){}
+    window.location.href = url;
+  }
+
   homeBtn.href = CONFIG.homeHref || homeBtn.href;
-  prevBtn.addEventListener("click", () => { window.location.href = CONFIG.prevHref || "javascript:history.back()"; });
-  nextBtn.addEventListener("click", () => { window.location.href = CONFIG.nextHref || "#"; });
+  homeBtn.addEventListener("click", event => {
+    event.preventDefault();
+    fastNavigate(CONFIG.homeHref || homeBtn.href);
+  });
+  prevBtn.addEventListener("click", event => {
+    event.preventDefault();
+    fastNavigate(CONFIG.prevHref || "javascript:history.back()");
+  });
+  nextBtn.addEventListener("click", event => {
+    event.preventDefault();
+    fastNavigate(CONFIG.nextHref || "#");
+  });
   readBtn.addEventListener("click", readPoster);
   clearBtn.addEventListener("click", clearLesson);
   cheerBtn.addEventListener("click", cheer);

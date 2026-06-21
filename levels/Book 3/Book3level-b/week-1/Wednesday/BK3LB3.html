@@ -541,8 +541,8 @@ window.__PAGE_CONFIG__ = {
   level: "A",
   week: 1,
   homeHref: "../../../../../index.html",
-  prevHref: "LA2.html",
-  nextHref: "LA4.html",
+prevHref: "../Tuesday/BK3LB2.html",
+nextHref: "./BK3LB7.html",
   introSpeech: "Welcome to Solid Shapes. Today we will learn about pentagonal prisms. A pentagonal prism is a 3D pentagon. A pentagonal prism has seven faces. Tap Start Tracing and trace the prism net.",
   micLines: [
     "Learn about pentagonal prisms.",
@@ -1281,7 +1281,10 @@ window.__PAGE_CONFIG__ = {
     }catch(_){}
   }
 
+  let navBusy = false;
   function go(href){
+    if (navBusy || !href) return;
+    navBusy = true;
     stopSpeaking();
     if (href) window.location.href = href;
   }

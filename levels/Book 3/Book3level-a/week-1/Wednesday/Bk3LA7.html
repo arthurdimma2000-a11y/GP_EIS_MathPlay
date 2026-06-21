@@ -124,8 +124,8 @@
   const CONFIG = {
     pageId:"Bk2_Numbers_More_Spheres",
     homeHref:"../../../../../index.html",
-    prevHref:"Bk2_Spheres_Week1_Trace.html",
-    nextHref:"Bk2_Numbers_Week1_Quiz.html"
+prevHref:"./Bk3LA3.html",
+nextHref:"../Thursday/Bk3Wk1NonfictionA.html"
   };
 
   const NATURAL_W = 958;
@@ -569,6 +569,14 @@
     }catch(_ ){}
   }
 
+  let navBusy = false;
+  function fastNavigate(url){
+    if(navBusy || !url) return;
+    navBusy = true;
+    stopSpeaking();
+    window.location.href = url;
+  }
+
   buildSamples();
 
   traceLayer.addEventListener("pointerdown", pointerDown);
@@ -587,9 +595,9 @@
   readBtn.addEventListener("click", readInstructions);
   clearBtn.addEventListener("click", () => { clearAll(); speak("Cleared. Start again."); });
   cheerBtn.addEventListener("click", () => { unlockAudio(); playChime(); clap(); confetti(); setStatus("You can do it! Great job!"); speak("You can do it! Great job!"); });
-  homeBtn.addEventListener("click", () => { stopSpeaking(); window.location.href = CONFIG.homeHref; });
-  prevBtn.addEventListener("click", () => { stopSpeaking(); window.location.href = CONFIG.prevHref; });
-  nextBtn.addEventListener("click", () => { stopSpeaking(); window.location.href = CONFIG.nextHref; });
+  homeBtn.addEventListener("click", event => { event.preventDefault(); fastNavigate(CONFIG.homeHref); });
+  prevBtn.addEventListener("click", event => { event.preventDefault(); fastNavigate(CONFIG.prevHref); });
+  nextBtn.addEventListener("click", event => { event.preventDefault(); fastNavigate(CONFIG.nextHref); });
 
   window.addEventListener("resize", resizeCanvases);
   if(window.visualViewport) window.visualViewport.addEventListener("resize", resizeCanvases);

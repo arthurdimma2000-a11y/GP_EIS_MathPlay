@@ -559,8 +559,8 @@ window.__PAGE_CONFIG__ = {
   level: "A",
   week: 1,
   homeHref: "../../../../../index.html",
-  prevHref: "Bk2LA3.html",
-  nextHref: "../Thursday/Bk2POEMA.html",
+prevHref: "./BK3LB3.html",
+nextHref: "../Thursday/Bk3Wk1NonfictionB.html",
   introSpeech: "Welcome to Numbers, Week One. Count the hat boxes. Trace the dotted numbers. Then circle the group with the most hat boxes in each row.",
   micLines: [
     "Count the hat boxes.",
@@ -1436,7 +1436,10 @@ window.__PAGE_CONFIG__ = {
     }catch(_){}
   }
 
+  let navBusy = false;
   function go(href){
+    if (navBusy || !href) return;
+    navBusy = true;
     stopSpeaking();
     if (href) window.location.href = href;
   }

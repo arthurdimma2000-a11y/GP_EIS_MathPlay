@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bk2POEMB</title>
+  <title>Bk3Wk1NonfictionB</title>
   <style>
     :root{
       --bg1:#fff6da; --bg2:#ffe18a; --bg3:#ffc84d;
@@ -48,14 +48,14 @@
 <body>
   <div id="lbIntroVideoOverlay">
     <div class="intro-panel">
-      <div class="intro-title">Bk2 POEM B Intro</div>
+      <div class="intro-title">BK3 Wk1 Nonfiction B Intro</div>
       <video id="lbIntroVideo" playsinline autoplay preload="metadata">
-        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1778258219/B2fairlytaleb_exuzkj.mp4" type="video/mp4">
+        <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1782010791/Math_B3_W1_Thursday_Nonfiction_Vid_jsyhiv.mp4" type="video/mp4">
       </video>
       <div class="intro-actions">
         <button type="button" class="intro-btn skip" id="skipIntroBtn">Skip Intro</button>
       </div>
-      <div class="intro-help">Skip Intro will go straight to Bk2LBGame1.html.</div>
+      <div class="intro-help">Skip Intro will go straight to the next page.</div>
     </div>
   </div>
 
@@ -63,8 +63,8 @@
     <div class="page">
       <div class="floating-shape shape1"></div><div class="floating-shape shape2"></div><div class="floating-shape shape3"></div>
       <div class="header">
-        <h1>📖 Bk2 POEM B</h1>
-        <p>BK2LB7.html → Bk2POEMB.html → Bk2LBGame1.html</p>
+        <h1>📚 BK3 Wk1 Nonfiction B</h1>
+        <p>Previous Page → Bk3Wk1NonfictionB.html → Next Page</p>
       </div>
 
       <div class="video-card">
@@ -74,8 +74,8 @@
           <button class="nav-btn" onclick="replayVideo()">🔁 Replay</button>
         </div>
 
-        <video id="lessonVideo" controls playsinline autoplay preload="metadata">
-          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1778258219/B2fairlytaleb_exuzkj.mp4" type="video/mp4">
+        <video id="lessonVideo" controls playsinline preload="metadata">
+          <source src="https://res.cloudinary.com/dtknykrkf/video/upload/v1782010791/Math_B3_W1_Thursday_Nonfiction_Vid_jsyhiv.mp4" type="video/mp4">
         </video>
 
         <div class="bottom-bar">
@@ -85,24 +85,29 @@
         </div>
       </div>
 
-      <div class="lesson-note">Back goes to BK2LB7.html. Next goes to Bk2LBGame1.html. Skip Intro jumps immediately to Bk2LBGame1.html.</div>
+      <div class="lesson-note">Back goes to the previous page. Next goes to the next page. Skip Intro jumps immediately to the next page.</div>
     </div>
   </div>
 
   <script>
     const HOME_PAGE = "../../../../../index.html";
-    const PREVIOUS_PAGE = "../Wednesday/BK2LB7.html";
-    const NEXT_PAGE = "../Friday/Bk2LBGame1.html";
+const PREVIOUS_PAGE = "../Wednesday/BK3LB7.html";
+const NEXT_PAGE = "../Friday/Bk3LBGame1.html";
 
     const video = document.getElementById("lessonVideo");
     const introOverlay = document.getElementById("lbIntroVideoOverlay");
     const introVideo = document.getElementById("lbIntroVideo");
     const skipIntroBtn = document.getElementById("skipIntroBtn");
     let introFinished = false;
+    let isNavigating = false;
+    let lessonCompleted = false;
+    let manualReplayRequested = false;
+
+    video.autoplay = false;
     video.muted = true;
     video.volume = 0;
 
-    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1778258219/B2fairlytaleb_exuzkj.mp4";
+    const LESSON_VIDEO_URL = "https://res.cloudinary.com/dtknykrkf/video/upload/v1782010791/Math_B3_W1_Thursday_Nonfiction_Vid_jsyhiv.mp4";
 
     function clearVideoSource(videoEl){
       if(!videoEl) return;
@@ -126,12 +131,58 @@
       }
     }
 
-    clearVideoSource(video);
+    function playOnly(videoEl){
+      if(!videoEl) return;
+      try{
+        [introVideo, video].forEach((mediaEl) => {
+          if(!mediaEl || mediaEl === videoEl) return;
+          try{
+            mediaEl.pause();
+            mediaEl.muted = true;
+            mediaEl.volume = 0;
+          }catch(e){}
+        });
+        videoEl.muted = false;
+        videoEl.volume = 1;
+        const playPromise = videoEl.play();
+        if(playPromise && playPromise.catch) playPromise.catch(()=>{});
+      }catch(e){}
+    }
+
+    ensureLessonVideoLoaded();
 
     function pauseVideo(el){
       if(el){
         try{ el.pause(); }catch(e){}
       }
+    }
+
+    function stopAndUnloadMedia(){
+      pauseVideo(video);
+      pauseVideo(introVideo);
+      try{
+        if(video){
+          video.muted = true;
+          video.volume = 0;
+          video.currentTime = 0;
+        }
+      }catch(e){}
+      try{
+        if(introVideo){
+          introVideo.muted = true;
+          introVideo.volume = 0;
+          introVideo.currentTime = 0;
+        }
+      }catch(e){}
+      clearVideoSource(video);
+      clearVideoSource(introVideo);
+    }
+
+    function navigateTo(url){
+      if(isNavigating) return;
+      isNavigating = true;
+      stopAndUnloadMedia();
+      window.location.replace(url);
     }
 
     function revealPageContent(){
@@ -148,37 +199,33 @@
     }
 
     function goHome(){
-      pauseVideo(video);
-      pauseVideo(introVideo);
-      window.location.href = HOME_PAGE;
+      navigateTo(HOME_PAGE, true);
     }
 
     function goBackPage(){
-      pauseVideo(video);
-      pauseVideo(introVideo);
-      window.location.href = PREVIOUS_PAGE;
+      navigateTo(PREVIOUS_PAGE, true);
     }
 
     function goNextPage(){
-      pauseVideo(video);
-      pauseVideo(introVideo);
-      window.location.href = NEXT_PAGE;
+      navigateTo(NEXT_PAGE, true);
     }
 
     function skipIntroAndGoNext(){
-      pauseVideo(introVideo);
-      pauseVideo(video);
-      window.location.href = NEXT_PAGE;
+      navigateTo(NEXT_PAGE);
     }
 
     function replayVideo(){
+      ensureLessonVideoLoaded();
+      lessonCompleted = false;
+      manualReplayRequested = true;
       video.currentTime = 0;
-      video.play().catch(()=>{});
+      playOnly(video);
     }
 
     function togglePlayPause(){
+      ensureLessonVideoLoaded();
       if(video.paused){
-        video.play().catch(()=>{});
+        playOnly(video);
       } else {
         video.pause();
       }
@@ -193,7 +240,14 @@
       }
     }
 
+    function lockLessonAtEnd(){
+      lessonCompleted = true;
+      manualReplayRequested = false;
+      try{ video.pause(); }catch(e){}
+    }
+
     const originalRevealPageContent = revealPageContent;
+
     revealPageContent = function(){
       if(introFinished) return;
       originalRevealPageContent();
@@ -210,25 +264,18 @@
       ensureLessonVideoLoaded();
       video.muted = false;
       video.volume = 1;
-      video.play().catch(()=>{});
+      video.currentTime = 0;
+      lessonCompleted = false;
+      manualReplayRequested = true;
+      restoreLessonAudio();
+      playOnly(video);
     };
 
     const originalRestoreLessonAudio = restoreLessonAudio;
+
     restoreLessonAudio = function(){
       ensureLessonVideoLoaded();
       originalRestoreLessonAudio();
-    };
-
-    const originalReplayVideo = replayVideo;
-    replayVideo = function(){
-      ensureLessonVideoLoaded();
-      originalReplayVideo();
-    };
-
-    const originalTogglePlayPause = togglePlayPause;
-    togglePlayPause = function(){
-      ensureLessonVideoLoaded();
-      originalTogglePlayPause();
     };
 
     introVideo.addEventListener("ended", () => {
@@ -241,11 +288,21 @@
       restoreLessonAudio();
     });
 
+    video.addEventListener("ended", lockLessonAtEnd);
+
     introVideo.muted = false;
     introVideo.volume = 1;
-    introVideo.play().catch(()=>{});
+    playOnly(introVideo);
 
     skipIntroBtn.addEventListener("click", skipIntroAndGoNext);
+    document.addEventListener("pointerdown", () => {
+      if(!introFinished) playOnly(introVideo);
+      else playOnly(video);
+    }, { once: true });
+    window.addEventListener("pageshow", () => {
+      if(!introFinished) playOnly(introVideo);
+      else playOnly(video);
+    });
 
     document.addEventListener("keydown", (e) => {
       if(e.key === "ArrowLeft") goBackPage();
