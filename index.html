@@ -2322,7 +2322,7 @@
   <style id="gpAudioGuideEnhancements">
     .audio-toggle-btn{
       position: fixed;
-      top: 14px;
+      top: calc(14px + 10vh);
       right: 14px;
       z-index: 13000;
       border: none;
@@ -2345,7 +2345,7 @@
     @keyframes kidFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
     .hero,.welcome-box,.section-card{position:relative;overflow:hidden}
     .guide-glow{box-shadow:0 0 0 4px rgba(255,204,102,.4),0 0 0 10px rgba(255,204,102,.16),0 12px 22px rgba(0,0,0,.14)!important;border-radius:20px!important;transition:box-shadow .18s ease}
-    @media (max-width:700px){.gp-guide-finger{width:52px;height:52px;font-size:34px}.gp-guide-bubble{max-width:220px;font-size:13px}.audio-toggle-btn{top:10px;right:10px;padding:9px 12px;font-size:13px}}
+    @media (max-width:700px){.gp-guide-finger{width:52px;height:52px;font-size:34px}.gp-guide-bubble{max-width:220px;font-size:13px}.audio-toggle-btn{top:calc(10px + 8vh);right:10px;padding:9px 12px;font-size:13px}}
   </style>
 
 <style id="gpMonthWeekWindowEnhancements">
@@ -2690,7 +2690,7 @@
     }
 
     .audio-toggle-btn{
-      top:10px;
+      top:calc(10px + 10vh);
       right:10px;
       border-radius:18px;
       padding:9px 13px;
@@ -6417,6 +6417,7 @@
     function getMonthFromPath(file){
         const normalized = String(file || "").replace(/\\/g, "/").toLowerCase();
         if (normalized.startsWith("levels/book 2/")) return 2;
+        if (normalized.startsWith("levels/book 3/")) return 3;
         return 1;
       }
 
@@ -6427,7 +6428,8 @@
         const normalizedFile = String(file || "").replace(/\\/g, "/").toLowerCase();
         const expectedPrefixes = [
           `levels/level-${sessionLevel.toLowerCase()}/`,
-          `levels/book 2/book2level-${sessionLevel.toLowerCase()}/`
+          `levels/book 2/book2level-${sessionLevel.toLowerCase()}/`,
+          `levels/book 3/book3level-${sessionLevel.toLowerCase()}/`
         ];
         if (!expectedPrefixes.some((prefix) => normalizedFile.startsWith(prefix))) {
           return { ok: false, message: `This student can only access Level ${sessionLevel} lesson pages.` };
