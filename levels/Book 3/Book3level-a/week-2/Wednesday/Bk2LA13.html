@@ -339,8 +339,8 @@ body{
 
   const PAGE_ID = "Bk2_Numbers_Week2_More_Tents";
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "Bk2_Triangular_Prisms_Week2_Trace.html";
-  const NEXT_PAGE = "Bk2_Triangular_Prisms_Game.html";
+  const PREVIOUS_PAGE = "./Bk2LA9.html";
+  const NEXT_PAGE = "../Thursday/Bk3Wk2NonfictionA.html";
 
   const NATURAL_W = 952;
   const NATURAL_H = 1321;
@@ -781,9 +781,17 @@ body{
     }catch(e){}
   }
 
-  document.getElementById("homeBtn").addEventListener("click", () => { window.location.href = HOME_PAGE; });
-  document.getElementById("prevBtn").addEventListener("click", () => { window.location.href = PREVIOUS_PAGE; });
-  document.getElementById("nextBtn").addEventListener("click", () => { window.location.href = NEXT_PAGE; });
+  let navBusy = false;
+  function fastNavigate(url){
+    if(navBusy || !url) return;
+    navBusy = true;
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+    window.location.replace(url);
+  }
+
+  document.getElementById("homeBtn").addEventListener("click", () => { fastNavigate(HOME_PAGE); });
+  document.getElementById("prevBtn").addEventListener("click", () => { fastNavigate(PREVIOUS_PAGE); });
+  document.getElementById("nextBtn").addEventListener("click", () => { fastNavigate(NEXT_PAGE); });
   document.getElementById("readBtn").addEventListener("click", readInstructions);
   document.getElementById("clearBtn").addEventListener("click", () => {
     clearAll();

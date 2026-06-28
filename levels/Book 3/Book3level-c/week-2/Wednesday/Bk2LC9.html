@@ -111,9 +111,9 @@ body{
   </section>
 
   <nav class="nav-row" aria-label="Page navigation">
-    <a class="nav-link prev" id="prevBtn" href="../Tuesday/Bk2LB20.html">⬅ Prev</a>
+    <a class="nav-link prev" id="prevBtn" href="../Tuesday/Bk2LC8.html">⬅ Prev</a>
     <a class="nav-link home" id="homeBtn" href="../../../../../index.html">🏠 Home</a>
-    <a class="nav-link next" id="nextBtn" href="./Bk2LB22.html">Next ➜</a>
+    <a class="nav-link next" id="nextBtn" href="./Bk2LC13.html">Next ➜</a>
   </nav>
 </main>
 
@@ -502,6 +502,26 @@ resetBtn.addEventListener("click", resetAll);
 micBtn.addEventListener("click", micAction);
 
 if("speechSynthesis" in window) speechSynthesis.onvoiceschanged = chooseFemaleVoice;
+let navBusy = false;
+function fastNavigate(url){
+  if(navBusy || !url) return;
+  navBusy = true;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(recognition){ try{ recognition.stop(); }catch(e){} }
+  window.location.replace(url);
+}
+document.getElementById("prevBtn").addEventListener("click", (event) => {
+  event.preventDefault();
+  fastNavigate("../Tuesday/Bk2LC8.html");
+});
+document.getElementById("nextBtn").addEventListener("click", (event) => {
+  event.preventDefault();
+  fastNavigate("./Bk2LC13.html");
+});
+document.getElementById("homeBtn").addEventListener("click", (event) => {
+  event.preventDefault();
+  fastNavigate("../../../../../index.html");
+});
 document.addEventListener("pointerdown", setupAudio, {once:true});
 window.addEventListener("resize", resizeCanvas);
 if(window.visualViewport) window.visualViewport.addEventListener("resize", resizeCanvas);

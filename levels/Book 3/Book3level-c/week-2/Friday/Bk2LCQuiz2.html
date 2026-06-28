@@ -90,7 +90,7 @@ body{
   <p class="subtitle">7-Year-Old Interactive Quiz · Show what you know about small, smaller, smallest, counting, and making 10.</p>
 
   <nav class="nav-row" aria-label="Quiz navigation">
-    <a class="nav-link prev" href="Bk2_BuildingBlocks_7YO_Game.html">⬅ Game</a>
+    <a class="nav-link prev" href="Bk2LCGame2.html">⬅ Game</a>
     <a class="nav-link home" href="../../../../../index.html">🏠 Home</a>
     <a class="nav-link next" href="../../../../../index.html">Finish ➜</a>
   </nav>
@@ -129,7 +129,7 @@ body{
       <div class="controls">
         <button class="btn start" id="startBtn" type="button">▶ Start Quiz</button>
         <button class="btn read" id="readBtn" type="button">🔊 Read Question</button>
-        <button class="btn skip" id="nextBtn" type="button" hidden>Next ➜</button>
+        <button class="btn skip" id="nextBtn" type="button" hidden>Finish ➜</button>
         <button class="btn reset" id="resetBtn" type="button">↻ Restart</button>
       </div>
       <div class="completion" id="completion"></div>
@@ -228,6 +228,14 @@ function choose(opt,btn){
   update(); el('nextBtn').hidden=false; if(ok) confetti(14);
 }
 function next(){ i++; renderQ(); }
+function stopAllVoice(){ try{ speechSynthesis.cancel(); }catch(e){} }
+let navBusy = false;
+function fastNavigate(url){
+  if(navBusy || !url) return;
+  navBusy = true;
+  stopAllVoice();
+  window.location.replace(url);
+}
 function finish(){
   el('fill').style.width='100%'; el('progressText').textContent='Progress: 100%'; el('stepText').textContent=questions.length+' of '+questions.length; el('quizBox').style.display='none'; el('nextBtn').hidden=true;
   const percent=Math.round((score/questions.length)*100); el('completion').classList.add('show');
@@ -236,8 +244,15 @@ function finish(){
   cheer(percent>=80?'Amazing quiz work! You are a Building Blocks master.':'Good job finishing the quiz. Review and try again.');
 }
 function start(){ i=0; score=0; answers=[]; el('quizBox').style.display='block'; renderQ(); speak('Welcome to the Building Blocks quiz. I will read each question. Tap the best answer.',{rate:.9,pitch:1.15}); }
-el('startBtn').addEventListener('click',start); el('readBtn').addEventListener('click',()=>{ if(i<questions.length) speak(questions[i].say,{rate:.88,pitch:1.12}); else speak('The quiz is complete. Great work!',{rate:.9,pitch:1.15}); }); el('nextBtn').addEventListener('click',next); el('resetBtn').addEventListener('click',start);
+el('startBtn').addEventListener('click',start); el('readBtn').addEventListener('click',()=>{ if(i<questions.length) speak(questions[i].say,{rate:.88,pitch:1.12}); else speak('The quiz is complete. Great work!',{rate:.9,pitch:1.15}); }); el('nextBtn').addEventListener('click',()=>{ if(i<questions.length) next(); else fastNavigate('../../../../../index.html'); }); el('resetBtn').addEventListener('click',start);
 setupPosterTabs(); update(); window.addEventListener('load',()=>setTimeout(()=>speak('Welcome to the Building Blocks quiz. Press Start Quiz when you are ready.',{rate:.9,pitch:1.15}),700));
+document.querySelectorAll('.nav-row .nav-link').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    fastNavigate(link.getAttribute('href'));
+  });
+});
+window.addEventListener('beforeunload', stopAllVoice);
 </script>
 </body>
 </html>

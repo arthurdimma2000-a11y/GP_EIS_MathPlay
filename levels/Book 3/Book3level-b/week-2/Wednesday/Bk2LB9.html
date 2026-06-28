@@ -259,8 +259,8 @@
 
 const PAGE_ID = "LA9_HexagonalPrism_Tracing";
 const FILE_NAME = "LA9_HexagonalPrism_Tracing.html";
-const PREVIOUS_PAGE = "../Tuesday/Bk2LB20.html";
-const NEXT_PAGE = "./Bk2LB22.html";
+const PREVIOUS_PAGE = "../Tuesday/Bk2LB8.html";
+const NEXT_PAGE = "./Bk2LB13.html";
 
 const NATURAL_W = 952;
 const NATURAL_H = 1321;
@@ -835,8 +835,16 @@ function clearAll(){
   speak("Ready again. Trace the hexagonal prism lines.");
 }
 
-prevBtn.addEventListener("click", () => { window.location.href = PREVIOUS_PAGE; });
-nextBtn.addEventListener("click", () => { window.location.href = NEXT_PAGE; });
+let navBusy = false;
+function fastNavigate(url){
+  if(navBusy || !url) return;
+  navBusy = true;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  window.location.replace(url);
+}
+
+prevBtn.addEventListener("click", () => { fastNavigate(PREVIOUS_PAGE); });
+nextBtn.addEventListener("click", () => { fastNavigate(NEXT_PAGE); });
 readBtn.addEventListener("click", readPoster);
 traceGuideBtn.addEventListener("click", () => {
   guideVisible = !guideVisible;

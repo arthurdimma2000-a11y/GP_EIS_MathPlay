@@ -106,9 +106,9 @@ body{
   <p class="subtitle">Fun Game · Count tents, find triangular prisms, and trace the prism net.</p>
 
   <nav class="nav-row" aria-label="Game navigation">
-    <a class="nav-link prev" id="prevBtn" href="Bk2_Numbers_Week2_More_Tents.html">⬅ Previous</a>
+    <a class="nav-link prev" id="prevBtn" href="../Thursday/Bk3Wk2NonfictionA.html">⬅ Previous</a>
     <a class="nav-link home" id="homeBtn" href="../../../../../index.html">🏠 Home</a>
-    <a class="nav-link next" id="nextBtn" href="Bk2_Triangular_Prisms_5YO_Quiz.html">Quiz ➜</a>
+    <a class="nav-link next" id="nextBtn" href="Bk2LAQuiz2.html">Quiz ➜</a>
   </nav>
 
   <section class="layout">
@@ -538,7 +538,19 @@ body{
   document.getElementById("hintBtn").addEventListener("click", () => speak("Hint. Look at the original posters. Tents and the baby mobile show triangular prisms."));
   document.getElementById("cheerBtn").addEventListener("click", () => { getAudioCtx(); chime(); clap(); confetti(); speak("Hooray! You can do it!"); el.status.textContent="Hooray! You can do it!"; });
   document.getElementById("resetBtn").addEventListener("click", restart);
+  function stopAllVoice(){ try{ speechSynthesis.cancel(); }catch(e){} }
+  let navBusy = false;
+  function fastNavigate(url){
+    if(navBusy || !url) return;
+    navBusy = true;
+    stopAllVoice();
+    window.location.replace(url);
+  }
+  document.getElementById("prevBtn").addEventListener("click", (event) => { event.preventDefault(); fastNavigate("../Thursday/Bk3Wk2NonfictionA.html"); });
+  document.getElementById("nextBtn").addEventListener("click", (event) => { event.preventDefault(); fastNavigate("Bk2LAQuiz2.html"); });
+  document.getElementById("homeBtn").addEventListener("click", (event) => { event.preventDefault(); fastNavigate("../../../../../index.html"); });
   window.addEventListener("load", () => { renderMission(); setTimeout(()=>speak("Welcome to the triangular prisms adventure game. Count tents, find triangular prisms, and trace the shape net."),600); }, {once:true});
+  window.addEventListener("beforeunload", stopAllVoice);
 })();
 </script>
 </body>

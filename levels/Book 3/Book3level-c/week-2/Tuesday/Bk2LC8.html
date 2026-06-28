@@ -214,8 +214,8 @@ window.__PAGE_CONFIG__ = {
   file: "BuildingBlocks_Lesson.html",
   level: "A",
   homeHref: "../../../../../index.html",
-  prevHref: "../Monday/Bk2ArtClassA.html",
-  nextHref: "../Wednesday/Bk2LA3.html",
+  prevHref: "../Monday/Bk3Wk2GymClassC.html",
+  nextHref: "../Wednesday/Bk2LC9.html",
   micLines: [
     "The red block is small.",
     "The green block is smaller.",
@@ -622,8 +622,16 @@ window.__PAGE_CONFIG__ = {
   }
 
   homeBtn.href = CONFIG.homeHref || homeBtn.href;
-  prevBtn.addEventListener("click", () => { window.location.href = CONFIG.prevHref || "javascript:history.back()"; });
-  nextBtn.addEventListener("click", () => { window.location.href = CONFIG.nextHref || "#"; });
+  let navBusy = false;
+  function fastNavigate(url){
+    if(navBusy || !url) return;
+    navBusy = true;
+    stopSpeaking();
+    try{ recognition && recognition.stop(); }catch(_){}
+    window.location.replace(url);
+  }
+  prevBtn.addEventListener("click", () => { fastNavigate(CONFIG.prevHref || "javascript:history.back()"); });
+  nextBtn.addEventListener("click", () => { fastNavigate(CONFIG.nextHref || "#"); });
   readBtn.addEventListener("click", readPoster);
   clearBtn.addEventListener("click", clearLesson);
   cheerBtn.addEventListener("click", cheer);

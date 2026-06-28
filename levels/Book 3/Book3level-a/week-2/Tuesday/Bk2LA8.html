@@ -190,8 +190,8 @@
   "use strict";
 
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "Bk2_Spheres_Interactive_Quiz.html";
-  const NEXT_PAGE = "Bk2_Triangular_Prisms_Trace.html";
+  const PREVIOUS_PAGE = "../Monday/Bk3Wk2GymClassA.html";
+  const NEXT_PAGE = "../Wednesday/Bk2LA9.html";
   const PAGE_ID = "Bk2_Triangular_Prisms_Lesson";
 
   const lines = [
@@ -631,6 +631,15 @@
     saveProgress(0, false);
   }
 
+  let navBusy = false;
+  function fastNavigate(url){
+    if(navBusy || !url) return;
+    navBusy = true;
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+    try{ if(recognition) recognition.stop(); }catch(e){}
+    window.location.replace(url);
+  }
+
   micBtn.addEventListener("click", micClick);
   readBtn.addEventListener("click", readPoster);
   cheerBtn.addEventListener("click", cheer);
@@ -638,10 +647,10 @@
   teacherPassBtn.addEventListener("click", teacherPass);
   homeBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    window.location.href = HOME_PAGE;
+    fastNavigate(HOME_PAGE);
   });
-  prevBtn.addEventListener("click", () => { window.location.href = PREVIOUS_PAGE; });
-  nextBtn.addEventListener("click", () => { window.location.href = NEXT_PAGE; });
+  prevBtn.addEventListener("click", () => { fastNavigate(PREVIOUS_PAGE); });
+  nextBtn.addEventListener("click", () => { fastNavigate(NEXT_PAGE); });
 
   if("speechSynthesis" in window){
     window.speechSynthesis.onvoiceschanged = () => {};

@@ -1,3 +1,4 @@
 {
-    "chat.agent.maxRequests": 200
+    "chat.agent.maxRequests": 200,
+    "livePreview.defaultPreviewPath": "/levels/Book 4/Book4level-a/week-1/Thursday/Bk2POEMA.html"
 }
