@@ -4338,11 +4338,14 @@
 
     function getWeekDayLabel(weekNumber, day){
       if (selectedMonth === 2 && day === "thursday") return "Poem";
-        if (day === "monday") {
-          if (weekNumber === 2) return "Gym Class";
-          if (weekNumber === 3) return "Science Class";
-          if (weekNumber === 4) return "Music Class";
-        }
+      if (selectedMonth === 3 && day === "thursday") {
+        return weekNumber === 4 ? "Music Nonfiction" : "Nonfiction";
+      }
+      if (day === "monday") {
+        if (weekNumber === 2) return "Gym Class";
+        if (weekNumber === 3) return "Science Class";
+        if (weekNumber === 4) return "Music Class";
+      }
       if (day === "thursday" && weekNumber === 4) return "Music Fairly-tale";
       return DAY_LABELS[day] || "";
     }
