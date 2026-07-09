@@ -410,7 +410,7 @@
     </div>
 
     <div class="note">
-      Trace the two octagon faces and the eight rectangle faces. The original poster is preserved and only the tracing layer is added on top.
+      Trace gently on the real outline. The brush is thin and clean, while the hidden hit area is wide so every face can be traced properly.
     </div>
   </section>
 
@@ -427,14 +427,14 @@
     PAGE AND NAVIGATION SETTINGS
     Change only these page links if your folder navigation uses different names.
   */
-  const PAGE_ID = "OctagonalPrism_Week3_Tracing";
-  const FILE_NAME = "OctagonalPrism_Week3_Tracing.html";
+  const PAGE_ID = "Bk3LB15";
+  const FILE_NAME = "Bk3LB15.html";
   const LEVEL = "B";
   const WEEK = 3;
 
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "Bk2LA20.html";
-  const NEXT_PAGE = "Bk2LA25.html";
+  const PREVIOUS_PAGE = "../Tuesday/Bk2LB14.html";
+  const NEXT_PAGE = "Bk3LB19.html";
 
   /*
     Poster natural size from the uploaded Week 3 image.
@@ -446,9 +446,9 @@
     Child-friendly tracing settings.
     The wide hit radius allows young children to trace successfully.
   */
-  const HIT_RADIUS = 36;
-  const START_RADIUS = 80;
-  const COMPLETE_RATIO = 0.68;
+  const HIT_RADIUS = 66;
+  const START_RADIUS = 118;
+  const COMPLETE_RATIO = 0.98;
 
   const posterWrap = document.getElementById("posterWrap");
   const posterImg = document.getElementById("posterImg");
@@ -530,6 +530,12 @@
     return polylinePoints(pts,32);
   }
 
+  function octagonPolygonPath(points){
+    const pts = points.map(([x,y]) => ({x,y}));
+    pts.push({...pts[0]});
+    return polylinePoints(pts,42);
+  }
+
   /*
     Tracing targets positioned over the visible net on the poster.
     The poster artwork is not redrawn or replaced.
@@ -538,29 +544,35 @@
     {
       id:"left-octagon",
       group:"leftOctagon",
-      label:"left octagon face",
+      label:"left octagonal face",
       color:"#e84a8a",
-      samples:octagonPath(309, 724, 150)
+      samples:octagonPolygonPath([
+        [276,603], [365,603], [433,672], [433,761],
+        [365,829], [276,829], [207,761], [207,672]
+      ])
     },
     {
       id:"right-octagon",
       group:"rightOctagon",
-      label:"right octagon face",
+      label:"right octagonal face",
       color:"#e84a8a",
-      samples:octagonPath(653, 724, 150)
+      samples:octagonPolygonPath([
+        [576,603], [668,603], [733,672], [733,761],
+        [668,829], [576,829], [508,761], [508,672]
+      ])
     },
 
-    /* Eight rectangle faces in the middle strip */
-    {id:"rect-1",group:"rectangles",label:"rectangle face 1",color:"#36a8df",samples:rectPath(427,390,522,490)},
-    {id:"rect-2",group:"rectangles",label:"rectangle face 2",color:"#36a8df",samples:rectPath(427,490,522,586)},
-    {id:"rect-3",group:"rectangles",label:"rectangle face 3",color:"#36a8df",samples:rectPath(427,586,522,675)},
-    {id:"rect-4",group:"rectangles",label:"rectangle face 4",color:"#36a8df",samples:rectPath(427,675,522,771)},
-    {id:"rect-5",group:"rectangles",label:"rectangle face 5",color:"#36a8df",samples:rectPath(427,771,522,873)},
-    {id:"rect-6",group:"rectangles",label:"rectangle face 6",color:"#36a8df",samples:rectPath(427,873,522,978)},
-    {id:"rect-7",group:"rectangles",label:"rectangle face 7",color:"#36a8df",samples:rectPath(427,978,522,1083)},
-    {id:"rect-8",group:"rectangles",label:"rectangle face 8",color:"#36a8df",samples:rectPath(427,1083,522,1191)}
+    /* Eight rectangle faces in the middle strip, aligned to the real poster lines.
+       Shared edges now count correctly because tracing updates every nearby target. */
+    {id:"rect-1",group:"rectangles",label:"top rectangle face",color:"#1e9fd8",samples:rectPath(434,390,508,483)},
+    {id:"rect-2",group:"rectangles",label:"rectangle face 2",color:"#1e9fd8",samples:rectPath(434,483,508,576)},
+    {id:"rect-3",group:"rectangles",label:"rectangle face 3",color:"#1e9fd8",samples:rectPath(434,576,508,669)},
+    {id:"rect-4",group:"rectangles",label:"middle rectangle face",color:"#1e9fd8",samples:rectPath(434,669,508,762)},
+    {id:"rect-5",group:"rectangles",label:"rectangle face 5",color:"#1e9fd8",samples:rectPath(434,762,508,855)},
+    {id:"rect-6",group:"rectangles",label:"rectangle face 6",color:"#1e9fd8",samples:rectPath(434,855,508,948)},
+    {id:"rect-7",group:"rectangles",label:"rectangle face 7",color:"#1e9fd8",samples:rectPath(434,948,508,1041)},
+    {id:"rect-8",group:"rectangles",label:"bottom rectangle face",color:"#1e9fd8",samples:rectPath(434,1041,508,1135)}
   ];
-
   targets.forEach(target => {
     target.samples = target.samples.map(point => ({x:point.x,y:point.y,hit:false}));
     target.percent = 0;
@@ -740,15 +752,17 @@
     guideCtx.clearRect(0, 0, NATURAL_W, NATURAL_H);
     guideCtx.lineCap = "round";
     guideCtx.lineJoin = "round";
-    guideCtx.setLineDash([15, 13]);
 
     targets.forEach(target => {
-      if(target.complete) return;
-      guideCtx.beginPath();
-      guideCtx.strokeStyle = target.group === "rectangles" ? "rgba(54,168,223,.68)" : "rgba(240,68,77,.72)";
-      guideCtx.lineWidth = target.group === "rectangles" ? 6 : 7;
       const samples = target.samples;
       if(!samples.length) return;
+
+      guideCtx.beginPath();
+      guideCtx.setLineDash([1, 13]);
+      guideCtx.strokeStyle = target.complete
+        ? "rgba(34,197,94,.25)"
+        : (target.group === "rectangles" ? "rgba(30,159,216,.42)" : "rgba(232,74,138,.48)");
+      guideCtx.lineWidth = target.group === "rectangles" ? 5.4 : 6.2;
       guideCtx.moveTo(samples[0].x, samples[0].y);
       for(let i = 1; i < samples.length; i++){
         guideCtx.lineTo(samples[i].x, samples[i].y);
@@ -772,8 +786,8 @@
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         ctx.strokeStyle = target.color;
-        ctx.globalAlpha = 0.92;
-        ctx.lineWidth = target.group === "rectangles" ? 10 : 12;
+        ctx.globalAlpha = 0.9;
+        ctx.lineWidth = target.group === "rectangles" ? 3.8 : 4.6;
 
         ctx.moveTo(stroke[0].x, stroke[0].y);
         for(let i = 1; i < stroke.length; i++){
@@ -815,7 +829,6 @@
     let bestDistance = Infinity;
 
     targets.forEach(target => {
-      if(target.complete) return;
       const d = nearestDistanceToTarget(point,target);
       if(d < bestDistance){
         bestDistance = d;
@@ -826,13 +839,18 @@
     return bestDistance <= START_RADIUS ? bestTarget : null;
   }
 
-  function markTargetAtPoint(target, point){
+  function updateOneTargetFromPoint(target, point){
+    let changed = false;
+
     target.samples.forEach(sample => {
       if(sample.hit) return;
       if(distance(point,sample) <= HIT_RADIUS){
         sample.hit = true;
+        changed = true;
       }
     });
+
+    if(!changed) return false;
 
     const hitCount = target.samples.filter(sample => sample.hit).length;
     let percentage = Math.round((hitCount / Math.max(1,target.samples.length)) * 100);
@@ -848,19 +866,52 @@
       completeTarget(target);
     }
 
-    updateProgress();
+    return true;
+  }
+
+  function markTargetAtPoint(target, point, deferUpdate = false){
+    const changed = updateOneTargetFromPoint(target, point);
+    if(changed && !deferUpdate){
+      updateProgress();
+      drawGuides();
+    }
+    return changed;
+  }
+
+  function markAllTargetsAtPoint(point, deferUpdate = false){
+    let changed = false;
+
+    targets.forEach(target => {
+      const near = nearestDistanceToTarget(point,target) <= HIT_RADIUS;
+      if(near){
+        changed = markTargetAtPoint(target, point, true) || changed;
+      }
+    });
+
+    if(changed && !deferUpdate){
+      updateProgress();
+      drawGuides();
+    }
+
+    return changed;
   }
 
   function markBetween(target, from, to){
     const length = distance(from,to);
-    const steps = Math.max(1, Math.ceil(length / 3));
+    const steps = Math.max(3, Math.ceil(length / 1.45));
+    let changed = false;
 
     for(let i = 0; i <= steps; i++){
       const t = i / steps;
-      markTargetAtPoint(target, {
+      changed = markAllTargetsAtPoint({
         x:from.x + (to.x - from.x) * t,
         y:from.y + (to.y - from.y) * t
-      });
+      }, true) || changed;
+    }
+
+    if(changed){
+      updateProgress();
+      drawGuides();
     }
   }
 
@@ -919,8 +970,7 @@
       Math.max(1,targets.length)
     );
 
-    const checkBonus = checkDone ? 5 : 0;
-    const total = Math.min(100, Math.round(tracingTotal * 0.95 + checkBonus));
+    const total = Math.min(100, tracingTotal);
 
     const leftScore = percentageForGroup("leftOctagon");
     const rightScore = percentageForGroup("rightOctagon");
@@ -984,7 +1034,7 @@
 
     try{ traceLayer.setPointerCapture(event.pointerId); }catch(_){}
 
-    markTargetAtPoint(activeTarget,point);
+    markAllTargetsAtPoint(point);
     playTick();
     redrawAll();
   }
@@ -1001,12 +1051,6 @@
     markBetween(activeTarget,previous,point);
     playTick();
     redrawAll();
-
-    if(activeTarget.complete){
-      drawing = false;
-      activeTarget = null;
-      currentStroke = null;
-    }
   }
 
   function pointerUp(event){
@@ -1074,6 +1118,15 @@
       const store = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_RESULTS") || "{}");
       store[payload.pageId] = payload;
       localStorage.setItem("GP_EIS_ACTIVITY_RESULTS", JSON.stringify(store));
+
+      const progressStore = JSON.parse(localStorage.getItem("GP_EIS_ACTIVITY_PROGRESS") || "{}");
+      progressStore[payload.pageId] = payload;
+      localStorage.setItem("GP_EIS_ACTIVITY_PROGRESS", JSON.stringify(progressStore));
+
+      const reportStore = JSON.parse(localStorage.getItem("GP_EIS_PROGRESS_REPORT") || "{}");
+      reportStore[payload.pageId] = payload;
+      localStorage.setItem("GP_EIS_PROGRESS_REPORT", JSON.stringify(reportStore));
+
       localStorage.setItem("GP_EIS_LAST_FILE", payload.file);
       localStorage.setItem("gpLatestProgress", JSON.stringify(payload));
       window.dispatchEvent(new CustomEvent("gp-progress-update", {detail:payload}));
@@ -1134,17 +1187,17 @@
 
   homeBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = HOME_PAGE;
+    window.location.replace(HOME_PAGE);
   });
 
   prevBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = PREVIOUS_PAGE;
+    window.location.replace(PREVIOUS_PAGE);
   });
 
   nextBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = NEXT_PAGE;
+    window.location.replace(NEXT_PAGE);
   });
 
   posterImg.addEventListener("load",() => {

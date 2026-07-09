@@ -92,7 +92,7 @@ body{
   <nav class="nav-row" aria-label="Quiz navigation">
     <a class="nav-link prev" href="Bk2LCGame2.html">⬅ Game</a>
     <a class="nav-link home" href="../../../../../index.html">🏠 Home</a>
-    <a class="nav-link next" href="../../../../../index.html">Finish ➜</a>
+    <a class="nav-link next" href="../../week-3/Monday/Bk3Wk3ScienceClassC.html">Next ➜</a>
   </nav>
 
   <section class="quiz-layout">
@@ -244,7 +244,7 @@ function finish(){
   cheer(percent>=80?'Amazing quiz work! You are a Building Blocks master.':'Good job finishing the quiz. Review and try again.');
 }
 function start(){ i=0; score=0; answers=[]; el('quizBox').style.display='block'; renderQ(); speak('Welcome to the Building Blocks quiz. I will read each question. Tap the best answer.',{rate:.9,pitch:1.15}); }
-el('startBtn').addEventListener('click',start); el('readBtn').addEventListener('click',()=>{ if(i<questions.length) speak(questions[i].say,{rate:.88,pitch:1.12}); else speak('The quiz is complete. Great work!',{rate:.9,pitch:1.15}); }); el('nextBtn').addEventListener('click',()=>{ if(i<questions.length) next(); else fastNavigate('../../../../../index.html'); }); el('resetBtn').addEventListener('click',start);
+ el('startBtn').addEventListener('click',start); el('readBtn').addEventListener('click',()=>{ if(i<questions.length) speak(questions[i].say,{rate:.88,pitch:1.12}); else speak('The quiz is complete. Great work!',{rate:.9,pitch:1.15}); }); el('nextBtn').addEventListener('click',()=>{ if(i<questions.length) next(); else fastNavigate('../../week-3/Monday/Bk3Wk3ScienceClassC.html'); }); el('resetBtn').addEventListener('click',start);
 setupPosterTabs(); update(); window.addEventListener('load',()=>setTimeout(()=>speak('Welcome to the Building Blocks quiz. Press Start Quiz when you are ready.',{rate:.9,pitch:1.15}),700));
 document.querySelectorAll('.nav-row .nav-link').forEach((link) => {
   link.addEventListener('click', (event) => {

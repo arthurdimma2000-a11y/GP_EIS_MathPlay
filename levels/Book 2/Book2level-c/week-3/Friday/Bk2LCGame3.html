@@ -129,7 +129,7 @@ body{
     <div class="score-title">Adventure Score</div>
     <div class="bar-row">
       <div class="bar"><div class="fill" id="fill"></div></div>
-      <div class="percent" id="percent">0 / 3</div>
+      <div class="percent" id="percent">0% (0/3)</div>
     </div>
     <div class="stars" id="stars">⭐</div>
   </section>
@@ -301,7 +301,7 @@ const done = new Set();
 function updateScore(){
   const pct = Math.round((score/total)*100);
   fill.style.width = pct + "%";
-  percent.textContent = score + " / " + total;
+  percent.textContent = `${pct}% (${score}/${total})`;
   stars.textContent = score >= 3 ? "⭐⭐⭐" : score >= 2 ? "⭐⭐" : score >= 1 ? "⭐" : "⭐";
 }
 
@@ -427,6 +427,7 @@ const correctPencils = new Set(['3','6','8']);
 const selectedPencils = new Set();
 document.querySelectorAll('.hotspot').forEach(btn => {
   btn.addEventListener('click', () => {
+    if(done.has('m1')) return;
     const id = btn.dataset.id;
     if(selectedPencils.has(id)){
       selectedPencils.delete(id);
@@ -465,6 +466,7 @@ const selectedShapes = new Set();
 const correctShapes = new Set(['B','D','E']);
 document.querySelectorAll('.circle-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    if(done.has('m2')) return;
     const key = btn.dataset.q;
     if(selectedShapes.has(key)) {
       selectedShapes.delete(key);
@@ -487,6 +489,7 @@ const slots = [...document.querySelectorAll('.slot')];
 const sticks = [...document.querySelectorAll('.stick-piece')];
 sticks.forEach((btn, idx) => {
   btn.addEventListener('click', () => {
+    if(done.has('m3')) return;
     if(btn.classList.contains('used')) return;
     if(placed.length >= 6) return wrong("You already placed six sticks. Check the hexagon.");
     const slot = slots[placed.length];
@@ -511,6 +514,7 @@ document.getElementById('hintHexBtn').addEventListener('click', () => {
   speak("Hint. A hexagon has six equal sides, so you need six sticks.");
 });
 document.getElementById('checkHexBtn').addEventListener('click', () => {
+  if(done.has('m3')) return;
   if(placed.length === 6) {
     document.getElementById('mission3Status').textContent = "Perfect! You used 6 equal sticks to make a hexagon.";
     markDone('m3','mission3Done');

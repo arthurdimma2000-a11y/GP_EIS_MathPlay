@@ -129,8 +129,8 @@ body{
 (function(){
   "use strict";
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "Bk2_Triangular_Prisms_5YO_Quiz.html";
-  const NEXT_PAGE = "Bk2_Cubes_Trace.html";
+  const PREVIOUS_PAGE = "../Monday/Bk3Wk3ScienceClassC.html";
+  const NEXT_PAGE = "../Wednesday/Bk3LC15.html";
   const PAGE_ID = "Bk2_BuildingBlocks_KidsCafe_Lesson";
   const FILE_NAME = "Bk2_BuildingBlocks_KidsCafe_Lesson.html";
   const conversations = [
@@ -177,9 +177,9 @@ body{
   function cheer(){getAudioContext();playChime();playApplause();launchConfetti();setStatus("Wonderful! Keep speaking and learning.");speak("Wonderful! Keep speaking and learning. You are doing great!")}
   function autoIntro(){if(introPlayed)return;introPlayed=true;clearFocus();document.querySelector("[data-focus='title']")?.classList.add("show","sparkle");setStatus("Welcome! Look at the Building Blocks poster.");setLessonStatus("Tap the microphone to hear each air bubble.");speak("Hello! Look at the Building Blocks poster. Today we are at the kid's cafe. Tap the microphone to hear each air bubble and repeat after me.")}
   micBtn.addEventListener("click",runMicFlow);teacherBtn.addEventListener("click",()=>completeCurrentLine("Teacher heard it. Great job!"));readBtn.addEventListener("click",readPoster);clearBtn.addEventListener("click",resetLesson);cheerBtn.addEventListener("click",cheer);
-  homeBtn.addEventListener("click",()=>{try{window.speechSynthesis.cancel()}catch(e){}window.location.href=HOME_PAGE});
-  prevBtn.addEventListener("click",()=>{try{window.speechSynthesis.cancel()}catch(e){}window.location.href=PREVIOUS_PAGE});
-  nextBtn.addEventListener("click",()=>{try{window.speechSynthesis.cancel()}catch(e){}window.location.href=NEXT_PAGE});
+  homeBtn.addEventListener("click",()=>{try{window.speechSynthesis.cancel()}catch(e){}window.location.replace(HOME_PAGE)});
+  prevBtn.addEventListener("click",()=>{try{window.speechSynthesis.cancel()}catch(e){}window.location.replace(PREVIOUS_PAGE)});
+  nextBtn.addEventListener("click",()=>{try{window.speechSynthesis.cancel()}catch(e){}window.location.replace(NEXT_PAGE)});
   document.addEventListener("pointerdown",()=>{getAudioContext();chimeAudio.load();if(!introPlayed)autoIntro()},{once:true});
   window.addEventListener("load",()=>{updateProgress();setTimeout(autoIntro,650)});
   window.addEventListener("beforeunload",()=>{try{window.speechSynthesis.cancel()}catch(e){}try{if(recognition)recognition.abort()}catch(e){}});

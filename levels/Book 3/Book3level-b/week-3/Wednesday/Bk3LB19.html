@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Numbers - Week 3 Count Fewer Blocks</title>
+<title>Bk3LB19 • Numbers Week 3 Count Fewer Blocks</title>
 
 <style>
   :root{
@@ -138,6 +138,7 @@
   .guide-layer{
     z-index:4;
     pointer-events:none;
+    display:none !important;
   }
 
   .trace-layer{
@@ -421,12 +422,12 @@
   */
   const PAGE_ID = "Numbers_Week3_CountFewerBlocks_Tracing";
   const FILE_NAME = "Numbers_Week3_CountFewerBlocks_Tracing.html";
-  const LEVEL = "A";
+  const LEVEL = "B";
   const WEEK = 3;
 
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "LA18.html";
-  const NEXT_PAGE = "LA20.html";
+  const PREVIOUS_PAGE = "Bk3LB15.html";
+  const NEXT_PAGE = "../Thursday/Bk3Wk3NonfictionB.html";
 
   /*
     Poster natural size from the uploaded Week 3 image.
@@ -438,9 +439,9 @@
     Child-friendly tracing settings.
     The wide hit radius allows young children to trace successfully.
   */
-  const HIT_RADIUS = 39;
-  const START_RADIUS = 84;
-  const COMPLETE_RATIO = 0.64;
+  const HIT_RADIUS = 58;
+  const START_RADIUS = 115;
+  const COMPLETE_RATIO = 0.52;
 
   const posterWrap = document.getElementById("posterWrap");
   const posterImg = document.getElementById("posterImg");
@@ -607,13 +608,13 @@
     ...digitTargets("7", 690, 548, 117, 130, "row2", "row two right number seven", "#35ad46"),
 
     ...digitTargets("9", 345, 737, 124, 132, "row3", "row three left number nine", "#35ad46"),
-    ...digitTargets("10", 688, 740, 124, 127, "row3", "row three right number ten", "#35ad46"),
+    ...digitTargets("11", 688, 740, 124, 127, "row3", "row three right number eleven", "#35ad46"),
 
     ...digitTargets("13", 335, 925, 137, 133, "row4", "row four left number thirteen", "#35ad46"),
     ...digitTargets("15", 688, 925, 134, 132, "row4", "row four right number fifteen", "#35ad46"),
 
     ...digitTargets("17", 335, 1116, 137, 132, "row5", "row five left number seventeen", "#35ad46"),
-    ...digitTargets("19", 687, 1116, 134, 132, "row5", "row five right number nineteen", "#35ad46")
+    ...digitTargets("18", 687, 1116, 134, 132, "row5", "row five right number eighteen", "#35ad46")
   ];
 
   targets.forEach(target => {
@@ -761,7 +762,7 @@
     speak(
       "Welcome to Numbers, Week Three. Count the blocks. Circle the group with fewer blocks. " +
       "On this poster, the left group has fewer blocks on each row. " +
-      "Use your finger or mouse to trace the dotted numbers. Trace one, three, five, seven, nine, ten, thirteen, fifteen, seventeen, and nineteen."
+      "Use your finger or mouse to trace the dotted numbers. Trace one, three, five, seven, nine, eleven, thirteen, fifteen, seventeen, and eighteen."
     );
   }
 
@@ -790,28 +791,14 @@
   }
 
   function drawGuides(){
+    /*
+      The poster already contains the original dotted numbers.
+      This function intentionally clears the helper canvas and draws nothing,
+      so no extra/new dotted guide lines appear on the poster.
+    */
     guideCtx.save();
     guideCtx.setTransform(dpr * sx, 0, 0, dpr * sy, 0, 0);
     guideCtx.clearRect(0, 0, NATURAL_W, NATURAL_H);
-    guideCtx.lineCap = "round";
-    guideCtx.lineJoin = "round";
-    guideCtx.setLineDash([10, 12]);
-
-    targets.forEach(target => {
-      if(target.complete) return;
-      const samples = target.samples;
-      if(!samples.length) return;
-
-      guideCtx.beginPath();
-      guideCtx.strokeStyle = "rgba(53,173,70,.62)";
-      guideCtx.lineWidth = 6;
-      guideCtx.moveTo(samples[0].x, samples[0].y);
-      for(let i = 1; i < samples.length; i++){
-        guideCtx.lineTo(samples[i].x, samples[i].y);
-      }
-      guideCtx.stroke();
-    });
-
     guideCtx.restore();
   }
 
@@ -907,6 +894,28 @@
     updateProgress();
   }
 
+  function markAllTargetsAtPoint(point){
+    targets.forEach(target => {
+      if(target.complete) return;
+      if(nearestDistanceToTarget(point,target) <= HIT_RADIUS){
+        markTargetAtPoint(target,point);
+      }
+    });
+  }
+
+  function markAllTargetsBetween(from,to){
+    const length = distance(from,to);
+    const steps = Math.max(1, Math.ceil(length / 3));
+
+    for(let i = 0; i <= steps; i++){
+      const t = i / steps;
+      markAllTargetsAtPoint({
+        x:from.x + (to.x - from.x) * t,
+        y:from.y + (to.y - from.y) * t
+      });
+    }
+  }
+
   function markBetween(target, from, to){
     const length = distance(from,to);
     const steps = Math.max(1, Math.ceil(length / 3));
@@ -947,9 +956,9 @@
       const rowSpeech = {
         row1:"Wonderful! You traced numbers one and three.",
         row2:"Great job! You traced numbers five and seven.",
-        row3:"Excellent! You traced numbers nine and ten.",
+        row3:"Excellent! You traced numbers nine and eleven.",
         row4:"Amazing! You traced numbers thirteen and fifteen.",
-        row5:"Fantastic! You traced numbers seventeen and nineteen."
+        row5:"Fantastic! You traced numbers seventeen and eighteen."
       };
 
       speak(rowSpeech[target.row] || "Great tracing!");
@@ -1030,7 +1039,7 @@
 
     try{ traceLayer.setPointerCapture(event.pointerId); }catch(_){}
 
-    markTargetAtPoint(activeTarget,point);
+    markAllTargetsAtPoint(point);
     playTick();
     redrawAll();
   }
@@ -1044,15 +1053,9 @@
     const previous = currentStroke[currentStroke.length - 1];
 
     currentStroke.push(point);
-    markBetween(activeTarget,previous,point);
+    markAllTargetsBetween(previous,point);
     playTick();
     redrawAll();
-
-    if(activeTarget.complete){
-      drawing = false;
-      activeTarget = null;
-      currentStroke = null;
-    }
   }
 
   function pointerUp(event){
@@ -1179,17 +1182,17 @@
 
   homeBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = HOME_PAGE;
+    window.location.replace(HOME_PAGE);
   });
 
   prevBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = PREVIOUS_PAGE;
+    window.location.replace(PREVIOUS_PAGE);
   });
 
   nextBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = NEXT_PAGE;
+    window.location.replace(NEXT_PAGE);
   });
 
   posterImg.addEventListener("load",() => {

@@ -313,8 +313,8 @@
   "use strict";
 
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "Bk2_Triangular_Prisms_5YO_Quiz.html";
-  const NEXT_PAGE = "Bk2_Cubes_Trace.html";
+  const PREVIOUS_PAGE = "../Monday/Bk3Wk3ScienceClassA.html";
+  const NEXT_PAGE = "../Wednesday/Bk2LA15.html";
   const PAGE_ID = "Bk2_Cubes_3D_Shapes_Lesson";
 
   const conversations = [
@@ -719,9 +719,9 @@
   restartBtn.addEventListener("click", () => { restart(); speak("Restarted. Tap the microphone to begin again."); });
   cheerBtn.addEventListener("click", cheer);
   teacherPassBtn.addEventListener("click", teacherPass);
-  prevBtn.addEventListener("click", () => { window.location.href = PREVIOUS_PAGE; });
-  nextBtn.addEventListener("click", () => { window.location.href = NEXT_PAGE; });
-  homeBtn.addEventListener("click", () => { window.location.href = HOME_PAGE; });
+  prevBtn.addEventListener("click", () => { window.location.replace(PREVIOUS_PAGE); });
+  nextBtn.addEventListener("click", () => { window.location.replace(NEXT_PAGE); });
+  homeBtn.addEventListener("click", () => { window.location.replace(HOME_PAGE); });
 
   if("speechSynthesis" in window){
     window.speechSynthesis.onvoiceschanged = () => {};

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Bk2 Building Blocks Week 3 Trace</title>
+<title>Bk3LC15 • Building Blocks Week 3 Trace</title>
 
 <style>
   :root{
@@ -140,6 +140,7 @@
   .guide-layer{
     z-index:4;
     pointer-events:none;
+    display:none;
   }
 
   .trace-layer{
@@ -337,7 +338,7 @@
 <body>
 <main class="app" aria-label="Building Blocks Week 3 tracing lesson">
   <div class="topbar">
-    <div class="badge">📘 Building Blocks · Week 3 · Count and trace</div>
+    <div class="badge">📘 Bk3LC15 · Building Blocks · Week 3 · Count and trace</div>
 
     <div class="navs">
       <button class="btn home" id="homeBtn" type="button">🏠 Home</button>
@@ -384,7 +385,7 @@
     <div class="stars" id="stars">☆ ☆ ☆</div>
 
     <div class="status" id="status">
-      Listen, then trace the glowing dotted number 14.
+      Listen, then trace the original dotted number 14.
     </div>
 
     <div class="buttons">
@@ -395,7 +396,7 @@
     </div>
 
     <div class="note">
-      The original poster and chime audio are embedded in this HTML file, so the image and sound should not break.
+      The original poster is kept clean. Trace directly over the original dotted 14 and 20; the progress bar updates immediately.
     </div>
   </section>
 
@@ -406,21 +407,21 @@
 (() => {
   "use strict";
 
-  const PAGE_ID = "Bk2_Building_Blocks_Week3_Trace";
-  const FILE_NAME = "Bk2_Building_Blocks_Week3_Trace.html";
-  const LEVEL = "B";
+  const PAGE_ID = "Bk3LC15";
+  const FILE_NAME = "Bk3LC15.html";
+  const LEVEL = "C";
   const WEEK = 3;
 
   const HOME_PAGE = "../../../../../index.html";
-  const PREVIOUS_PAGE = "Bk2_Cubes_5YO_Interactive_Quiz.html";
-  const NEXT_PAGE = "Bk2_Building_Blocks_Game.html";
+  const PREVIOUS_PAGE = "../Tuesday/Bk2LC14.html";
+  const NEXT_PAGE = "Bk3LC19.html";
 
   const NATURAL_W = 955;
   const NATURAL_H = 1315;
 
-  const HIT_RADIUS = 28;
-  const START_RADIUS = 65;
-  const COMPLETE_RATIO = 0.72;
+  const HIT_RADIUS = 68;
+  const START_RADIUS = 150;
+  const COMPLETE_RATIO = 0.82;
 
   const posterWrap = document.getElementById("posterWrap");
   const posterImg = document.getElementById("posterImg");
@@ -537,8 +538,8 @@
       complete:false,
       strokes:[],
       samples:[
-        ...numberOne(472, 635, 46),
-        ...numberFour(491, 635, 34, 48)
+        ...numberOne(456, 612, 58),
+        ...numberFour(494, 607, 38, 62)
       ].map(p => ({...p, hit:false}))
     },
     {
@@ -805,53 +806,9 @@
   }
 
   function redrawGuide(){
+    /* Clean poster: no extra guide lines.
+       The original dotted numbers remain visible from the poster image. */
     clearCanvas(guideCtx, guideLayer);
-    guideCtx.save();
-    guideCtx.setTransform(dpr * sx, 0, 0, dpr * sy, 0, 0);
-    guideCtx.lineCap = "round";
-    guideCtx.lineJoin = "round";
-
-    const active = activeIncompleteTarget();
-
-    targets.forEach(target => {
-      if(target === active && !target.complete){
-        guideCtx.save();
-        guideCtx.strokeStyle = "rgba(255, 210, 74, .98)";
-        guideCtx.lineWidth = 22;
-        guideCtx.setLineDash([]);
-        guideCtx.shadowColor = "rgba(255, 179, 0, .90)";
-        guideCtx.shadowBlur = 17;
-        drawTargetPath(guideCtx,target);
-        guideCtx.restore();
-      }
-
-      guideCtx.save();
-      guideCtx.strokeStyle = target.complete ? "rgba(56,175,72,.70)" : "rgba(54,168,223,.38)";
-      guideCtx.lineWidth = target.complete ? 8 : 10;
-      guideCtx.setLineDash(target.complete ? [] : [14,10]);
-      drawTargetPath(guideCtx,target);
-      guideCtx.restore();
-
-      const start = target.samples[0];
-      const end = target.samples[target.samples.length - 1];
-
-      if(start && end && !target.complete){
-        guideCtx.save();
-        guideCtx.setLineDash([]);
-        guideCtx.fillStyle = "#16984a";
-        guideCtx.beginPath();
-        guideCtx.arc(start.x,start.y,9,0,Math.PI*2);
-        guideCtx.fill();
-
-        guideCtx.fillStyle = "#ef4050";
-        guideCtx.beginPath();
-        guideCtx.arc(end.x,end.y,9,0,Math.PI*2);
-        guideCtx.fill();
-        guideCtx.restore();
-      }
-    });
-
-    guideCtx.restore();
   }
 
   function redrawStrokes(){
@@ -868,9 +825,9 @@
         ctx.lineJoin = "round";
         ctx.strokeStyle = target.color;
         ctx.globalAlpha = 0.94;
-        ctx.lineWidth = 13;
+        ctx.lineWidth = 10;
         ctx.shadowColor = "rgba(255,255,255,.95)";
-        ctx.shadowBlur = 2;
+        ctx.shadowBlur = 1;
 
         ctx.moveTo(stroke[0].x, stroke[0].y);
 
@@ -928,9 +885,9 @@
     let bestTarget = null;
     let bestDistance = Infinity;
 
+    /* Allow students to keep tracing a completed number visually.
+       This keeps the poster clean and lets the child finish the original dotted number. */
     targets.forEach(target => {
-      if(target.complete) return;
-
       const d = nearestDistanceToTarget(point,target);
 
       if(d < bestDistance){
@@ -972,7 +929,7 @@
 
   function markBetween(target, from, to){
     const length = distance(from,to);
-    const steps = Math.max(1, Math.ceil(length / 3));
+    const steps = Math.max(4, Math.ceil(length / 1.6));
 
     for(let i = 0; i <= steps; i++){
       const t = i / steps;
@@ -1055,7 +1012,7 @@
 
     if(!target){
       const active = activeIncompleteTarget();
-      setStatus(active ? "Touch the glowing number " + active.label.replace("number ","") + " to begin tracing." : "Both numbers are complete.");
+      setStatus(active ? "Touch the original dotted number " + active.label.replace("number ","") + " to begin tracing." : "Both numbers are complete.");
       return;
     }
 
@@ -1086,11 +1043,8 @@
     playTick();
     redrawStrokes();
 
-    if(activeTarget.complete){
-      drawing = false;
-      activeTarget = null;
-      currentStroke = null;
-    }
+    /* Do not stop the stroke automatically when the progress reaches 100%.
+       Students can continue tracing until they lift their finger/mouse. */
   }
 
   function pointerUp(event){
@@ -1125,7 +1079,7 @@
     redrawAll();
     updateProgress();
 
-    setStatus("Trace number 14 first. Then trace number 20.");
+    setStatus("Trace the original dotted 14 first. Then trace the original dotted 20.");
 
     if(sayIt){
       speak("Cleared. Start tracing number fourteen again.");
@@ -1202,17 +1156,17 @@
 
   homeBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = HOME_PAGE;
+    window.location.replace(HOME_PAGE);
   });
 
   prevBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = PREVIOUS_PAGE;
+    window.location.replace(PREVIOUS_PAGE);
   });
 
   nextBtn.addEventListener("click",() => {
     try{ window.speechSynthesis.cancel(); }catch(_){}
-    window.location.href = NEXT_PAGE;
+    window.location.replace(NEXT_PAGE);
   });
 
   posterImg.addEventListener("load",() => {
