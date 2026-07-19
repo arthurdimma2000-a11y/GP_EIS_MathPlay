@@ -425,12 +425,12 @@
   "use strict";
 
   const CONFIG = {
-    pageId: "Bk2_Numbers_Week4_CompareShapes",
-    file: "Bk2_Numbers_Week4_CompareShapes.html",
+    pageId: "Bk3LA25_Numbers_Week4_CompareShapes",
+    file: "Bk3LA25.html",
     homeHref: "../../../../../index.html",
-    prevHref: "Bk2_Spheres_Week1_Trace.html",
-    nextHref: "Bk2_Numbers_Week1_Quiz.html",
-    level: "B",
+    prevHref: "Bk3LA21.html",
+    nextHref: "../Thursday/Bk3Wk4NonfictionA.html",
+    level: "A",
     week: 4
   };
 
@@ -595,42 +595,6 @@
   function drawGuides(){
     const scale = getScale();
     gctx.clearRect(0,0,scale.w,scale.h);
-
-    traceTargets.forEach(target => {
-      gctx.save();
-      gctx.lineWidth = Math.max(4, scale.w * 0.006);
-      gctx.setLineDash([8,10]);
-      gctx.strokeStyle = target.id === "oval" ? "rgba(242,138,100,.92)" : "rgba(60,150,255,.55)";
-      gctx.lineCap = "round";
-      gctx.lineJoin = "round";
-
-      if(target.ellipse){
-        const [cx,cy,rx,ry] = target.ellipse;
-        gctx.beginPath();
-        gctx.ellipse(cx*NATURAL_W*scale.sx, cy*NATURAL_H*scale.sy, rx*NATURAL_W*scale.sx, ry*NATURAL_H*scale.sy, 0, 0, Math.PI*2);
-        gctx.stroke();
-      } else {
-        gctx.beginPath();
-        let started = false;
-        target.points.forEach((p, i) => {
-          const next = target.points[i+1];
-          const x = p[0]*NATURAL_W*scale.sx;
-          const y = p[1]*NATURAL_H*scale.sy;
-          if(!started){
-            gctx.moveTo(x,y);
-            started = true;
-          } else {
-            gctx.lineTo(x,y);
-          }
-          if(next && next[0] === p[0] && next[1] === p[1]) {
-            started = false;
-          }
-        });
-        gctx.stroke();
-      }
-
-      gctx.restore();
-    });
   }
 
   function getCanvasPoint(event){
@@ -677,7 +641,7 @@
   }
 
   function markHits(from, to){
-    const threshold = Math.max(30, NATURAL_W * 0.035);
+    const threshold = Math.max(38, NATURAL_W * 0.045);
     const thresholdSq = threshold * threshold;
 
     traceTargets.forEach(target => {
@@ -1030,8 +994,8 @@
   document.getElementById("startBtn").addEventListener("click", startActivity);
   document.getElementById("clearBtn").addEventListener("click", clearAll);
   document.getElementById("cheerBtn").addEventListener("click", cheer);
-  document.getElementById("prevBtn").addEventListener("click", () => window.location.href = CONFIG.prevHref);
-  document.getElementById("nextBtn").addEventListener("click", () => window.location.href = CONFIG.nextHref);
+  document.getElementById("prevBtn").addEventListener("click", () => { window.location.href = CONFIG.prevHref; });
+  document.getElementById("nextBtn").addEventListener("click", () => { window.location.href = CONFIG.nextHref; });
   document.querySelectorAll(".choice-btn").forEach(btn => btn.addEventListener("click", () => handleChoice(btn)));
 
   document.addEventListener("pointerdown", () => {

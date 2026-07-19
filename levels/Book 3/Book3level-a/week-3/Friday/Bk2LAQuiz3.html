@@ -225,11 +225,11 @@ body{display:flex;justify-content:center;align-items:flex-start;padding:10px;bac
   document.getElementById("restartBtn").addEventListener("click",restart);
   const go = (url) => {
     try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
-    window.location.replace(url);
+    window.location.href = url;
   };
   document.getElementById("homeBtn").addEventListener("click",(event)=>{ event.preventDefault(); go("../../../../../index.html"); });
   document.getElementById("prevBtn").addEventListener("click",(event)=>{ event.preventDefault(); go("Bk2LAGame3.html"); });
-  document.getElementById("nextBtn").addEventListener("click",(event)=>{ event.preventDefault(); go("../../../../../index.html"); });
+  document.getElementById("nextBtn").addEventListener("click",(event)=>{ event.preventDefault(); go("../../week-4/Monday/Bk3Wk4MusicClassA.html"); });
   window.addEventListener("load",()=>{buildMap();render();setTimeout(()=>speak("Welcome to the cubes quiz. Listen and choose the best answer."),600);},{once:true});
 })();
 </script>

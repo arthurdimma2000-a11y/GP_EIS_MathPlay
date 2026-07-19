@@ -407,8 +407,8 @@ window.__PAGE_CONFIG__ = {
   level: "B",
   week: 3,
   homeHref: "../../../../../index.html",
-  prevHref: "../Monday/Bk2ArtClassA.html",
-  nextHref: "../Wednesday/Bk2LA3.html",
+  prevHref: "../Monday/Bk3Wk4MusicClassC.html",
+  nextHref: "../Wednesday/Bk3LC21.html",
   micLines: [
     {
       key: "jungle",
@@ -906,7 +906,7 @@ window.__PAGE_CONFIG__ = {
   }
 
   homeBtn.href = CONFIG.homeHref || homeBtn.href;
-  prevBtn.addEventListener("click", () => { window.location.href = CONFIG.prevHref || "javascript:history.back()"; });
+  prevBtn.addEventListener("click", () => { window.location.href = CONFIG.prevHref || "#"; });
   nextBtn.addEventListener("click", () => { window.location.href = CONFIG.nextHref || "#"; });
   readBtn.addEventListener("click", readPoster);
   clearBtn.addEventListener("click", clearLesson);

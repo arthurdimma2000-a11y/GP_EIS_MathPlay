@@ -50,7 +50,7 @@
 <script>
 const HOME_PAGE='../../../../../index.html';
 const GAME_PAGE='Bk2LCGame3.html';
-const NEXT_PAGE='../../../../../index.html';
+const NEXT_PAGE='../../week-4/Monday/Bk3Wk4MusicClassC.html';
 const PAGE_ID='Bk2LCQuiz3';
 const FILE_NAME='Bk2LCQuiz3.html';
 const TOTAL_QUESTIONS=12;
@@ -222,9 +222,9 @@ function finishQuiz(){
 document.getElementById('readBtn').addEventListener('click',()=>safeSpeak(questions[index].say));
 document.getElementById('cheerBtn').addEventListener('click',()=>{chime();confetti();feedback.textContent='Great job! Keep thinking.';safeSpeak('Great job! Keep thinking.')});
 document.getElementById('resetBtn').addEventListener('click',()=>{index=0;correct=0;answered.clear();finalBox.classList.remove('show');showQuestion(0);});
-document.getElementById('homeBtn').addEventListener('click',()=>window.location.replace(HOME_PAGE));
-document.getElementById('prevBtn').addEventListener('click',()=>window.location.replace(GAME_PAGE));
-document.getElementById('nextBtn').addEventListener('click',()=>window.location.replace(NEXT_PAGE));
+document.getElementById('homeBtn').addEventListener('click',()=>window.location.href=HOME_PAGE);
+document.getElementById('prevBtn').addEventListener('click',()=>window.location.href=GAME_PAGE);
+document.getElementById('nextBtn').addEventListener('click',()=>window.location.href=NEXT_PAGE);
 document.addEventListener('pointerdown',()=>getAudio(),{once:true});
 window.addEventListener('beforeunload',()=>{try{speechSynthesis.cancel()}catch(e){}});
 showQuestion(0);

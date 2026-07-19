@@ -372,28 +372,60 @@
   "use strict";
 
   const CONFIG = {
-    pageId: "Bk2_ComplementsOf10_Week4_CheckCorrectBox",
+    pageId: "Bk3LC25_ComplementsOf10_Week4_CheckCorrectBox",
     homeHref: "../../../../../index.html",
-    prevHref: "Bk2_Spheres_Week1_Trace.html",
-    nextHref: "Bk2_Numbers_Week1_Quiz.html"
+    prevHref: "Bk3LC21.html",
+    nextHref: "../Thursday/Bk3Wk4NonfictionC.html"
   };
 
-  const ANSWERS = {
-    q1: "no",
-    q2: "no",
-    q3: "no"
+  /*
+    Accurate complement logic from the poster:
+    Question 1: 5 + 4 = 9, so the answer is No.
+    Question 2: 7 + 9 = 16, so the answer is No.
+    Question 3: 5 + 5 = 10, so the answer is Yes.
+  */
+  const QUESTION_DATA = {
+    q1: {
+      leftCount: 5,
+      rightCount: 4,
+      total: 9,
+      answer: "no"
+    },
+    q2: {
+      leftCount: 7,
+      rightCount: 9,
+      total: 16,
+      answer: "no"
+    },
+    q3: {
+      leftCount: 5,
+      rightCount: 5,
+      total: 10,
+      answer: "yes"
+    }
   };
 
-  const EXPLANATIONS = {
-    q1: "No. The first groups do not make 10. 5 and 4 make 9.",
-    q2: "No. The second groups do not make 10. 7 and 10 make 17.",
-    q3: "No. The third groups do not make 10."
-  };
+  const ANSWERS = Object.fromEntries(
+    Object.entries(QUESTION_DATA).map(([id, item]) => [id, item.answer])
+  );
+
+  const EXPLANATIONS = Object.fromEntries(
+    Object.entries(QUESTION_DATA).map(([id, item]) => {
+      const yes = item.total === 10;
+      return [id, [
+        yes ? "Yes." : "No.",
+        "The first group has " + item.leftCount + " blocks",
+        "and the second group has " + item.rightCount + " blocks.",
+        item.leftCount + " plus " + item.rightCount + " equals " + item.total + ".",
+        yes ? "They make 10." : "They do not make 10."
+      ].join(" ")];
+    })
+  );
 
   const PROMPTS = {
-    q1: "Question 1. Count the first two groups of blocks. Do they make 10?",
-    q2: "Question 2. Count the second two groups of blocks. Do they make 10?",
-    q3: "Question 3. Count the third two groups of blocks. Do they make 10?"
+    q1: "Question 1. Count both red groups. Add 5 and 4. Do they make 10?",
+    q2: "Question 2. Count both orange groups. Add 7 and 9. Do they make 10?",
+    q3: "Question 3. Count both purple groups. Add 5 and 5. Do they make 10?"
   };
 
   let completed = { q1:false, q2:false, q3:false };
@@ -550,8 +582,8 @@
   function saveProgress(percent, doneCount){
     const payload = {
       pageId: CONFIG.pageId,
-      file: "Bk2_ComplementsOf10_Week4_CheckCorrectBox.html",
-      level: "B",
+      file: "Bk3LC25.html",
+      level: "C",
       week: 4,
       activityType: "lesson",
       type: "lesson",
@@ -612,36 +644,71 @@
 
   function handleChoice(btn){
     const id = btn.dataset.parent;
-    const value = btn.dataset.value;
-    if(completed[id]) return;
+    const value = String(btn.dataset.value || "").toLowerCase();
+    const item = QUESTION_DATA[id];
+
+    if(!item || completed[id]) return;
+
     playTick(700,.05,.045);
 
-    document.querySelectorAll('.choice-btn[data-parent="' + id + '"]').forEach(b => b.classList.remove("wrong"));
+    const groupButtons = document.querySelectorAll(
+      '.choice-btn[data-parent="' + id + '"]'
+    );
 
-    if(value === ANSWERS[id]) {
+    groupButtons.forEach(b => b.classList.remove("wrong","correct"));
+
+    const isCorrect = value === item.answer;
+
+    if(isCorrect){
       completed[id] = true;
       fillAnswer(id);
-      lockButtons(id, btn);
+
+      groupButtons.forEach(b => {
+        b.disabled = true;
+        if(String(b.dataset.value || "").toLowerCase() === item.answer){
+          b.classList.add("correct");
+        }
+      });
+
       playTick(930,.08,.06);
       playChime();
       playApplause();
       confetti();
+
       setStatus("Correct! " + EXPLANATIONS[id], "★");
-      speak("Correct! " + EXPLANATIONS[id]);
+      speak("Correct! " + EXPLANATIONS[id], () => {
+        const nextQuestion = Object.keys(completed).find(key => !completed[key]);
+        if(nextQuestion){
+          setStatus("Great counting! Tap Start Activity for the next question.", "★");
+        }
+      });
+
       updateProgress();
     } else {
       btn.classList.add("wrong");
       playErrorTone();
-      setStatus("Oops. Count again and try the other box.", "");
-      speak("Oops. Count again and try the other box.");
+
+      const correction =
+        "Not quite. Count both groups and add them. " +
+        item.leftCount + " plus " + item.rightCount +
+        " equals " + item.total + ". Try again.";
+
+      setStatus(correction, "");
+      speak(correction);
     }
   }
 
   function readPoster(){
     setStatus("Reading the poster.", "");
-    speak("Complements of 10. Week 4. Look at the groups of blocks. Do they make 10? Check the correct box.", () => {
-      setStatus("Now count the blocks and choose Yes or No.", "");
-    });
+    speak(
+      "Complements of 10. Week 4. Look at each pair of block groups. " +
+      "Count the blocks in the first group and the second group. " +
+      "Add the two amounts. If the total is exactly 10, choose Yes. " +
+      "If the total is not 10, choose No.",
+      () => {
+        setStatus("Count both groups, add them, and choose Yes or No.", "");
+      }
+    );
   }
 
   function startActivity(){
@@ -690,8 +757,8 @@
   document.getElementById("startBtn").addEventListener("click", startActivity);
   document.getElementById("clearBtn").addEventListener("click", clearAnswers);
   document.getElementById("cheerBtn").addEventListener("click", cheer);
-  document.getElementById("prevBtn").addEventListener("click", () => window.location.href = CONFIG.prevHref);
-  document.getElementById("nextBtn").addEventListener("click", () => window.location.href = CONFIG.nextHref);
+  document.getElementById("prevBtn").addEventListener("click", () => { window.location.href = CONFIG.prevHref; });
+  document.getElementById("nextBtn").addEventListener("click", () => { window.location.href = CONFIG.nextHref; });
   buttons.forEach(btn => btn.addEventListener("click", () => handleChoice(btn)));
 
   document.addEventListener("pointerdown", () => {

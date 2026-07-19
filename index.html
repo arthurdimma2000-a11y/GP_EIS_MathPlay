@@ -3133,7 +3133,7 @@
               <span class="badge">Press Start Learning</span>
               <span class="badge">Month 1 open: Weeks 1 to 4</span>
               <span class="badge">Month 2 open: Weeks 1 to 4</span>
-              <span class="badge">Month 3 open: Weeks 1 to 3</span>
+              <span class="badge">Month 3 open: Weeks 1 to 4</span>
             </div>
           </div>
 
@@ -3179,7 +3179,7 @@
                 <span class="badge">Choose a level first</span>
                 <span class="badge">Then press Start Learning</span>
                 <span class="badge">Month 2 is open with Weeks 1 to 4</span>
-                <span class="badge">Month 3 is open with Weeks 1 to 3</span>
+                <span class="badge">Month 3 is open with Weeks 1 to 4</span>
                 <span class="badge">Students login to enter lesson pages</span>
               </div>
             </div>
@@ -4102,6 +4102,15 @@
                   "levels/Book 3/Book3level-a/week-3/Thursday/Bk3Wk3NonfictionA.html",
                   "levels/Book 3/Book3level-a/week-3/Friday/Bk2LAGame3.html",
                   "levels/Book 3/Book3level-a/week-3/Friday/Bk2LAQuiz3.html"
+                ],
+                4: [
+                  "levels/Book 3/Book3level-a/week-4/Monday/Bk3Wk4MusicClassA.html",
+                  "levels/Book 3/Book3level-a/week-4/Tuesday/Bk3LA20.html",
+                  "levels/Book 3/Book3level-a/week-4/Wednesday/Bk3LA21.html",
+                  "levels/Book 3/Book3level-a/week-4/Wednesday/Bk3LA25.html",
+                  "levels/Book 3/Book3level-a/week-4/Thursday/Bk3Wk4NonfictionA.html",
+                  "levels/Book 3/Book3level-a/week-4/Friday/Bk3LAGame4.html",
+                  "levels/Book 3/Book3level-a/week-4/Friday/Bk3LAQuiz4.html"
                 ]
               }
             }
@@ -4219,6 +4228,15 @@
                   "levels/Book 3/Book3level-b/week-3/Thursday/Bk3Wk3NonfictionB.html",
                   "levels/Book 3/Book3level-b/week-3/Friday/BK2LBGame3.html",
                   "levels/Book 3/Book3level-b/week-3/Friday/Bk2LBQuiz3.html"
+                ],
+                4: [
+                  "levels/Book 3/Book3level-b/week-4/Monday/Bk3Wk4MusicClassB.html",
+                  "levels/Book 3/Book3level-b/week-4/Tuesday/Bk3LB20.html",
+                  "levels/Book 3/Book3level-b/week-4/Wednesday/Bk3LB21.html",
+                  "levels/Book 3/Book3level-b/week-4/Wednesday/Bk3LB25.html",
+                  "levels/Book 3/Book3level-b/week-4/Thursday/Bk3Wk4NonfictionB.html",
+                  "levels/Book 3/Book3level-b/week-4/Friday/BK3LBGame4.html",
+                  "levels/Book 3/Book3level-b/week-4/Friday/Bk3LBQuiz4.html"
                 ]
               }
             }
@@ -4336,6 +4354,15 @@
                   "levels/Book 3/Book3level-c/week-3/Thursday/Bk3Wk3NonfictionC.html",
                   "levels/Book 3/Book3level-c/week-3/Friday/Bk2LCGame3.html",
                   "levels/Book 3/Book3level-c/week-3/Friday/Bk2LCQuiz3.html"
+                ],
+                4: [
+                  "levels/Book 3/Book3level-c/week-4/Monday/Bk3Wk4MusicClassC.html",
+                  "levels/Book 3/Book3level-c/week-4/Tuesday/Bk3LC20.html",
+                  "levels/Book 3/Book3level-c/week-4/Wednesday/Bk3LC21.html",
+                  "levels/Book 3/Book3level-c/week-4/Wednesday/Bk3LC25.html",
+                  "levels/Book 3/Book3level-c/week-4/Thursday/Bk3Wk4NonfictionC.html",
+                  "levels/Book 3/Book3level-c/week-4/Friday/Bk3LCGame4.html",
+                  "levels/Book 3/Book3level-c/week-4/Friday/Bk3LCQuiz4.html"
                 ]
               }
             }
@@ -4343,9 +4370,9 @@
       };
 
     const DEFAULT_PROGRESS = {
-      A: { openWeeks:3, lessons:18, quizzes:10, tracing:14 },
-      B: { openWeeks:3, lessons:10, quizzes:6, tracing:8 },
-      C: { openWeeks:3, lessons:5, quizzes:2, tracing:3 }
+      A: { openWeeks:4, lessons:18, quizzes:10, tracing:14 },
+      B: { openWeeks:4, lessons:10, quizzes:6, tracing:8 },
+      C: { openWeeks:4, lessons:5, quizzes:2, tracing:3 }
       };
 
     const DEMO_STUDENTS = {
@@ -4359,7 +4386,7 @@
       monday: "Art & Math Class",
       tuesday: "Listening & Speaking",
       wednesday: "Writing & Drawing",
-      thursday: "Fairly-tale",
+      thursday: "Nonfiction",
       friday: "Activity"
     };
 
@@ -4373,7 +4400,7 @@
         if (weekNumber === 3) return "Science Class";
         if (weekNumber === 4) return "Music Class";
       }
-      if (day === "thursday" && weekNumber === 4) return "Music Fairly-tale";
+      if (day === "thursday" && weekNumber === 4) return "Music Nonfiction";
       return DAY_LABELS[day] || "";
     }
 
@@ -6623,7 +6650,7 @@
         const safeMonth = Math.max(1, Math.min(12, Number(month) || 1));
         if (safeMonth === 1) return 4;
         if (safeMonth === 2) return 4;
-        if (safeMonth === 3) return 3;
+        if (safeMonth === 3) return 4;
         return 0;
       }
 
@@ -6667,7 +6694,7 @@
         const monthIsOpen = isMonthAutoUnlocked(selectedMonth);
         weekWindowIntroText.textContent = monthIsOpen
           ? `Week 1 to Week 4 are shown here. ${formatOpenedWeeksMessage(unlockedWeeks)}`
-          : `This month is locked for now. Only Month 1, Month 2 and Month 3 Weeks 1 to 3 are currently open.`;
+          : `This month is locked for now. Only Month 1, Month 2 and Month 3 Weeks 1 to 4 are currently open.`;
       }
       if (weekWindowStatusBadge) {
         const unlockedWeeks = getUnlockedWeeksForMonth(selectedMonth);
@@ -7029,7 +7056,7 @@
       if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance !== "function") return;
       const openWeeks = getUnlockedWeeksForMonth(1);
       const weekMessage = openWeeks > 0 ? formatOpenedWeeksMessage(openWeeks) : "No weeks are opened at the moment.";
-      const message = `Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Month 1 is open with Weeks 1 to 4. Month 2 is open with Weeks 1 to 4. Month 3 is open with Weeks 1 to 3. Months 4 to 12 are locked. Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then login to access the lesson activities on this app.`;
+      const message = `Welcome to GP EIS Online. A bright and professional learning home for students, parents, teachers and admins. Month 1 is open with Weeks 1 to 4. Month 2 is open with Weeks 1 to 4. Month 3 is open with Weeks 1 to 4. Months 4 to 12 are locked. Choose a level hero. Click Start Learning, or you may click Month 1 through Month 12 to choose your particular week for the class. Then login to access the lesson activities on this app.`;
       try {
         indexWelcomeNarrationDone = true;
         duckIndexBackgroundMusic(true);
